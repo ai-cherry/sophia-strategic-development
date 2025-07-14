@@ -22,7 +22,7 @@ st.set_page_config(
 )
 
 st.title("📊 Foundational Knowledge Data Staging")
-st.markdown("Import and review sample data before loading to Snowflake")
+st.markdown("Import and review sample data before loading to ModernStack")
 
 # Initialize session state
 if "staged_data" not in st.session_state:
@@ -250,12 +250,12 @@ elif page == "Correlate":
 
 # Page 4: Import to Database
 elif page == "Import to Database":
-    st.header("Step 4: Import to Snowflake")
+    st.header("Step 4: Import to ModernStack")
 
     if not st.session_state.staged_data:
         st.warning("Please upload and map data first!")
     else:
-        st.info("Ready to import to Snowflake Foundational Knowledge schema")
+        st.info("Ready to import to ModernStack Foundational Knowledge schema")
 
         # Show summary
         st.subheader("Import Summary")
@@ -350,7 +350,7 @@ WHERE LOWER(e.EMAIL) = LOWER(g.email);
                     time.sleep(0.05)
 
                 status_text.text("Import complete!")
-                st.success("✅ Successfully imported data to Snowflake!")
+                st.success("✅ Successfully imported data to ModernStack!")
 
                 # Show results
                 st.subheader("Import Results")

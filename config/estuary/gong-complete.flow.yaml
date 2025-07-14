@@ -207,12 +207,12 @@ captures:
         resource:
           stream: scorecards
 
-# Materializations - Snowflake Destination
+# Materializations - ModernStack Destination
 materializations:
-  sophia/gong-to-snowflake:
+  sophia/gong-to-modern_stack:
     endpoint:
       connector:
-        image: ghcr.io/estuary/materialize-snowflake:latest
+        image: ghcr.io/estuary/materialize-modern_stack:latest
         config:
           account: ${SNOWFLAKE_ACCOUNT}
           user: ${SNOWFLAKE_USER}
@@ -247,7 +247,7 @@ materializations:
           delta_updates: true
 
 # Transformations - Enrichment
-# These run in Snowflake after materialization
+# These run in ModernStack after materialization
 transformations:
   - name: enrich_gong_calls
     schedule: "*/15 * * * *"  # Every 15 minutes
@@ -255,20 +255,20 @@ transformations:
       -- Update AI enrichment fields
       UPDATE GONG_DATA.STG_GONG_CALLS
       SET 
-        ai_sentiment = SNOWFLAKE.CORTEX.SENTIMENT(notes),
-        ai_topics = SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+        ai_sentiment = await self.lambda_gpu.SENTIMENT(notes),
+        ai_topics = await self.lambda_gpu.EXTRACT_ANSWER(
           notes,
           'What are the main topics discussed?'
         ),
-        ai_next_steps = SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+        ai_next_steps = await self.lambda_gpu.EXTRACT_ANSWER(
           notes,
           'What are the next steps or action items?'
         ),
-        ai_risks = SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+        ai_risks = await self.lambda_gpu.EXTRACT_ANSWER(
           notes,
           'What risks or concerns were mentioned?'
         ),
-        ai_embedding = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
+        ai_embedding = await self.lambda_gpu.EMBED_TEXT_768(
           'e5-base-v2',
           CONCAT(title, ' ', COALESCE(notes, ''))
         ),

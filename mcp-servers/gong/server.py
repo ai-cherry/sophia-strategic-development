@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 """
+
+# Modern stack imports
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
+import redis.asyncio as redis
+import asyncpg
+
 Sophia AI Gong MCP Server V2
 Provides sales call analytics and insights with GPU-accelerated memory storage
 Using official Anthropic MCP SDK
@@ -59,6 +66,12 @@ class GongMCPServer(StandardizedMCPServer):
         except Exception as e:
             logger.error(f"Failed to initialize memory service: {e}")
             self.memory_service = None
+
+
+        # Initialize modern stack services
+        self.memory_service = UnifiedMemoryServiceV3()
+        self.lambda_gpu = LambdaLabsServerlessService()
+        self.redis = redis.Redis(host='localhost', port=6379)
 
     async def get_custom_tools(self) -> list[Tool]:
         """Define custom tools for Gong operations"""

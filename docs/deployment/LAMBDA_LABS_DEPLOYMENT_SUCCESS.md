@@ -10,7 +10,7 @@
 - **Instance**: sophia-ai-core (GH200 96GB)
 - **Features**:
   - Unified Chat Backend v3.0.0
-  - Snowflake integration with PAT authentication
+  - Modern Stack integration with PAT authentication
   - Redis cache operational
   - Lambda Labs Inference API configured
   - Production environment
@@ -77,7 +77,7 @@
 
 ### Backend Configuration
 - Python 3.12 with FastAPI
-- Snowflake Cortex integration
+- Lambda GPU integration
 - Redis for caching
 - Lambda Labs Inference API for AI
 - Nginx reverse proxy on port 80
@@ -125,7 +125,7 @@
 
 ## 📝 CREDENTIALS USED
 
-- **Snowflake**: Account UHDECNO-CVB64222, User SCOOBYJAVA15
+- **Modern Stack**: Account UHDECNO-CVB64222, User SCOOBYJAVA15
 - **Lambda Labs**: API keys configured in environment
 - **Vercel**: Deployed with API token
 - **SSH Key**: ~/.ssh/sophia2025.pem

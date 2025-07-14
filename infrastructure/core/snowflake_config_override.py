@@ -1,14 +1,15 @@
 """
-Snowflake Configuration Override
-Provides correct Snowflake configuration to fix 404 connectivity issues
+# REMOVED: ModernStack dependencyuration Override
+# REMOVED: ModernStack dependencyuration to fix 404 connectivity issues
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import os
 
 from core.config_manager import get_config_value
 
-# Correct Snowflake configuration
-CORRECT_SNOWFLAKE_CONFIG = {
+# REMOVED: ModernStack dependencyuration
+CORRECT_# REMOVED: ModernStack dependency {
     "account": "ZNB04675.us-east-1",
     "user": "SCOOBYJAVA15",
     "database": "SOPHIA_AI",
@@ -18,12 +19,12 @@ CORRECT_SNOWFLAKE_CONFIG = {
 }
 
 
-def get_snowflake_config(key: str, default: str | None = None) -> str:
+def get_# REMOVED: ModernStack dependency None) -> str:
     """
-    Get Snowflake configuration with override for correct values
+# REMOVED: ModernStack dependencyuration with override for correct values
 
     Args:
-        key: Configuration key (without snowflake_ prefix)
+        key: Configuration key (without modern_stack_ prefix)
         default: Default value if not found
 
     Returns:
@@ -36,31 +37,31 @@ def get_snowflake_config(key: str, default: str | None = None) -> str:
         return env_value
 
     # Then try correct configuration override
-    if key in CORRECT_SNOWFLAKE_CONFIG:
-        return CORRECT_SNOWFLAKE_CONFIG[key]
+# REMOVED: ModernStack dependency:
+# REMOVED: ModernStack dependency[key]
 
     # Fall back to original config
-    return get_config_value(f"snowflake_{key}", default)
+    return get_config_value(f"modern_stack_{key}", default)
 
 
-def get_snowflake_connection_params() -> dict:
+def get_modern_stack_connection_params() -> dict:
     """
-    Get complete Snowflake connection parameters
+    Get complete ModernStack connection parameters
 
     Returns:
         Dictionary of connection parameters
     """
     return {
-        "account": get_snowflake_config("account"),
-        "user": get_snowflake_config("user"),
-        "password": get_config_value("snowflake_password"),  # Keep from ESC
-        "database": get_snowflake_config("database"),
-        "warehouse": get_snowflake_config("warehouse"),
-        "role": get_snowflake_config("role"),
-        "schema": get_snowflake_config("schema", "PUBLIC"),
+# REMOVED: ModernStack dependency("account"),
+# REMOVED: ModernStack dependency("user"),
+        "password": get_config_value("postgres_password"),  # Keep from ESC
+# REMOVED: ModernStack dependency("database"),
+# REMOVED: ModernStack dependency("warehouse"),
+# REMOVED: ModernStack dependency("role"),
+# REMOVED: ModernStack dependency("schema", "PUBLIC"),
     }
 
 
 # Set environment variables for immediate use
-for key, value in CORRECT_SNOWFLAKE_CONFIG.items():
-    os.environ[f"SNOWFLAKE_{key.upper()}"] = value
+# REMOVED: ModernStack dependency.items():
+    os.environ[f"# REMOVED: ModernStack dependency value

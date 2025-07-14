@@ -6,7 +6,7 @@ All 5 game-changing MCP servers are successfully deployed and ready for configur
 
 ### Deployed Servers:
 1. **Microsoft Playwright MCP** ✅ - Web automation powerhouse
-2. **Snowflake Cortex Agent** ✅ - Native AI data intelligence
+2. **Lambda GPU Agent** ✅ - Native AI data intelligence
 3. **Apollo.io MCP** ✅ - Sales intelligence automation
 4. **Apify Official MCP** ✅ - 5,000+ automation tools
 5. **Figma Context MCP** ✅ - Design-to-code revolution
@@ -18,7 +18,7 @@ All 5 game-changing MCP servers are successfully deployed and ready for configur
 Before starting the servers, set these environment variables:
 
 ```bash
-# Snowflake Cortex
+# Lambda GPU
 export SNOWFLAKE_ACCOUNT='your-snowflake-account'
 export SNOWFLAKE_USER='your-username'
 export SNOWFLAKE_PASSWORD='your-password'
@@ -66,7 +66,7 @@ Or manually add to your Cursor settings.
 
 ### 3. Test Individual Servers
 
-#### Test Snowflake Cortex:
+#### Test Lambda GPU:
 ```bash
 cd mcp-servers/snowflake_cortex
 python snowflake_cortex_mcp_server.py
@@ -90,7 +90,7 @@ npm start
 ```
 Figma Context → Extract Design
      ↓
-Snowflake Cortex → Generate Descriptions
+Lambda GPU → Generate Descriptions
      ↓
 Code Generation → Production Components
      ↓
@@ -101,7 +101,7 @@ Playwright → Automated Testing
 ```
 Apollo.io → Find Prospects
      ↓
-Snowflake Cortex → Analyze Fit
+Lambda GPU → Analyze Fit
      ↓
 Apify → Research Company
      ↓
@@ -114,7 +114,7 @@ Playwright → Navigate to Sites
      ↓
 Apify → Extract Data
      ↓
-Snowflake Cortex → Analyze Content
+Lambda GPU → Analyze Content
      ↓
 Generate Report → Business Intelligence
 ```
@@ -141,7 +141,7 @@ python scripts/mcp-implementation/phase1_integration_test.py
 
 ## 💡 Pro Tips
 
-- Start with Snowflake Cortex if you already have Snowflake access
+- Start with Lambda GPU if you already have Modern Stack access
 - Apify offers a free tier with 1,000 operations/month
 - Apollo.io has a free trial for testing
 - Figma personal access tokens are free
@@ -161,7 +161,7 @@ If servers don't start:
 - [Apollo.io API Docs](https://apolloio.github.io/apollo-api-docs/)
 - [Apify Platform Docs](https://docs.apify.com/platform/integrations/mcp)
 - [Figma API Reference](https://www.figma.com/developers/api)
-- [Snowflake Cortex Docs](https://docs.snowflake.com/en/guides/snowflake-cortex)
+- [Lambda GPU Docs](https://docs.snowflake.com/en/guides/snowflake-cortex)
 
 ---
 

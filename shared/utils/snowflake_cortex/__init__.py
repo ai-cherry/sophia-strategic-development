@@ -1,4 +1,4 @@
-"""Snowflake Cortex service with dual-mode support."""
+"""Lambda GPU service with dual-mode support."""
 
 from .enums import CortexModel, MCPMode, TaskType
 from .errors import (
@@ -9,7 +9,7 @@ from .errors import (
     CortexQuotaError,
     MCPServerError,
 )
-from .service import SnowflakeCortexService
+from .service import ModernStackCortexService
 
 __all__ = [
     "CortexAuthenticationError",
@@ -20,6 +20,6 @@ __all__ = [
     "CortexQuotaError",
     "MCPMode",
     "MCPServerError",
-    "SnowflakeCortexService",
+    "ModernStackCortexService",
     "TaskType",
 ]

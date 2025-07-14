@@ -1,10 +1,10 @@
-# Prometheus configuration for Sophia AI Snowflake Monitoring
+# Prometheus configuration for Sophia AI ModernStack Monitoring
 
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    monitor: 'sophia-ai-snowflake'
+    monitor: 'sophia-ai-modern_stack'
     environment: 'production'
 
 # Alertmanager configuration
@@ -16,16 +16,16 @@ alerting:
 
 # Load rules
 rule_files:
-  - 'snowflake_alerts.yml'
+  - 'modern_stack_alerts.yml'
 
 # Scrape configurations
 scrape_configs:
-  # Snowflake monitoring metrics
-  - job_name: 'snowflake-monitor'
+  # ModernStack monitoring metrics
+  - job_name: 'modern_stack-monitor'
     static_configs:
       - targets: ['localhost:8003']
         labels:
-          service: 'snowflake-monitoring'
+          service: 'modern_stack-monitoring'
           component: 'cortex-gateway'
 
   # FastAPI application metrics

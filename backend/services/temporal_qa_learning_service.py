@@ -15,14 +15,14 @@ from backend.core.date_time_manager import date_manager
 
 logger = logging.getLogger(__name__)
 
-# Try to import Snowflake Cortex service, fallback if not available
+# Try to import Lambda GPU service, fallback if not available
 try:
-    from backend.services.snowflake_cortex_service import SnowflakeCortexService
+    from backend.services.modern_stack_cortex_service import ModernStackCortexService
 
     CORTEX_AVAILABLE = True
 except ImportError:
     CORTEX_AVAILABLE = False
-    logger.warning("Snowflake Cortex service not available, using fallback analysis")
+    logger.warning("Lambda GPU service not available, using fallback analysis")
 
 
 class TemporalLearningType(Enum):
@@ -87,7 +87,7 @@ class TemporalQALearningService:
             try:
                 self.cortex_service = UnifiedMemoryServiceV2()
             except Exception as e:
-                logger.warning(f"Failed to initialize Snowflake Cortex service: {e}")
+                logger.warning(f"Failed to initialize Lambda GPU service: {e}")
                 self.cortex_service = None
         else:
             self.cortex_service = None
@@ -204,7 +204,7 @@ class TemporalQALearningService:
         if not is_temporal:
             return {"is_temporal": False, "confidence": 0.0}
 
-        # Use Snowflake Cortex for deeper analysis if available
+        # Use Lambda GPU for deeper analysis if available
         if self.cortex_service:
             try:
                 analysis_prompt = f"""

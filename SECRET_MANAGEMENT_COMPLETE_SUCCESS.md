@@ -90,7 +90,7 @@ Production Ready System ✅
 - **DOCKER_TOKEN** → values.sophia.infrastructure.docker_token
 - **DOCKERHUB_USERNAME** → values.sophia.infrastructure.docker_username
 
-### ❄️ Snowflake (9 secrets)
+### ❄️ Modern Stack (9 secrets)
 - SNOWFLAKE_ACCOUNT → values.sophia.data.snowflake_account
 - SNOWFLAKE_USER → values.sophia.data.snowflake_user
 - SNOWFLAKE_PASSWORD → values.sophia.data.snowflake_password

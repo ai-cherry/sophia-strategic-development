@@ -12,7 +12,7 @@ deployment:
       idle_timeout: 300
       max_connections: 15
       min_connections: 3
-    snowflake:
+    modern_stack:
       circuit_breaker:
         failure_threshold: 5
         recovery_timeout: 60
@@ -35,7 +35,7 @@ deployment:
       external: true
       port: 3008
       replicas: 1
-    snowflake_admin:
+    modern_stack_admin:
       health_check:
         interval: 30
         retries: 3

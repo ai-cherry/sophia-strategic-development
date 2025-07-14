@@ -1,0 +1,466 @@
+"""
+Snowflake Cortex Dual-Mode Adapter
+Supports both direct connections and MCP server communication with automatic fallback.
+"""
+
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+import asyncio
+import time
+import uuid
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any
+
+import structlog
+from prometheus_client import Counter, Histogram
+
+from backend.core.services.snowflake_pool import (
+    SnowflakePoolManager,
+)
+from backend.integrations.snowflake_mcp_client import SnowflakeMCPClient
+
+logger = structlog.get_logger(__name__)
+
+# Prometheus metrics
+cortex_calls_total = Counter(
+    "cortex_calls_total", "Total Cortex API calls", ["mode", "task", "status", "model"]
+)
+
+cortex_latency_seconds = Histogram(
+    "cortex_latency_seconds",
+    "Cortex call latency",
+    ["mode", "task", "model"],
+    buckets=[0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0],
+)
+
+cortex_fallback_total = Counter(
+    "cortex_fallback_total", "Number of fallbacks from MCP to DIRECT mode"
+)
+
+
+class ExecutionMode(Enum):
+    """Execution modes for Cortex operations"""
+
+    DIRECT = "direct"
+    MCP = "mcp"
+    AUTO = "auto"  # Intelligent mode selection
+
+
+@dataclass
+class RetryConfig:
+    """Retry configuration for Cortex operations"""
+
+    max_attempts: int = 3
+    initial_delay: float = 0.5
+    max_delay: float = 5.0
+    exponential_base: float = 2.0
+
+
+@dataclass
+class CortexTask:
+    """Cortex task configuration"""
+
+    type: str  # "complete", "search", "analyst"
+    model: str = "snowflake-arctic"
+    temperature: float = 0.7
+    max_tokens: int = 2048
+    additional_params: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class CortexQuery:
+    """Cortex query with task configuration"""
+
+    text: str
+    task: CortexTask
+    timeout_s: int = 120
+    retry: RetryConfig = field(default_factory=RetryConfig)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] | None = None
+
+
+@dataclass
+class CortexResult:
+    """Result from Cortex operation"""
+
+    response: str
+    usage: dict[str, Any]
+    latency_ms: float
+    execution_mode: ExecutionMode
+    trace_id: str
+    model_used: str
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+class CortexAdapter:
+    """
+    Dual-mode adapter for Snowflake Cortex operations.
+    Supports direct connections and MCP server communication with automatic fallback.
+    """
+
+    def __init__(
+        self,
+        *,
+        execution_mode: ExecutionMode = ExecutionMode.AUTO,
+        mcp_client: SnowflakeMCPClient | None = None,
+        pool_manager: SnowflakePoolManager | None = None,
+        enable_fallback: bool = True,
+    ):
+        self.execution_mode = execution_mode
+        self.mcp_client = mcp_client
+        self.pool_manager = pool_manager or SnowflakePoolManager()
+        self.enable_fallback = enable_fallback
+
+        # Circuit breaker state
+        self.mcp_failures = 0
+        self.mcp_failure_threshold = 3
+        self.mcp_circuit_open = False
+        self.mcp_circuit_open_until = None
+
+        logger.info(
+            "CortexAdapter initialized",
+            execution_mode=execution_mode.value,
+            fallback_enabled=enable_fallback,
+        )
+
+    async def run(self, query: CortexQuery) -> CortexResult:
+        """
+        Execute Cortex query with automatic mode selection and fallback.
+        """
+        start_time = time.time()
+        trace_id = f"cortex-{uuid.uuid4().hex[:16]}"
+
+        logger.info(
+            "Executing Cortex query",
+            trace_id=trace_id,
+            task_type=query.task.type,
+            model=query.task.model,
+            execution_mode=self.execution_mode.value,
+        )
+
+        # Determine execution mode
+        mode = await self._determine_execution_mode(query)
+
+        try:
+            if mode == ExecutionMode.MCP:
+                result = await self._run_mcp(query, trace_id)
+            else:
+                result = await self._run_direct(query, trace_id)
+
+            # Record success metrics
+            latency = (time.time() - start_time) * 1000
+            cortex_calls_total.labels(
+                mode=mode.value,
+                task=query.task.type,
+                status="success",
+                model=query.task.model,
+            ).inc()
+
+            cortex_latency_seconds.labels(
+                mode=mode.value, task=query.task.type, model=query.task.model
+            ).observe(latency / 1000)
+
+            result.latency_ms = latency
+            return result
+
+        except Exception as e:
+            # Handle failure and potential fallback
+            if mode == ExecutionMode.MCP and self.enable_fallback:
+                logger.warning(
+                    "MCP execution failed, attempting fallback to DIRECT",
+                    trace_id=trace_id,
+                    error=str(e),
+                )
+
+                self._record_mcp_failure()
+                cortex_fallback_total.inc()
+
+                try:
+                    result = await self._run_direct(query, trace_id)
+                    result.metadata["fallback"] = True
+
+                    # Record fallback success
+                    cortex_calls_total.labels(
+                        mode="direct",
+                        task=query.task.type,
+                        status="fallback",
+                        model=query.task.model,
+                    ).inc()
+
+                    return result
+                except Exception as fallback_error:
+                    logger.error(
+                        "Fallback to DIRECT mode also failed",
+                        trace_id=trace_id,
+                        error=str(fallback_error),
+                    )
+                    raise
+
+            # Record failure metrics
+            cortex_calls_total.labels(
+                mode=mode.value,
+                task=query.task.type,
+                status="error",
+                model=query.task.model,
+            ).inc()
+
+            raise
+
+    async def _determine_execution_mode(self, query: CortexQuery) -> ExecutionMode:
+        """Determine which execution mode to use based on configuration and circuit breaker state."""
+        if self.execution_mode != ExecutionMode.AUTO:
+            # Manual mode override
+            if self.execution_mode == ExecutionMode.MCP and self._is_mcp_circuit_open():
+                logger.warning("MCP circuit is open, falling back to DIRECT mode")
+                return ExecutionMode.DIRECT
+            return self.execution_mode
+
+        # AUTO mode - intelligent selection
+        # Check if MCP is available and healthy
+        if self._is_mcp_circuit_open():
+            return ExecutionMode.DIRECT
+
+        if not self.mcp_client:
+            return ExecutionMode.DIRECT
+
+        # Check task type preferences
+        # Some tasks may perform better in direct mode
+        if query.task.type == "analyst" and query.task.max_tokens > 4096:
+            # Large analyst queries often perform better in direct mode
+            return ExecutionMode.DIRECT
+
+        # Default to MCP for better scalability
+        return ExecutionMode.MCP
+
+    async def _run_direct(self, query: CortexQuery, trace_id: str) -> CortexResult:
+        """Execute query using direct Snowflake connection."""
+        connection = await self.pool_manager.acquire(ExecutionMode.DIRECT)
+
+        try:
+            # Build Cortex SQL based on task type
+            sql = self._build_cortex_sql(query)
+
+            logger.debug(
+                "Executing direct Cortex query", trace_id=trace_id, sql=sql[:200]
+            )
+
+            # Execute with retry logic
+            result = await self._execute_with_retry(
+                connection, sql, query.retry, trace_id
+            )
+
+            # Parse and return result
+            return CortexResult(
+                response=result.get("response", ""),
+                usage=result.get("usage", {}),
+                latency_ms=0,  # Will be set by caller
+                execution_mode=ExecutionMode.DIRECT,
+                trace_id=trace_id,
+                model_used=query.task.model,
+                metadata={"sql_executed": sql[:100] + "..."},
+            )
+
+        finally:
+            await self.pool_manager.release(ExecutionMode.DIRECT, connection)
+
+    async def _run_mcp(self, query: CortexQuery, trace_id: str) -> CortexResult:
+        """Execute query using MCP server."""
+        if not self.mcp_client:
+            raise ValueError("MCP client not configured")
+
+        # Reset circuit breaker on successful connection
+        self.mcp_failures = min(self.mcp_failures, 0)
+
+        # Prepare MCP request
+        mcp_request = {
+            "tool": f"cortex{query.task.type.capitalize()}",
+            "parameters": {
+                "text": query.text,
+                "model": query.task.model,
+                "temperature": query.task.temperature,
+                "max_tokens": query.task.max_tokens,
+                **query.task.additional_params,
+            },
+            "trace_id": trace_id,
+            "timeout": query.timeout_s,
+        }
+
+        if query.context:
+            mcp_request["parameters"]["context"] = query.context
+
+        logger.debug(
+            "Executing MCP Cortex query", trace_id=trace_id, tool=mcp_request["tool"]
+        )
+
+        # Execute via MCP
+        result = await self.mcp_client.execute_cortex(mcp_request)
+
+        # Handle streaming response if applicable
+        if result.get("stream"):
+            response_text = await self._handle_streaming_response(result["stream_id"])
+        else:
+            response_text = result.get("response", "")
+
+        return CortexResult(
+            response=response_text,
+            usage=result.get("usage", {}),
+            latency_ms=0,  # Will be set by caller
+            execution_mode=ExecutionMode.MCP,
+            trace_id=trace_id,
+            model_used=result.get("model", query.task.model),
+            metadata={
+                "mcp_server": result.get("server_id"),
+                "operation_id": result.get("operation_id"),
+            },
+        )
+
+    def _build_cortex_sql(self, query: CortexQuery) -> str:
+        """Build SQL for direct Cortex execution."""
+        if query.task.type == "complete":
+            return f"""
+            SELECT SNOWFLAKE.await self.lambda_gpu.complete(
+                '{query.task.model}',
+                '{query.text.replace("'", "''")}',
+                {{
+                    'temperature': {query.task.temperature},
+                    'max_tokens': {query.task.max_tokens}
+                }}
+            ) as response
+            """
+
+        elif query.task.type == "search":
+            # Assuming we have a search corpus table
+            return f"""
+            SELECT
+                content,
+                SNOWFLAKE.CORTEX.SEARCH(
+                    content,
+                    '{query.text.replace("'", "''")}',
+                    '{query.task.model}'
+                ) as relevance_score
+            FROM SOPHIA_AI.KNOWLEDGE.DOCUMENTS
+            WHERE relevance_score > 0.7
+            ORDER BY relevance_score DESC
+            LIMIT 10
+            """
+
+        elif query.task.type == "analyst":
+            return f"""
+            SELECT SNOWFLAKE.CORTEX.ANALYST(
+                '{query.text.replace("'", "''")}',
+                {{
+                    'model': '{query.task.model}',
+                    'temperature': {query.task.temperature},
+                    'context_tables': {query.metadata.get('context_tables', '[]')}
+                }}
+            ) as response
+            """
+
+        else:
+            raise ValueError(f"Unsupported task type: {query.task.type}")
+
+    async def _execute_with_retry(
+        self, connection, sql: str, retry_config: RetryConfig, trace_id: str
+    ) -> dict[str, Any]:
+        """Execute SQL with exponential backoff retry."""
+        last_error = None
+
+        for attempt in range(retry_config.max_attempts):
+            try:
+                result = await connection.execute_async(sql)
+                return result[0] if result else {}
+
+            except Exception as e:
+                last_error = e
+
+                if attempt < retry_config.max_attempts - 1:
+                    delay = min(
+                        retry_config.initial_delay
+                        * (retry_config.exponential_base**attempt),
+                        retry_config.max_delay,
+                    )
+
+                    logger.warning(
+                        "Cortex query failed, retrying",
+                        trace_id=trace_id,
+                        attempt=attempt + 1,
+                        delay=delay,
+                        error=str(e),
+                    )
+
+                    await asyncio.sleep(delay)
+                else:
+                    logger.error(
+                        "Cortex query failed after all retries",
+                        trace_id=trace_id,
+                        attempts=retry_config.max_attempts,
+                        error=str(e),
+                    )
+
+        raise last_error
+
+    async def _handle_streaming_response(self, stream_id: str) -> str:
+        """Handle streaming response from MCP server."""
+        chunks = []
+
+        async for chunk in self.mcp_client.stream_response(stream_id):
+            chunks.append(chunk.get("text", ""))
+
+            # Optional: Send chunks to frontend via WebSocket
+            if hasattr(self, "streaming_callback") and self.streaming_callback:
+                await self.streaming_callback(chunk)
+
+        return "".join(chunks)
+
+    def _record_mcp_failure(self):
+        """Record MCP failure and potentially open circuit breaker."""
+        self.mcp_failures += 1
+
+        if self.mcp_failures >= self.mcp_failure_threshold:
+            self.mcp_circuit_open = True
+            self.mcp_circuit_open_until = time.time() + 60  # 60 second cooldown
+
+            logger.error(
+                "MCP circuit breaker opened due to repeated failures",
+                failures=self.mcp_failures,
+                cooldown_seconds=60,
+            )
+
+    def _is_mcp_circuit_open(self) -> bool:
+        """Check if MCP circuit breaker is open."""
+        if not self.mcp_circuit_open:
+            return False
+
+        # Check if cooldown period has passed
+        if time.time() > self.mcp_circuit_open_until:
+            self.mcp_circuit_open = False
+            self.mcp_failures = 0
+            logger.info("MCP circuit breaker closed, resuming normal operation")
+            return False
+
+        return True
+
+    async def health_check(self) -> dict[str, Any]:
+        """Health check for the adapter."""
+        health = {
+            "status": "healthy",
+            "execution_mode": self.execution_mode.value,
+            "mcp_circuit_open": self.mcp_circuit_open,
+            "mcp_failures": self.mcp_failures,
+            "pools": await self.pool_manager.get_health(),
+        }
+
+        if self.mcp_client:
+            try:
+                mcp_health = await self.mcp_client.health_check()
+                health["mcp_client"] = mcp_health
+            except Exception as e:
+                health["mcp_client"] = {"status": "unhealthy", "error": str(e)}
+
+        # Determine overall health
+        if self.mcp_circuit_open or (
+            health.get("mcp_client", {}).get("status") == "unhealthy"
+        ):
+            health["status"] = "degraded"
+
+        return health

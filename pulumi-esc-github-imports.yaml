@@ -78,7 +78,7 @@ values:
       url: ${REDIS_URL}
       password: ${REDIS_PASSWORD}
 
-    snowflake:
+    modern_stack:
       account: ${SNOWFLAKE_ACCOUNT}
       username: ${SNOWFLAKE_USERNAME}
       password: ${SNOWFLAKE_PASSWORD}
@@ -132,9 +132,9 @@ environmentVariables:
   POSTGRESQL_PASSWORD: ${database.postgresql.password}
   REDIS_URL: ${database.redis.url}
   REDIS_PASSWORD: ${database.redis.password}
-  SNOWFLAKE_ACCOUNT: ${database.snowflake.account}
-  SNOWFLAKE_USERNAME: ${database.snowflake.username}
-  SNOWFLAKE_PASSWORD: ${database.snowflake.password}
-  SNOWFLAKE_WAREHOUSE: ${database.snowflake.warehouse}
-  SNOWFLAKE_DATABASE: ${database.snowflake.database}
-  SNOWFLAKE_SCHEMA: ${database.snowflake.schema}
+  SNOWFLAKE_ACCOUNT: ${database.modern_stack.account}
+  SNOWFLAKE_USERNAME: ${database.modern_stack.username}
+  SNOWFLAKE_PASSWORD: ${database.modern_stack.password}
+  SNOWFLAKE_WAREHOUSE: ${database.modern_stack.warehouse}
+  SNOWFLAKE_DATABASE: ${database.modern_stack.database}
+  SNOWFLAKE_SCHEMA: ${database.modern_stack.schema}

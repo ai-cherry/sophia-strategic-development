@@ -1,0 +1,67 @@
+"""
+# REMOVED: Snowflake dependencyuration Override
+# REMOVED: Snowflake dependencyuration to fix 404 connectivity issues
+"""
+
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+import os
+
+from core.config_manager import get_config_value
+
+# REMOVED: Snowflake dependencyuration
+CORRECT_# REMOVED: Snowflake dependency {
+    "account": "ZNB04675.us-east-1",
+    "user": "SCOOBYJAVA15",
+    "database": "SOPHIA_AI",
+    "warehouse": "SOPHIA_AI_WH",
+    "role": "ACCOUNTADMIN",
+    "schema": "PROCESSED_AI",
+}
+
+
+def get_# REMOVED: Snowflake dependency None) -> str:
+    """
+# REMOVED: Snowflake dependencyuration with override for correct values
+
+    Args:
+        key: Configuration key (without snowflake_ prefix)
+        default: Default value if not found
+
+    Returns:
+        Configuration value
+    """
+    # First try environment variable override
+    env_key = f"SNOWFLAKE_{key.upper()}"
+    env_value = os.getenv(env_key)
+    if env_value:
+        return env_value
+
+    # Then try correct configuration override
+# REMOVED: Snowflake dependency:
+# REMOVED: Snowflake dependency[key]
+
+    # Fall back to original config
+    return get_config_value(f"snowflake_{key}", default)
+
+
+def get_snowflake_connection_params() -> dict:
+    """
+    Get complete Snowflake connection parameters
+
+    Returns:
+        Dictionary of connection parameters
+    """
+    return {
+# REMOVED: Snowflake dependency("account"),
+# REMOVED: Snowflake dependency("user"),
+        "password": get_config_value("snowflake_password"),  # Keep from ESC
+# REMOVED: Snowflake dependency("database"),
+# REMOVED: Snowflake dependency("warehouse"),
+# REMOVED: Snowflake dependency("role"),
+# REMOVED: Snowflake dependency("schema", "PUBLIC"),
+    }
+
+
+# Set environment variables for immediate use
+# REMOVED: Snowflake dependency.items():
+    os.environ[f"# REMOVED: Snowflake dependency value

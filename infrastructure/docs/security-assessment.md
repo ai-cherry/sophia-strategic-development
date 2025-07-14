@@ -202,7 +202,7 @@ export class LambdaLabsDataProtection {
 
     static createEncryptionConfig() {
         return {
-            // Snowflake encryption
+            // Modern Stack encryption
             snowflake: {
                 encryption: "AES-256",
                 keyRotation: "90d",

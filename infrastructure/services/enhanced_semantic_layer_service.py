@@ -21,16 +21,16 @@ class EnhancedSemanticLayerService:
         self.fuzzy_threshold = 0.75
 
     async def _get_connection(self):
-        """Get Snowflake connection with entity resolution schema"""
+        """Get ModernStack connection with entity resolution schema"""
         if not self.connection:
-            import snowflake.connector
+            # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
-            self.connection = snowflake.connector.connect(
-                user=get_config_value("snowflake_user"),
-                password=get_config_value("snowflake_password"),
-                account=get_config_value("snowflake_account"),
-                warehouse=get_config_value("snowflake_warehouse"),
-                database=get_config_value("snowflake_database"),
+            self.connection = self.modern_stack_connection(
+                user=get_config_value("modern_stack_user"),
+                password=get_config_value("postgres_password"),
+                account=get_config_value("postgres_host"),
+                warehouse=get_config_value("postgres_database"),
+                database=get_config_value("postgres_database"),
                 schema="SOPHIA_ENTITY_RESOLUTION",  # Default to entity resolution schema
             )
         return self.connection
@@ -371,7 +371,7 @@ class EnhancedSemanticLayerService:
                 [
                     event_id,
                     original_query,
-                    candidates,  # Snowflake will handle the array conversion
+                    candidates,  # ModernStack will handle the array conversion
                     len(candidates),
                     sum(c.get("similarity_score", 0) for c in candidates)
                     / max(len(candidates), 1),

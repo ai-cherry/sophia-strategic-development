@@ -2,7 +2,7 @@
 Lambda Labs Cost Monitor
 ========================
 Comprehensive cost monitoring and alerting system for Lambda Labs Serverless
-with Snowflake integration, real-time alerts, and predictive cost analysis.
+with ModernStack integration, real-time alerts, and predictive cost analysis.
 """
 
 import asyncio
@@ -90,7 +90,7 @@ class LambdaLabsCostMonitor:
     - Predictive cost analysis
     - Model-specific cost optimization
     - Budget enforcement and recommendations
-    - Snowflake integration for historical analysis
+    - ModernStack integration for historical analysis
     - Slack/email notifications
     """
 
@@ -119,8 +119,8 @@ class LambdaLabsCostMonitor:
         self.cost_history: list[dict[str, Any]] = []
         self.model_analytics: dict[str, ModelCostAnalysis] = {}
 
-        # Snowflake integration
-        self.snowflake = UnifiedMemoryServiceV2()
+        # ModernStack integration
+        self.modern_stack = UnifiedMemoryServiceV2()
 
         # Monitoring task
         self.monitoring_task: asyncio.Task | None = None
@@ -176,7 +176,7 @@ class LambdaLabsCostMonitor:
             # Generate predictions
             prediction = await self._generate_cost_prediction()
 
-            # Store in Snowflake
+            # Store in ModernStack
             await self._store_cost_data(current_costs, prediction)
 
             # Check for anomalies
@@ -564,7 +564,7 @@ class LambdaLabsCostMonitor:
     async def _store_cost_data(
         self, costs: dict[str, Any], prediction: CostPrediction
     ) -> None:
-        """Store cost data in Snowflake for historical analysis"""
+        """Store cost data in ModernStack for historical analysis"""
         try:
             # Prepare cost record
             cost_record = {
@@ -584,7 +584,7 @@ class LambdaLabsCostMonitor:
                 "model_usage": json.dumps(costs.get("model_usage", {})),
             }
 
-            # Insert into Snowflake
+            # Insert into ModernStack
             insert_query = """
             INSERT INTO SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING
             (timestamp, daily_cost, hourly_cost, total_cost, total_requests,
@@ -598,15 +598,15 @@ class LambdaLabsCostMonitor:
                     %(model_usage)s)
             """
 
-            await self.snowflake.execute_query(insert_query, cost_record)
+            await self.modern_stack.execute_query(insert_query, cost_record)
 
         except Exception as e:
-            logger.error(f"Failed to store cost data in Snowflake: {e}")
+            logger.error(f"Failed to store cost data in ModernStack: {e}")
 
     async def _detect_cost_anomalies(self, costs: dict[str, Any]) -> None:
         """Detect cost anomalies using historical data"""
         try:
-            # Get historical data from Snowflake
+            # Get historical data from ModernStack
             historical_query = """
             SELECT daily_cost, hourly_cost, total_requests, average_response_time
             FROM SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING
@@ -614,7 +614,7 @@ class LambdaLabsCostMonitor:
             ORDER BY timestamp DESC
             """
 
-            historical_data = await self.snowflake.execute_query(historical_query)
+            historical_data = await self.modern_stack.execute_query(historical_query)
 
             if not historical_data or len(historical_data) < 10:
                 return  # Not enough data for anomaly detection
@@ -760,7 +760,7 @@ class LambdaLabsCostMonitor:
                 alert for alert in self.active_alerts if alert.timestamp > cutoff_time
             ]
 
-            # Clean up Snowflake data
+            # Clean up ModernStack data
             cleanup_query = (
                 """
             DELETE FROM SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING
@@ -769,7 +769,7 @@ class LambdaLabsCostMonitor:
                 % days_to_keep
             )
 
-            await self.snowflake.execute_query(cleanup_query)
+            await self.modern_stack.execute_query(cleanup_query)
 
             logger.info(f"Cleaned up data older than {days_to_keep} days")
 

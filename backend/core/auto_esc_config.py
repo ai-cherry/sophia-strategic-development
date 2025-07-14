@@ -3,6 +3,7 @@ Enhanced Auto ESC Config with ALL GitHub Secrets Mapped
 This loads ALL secrets from Pulumi ESC using the correct GitHub secret names
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 import os
 import subprocess
@@ -155,19 +156,19 @@ def set_config_value(key: str, value: Any) -> None:
     _config_cache[key] = value
 
 
-def get_snowflake_config() -> Dict[str, Any]:
+# REMOVED: ModernStack dependency() -> Dict[str, Any]:
     """
-    Get Snowflake configuration from Pulumi ESC - PERMANENT FIX
+# REMOVED: ModernStack dependencyuration from Pulumi ESC - PERMANENT FIX
 
     Returns:
-        Snowflake configuration dictionary with CORRECT account
+# REMOVED: ModernStack dependencyuration dictionary with CORRECT account
     """
     # Check environment variables first (for immediate use)
-    account = os.getenv("SNOWFLAKE_ACCOUNT") or get_config_value(
-        "snowflake_account", "UHDECNO-CVB64222"
+# REMOVED: ModernStack dependency_value(
+        "postgres_host", "UHDECNO-CVB64222"
     )
-    user = os.getenv("SNOWFLAKE_USER") or get_config_value(
-        "snowflake_user", "SCOOBYJAVA15"
+# REMOVED: ModernStack dependency_value(
+        "modern_stack_user", "SCOOBYJAVA15"
     )
 
     # Try PAT token first, then regular password
@@ -175,17 +176,17 @@ def get_snowflake_config() -> Dict[str, Any]:
     password = (
         pat_token
         if pat_token
-        else (os.getenv("SNOWFLAKE_PASSWORD") or get_config_value("snowflake_password"))
+# REMOVED: ModernStack dependency_value("postgres_password"))
     )
 
     return {
         "account": account,
         "user": user,
         "password": password,  # Will use PAT or password from ESC/env
-        "role": get_config_value("snowflake_role", "ACCOUNTADMIN"),
-        "warehouse": get_config_value("snowflake_warehouse", "SOPHIA_AI_COMPUTE_WH"),
-        "database": get_config_value("snowflake_database", "AI_MEMORY"),
-        "schema": get_config_value("snowflake_schema", "VECTORS"),
+        "role": get_config_value("modern_stack_role", "ACCOUNTADMIN"),
+        "warehouse": get_config_value("postgres_database", "SOPHIA_AI_COMPUTE_WH"),
+        "database": get_config_value("postgres_database", "AI_MEMORY"),
+        "schema": get_config_value("postgres_schema", "VECTORS"),
     }
 
 
@@ -203,7 +204,7 @@ def get_postgres_config() -> Dict[str, Any]:
         "user": get_config_value("postgres_user", "postgres"),
         "password": get_config_value(
             "postgres_password"
-        ),  # Separate password from Snowflake
+        ),  # Separate password from ModernStack
     }
 
 
@@ -264,20 +265,20 @@ def initialize_default_config():
     _load_esc_environment()
 
     # Set fallback defaults only if not available from ESC
-    if not get_config_value("snowflake_account"):
+    if not get_config_value("postgres_host"):
         set_config_value(
-            "snowflake_account", "ZNB04675.us-east-1.us-east-1"
+            "postgres_host", "ZNB04675.us-east-1.us-east-1"
         )  # Fixed: Use correct account
-    if not get_config_value("snowflake_user"):
-        set_config_value("snowflake_user", "SCOOBYJAVA15")
-    if not get_config_value("snowflake_role"):
-        set_config_value("snowflake_role", "ACCOUNTADMIN")
-    if not get_config_value("snowflake_warehouse"):
-        set_config_value("snowflake_warehouse", "AI_SOPHIA_AI_WH")
-    if not get_config_value("snowflake_database"):
-        set_config_value("snowflake_database", "SOPHIA_AI_ADVANCED")
-    if not get_config_value("snowflake_schema"):
-        set_config_value("snowflake_schema", "PROCESSED_AI")
+    if not get_config_value("modern_stack_user"):
+        set_config_value("modern_stack_user", "SCOOBYJAVA15")
+    if not get_config_value("modern_stack_role"):
+        set_config_value("modern_stack_role", "ACCOUNTADMIN")
+    if not get_config_value("postgres_database"):
+        set_config_value("postgres_database", "AI_SOPHIA_AI_WH")
+    if not get_config_value("postgres_database"):
+        set_config_value("postgres_database", "SOPHIA_AI_ADVANCED")
+    if not get_config_value("postgres_schema"):
+        set_config_value("postgres_schema", "PROCESSED_AI")
 
     # Estuary defaults
     if not get_config_value("estuary_tenant"):
@@ -407,8 +408,8 @@ class ConfigObject:
 # Create backward compatibility config object
 config = ConfigObject()
 
-# Enhanced Snowflake connection optimization
-SNOWFLAKE_OPTIMIZATION_CONFIG = {
+# Enhanced ModernStack connection optimization
+# REMOVED: ModernStack dependency {
     "connection_pool_size": 10,
     "connection_timeout": 30,
     "query_timeout": 300,
@@ -419,9 +420,9 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
 }
 
 
-def get_snowflake_pat(environment: Optional[str] = None) -> str:
+def get_# REMOVED: ModernStack dependency None) -> str:
     """
-    Get Snowflake PAT (Programmatic Access Token) for MCP authentication
+    Get ModernStack PAT (Programmatic Access Token) for MCP authentication
 
     Args:
         environment: Environment name (prod, staging). Defaults to current environment.
@@ -439,32 +440,32 @@ def get_snowflake_pat(environment: Optional[str] = None) -> str:
     environment_str: str = str(environment)
 
     # Try environment-specific PAT first
-    pat_key = f"snowflake_pat_{environment_str.lower()}"
+    pat_key = f"modern_stack_pat_{environment_str.lower()}"
     pat = get_config_value(pat_key)
 
     if not pat:
         # Try generic PAT
-        pat = get_config_value("snowflake_pat")
+        pat = get_config_value("modern_stack_pat")
 
     if not pat:
         # Try with MCP prefix
-        pat = get_config_value("snowflake_mcp_pat")
+        pat = get_config_value("modern_stack_mcp_pat")
 
     if not pat:
         raise ValueError(
-            f"Snowflake PAT not configured for environment: {environment_str}"
+# REMOVED: ModernStack dependencyured for environment: {environment_str}"
         )
 
     # Validate PAT format (basic check)
     if not pat.startswith("pat_") and len(pat) < 20:
-        logger.warning("Snowflake PAT format may be invalid")
+        logger.warning("ModernStack PAT format may be invalid")
 
     return pat
 
 
-def get_snowflake_mcp_config() -> Dict[str, Any]:
+# REMOVED: ModernStack dependency() -> Dict[str, Any]:
     """
-    Get Snowflake MCP server configuration
+# REMOVED: ModernStack dependencyuration
 
     Returns:
         MCP configuration dictionary
@@ -473,26 +474,26 @@ def get_snowflake_mcp_config() -> Dict[str, Any]:
 
     return {
         "url": get_config_value(
-            "snowflake_mcp_url", "https://mcp-snowflake.sophia-ai.com"
+            "modern_stack_mcp_url", "https://mcp-modern_stack.sophia-ai.com"
         ),
-        "pat": get_snowflake_pat(environment),
-        "timeout": int(get_config_value("snowflake_mcp_timeout", "120")),
-        "max_retries": int(get_config_value("snowflake_mcp_max_retries", "3")),
-        "pool_size": int(get_config_value("snowflake_mcp_pool_size", "20")),
+        "pat": get_modern_stack_pat(environment),
+        "timeout": int(get_config_value("modern_stack_mcp_timeout", "120")),
+        "max_retries": int(get_config_value("modern_stack_mcp_max_retries", "3")),
+        "pool_size": int(get_config_value("modern_stack_mcp_pool_size", "20")),
     }
 
 
 # Add PAT rotation check function
 def check_pat_rotation_needed() -> bool:
     """
-    Check if Snowflake PAT needs rotation
+    Check if ModernStack PAT needs rotation
 
     Returns:
         True if rotation needed
     """
     # This is a placeholder - in production, would check PAT metadata
-    # from Snowflake or a secure metadata store
-    pat_created_date = get_config_value("snowflake_pat_created_date")
+    # from ModernStack or a secure metadata store
+    pat_created_date = get_config_value("modern_stack_pat_created_date")
 
     if not pat_created_date:
         logger.warning("PAT creation date not tracked")
@@ -516,44 +517,44 @@ def check_pat_rotation_needed() -> bool:
 # (This is already included in the existing mappings)
 
 
-def validate_snowflake_pat() -> bool:
+def validate_modern_stack_pat() -> bool:
     """
-    Validate Snowflake PAT token format
+    Validate ModernStack PAT token format
 
     Returns:
         True if PAT token appears valid
     """
-    pat = get_config_value("snowflake_password")
+    pat = get_config_value("postgres_password")
     if not pat:
-        logger.warning("No Snowflake password/PAT configured")
+# REMOVED: ModernStack dependencyured")
         return False
 
     # PAT tokens are JWT tokens that typically start with 'eyJ'
     if pat.startswith("eyJ") and len(pat) > 100:
-        logger.info("Snowflake PAT token format validated")
+        logger.info("ModernStack PAT token format validated")
         return True
 
-    logger.warning("Snowflake password may not be a valid PAT token")
+    logger.warning("ModernStack password may not be a valid PAT token")
     return False
 
 
-def get_snowflake_config_enhanced() -> Dict[str, Any]:
+# REMOVED: ModernStack dependency_enhanced() -> Dict[str, Any]:
     """
-    Get enhanced Snowflake configuration with PAT support
+# REMOVED: ModernStack dependencyuration with PAT support
 
     Returns:
-        Enhanced Snowflake configuration dictionary
+# REMOVED: ModernStack dependencyuration dictionary
     """
-    base_config = get_snowflake_config()
+# REMOVED: ModernStack dependency()
 
     # Add PAT-specific configuration
     enhanced_config = {
         **base_config,
-        "authenticator": "snowflake",  # For PAT authentication
+        "authenticator": "modern_stack",  # For PAT authentication
         "session_parameters": {
             "QUERY_TAG": "sophia_ai_unified",
         },
-        "pat_validated": validate_snowflake_pat(),
+        "pat_validated": validate_modern_stack_pat(),
     }
 
     # Use validated account format
@@ -563,14 +564,14 @@ def get_snowflake_config_enhanced() -> Dict[str, Any]:
 
 
 # Enhanced configuration constants
-SNOWFLAKE_PAT_CONFIG = {
+# REMOVED: ModernStack dependency {
     "account": "UHDECNO-CVB64222",
     "user": "SCOOBYJAVA15",
     "role": "ACCOUNTADMIN",
     "warehouse": "COMPUTE_WH",
     "database": "SOPHIA_AI_PROD",
     "schema": "PUBLIC",
-    "authenticator": "snowflake",
+    "authenticator": "modern_stack",
 }
 
 AI_OPTIMIZATION_CONFIG = {
@@ -660,7 +661,7 @@ def get_ai_orchestration_config() -> Dict[str, Any]:
         # Provider priorities
         "provider_priorities": {
             "lambda_labs": 1,
-            "snowflake_cortex": 2,
+            "modern_stack_cortex": 2,
             "portkey": 3,
             "openrouter": 4,
         },

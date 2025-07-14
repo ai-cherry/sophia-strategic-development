@@ -124,7 +124,7 @@ unified_memory_service_v2.py
 - **Dead Functions:** Several services have backup/fallback methods
 
 ### **Backup and Old Files**
-- **Snowflake Purge Backups:** `backup_snowflake_purge/` directory
+- **Modern Stack Purge Backups:** `backup_snowflake_purge/` directory
 - **Old Configuration Files:** Multiple `.old` and `.backup` files
 - **Deprecated Modules:** Properly quarantined in `_deprecated/`
 
@@ -143,7 +143,7 @@ unified_memory_service_v2.py
 1. **Service Proliferation:** 50+ backend services may indicate over-engineering
 2. **Multiple Chat Services:** Several chat orchestrators with overlapping functionality
 3. **Configuration Complexity:** Multiple config systems (pyproject.toml, JSON, YAML)
-4. **External Dependencies:** Heavy reliance on external services (Weaviate, Snowflake, etc.)
+4. **External Dependencies:** Heavy reliance on external services (Weaviate, Modern Stack, etc.)
 
 ---
 
@@ -194,7 +194,7 @@ requires-python = ">=3.12,<3.13"
 
 ### **Potential Bottlenecks**
 1. **Service Orchestration:** Complex multi-service calls in chat orchestrator
-2. **Database Connections:** Multiple connection pools (Redis, PostgreSQL, Snowflake)
+2. **Database Connections:** Multiple connection pools (Redis, PostgreSQL, Modern Stack)
 3. **External API Calls:** Heavy reliance on external services
 4. **Memory Usage:** Large number of services loaded simultaneously
 

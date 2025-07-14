@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 """
+
+# Modern stack imports
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
+import redis.asyncio as redis
+import asyncpg
+
 Sophia AI HubSpot Unified MCP Server
 Provides CRM operations and business intelligence
 Using official Anthropic MCP SDK
@@ -50,6 +57,12 @@ class HubSpotUnifiedMCPServer(StandardizedMCPServer):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+
+
+        # Initialize modern stack services
+        self.memory_service = UnifiedMemoryServiceV3()
+        self.lambda_gpu = LambdaLabsServerlessService()
+        self.redis = redis.Redis(host='localhost', port=6379)
 
     async def get_custom_tools(self) -> list[Tool]:
         """Define custom tools for HubSpot operations"""

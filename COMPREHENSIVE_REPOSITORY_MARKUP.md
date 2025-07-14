@@ -37,7 +37,7 @@
 - **HubSpot CRM**: Contact and deal management
 - **Gong.io**: Call analysis and sales coaching
 - **Slack**: Team communication and notifications
-- **Snowflake**: Data warehousing and analytics
+- **Modern Stack**: Data warehousing and analytics
 - **Lambda Labs**: GPU infrastructure for AI workloads
 
 ---
@@ -81,7 +81,7 @@ sophia-main/
 #### 🧠 **Multi-Agent Orchestration**
 - **LangGraph**: Workflow orchestration
 - **MCP Protocol**: Model Context Protocol for agent communication
-- **Snowflake Cortex**: AI-powered data processing
+- **Lambda GPU**: AI-powered data processing
 - **Lambda Labs**: GPU acceleration for AI workloads
 
 #### 🔐 **Enterprise Security**
@@ -113,7 +113,7 @@ The `external/` directory contains 4 strategically selected MCP (Model Context P
   - `Time`: Time and timezone conversion capabilities
 
 - **Community Servers**: 200+ community-built servers including:
-  - Database integrations (PostgreSQL, MySQL, Snowflake)
+  - Database integrations (PostgreSQL, MySQL, Modern Stack)
   - Cloud services (AWS, Azure, GCP)
   - Development tools (GitHub, GitLab, Jira)
   - Communication platforms (Slack, Discord, Teams)
@@ -313,7 +313,7 @@ The backend is organized into specialized services following clean architecture 
 - **Purpose**: GPU-accelerated memory and knowledge management
 - **Features**: Weaviate vector storage, Redis caching, Lambda GPU embeddings
 - **Performance**: <50ms embeddings, <100ms vector search
-- **Cost**: 80% reduction vs. Snowflake ($3.5k→$700/month)
+- **Cost**: 80% reduction vs. Modern Stack ($3.5k→$700/month)
 
 ##### **Personality Engine**
 - **Purpose**: AI personality and behavior management
@@ -441,7 +441,7 @@ The backend is organized into specialized services following clean architecture 
 #### ☁️ **Cloud Services**
 - **Frontend**: Vercel (sophia-intel.ai)
 - **Backend**: Lambda Labs K3s cluster
-- **Database**: Snowflake + PostgreSQL
+- **Database**: Modern Stack + PostgreSQL
 - **Cache**: Redis cluster
 - **Storage**: S3-compatible object storage
 
@@ -467,7 +467,7 @@ The backend is organized into specialized services following clean architecture 
 │   ├── 📄 enhanced_snowflake_cortex_service.py # Data processing
 │   └── [45 additional services]
 │
-├── 📁 snowflake_setup/             # Snowflake configuration
+├── 📁 snowflake_setup/             # Modern Stack configuration
 │   ├── 📄 schema_setup.sql         # Database schema
 │   ├── 📄 cortex_procedures.sql    # AI procedures
 │   ├── 📄 security_setup.sql       # Security configuration
@@ -608,7 +608,7 @@ dependencies = [
     "pydantic>=2.7.0",
     "sqlalchemy>=2.0.0",
     "redis>=5.0.0",
-    "snowflake-connector-python>=3.10.0",
+    "asyncpg>=3.10.0",
     "anthropic>=0.25.0",
     "openai>=1.30.0",
     "langchain>=0.2.0",

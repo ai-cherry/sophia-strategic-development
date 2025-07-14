@@ -1,16 +1,17 @@
 """
-Enhanced Call Analysis Agent with Snowflake Cortex Integration
+Enhanced Call Analysis Agent with Lambda GPU Integration
 
-This agent provides comprehensive call analysis using Snowflake's native AI capabilities
+This agent provides comprehensive call analysis using ModernStack's native AI capabilities
 combined with traditional Gong integration for maximum insight generation.
 
 Key Features:
-- Snowflake Cortex AI for sentiment, summarization, and embeddings
+- Lambda GPU AI for sentiment, summarization, and embeddings
 - Vector similarity search for pattern recognition
 - HubSpot context integration for business impact analysis
 - Real-time call scoring and trend analysis
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import asyncio
@@ -25,12 +26,12 @@ from core.config_manager import get_config_value as config
 
 # Traditional integrations (fallback)
 from infrastructure.integrations.gong_api_client import GongAPIClient
-from shared.utils.snowflake_cortex_service import (
+from shared.utils.modern_stack_cortex_service import (
     analyze_gong_call_sentiment,
     find_similar_gong_calls,
     summarize_gong_call_with_context,
 )
-from shared.utils.snowflake_gong_connector import get_gong_connector
+from shared.utils.modern_stack_gong_connector import get_gong_connector
 
 logger = logging.getLogger(__name__)
 
@@ -74,16 +75,16 @@ class CallAnalysisResult:
 
 class CallAnalysisAgent(BaseAgent):
     """
-    Enhanced Call Analysis Agent with Snowflake Cortex AI
+    Enhanced Call Analysis Agent with Lambda GPU AI
 
-    Provides deep call analysis using native Snowflake AI capabilities
+    Provides deep call analysis using native ModernStack AI capabilities
     for sentiment analysis, summarization, and pattern recognition.
     """
 
     def __init__(self, config_dict: dict | None = None):
         super().__init__(config_dict)
         self.agent_type = "call_analysis"
-        self.snowflake_enabled = True
+        self.# REMOVED: ModernStack dependency True
         self.traditional_gong_client = None
 
         # Analysis configuration
@@ -108,7 +109,7 @@ class CallAnalysisAgent(BaseAgent):
                 self.traditional_gong_client = GongAPIClient()
 
             logger.info(
-                "✅ Call Analysis Agent initialized with Snowflake Cortex integration"
+                "✅ Call Analysis Agent initialized with Lambda GPU integration"
             )
 
         except Exception as e:
@@ -162,9 +163,9 @@ class CallAnalysisAgent(BaseAgent):
 
     async def _analyze_individual_call(self, task: dict[str, Any]) -> dict[str, Any]:
         """
-        Comprehensive analysis of a single call using Snowflake Cortex AI
+        Comprehensive analysis of a single call using Lambda GPU AI
 
-        ENHANCED APPROACH: Uses Snowflake Cortex for sentiment, summarization,
+        ENHANCED APPROACH: Uses Lambda GPU for sentiment, summarization,
         and vector analysis with HubSpot context integration.
         """
         call_id = task.get("call_id")
@@ -174,9 +175,9 @@ class CallAnalysisAgent(BaseAgent):
             return {"success": False, "error": "call_id required"}
 
         try:
-            logger.info(f"Analyzing call {call_id} with Snowflake Cortex AI")
+            logger.info(f"Analyzing call {call_id} with Lambda GPU AI")
 
-            # Get comprehensive call data from Snowflake
+            # Get comprehensive call data from ModernStack
             connector = await get_gong_connector()
             call_details = await connector.get_call_analysis_data(
                 call_id, include_full_transcript=True
@@ -241,7 +242,7 @@ class CallAnalysisAgent(BaseAgent):
                 "call_analysis": result.__dict__,
                 "call_details": call_details,
                 "call_summary": call_summary,
-                "data_source": "snowflake_cortex",
+                "data_source": "modern_stack_cortex",
                 "ai_enhanced": True,
             }
 
@@ -258,7 +259,7 @@ class CallAnalysisAgent(BaseAgent):
         """
         Batch analysis of multiple calls with AI insights
 
-        ENHANCED APPROACH: Processes calls in batches using Snowflake Cortex
+        ENHANCED APPROACH: Processes calls in batches using Lambda GPU
         for efficient analysis and pattern recognition.
         """
         call_ids = task.get("call_ids", [])
@@ -312,7 +313,7 @@ class CallAnalysisAgent(BaseAgent):
                 "successful_analyses": len(successful_analyses),
                 "individual_results": successful_analyses,
                 "batch_insights": batch_insights,
-                "data_source": "snowflake_cortex_batch",
+                "data_source": "modern_stack_cortex_batch",
                 "ai_enhanced": True,
             }
 
@@ -324,7 +325,7 @@ class CallAnalysisAgent(BaseAgent):
         """
         Find patterns across calls using AI analysis
 
-        ENHANCED APPROACH: Uses Snowflake vector search and Cortex AI
+        ENHANCED APPROACH: Uses ModernStack vector search and Cortex AI
         to identify semantic patterns and trends.
         """
         pattern_query = task.get("pattern_query", "")
@@ -377,7 +378,7 @@ class CallAnalysisAgent(BaseAgent):
                 "calls_analyzed": len(similar_calls),
                 "patterns": patterns,
                 "insights": pattern_insights,
-                "data_source": "snowflake_vector_analysis",
+                "data_source": "modern_stack_vector_analysis",
                 "ai_enhanced": True,
             }
 
@@ -387,9 +388,9 @@ class CallAnalysisAgent(BaseAgent):
 
     async def _track_sentiment_trends(self, task: dict[str, Any]) -> dict[str, Any]:
         """
-        Track sentiment trends over time using Snowflake analytics
+        Track sentiment trends over time using ModernStack analytics
 
-        ENHANCED APPROACH: Uses Snowflake Cortex sentiment analysis
+        ENHANCED APPROACH: Uses Lambda GPU sentiment analysis
         with time-series analysis for trend identification.
         """
         sales_rep = task.get("sales_rep")
@@ -432,7 +433,7 @@ class CallAnalysisAgent(BaseAgent):
                 "analysis_period_days": date_range_days,
                 "sentiment_trends": sentiment_trends,
                 "performance_data": performance_data,
-                "data_source": "snowflake_sentiment_analysis",
+                "data_source": "modern_stack_sentiment_analysis",
                 "ai_enhanced": True,
             }
 
@@ -789,7 +790,7 @@ class CallAnalysisAgent(BaseAgent):
             "data_source": "traditional_gong",
             "message": "Basic call analysis completed using traditional methods",
             "ai_enhanced": False,
-            "recommendation": "Upgrade to Snowflake integration for enhanced AI analysis",
+            "recommendation": "Upgrade to ModernStack integration for enhanced AI analysis",
         }
 
     async def _handle_general_analysis_query(

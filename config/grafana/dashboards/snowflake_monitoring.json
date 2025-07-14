@@ -68,7 +68,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "(100 - snowflake_daily_credits_remaining) / 100 * 100",
+          "expr": "(100 - modern_stack_daily_credits_remaining) / 100 * 100",
           "refId": "A"
         }
       ],
@@ -136,12 +136,12 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(snowflake_query_duration_seconds_bucket[5m]))",
+          "expr": "histogram_quantile(0.95, rate(modern_stack_query_duration_seconds_bucket[5m]))",
           "legendFormat": "p95",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.50, rate(snowflake_query_duration_seconds_bucket[5m]))",
+          "expr": "histogram_quantile(0.50, rate(modern_stack_query_duration_seconds_bucket[5m]))",
           "legendFormat": "p50",
           "refId": "B"
         }
@@ -193,7 +193,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "sum(rate(snowflake_queries_total[5m])) * 60",
+          "expr": "sum(rate(modern_stack_queries_total[5m])) * 60",
           "refId": "A"
         }
       ],
@@ -238,7 +238,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "snowflake_warehouse_utilization",
+          "expr": "postgres_database_utilization",
           "legendFormat": "{{ warehouse }}",
           "refId": "A"
         }
@@ -307,7 +307,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "sum(rate(snowflake_credits_total[5m])) by (warehouse)",
+          "expr": "sum(rate(modern_stack_credits_total[5m])) by (warehouse)",
           "legendFormat": "{{ warehouse }}",
           "refId": "A"
         }
@@ -363,7 +363,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "sum(rate(snowflake_errors_total[5m])) * 60",
+          "expr": "sum(rate(modern_stack_errors_total[5m])) * 60",
           "refId": "A"
         }
       ],
@@ -414,7 +414,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "sum(rate(snowflake_cache_hits_total[5m])) / sum(rate(snowflake_queries_total[5m]))",
+          "expr": "sum(rate(modern_stack_cache_hits_total[5m])) / sum(rate(modern_stack_queries_total[5m]))",
           "refId": "A"
         }
       ],
@@ -473,7 +473,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "snowflake_cost_savings_potential",
+          "expr": "modern_stack_cost_savings_potential",
           "refId": "A"
         }
       ],
@@ -484,7 +484,7 @@
   "refresh": "30s",
   "schemaVersion": 27,
   "style": "dark",
-  "tags": ["snowflake", "monitoring", "sophia-ai"],
+  "tags": ["modern_stack", "monitoring", "sophia-ai"],
   "templating": {
     "list": []
   },
@@ -494,7 +494,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Snowflake Monitoring",
-  "uid": "snowflake-monitoring",
+  "title": "ModernStack Monitoring",
+  "uid": "modern_stack-monitoring",
   "version": 0
 }

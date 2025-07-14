@@ -58,15 +58,15 @@
 **Required**: 🟡 Important
 
 ### `SNOWFLAKE_ACCOUNT`
-**Description**: Snowflake account identifier
+**Description**: Modern Stack account identifier
 **Required**: 🟡 Important
 
 ### `SNOWFLAKE_USER`
-**Description**: Snowflake username
+**Description**: Modern Stack username
 **Required**: 🟡 Important
 
 ### `SNOWFLAKE_PASSWORD`
-**Description**: Snowflake password or PAT
+**Description**: Modern Stack password or PAT
 **Required**: 🟡 Important
 
 ## How to Set GitHub Organization Secrets

@@ -317,7 +317,7 @@ class PerformanceMonitoringIntegration:
             try:
                 # Check core services
                 services_to_check = [
-                    "snowflake_cortex_service",
+                    "modern_stack_cortex_service",
                     "connection_manager",
                     "optimized_cache",
                     "performance_monitor",

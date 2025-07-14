@@ -6,13 +6,13 @@
       "title": "Server Health Status",
       "type": "health_matrix",
       "servers": [
-        "snowflake_admin",
+        "modern_stack_admin",
         "lambda_labs_cli",
         "ui_ux_agent",
         "ai_memory",
         "codacy",
         "portkey_admin",
-        "snowflake_cortex"
+        "modern_stack_cortex"
       ],
       "metrics": [
         "status",

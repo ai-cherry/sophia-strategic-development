@@ -52,7 +52,7 @@ Sophia AI now includes powerful workflow automation capabilities through n8n int
 ### 1. Daily Business Intelligence
 - **Trigger**: Every day at 9 AM
 - **Actions**:
-  - Query business metrics from Snowflake
+  - Query business metrics from Modern Stack
   - Generate AI insights
   - Send summary to Slack
 - **Command**: "Set up daily business intelligence report"
@@ -123,7 +123,7 @@ N8N_WEBHOOK_URL=http://localhost:5678/webhook
 
 ### 3. Permissions
 Ensure n8n has access to:
-- Snowflake (for data queries)
+- Modern Stack (for data queries)
 - Slack (for notifications)
 - GitHub (for code workflows)
 - HubSpot/Gong (for business workflows)

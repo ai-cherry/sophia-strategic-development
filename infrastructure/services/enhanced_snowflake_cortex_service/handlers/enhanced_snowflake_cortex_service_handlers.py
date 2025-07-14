@@ -1,5 +1,5 @@
 """
-Enhanced Snowflake Cortex Service Handlers
+Enhanced Lambda GPU Service Handlers
 Request/response handlers and API endpoints
 """
 
@@ -11,8 +11,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
-import snowflake.connector
-from snowflake.connector import DictCursor
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
 from core.enhanced_cache_manager import EnhancedCacheManager
 from infrastructure.security.audit_logger import AuditLogger
 from infrastructure.services.cost_engineering_service import (
@@ -21,7 +21,7 @@ from infrastructure.services.cost_engineering_service import (
 )
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
-from .models.enhanced_snowflake_cortex_service_models import *
+from .models.enhanced_modern_stack_cortex_service_models import *
 
 # Handler classes extracted from main file
 class DataPipelineConfig:

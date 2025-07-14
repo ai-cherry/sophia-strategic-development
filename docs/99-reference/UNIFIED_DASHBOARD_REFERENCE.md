@@ -66,7 +66,7 @@ Display key performance indicators with:
 - One-click sync for:
   - Gong calls
   - HubSpot CRM
-  - Snowflake tables
+  - Modern Stack tables
 - Loading states
 - Success/error feedback
 

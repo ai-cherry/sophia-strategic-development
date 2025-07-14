@@ -28,22 +28,22 @@ spec:
             - containerPort: 8080
               protocol: TCP
           env:
-            # Snowflake credentials from Pulumi ESC
+            # ModernStack credentials from Pulumi ESC
             - name: SNOWFLAKE_ACCOUNT
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: snowflake_account
+                  key: postgres_host
             - name: SNOWFLAKE_USER
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: snowflake_user
+                  key: modern_stack_user
             - name: SNOWFLAKE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: snowflake_password
+                  key: postgres_password
             - name: SNOWFLAKE_ROLE
               value: "CORTEX_ROLE"
             - name: SNOWFLAKE_WAREHOUSE

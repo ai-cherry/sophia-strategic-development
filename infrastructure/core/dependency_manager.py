@@ -49,11 +49,11 @@ class DependencyManager:
         """Initialize default dependencies based on platform relationships."""
         # Data flow dependencies
         self.add_dependency(
-            "snowflake",
+            "modern_stack",
             "estuary",
             DependencyType.DATA_FLOW,
             critical=True,
-            description="Estuary loads data into Snowflake",
+            description="Estuary loads data into ModernStack",
         )
         self.add_dependency(
             "gong",
@@ -88,16 +88,16 @@ class DependencyManager:
 
         # Configuration dependencies
         self.add_dependency(
-            "snowflake",
+            "modern_stack",
             "gong",
             DependencyType.CONFIGURATION,
-            description="Gong webhooks may send data to Snowflake",
+            description="Gong webhooks may send data to ModernStack",
         )
         self.add_dependency(
-            "snowflake",
+            "modern_stack",
             "hubspot",
             DependencyType.CONFIGURATION,
-            description="HubSpot integration may use Snowflake for analytics",
+            description="HubSpot integration may use ModernStack for analytics",
         )
 
         # Authentication dependencies

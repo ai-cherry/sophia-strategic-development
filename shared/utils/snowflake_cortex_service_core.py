@@ -1,6 +1,6 @@
 # SQL injection fixes applied - using parameterized queries
 """
-Snowflake Cortex Service - Core Module
+Lambda GPU Service - Core Module
 Contains the main service class with connection management and basic operations
 """
 
@@ -20,11 +20,11 @@ except ImportError:  # pragma: no cover – allows type checking outside full re
 logger = logging.getLogger(__name__)
 
 
-class SnowflakeCortexService:
+class ModernStackCortexService:
     """
-    Core service for accessing Snowflake Cortex AI capabilities
+    Core service for accessing Lambda GPU AI capabilities
 
-    This class provides the foundation for Snowflake's native AI functions
+    This class provides the foundation for ModernStack's native AI functions
     for text processing, embeddings, and vector search directly within
     the data warehouse.
     """
@@ -49,9 +49,9 @@ class SnowflakeCortexService:
         # Shared async connection manager instance
         self.connection_manager: Any = shared_connection_manager  # type: ignore[attr-defined]
 
-        self.database = get_config_value("snowflake_database", "SOPHIA_AI")
-        self.schema = get_config_value("snowflake_schema", "AI_PROCESSING")
-        self.warehouse = get_config_value("snowflake_warehouse", "SOPHIA_AI_WH")
+        self.database = get_config_value("postgres_database", "SOPHIA_AI")
+        self.schema = get_config_value("postgres_schema", "AI_PROCESSING")
+        self.warehouse = get_config_value("postgres_database", "SOPHIA_AI_WH")
         self.initialized = False
 
         # Vector storage tables
@@ -73,7 +73,7 @@ class SnowflakeCortexService:
         pass
 
     async def initialize(self) -> None:
-        """Initialize Snowflake connection for Cortex AI processing"""
+        """Initialize ModernStack connection for Cortex AI processing"""
         if self.initialized:
             return
 
@@ -95,11 +95,11 @@ class SnowflakeCortexService:
 
             self.initialized = True
             logger.info(
-                "✅ Snowflake Cortex service initialized successfully with optimized connection manager"
+                "✅ Lambda GPU service initialized successfully with optimized connection manager"
             )
 
         except Exception as e:
-            logger.error(f"Failed to initialize Snowflake Cortex service: {e}")
+            logger.error(f"Failed to initialize Lambda GPU service: {e}")
             raise
 
     async def _create_vector_tables(self):
@@ -125,10 +125,10 @@ class SnowflakeCortexService:
                 logger.error(f"Error creating vector table {table_name}: {e}")
 
     async def close(self):
-        """Close Snowflake connection"""
+        """Close ModernStack connection"""
         # Connection is managed by connection manager
         self.initialized = False
-        logger.info("Snowflake Cortex service closed")
+        logger.info("Lambda GPU service closed")
 
     async def get_connection(self):
         """Get the current connection (for backward compatibility)"""

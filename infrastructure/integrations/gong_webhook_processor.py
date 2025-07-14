@@ -5,6 +5,7 @@ This module provides webhook processing capabilities for Gong integration.
 Simplified version to resolve import and indentation issues.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 import time
 from dataclasses import dataclass
@@ -74,11 +75,11 @@ class WebhookProcessor:
     def __init__(
         self,
         gong_api_key: str,
-        snowflake_config: dict[str, str],
+# REMOVED: ModernStack dependency: dict[str, str],
         redis_url: str = "redis://localhost:6379",
     ):
         self.gong_api_key = gong_api_key
-        self.snowflake_config = snowflake_config
+# REMOVED: ModernStack dependency
         self.redis_url = redis_url
         self.logger = logger
 

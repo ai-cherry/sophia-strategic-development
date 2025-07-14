@@ -13,6 +13,7 @@ Key Features:
 - State management and error handling
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import asyncio
@@ -37,8 +38,8 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-from shared.utils.snowflake_gong_connector import SnowflakeGongConnector
-from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
+from shared.utils.modern_stack_gong_connector import ModernStackGongConnector
+from shared.utils.modern_stack_hubspot_connector import ModernStackHubSpotConnector
 
 logger = logging.getLogger(__name__)
 
@@ -98,21 +99,21 @@ class CallAnalysisAgent:
     name: str = "call_analysis_agent"
     description: str = "Analyzes Gong call data for insights and patterns"
 
-    # Snowflake integrations
-    cortex_service: SnowflakeCortexService | None = None
-    gong_connector: SnowflakeGongConnector | None = None
+    # ModernStack integrations
+    cortex_service: ModernStackCortexService | None = None
+    gong_connector: ModernStackGongConnector | None = None
     ai_memory: EnhancedAiMemoryMCPServer | None = None
 
     initialized: bool = False
 
     async def initialize(self) -> None:
-        """Initialize Snowflake services and AI Memory"""
+        """Initialize ModernStack services and AI Memory"""
         if self.initialized:
             return
 
         try:
             self.cortex_service = UnifiedMemoryServiceV2()
-            self.gong_connector = SnowflakeGongConnector()
+            self.gong_connector = ModernStackGongConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
 
             # No initialize method on EnhancedAiMemoryMCPServer
@@ -170,7 +171,7 @@ class CallAnalysisAgent:
                     "insights": {},
                 }
 
-            # Analyze calls using Snowflake Cortex
+            # Analyze calls using Lambda GPU
             async with self.cortex_service as cortex:
                 call_insights = []
                 sentiment_scores = []
@@ -181,7 +182,7 @@ class CallAnalysisAgent:
                     call_id = call.get("CALL_ID") or call.get("ID")
 
                     # Generate call-specific insights
-                    call_analysis = await cortex.complete_text_with_cortex(
+                    call_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
                         prompt=f"""
                         Analyze this sales call and provide structured insights:
 
@@ -205,7 +206,7 @@ class CallAnalysisAgent:
                     # Extract topics from call content
                     call_topics = []
                     if call.get("matching_content"):
-                        topics_result = await cortex.complete_text_with_cortex(
+                        topics_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                             prompt=f"Extract 3-5 key topics discussed in this call. Return as comma-separated list: {call['matching_content'][:500]}",
                             max_tokens=50,
                         )
@@ -259,7 +260,7 @@ class CallAnalysisAgent:
                 )[:5]
 
                 # Generate overall assessment
-                overall_assessment = await cortex.complete_text_with_cortex(
+                overall_assessment = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=f"""
                     Provide an overall assessment of the call activity for this deal:
 
@@ -396,8 +397,8 @@ class SupervisorAgent:
     description: str = "Orchestrates deal analysis workflow and consolidates insights"
 
     # Service integrations
-    cortex_service: SnowflakeCortexService | None = None
-    hubspot_connector: SnowflakeHubSpotConnector | None = None
+    cortex_service: ModernStackCortexService | None = None
+    hubspot_connector: ModernStackHubSpotConnector | None = None
     ai_memory: EnhancedAiMemoryMCPServer | None = None
 
     initialized: bool = False
@@ -409,7 +410,7 @@ class SupervisorAgent:
 
         try:
             self.cortex_service = UnifiedMemoryServiceV2()
-            self.hubspot_connector = SnowflakeHubSpotConnector()
+            self.hubspot_connector = ModernStackHubSpotConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
 
             self.initialized = True
@@ -494,7 +495,7 @@ class SupervisorAgent:
             return state
 
         try:
-            # Generate consolidated analysis using Snowflake Cortex
+            # Generate consolidated analysis using Lambda GPU
             async with self.cortex_service as cortex:
                 consolidation_prompt = f"""
                 Consolidate the following analysis results into executive insights and recommendations:
@@ -519,7 +520,7 @@ class SupervisorAgent:
                 5. Success probability assessment
                 """
 
-                consolidated_analysis = await cortex.complete_text_with_cortex(
+                consolidated_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=consolidation_prompt, max_tokens=600
                 )
 

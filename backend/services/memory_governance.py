@@ -146,7 +146,7 @@ class DataQualityAssessor:
                 return 0.0
 
         # Check embedding dimensionality
-        expected_dims = 768  # Snowflake Cortex default
+        expected_dims = 768  # Lambda GPU default
         if len(chunk.embeddings) != expected_dims:
             return 0.5
 

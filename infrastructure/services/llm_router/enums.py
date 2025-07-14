@@ -9,7 +9,7 @@ from enum import Enum
 class TaskType(str, Enum):
     """Task types for intelligent routing - frozen for stability"""
 
-    # Data operations (Snowflake Cortex)
+    # Data operations (Lambda GPU)
     DATA_ANALYSIS = "data_analysis"
     SQL_GENERATION = "sql_generation"
     EMBEDDINGS = "embeddings"
@@ -46,7 +46,7 @@ class TaskComplexity(str, Enum):
 class Provider(str, Enum):
     """LLM providers - ordered by preference"""
 
-    SNOWFLAKE = "snowflake"  # Primary for data operations
+    SNOWFLAKE = "modern_stack"  # Primary for data operations
     PORTKEY = "portkey"  # Gateway for multiple providers
     OPENROUTER = "openrouter"  # 200+ model access
     OPENAI = "openai"  # Direct OpenAI access

@@ -87,7 +87,7 @@ SELECT * FROM TABLE(IDENTIFY_COST_OPTIMIZATIONS());
 
 ### Dashboards
 - Grafana: `http://localhost:3000/d/lambda-labs`
-- Snowflake: `AI_INSIGHTS.LAMBDA_LABS_*` tables
+- Modern Stack: `AI_INSIGHTS.LAMBDA_LABS_*` tables
 
 ## 🚨 Troubleshooting
 

@@ -20,7 +20,7 @@
    - Deployment scripts updated to use → `104.171.202.103` (sophia-production-instance)
 
 2. **Documentation Drift**:
-   - You already migrated from Snowflake to Weaviate days/weeks ago
+   - You already migrated from Modern Stack to Weaviate days/weeks ago
    - But documentation still said "NEVER use Weaviate"
    - Now fixed in System Handbook
 

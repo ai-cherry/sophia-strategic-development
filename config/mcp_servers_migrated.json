@@ -13,8 +13,8 @@
       "tools": 6,
       "description": "Memory management and search"
     },
-    "snowflake_unified": {
-      "name": "Snowflake Unified v2",
+    "modern_stack_unified": {
+      "name": "ModernStack Unified v2",
       "port": 9001,
       "status": "implemented",
       "version": "2.0.0",

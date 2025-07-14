@@ -20,7 +20,7 @@
 - **Total Services Deployed**: 5 core services
 - **Uptime**: 100% for backend API
 - **Response Time**: <10ms for health checks
-- **Memory Architecture**: 83% complete (missing Snowflake connection)
+- **Memory Architecture**: 83% complete (missing Modern Stack connection)
 - **MCP Servers**: 1/7 fully operational
 
 ### 🛠️ Infrastructure Prepared
@@ -99,8 +99,8 @@ git push origin main
 # Or manually trigger from GitHub Actions UI
 ```
 
-### 4. Fix Snowflake Connection
-The UnifiedMemoryService needs Snowflake user credentials:
+### 4. Fix Modern Stack Connection
+The UnifiedMemoryService needs Modern Stack user credentials:
 ```python
 # In backend/core/auto_esc_config.py, ensure:
 SNOWFLAKE_USER = get_config_value("snowflake_username")

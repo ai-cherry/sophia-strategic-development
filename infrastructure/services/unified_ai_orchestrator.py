@@ -1,8 +1,9 @@
 """
 Unified AI Orchestrator
-Intelligent routing between Snowflake Cortex and Lambda Labs with cost optimization
+Intelligent routing between Lambda GPU and Lambda Labs with cost optimization
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 import time
 from dataclasses import dataclass
@@ -11,7 +12,7 @@ from typing import Any
 
 from backend.services.lambda_labs_service import LambdaLabsService
 from infrastructure.services.llm_router import TaskComplexity, TaskType
-from infrastructure.services.snowflake_pat_service import SnowflakePATService
+from infrastructure.services.modern_stack_pat_service import ModernStackPATService
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 class AIProvider(Enum):
     """AI provider options"""
 
-    SNOWFLAKE_CORTEX = "snowflake_cortex"
+    # REMOVED: ModernStack dependency "modern_stack_cortex"
     LAMBDA_LABS = "lambda_labs"
     AUTO = "auto"
 
@@ -89,7 +90,7 @@ class IntelligentRouter:
         # Analyze request characteristics
         prompt_tokens = len(request.prompt.split())
 
-        # Data-local operations prefer Snowflake
+        # Data-local operations prefer ModernStack
         data_keywords = [
             "sql",
             "query",
@@ -108,7 +109,7 @@ class IntelligentRouter:
 
         # Cost optimization
         if request.cost_priority == "cost":
-            # Small requests to Snowflake, large to Lambda
+            # Small requests to ModernStack, large to Lambda
             if prompt_tokens < self.cost_thresholds["medium"]:
                 return AIProvider.SNOWFLAKE_CORTEX
             else:
@@ -129,13 +130,13 @@ class IntelligentRouter:
 
 class UnifiedAIOrchestrator:
     """
-    Orchestrates AI requests between Snowflake Cortex and Lambda Labs
+    Orchestrates AI requests between Lambda GPU and Lambda Labs
     Provides intelligent routing, cost optimization, and unified interface
     """
 
     def __init__(self):
         self.lambda_service = LambdaLabsService()
-        self.snowflake_service = SnowflakePATService()
+        self.memory_service_v3 = ModernStackPATService()
         self.router = IntelligentRouter()
 
         # Performance tracking
@@ -168,7 +169,7 @@ class UnifiedAIOrchestrator:
             if provider == AIProvider.LAMBDA_LABS:
                 response = await self._process_lambda(request)
             else:
-                response = await self._process_snowflake(request)
+                response = await self._process_modern_stack(request)
 
             # Update metrics
             self._update_metrics(provider, response, success=True)
@@ -246,20 +247,20 @@ class UnifiedAIOrchestrator:
             metadata={"backend": "serverless", "cost_priority": request.cost_priority},
         )
 
-    async def _process_snowflake(self, request: AIRequest) -> AIResponse:
-        """Process request using Snowflake Cortex"""
+    async def _process_modern_stack(self, request: AIRequest) -> AIResponse:
+        """Process request using Lambda GPU"""
 
         start_time = time.time()
 
         # Handle different use cases
         if request.use_case == "embedding":
-            response_data = await self.snowflake_service.execute_cortex_embed(
+            response_data = await self.memory_service_v3.execute_cortex_embed(
                 text=request.prompt, model=request.model or "e5-base-v2"
             )
             response_text = str(response_data)  # Embedding vector
 
         elif request.use_case == "sql":
-            result = await self.snowflake_service.natural_language_to_sql(
+            result = await self.memory_service_v3.natural_language_to_sql(
                 query=request.prompt,
                 schema_context=(
                     request.context.get("schema") if request.context else None
@@ -269,7 +270,7 @@ class UnifiedAIOrchestrator:
 
         else:
             # General completion
-            response_text = await self.snowflake_service.execute_cortex_complete(
+            response_text = await self.memory_service_v3.execute_cortex_complete(
                 prompt=request.prompt,
                 model=request.model or "mistral-large",
                 temperature=request.temperature or 0.7,
@@ -285,7 +286,7 @@ class UnifiedAIOrchestrator:
             "total_tokens": len(request.prompt.split()) + len(response_text.split()),
         }
 
-        cost_estimate = self._calculate_snowflake_cost(usage)
+        cost_estimate = self._calculate_modern_stack_cost(usage)
 
         return AIResponse(
             response=response_text,
@@ -313,10 +314,10 @@ class UnifiedAIOrchestrator:
 
         return (total_tokens / 1_000_000) * cost_per_million
 
-    def _calculate_snowflake_cost(self, usage: dict[str, Any]) -> float:
-        """Calculate Snowflake Cortex cost"""
+    def _calculate_modern_stack_cost(self, usage: dict[str, Any]) -> float:
+        """Calculate Lambda GPU cost"""
 
-        # Snowflake Cortex pricing (approximate)
+        # Lambda GPU pricing (approximate)
         # Typically included in compute costs
         total_tokens = usage.get("total_tokens", 0)
 
@@ -354,7 +355,7 @@ class UnifiedAIOrchestrator:
 Command: {command}
 
 Current System State:
-- Providers: Snowflake Cortex (data-local), Lambda Labs (serverless)
+- Providers: Lambda GPU (data-local), Lambda Labs (serverless)
 - Cost Priority: Balanced
 - Performance Metrics: {self.get_performance_summary()}
 
@@ -403,15 +404,15 @@ Provide specific, actionable recommendations in JSON format with:
                 "error": str(e),
             }
 
-        # Check Snowflake
+        # Check ModernStack
         try:
-            snowflake_health = await self.snowflake_service.test_connection()
-            health_status["providers"]["snowflake_cortex"] = {
-                "status": "healthy" if snowflake_health["connected"] else "unhealthy",
-                "details": snowflake_health,
+            # REMOVED: ModernStack dependency await self.memory_service_v3.test_connection()
+            health_status["providers"]["# REMOVED: ModernStack dependency {
+                "status": "healthy" if modern_stack_health["connected"] else "unhealthy",
+                "details": modern_stack_health,
             }
         except Exception as e:
-            health_status["providers"]["snowflake_cortex"] = {
+            health_status["providers"]["# REMOVED: ModernStack dependency {
                 "status": "unhealthy",
                 "error": str(e),
             }

@@ -49,7 +49,7 @@ spec:
             - name: SNOWFLAKE_ACCOUNT
               valueFrom:
                 secretKeyRef:
-                  name: sophia-snowflake-secrets
+                  name: sophia-modern_stack-secrets
                   key: account
             - name: SNOWFLAKE_DATABASE
               value: "SOPHIA_AI"
@@ -99,13 +99,13 @@ spec:
 
       # Init container to ensure dependencies are ready
       initContainers:
-        - name: wait-for-snowflake
+        - name: wait-for-modern_stack
           image: busybox:1.35
           command:
             [
               "sh",
               "-c",
-              'echo "Waiting for Snowflake connection..." && sleep 5',
+              'echo "Waiting for ModernStack connection..." && sleep 5',
             ]
 
       # Volumes
@@ -179,7 +179,7 @@ data:
       port: 8000
       workers: 4
 
-    snowflake:
+    modern_stack:
       warehouse: "SOPHIA_AI_WH"
       role: "SOPHIA_AI_ROLE"
       schema: "PRODUCTION"

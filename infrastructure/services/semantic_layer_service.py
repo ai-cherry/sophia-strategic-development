@@ -1,12 +1,13 @@
 # File: backend/services/semantic_layer_service.py
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 from pathlib import Path
 from typing import Any
 
 from core.performance_monitor import performance_monitor
-from shared.utils.enhanced_snowflake_cortex_service import (
-    EnhancedSnowflakeCortexService,
+from shared.utils.enhanced_modern_stack_cortex_service import (
+    EnhancedModernStackCortexService,
 )
 
 logger = logging.getLogger(__name__)
@@ -14,23 +15,23 @@ logger = logging.getLogger(__name__)
 
 class SemanticLayerService:
     """
-    Service for managing Snowflake semantic layer operations.
+    Service for managing ModernStack semantic layer operations.
     Integrates with existing MCP server architecture and Cortex services.
     """
 
     def __init__(self):
-        """Initializes the service and the connection to Snowflake."""
-        self.snowflake_service = EnhancedSnowflakeCortexService()
+        """Initializes the service and the connection to ModernStack."""
+        self.memory_service_v3 = EnhancedModernStackCortexService()
 
     @performance_monitor.monitor_performance("semantic_get_connection")
     async def _get_connection(self):
-        """Gets a snowflake connection."""
+        """Gets a modern_stack connection."""
         # Initialize the service if not already done
         if (
-            not hasattr(self.snowflake_service, "initialized")
-            or not self.snowflake_service.initialized
+            not hasattr(self.memory_service_v3, "initialized")
+            or not self.memory_service_v3.initialized
         ):
-            await self.snowflake_service.initialize()
+            await self.memory_service_v3.initialize()
 
     async def _execute_sql_file(self, file_path: str) -> None:
         """Executes a SQL script file."""
@@ -39,7 +40,7 @@ class SemanticLayerService:
             # Split and execute statements
             for statement in sql_script.split(";"):
                 if statement.strip():
-                    await self.snowflake_service.execute_query(statement.strip())
+                    await self.memory_service_v3.execute_query(statement.strip())
             logger.info(f"Successfully executed SQL script: {file_path}")
         except Exception as e:
             logger.exception(f"Error executing SQL file {file_path}: {e}")
@@ -52,16 +53,16 @@ class SemanticLayerService:
         """Executes a SQL query and returns the results as a list of dicts."""
         # Convert params to tuple if provided
         query_params = tuple(params) if params else None
-        return await self.snowflake_service.execute_query(query, query_params)
+        return await self.memory_service_v3.execute_query(query, query_params)
 
     async def initialize_semantic_layer(self) -> bool:
         """Initialize semantic layer with business vocabulary"""
         try:
             # Execute semantic view creation scripts
             semantic_scripts = [
-                "backend/snowflake_setup/semantic_layer_foundation.sql",
-                "backend/snowflake_setup/business_vocabulary_definitions.sql",
-                "backend/snowflake_setup/entity_relationships.sql",
+                "backend/modern_stack_setup/semantic_layer_foundation.sql",
+                "backend/modern_stack_setup/business_vocabulary_definitions.sql",
+                "backend/modern_stack_setup/entity_relationships.sql",
             ]
 
             for script in semantic_scripts:
@@ -132,7 +133,7 @@ class SemanticLayerService:
         try:
             conn = await self._get_connection()
             conn.close()
-            return {"status": "healthy", "message": "Snowflake connection successful."}
+            return {"status": "healthy", "message": "ModernStack connection successful."}
         except Exception as e:
             return {"status": "unhealthy", "message": str(e)}
 

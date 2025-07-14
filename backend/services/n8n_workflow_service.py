@@ -120,8 +120,8 @@ class N8nWorkflowService:
                         position={"x": 250, "y": 300},
                     ),
                     WorkflowNode(
-                        id="snowflake_query",
-                        type="n8n-nodes-base.snowflake",
+                        id="modern_stack_query",
+                        type="n8n-nodes-base.modern_stack",
                         name="Query Business Metrics",
                         parameters={
                             "operation": "executeQuery",

@@ -1,13 +1,13 @@
 """
-Enhanced Snowflake Cortex Service
-Modularized implementation - see enhanced_snowflake_cortex_service/ directory
+Enhanced Lambda GPU Service
+Modularized implementation - see enhanced_modern_stack_cortex_service/ directory
 """
 
 # Import all functionality from modular implementation
-from .enhanced_snowflake_cortex_service import *
+from .enhanced_modern_stack_cortex_service import *
 
 # Maintain backward compatibility
 __all__ = [
-    "EnhancedSnowflakeCortexService",
+    "EnhancedModernStackCortexService",
     # Add other exports as needed
 ]

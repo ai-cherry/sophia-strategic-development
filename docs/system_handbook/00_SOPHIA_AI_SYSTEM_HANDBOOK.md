@@ -69,7 +69,7 @@ graph TB
         MEM[6-Tier Memory Architecture]
         PORT[Portkey LLM Gateway]
         EST[Estuary Real-time Data]
-        SNOW[Snowflake Data Cloud]
+        SNOW[Modern Stack Data Cloud]
     end
 ```
 
@@ -121,7 +121,7 @@ graph TB
 | L2 | Weaviate | Vector search + embeddings | <50ms | ✅ Primary |
 | L3 | PostgreSQL pgvector | Hybrid SQL + vectors | <100ms | ✅ Operational |
 | L4 | Mem0 | Conversational memory | <150ms | ✅ Integrated |
-| L5 | Snowflake (Legacy) | Structured data backup | <500ms | ⚠️ Phasing out |
+| L5 | Modern Stack (Legacy) | Structured data backup | <500ms | ⚠️ Phasing out |
 
 ### 3.4.3. New Phase 4 Components
 
@@ -146,12 +146,12 @@ graph TB
 2. **MCP Servers** - AI Memory MCP v2 with real embeddings
 3. **Orchestrator** - MemoryServiceAdapter integration
 4. **n8n Workflows** - Memory-aware automation
-5. **Data Pipelines** - Snowflake Cortex enrichment
+5. **Data Pipelines** - Lambda GPU enrichment
 
 ### 3.4.5. Configuration
 
 ```python
-# Snowflake Cortex
+# Lambda GPU
 DATABASE: AI_MEMORY
 SCHEMA: VECTORS
 TABLE: KNOWLEDGE_BASE
@@ -176,7 +176,7 @@ EMBEDDING: text-embedding-ada-002
 ### Production Servers (16 Active)
 
 #### Core Infrastructure
-- **Snowflake Unified** (9010) - Data operations & AI
+- **Modern Stack Unified** (9010) - Data operations & AI
 - **Estuary Flow** (9012) - Real-time data pipelines
 - **Lambda Labs CLI** (9020) - Infrastructure management
 - **Portkey Admin** (9013) - LLM gateway control
@@ -395,7 +395,7 @@ nodes = {
 
 ### Pre-built Workflows
 1. **Daily Business Intelligence**
-   - Snowflake metrics query
+   - Modern Stack metrics query
    - AI analysis and insights
    - Executive summary to Slack
 
@@ -529,7 +529,7 @@ python scripts/test_v4_orchestrator_integration.py
 ### Troubleshooting Guide
 | Issue | Check | Resolution |
 |-------|-------|------------|
-| No Snowflake | Connection logs | System runs in degraded mode |
+| No Modern Stack | Connection logs | System runs in degraded mode |
 | MCP timeout | Server health endpoint | Restart specific server |
 | High latency | Portkey metrics | Check model routing policy |
 | Build failure | UV audit results | Fix security vulnerabilities |

@@ -108,14 +108,14 @@ mcpServers:
       initialDelaySeconds: 30
       periodSeconds: 10
 
-  # Snowflake Admin MCP Server - Critical
-  snowflakeAdmin:
+  # ModernStack Admin MCP Server - Critical
+  modern_stackAdmin:
     enabled: true
-    name: sophia-mcp-snowflake-admin
+    name: sophia-mcp-modern_stack-admin
     replicas: 2
     port: 8080
     image:
-      repository: sophia-snowflake-admin-mcp
+      repository: sophia-modern_stack-admin-mcp
       tag: ""
 
     resources:
@@ -128,7 +128,7 @@ mcpServers:
 
     env:
       - name: MCP_SERVER_TYPE
-        value: "snowflake_admin"
+        value: "modern_stack_admin"
       - name: MULTI_ENVIRONMENT_ENABLED
         value: "true"
       - name: SQL_EXECUTION_ENABLED
@@ -421,7 +421,7 @@ environments:
     replicas:
       gateway: 3
       aiMemory: 2
-      snowflakeAdmin: 2
+      modern_stackAdmin: 2
       linear: 2
       asana: 2
       gong: 2
@@ -438,7 +438,7 @@ environments:
     replicas:
       gateway: 2
       aiMemory: 1
-      snowflakeAdmin: 1
+      modern_stackAdmin: 1
       linear: 1
       asana: 1
       gong: 1
@@ -455,7 +455,7 @@ environments:
     replicas:
       gateway: 1
       aiMemory: 1
-      snowflakeAdmin: 1
+      modern_stackAdmin: 1
       linear: 1
       asana: 1
       gong: 1

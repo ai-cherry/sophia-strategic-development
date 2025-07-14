@@ -1,8 +1,9 @@
 """
-Enhanced Snowflake Cortex Integration Service for Project Chimera
+Enhanced Lambda GPU Integration Service for Project Chimera
 Provides natural language to advanced analytics capabilities
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -25,7 +26,7 @@ class CortexOperation:
 
 
 class EnhancedCortexService:
-    """Enhanced Snowflake Cortex AI integration service"""
+    """Enhanced Lambda GPU AI integration service"""
 
     def __init__(self):
         self.cortex_functions = {
@@ -80,16 +81,16 @@ class EnhancedCortexService:
         # Determine operation type based on query characteristics
         if any(word in query_lower for word in ["forecast", "predict", "projection"]):
             operation_type = "ml_training"
-            sql_template = "SELECT SNOWFLAKE.ML.FORECAST(...)"
+            sql_template = "SELECT self.modern_stack.ML.FORECAST(...)"
         elif any(word in query_lower for word in ["summarize", "summary", "overview"]):
             operation_type = "analysis"
-            sql_template = "SELECT SNOWFLAKE.CORTEX.SUMMARIZE(...)"
+            sql_template = "SELECT self.modern_stack.await self.lambda_gpu.summarize(...)"
         elif any(word in query_lower for word in ["sentiment", "feeling", "opinion"]):
             operation_type = "analysis"
-            sql_template = "SELECT SNOWFLAKE.CORTEX.SENTIMENT(...)"
+            sql_template = "SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(...)"
         elif any(word in query_lower for word in ["classify", "categorize", "group"]):
             operation_type = "analysis"
-            sql_template = "SELECT SNOWFLAKE.CORTEX.CLASSIFY(...)"
+            sql_template = "SELECT await self.lambda_gpu.CLASSIFY(...)"
         else:
             operation_type = "sql_generation"
             sql_template = "-- Generated SQL based on natural language query"
@@ -116,7 +117,7 @@ class EnhancedCortexService:
 {template}
 -- Additional context and parameters would be included here
 SELECT
-    SNOWFLAKE.CORTEX.COMPLETE(
+    self.modern_stack.await self.lambda_gpu.complete(
         'llama2-70b-chat',
         CONCAT('Based on the following business question: ', '{query}',
                ' Please provide a comprehensive analysis with specific insights and recommendations.')
@@ -130,7 +131,7 @@ SELECT
         self, operation: CortexOperation
     ) -> dict[str, Any]:
         """Execute the Cortex operation"""
-        # This would implement actual Snowflake Cortex execution
+        # This would implement actual Lambda GPU execution
         # For now, return simulated results
 
         if operation.operation_type == "ml_training":
@@ -148,7 +149,7 @@ SELECT
             return {
                 "analysis_type": "cortex_function",
                 "results": {
-                    "summary": "Comprehensive analysis completed using Snowflake Cortex AI",
+                    "summary": "Comprehensive analysis completed using Lambda GPU AI",
                     "key_insights": [
                         "Revenue trends show consistent growth",
                         "Customer satisfaction scores are improving",

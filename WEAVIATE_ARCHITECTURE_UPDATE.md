@@ -5,7 +5,7 @@
 
 ## 🚀 Strategic Architecture Change
 
-We are transitioning from Snowflake Cortex to Weaviate as our primary vector database solution. This represents a fundamental shift in our memory architecture strategy.
+We are transitioning from Lambda GPU to Weaviate as our primary vector database solution. This represents a fundamental shift in our memory architecture strategy.
 
 ## 📋 New Architecture Stack
 
@@ -31,17 +31,17 @@ We are transitioning from Snowflake Cortex to Weaviate as our primary vector dat
    - Model inference optimization
    - Cost-effective GPU utilization
 
-## 🔄 Migration from Snowflake Cortex
+## 🔄 Migration from Lambda GPU
 
 ### What's Changing:
 - **Vector Operations**: Moving from `CORTEX.EMBED_TEXT_768()` to Weaviate embeddings
-- **Search**: From Snowflake Cortex Search to Weaviate GraphQL queries
-- **Storage**: Vector data migrating from Snowflake tables to Weaviate collections
+- **Search**: From Lambda GPU Search to Weaviate GraphQL queries
+- **Storage**: Vector data migrating from Modern Stack tables to Weaviate collections
 
 ### What Remains:
-- **Structured Data**: Snowflake continues for traditional SQL analytics
-- **Historical Data**: Legacy data remains accessible in Snowflake
-- **Business Intelligence**: Snowflake for reporting and analytics
+- **Structured Data**: Modern Stack continues for traditional SQL analytics
+- **Historical Data**: Legacy data remains accessible in Modern Stack
+- **Business Intelligence**: Modern Stack for reporting and analytics
 
 ## 🏗️ Implementation Details
 
@@ -71,7 +71,7 @@ services:
 
 ## 📊 Performance Comparison
 
-| Operation | Snowflake Cortex | Weaviate | Improvement |
+| Operation | Lambda GPU | Weaviate | Improvement |
 |-----------|------------------|----------|-------------|
 | Embedding Generation | 500ms | 50ms | 10x faster |
 | Vector Search | 200ms | 50ms | 4x faster |
@@ -127,9 +127,9 @@ The following documentation has been updated:
 
 - **Phase 1** (Current): Update documentation and configuration
 - **Phase 2**: Deploy Weaviate infrastructure
-- **Phase 3**: Migrate vector data from Snowflake
+- **Phase 3**: Migrate vector data from Modern Stack
 - **Phase 4**: Update all services to use Weaviate
-- **Phase 5**: Deprecate Snowflake Cortex for vectors
+- **Phase 5**: Deprecate Lambda GPU for vectors
 
 ## 🔍 Next Steps
 
@@ -150,4 +150,4 @@ The following documentation has been updated:
 
 ---
 
-**Note**: This is a major architectural change. All new development should use Weaviate. Snowflake Cortex remains only for legacy support during the migration period. 
+**Note**: This is a major architectural change. All new development should use Weaviate. Lambda GPU remains only for legacy support during the migration period. 

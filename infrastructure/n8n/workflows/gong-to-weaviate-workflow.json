@@ -128,7 +128,7 @@
     },
     {
       "parameters": {
-        "functionCode": "// Calculate performance metrics\nconst startTime = $items('webhook_trigger')[0].json.timestamp;\nconst endTime = new Date();\nconst totalMs = endTime - new Date(startTime);\n\n// Estimate Snowflake time (8x slower)\nconst snowflakeEstimateMs = totalMs * 8;\n\nreturn [{\n  json: {\n    success: true,\n    processingTimeMs: totalMs,\n    snowflakeEstimateMs: snowflakeEstimateMs,\n    speedup: (snowflakeEstimateMs / totalMs).toFixed(1) + 'x',\n    costSavings: '$' + (totalMs * 0.001).toFixed(2),\n    message: `Processed in ${totalMs}ms (Snowflake would have taken ${snowflakeEstimateMs}ms)`\n  }\n}];"
+        "functionCode": "// Calculate performance metrics\nconst startTime = $items('webhook_trigger')[0].json.timestamp;\nconst endTime = new Date();\nconst totalMs = endTime - new Date(startTime);\n\n// Estimate ModernStack time (8x slower)\nconst modern_stackEstimateMs = totalMs * 8;\n\nreturn [{\n  json: {\n    success: true,\n    processingTimeMs: totalMs,\n    modern_stackEstimateMs: modern_stackEstimateMs,\n    speedup: (modern_stackEstimateMs / totalMs).toFixed(1) + 'x',\n    costSavings: '$' + (totalMs * 0.001).toFixed(2),\n    message: `Processed in ${totalMs}ms (ModernStack would have taken ${modern_stackEstimateMs}ms)`\n  }\n}];"
       },
       "id": "performance_metrics",
       "name": "Calculate Performance",
@@ -139,7 +139,7 @@
     {
       "parameters": {
         "channel": "#sophia-monitoring",
-        "text": "=Gong Call Processed ✅\n\n*Call ID:* {{ $items('prepare_data')[0].json.id }}\n*Processing Time:* {{ $json.processingTimeMs }}ms\n*Speedup vs Snowflake:* {{ $json.speedup }}\n*Cost Savings:* {{ $json.costSavings }}\n\n_{{ $json.message }}_",
+        "text": "=Gong Call Processed ✅\n\n*Call ID:* {{ $items('prepare_data')[0].json.id }}\n*Processing Time:* {{ $json.processingTimeMs }}ms\n*Speedup vs ModernStack:* {{ $json.speedup }}\n*Cost Savings:* {{ $json.costSavings }}\n\n_{{ $json.message }}_",
         "attachments": [],
         "otherOptions": {}
       },

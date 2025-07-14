@@ -1,8 +1,9 @@
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from datetime import UTC, datetime
 
 """
-Sophia AI - Enhanced Snowflake Cortex Service
-Unified AI processing using pure Snowflake Cortex for embeddings, LLM, and analytics
+Sophia AI - Enhanced Lambda GPU Service
+Unified AI processing using pure Lambda GPU for embeddings, LLM, and analytics
 """
 
 import json
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class CortexModel(Enum):
-    """Snowflake Cortex model enumeration."""
+    """Lambda GPU model enumeration."""
 
     # Embedding models
     E5_BASE_V2 = "e5-base-v2"
@@ -79,12 +80,12 @@ class AIInsight:
     generated_at: datetime
 
 
-class EnhancedSnowflakeCortexService(SnowflakeCortexService):
+class EnhancedModernStackCortexService(ModernStackCortexService):
     """
-    Enhanced Snowflake Cortex service providing unified AI processing.
+    Enhanced Lambda GPU service providing unified AI processing.
 
     Features:
-    - Pure Snowflake Cortex embedding generation
+    - Pure Lambda GPU embedding generation
     - Semantic search across all data sources
     - AI-powered summarization and insights
     - Intelligent caching and optimization
@@ -104,7 +105,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         # Create AI processing tables if they don't exist
         await self._create_ai_processing_tables()
 
-        logger.info("✅ Enhanced Snowflake Cortex service initialized")
+        logger.info("✅ Enhanced Lambda GPU service initialized")
 
     async def _create_ai_processing_tables(self) -> None:
         """Create tables for AI processing and caching."""
@@ -169,7 +170,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         self, texts: list[str], use_cache: bool = True
     ) -> list[EmbeddingResult]:
         """
-        Generate embeddings using Snowflake Cortex with intelligent caching.
+        Generate embeddings using Lambda GPU with intelligent caching.
 
         Args:
             texts: List of texts to generate embeddings for
@@ -181,7 +182,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         try:
             results = []
 
-            # Process in batches to avoid Snowflake limits
+            # Process in batches to avoid ModernStack limits
             batch_size = min(self.config.batch_size, 20)
 
             for i in range(0, len(texts), batch_size):
@@ -197,7 +198,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                         f"""
                         SELECT
                             '{escaped_text}' as text,
-                            SNOWFLAKE.CORTEX.EMBED_TEXT_768('{self.config.embedding_model.value}', '{escaped_text}') as embedding,
+# REMOVED: ModernStack dependency.embedding_model.value}', '{escaped_text}') as embedding,
                             '{self.config.embedding_model.value}' as model
                     """
                     )
@@ -301,7 +302,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         self, content: str, context: str = "", summary_type: str = "general"
     ) -> str:
         """
-        Generate AI summary using Snowflake Cortex LLM.
+        Generate AI summary using Lambda GPU LLM.
 
         Args:
             content: Content to summarize
@@ -336,7 +337,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             # Generate summary using Cortex
             summary_query = f"""
-            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+            SELECT self.modern_stack.await self.lambda_gpu.complete(
                 '{self.config.llm_model.value}',
                 $$({prompt})$$
             ) as summary
@@ -402,7 +403,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             # Generate insights using Cortex
             insights_query = f"""
-            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+            SELECT self.modern_stack.await self.lambda_gpu.complete(
                 '{self.config.llm_model.value}',
                 $$({prompt})$$
             ) as insights_json

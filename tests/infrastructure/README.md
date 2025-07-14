@@ -93,9 +93,9 @@ Test individual infrastructure components in isolation:
 Example:
 ```python
 def test_database_creation(self, pulumi_mock, mock_pulumi_config):
-    """Test that the component creates a Snowflake database"""
+    """Test that the component creates a PostgreSQL database"""
     with pulumi_mock.mocked_provider():
-        component = SnowflakeComponent("test-snowflake")
+        component = Modern StackComponent("test-snowflake")
         pulumi_mock.assert_resource_created(
             "snowflake:index/database:Database",
             {"name": "SOPHIA_DB_TEST"}
@@ -113,12 +113,12 @@ Test interactions between multiple components:
 Example:
 ```python
 async def test_gong_data_flow_to_snowflake(self, mock_gong_client, mock_snowflake_client):
-    """Test data flows correctly from Gong to Snowflake"""
+    """Test data flows correctly from Gong to Modern Stack"""
     # Send test data to Gong
     test_data = {"call_id": "test-123", "duration": 300}
     mock_gong_client.send_test_data(test_data)
 
-    # Verify data in Snowflake
+    # Verify data in Modern Stack
     result = mock_snowflake_client.query(
         f"SELECT * FROM gong_calls WHERE call_id = '{test_data['call_id']}'"
     )
@@ -142,7 +142,7 @@ Validate performance requirements:
 - Resource utilization
 
 Performance thresholds:
-- Snowflake queries: < 2.0s
+- Modern Stack queries: < 2.0s
 - Pinecone searches: < 0.1s
 - Gong webhooks: < 0.5s
 - API responses: < 0.2s
@@ -187,7 +187,7 @@ Common test fixtures are defined in `conftest.py`:
 
 - `pulumi_mock`: Mock Pulumi runtime for unit tests
 - `mock_pulumi_config`: Mock configuration values
-- `mock_snowflake_client`: Mock Snowflake client
+- `mock_snowflake_client`: Mock Modern Stack client
 - `mock_pinecone_client`: Mock Pinecone client
 - `mock_gong_client`: Mock Gong client
 - `test_environment_manager`: Test stack management

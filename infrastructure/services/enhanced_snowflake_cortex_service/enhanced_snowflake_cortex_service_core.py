@@ -1,5 +1,5 @@
 """
-Enhanced Snowflake Cortex Service Core
+Enhanced Lambda GPU Service Core
 Main service implementation
 """
 
@@ -11,8 +11,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
-import snowflake.connector
-from snowflake.connector import DictCursor
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
 from core.enhanced_cache_manager import EnhancedCacheManager
 from infrastructure.security.audit_logger import AuditLogger
 from infrastructure.services.cost_engineering_service import (
@@ -21,9 +21,9 @@ from infrastructure.services.cost_engineering_service import (
 )
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
-from .models.enhanced_snowflake_cortex_service_models import *
-from .handlers.enhanced_snowflake_cortex_service_handlers import *
-from .utils.enhanced_snowflake_cortex_service_utils import *
+from .models.enhanced_modern_stack_cortex_service_models import *
+from .handlers.enhanced_modern_stack_cortex_service_handlers import *
+from .utils.enhanced_modern_stack_cortex_service_utils import *
 
 # Core service classes
 class CortexSearchMode(Enum):
@@ -64,12 +64,12 @@ class AIProcessingResult:
     quality_score: float
     metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
-class EnhancedSnowflakeCortexService:
+class EnhancedModernStackCortexService:
     """
-    Enhanced Snowflake Cortex service with advanced AI capabilities
+    Enhanced Lambda GPU service with advanced AI capabilities
 
     Provides comprehensive AI processing, data analytics, and pipeline
-    management using Snowflake Cortex functions and custom implementations.
+    management using Lambda GPU functions and custom implementations.
     """
 
     def __init__(self):
@@ -78,7 +78,7 @@ class EnhancedSnowflakeCortexService:
         self.cache_manager = EnhancedCacheManager()
 
         # Connection management
-        self.connection: snowflake.connector.SnowflakeConnection | None = None
+        self.connection: modern_stack.connector.ModernStackConnection | None = None
         self.connection_params: dict[str, Any] = {}
 
         # Pipeline management
@@ -120,22 +120,22 @@ class EnhancedSnowflakeCortexService:
             asyncio.create_task(self._performance_optimization_task())
 
             self.initialized = True
-            logger.info("✅ Enhanced Snowflake Cortex Service initialized")
+            logger.info("✅ Enhanced Lambda GPU Service initialized")
 
         except Exception as e:
             logger.exception(
-                f"Failed to initialize Enhanced Snowflake Cortex Service: {e}"
+                f"Failed to initialize Enhanced Lambda GPU Service: {e}"
             )
             raise
 
-    async def _get_connection(self) -> snowflake.connector.SnowflakeConnection:
-        """Get or create Snowflake connection"""
+    async def _get_connection(self) -> modern_stack.connector.ModernStackConnection:
+        """Get or create ModernStack connection"""
         if not self.connection or self.connection.is_closed():
-            self.connection = snowflake.connector.connect(**self.connection_params)
+            self.connection = self.modern_stack_connection(**self.connection_params)
         return self.connection
 
     async def _initialize_custom_functions(self) -> None:
-        """Initialize custom AI functions in Snowflake"""
+        """Initialize custom AI functions in ModernStack"""
         try:
             conn = await self._get_connection()
             cursor = conn.cursor()
@@ -147,7 +147,7 @@ class EnhancedSnowflakeCortexService:
             LANGUAGE SQL
             AS
             $$
-                SELECT SNOWFLAKE.CORTEX.SUMMARIZE(text, max_length)
+                SELECT self.modern_stack.await self.lambda_gpu.summarize(text, max_length)
             $$;
             """
 
@@ -159,12 +159,12 @@ class EnhancedSnowflakeCortexService:
             AS
             $$
                 SELECT OBJECT_CONSTRUCT(
-                    'sentiment', SNOWFLAKE.CORTEX.SENTIMENT(text),
-                    'confidence', ABS(SNOWFLAKE.CORTEX.SENTIMENT(text)),
+                    'sentiment', self.modern_stack.await self.lambda_gpu.analyze_sentiment(text),
+                    'confidence', ABS(self.modern_stack.await self.lambda_gpu.analyze_sentiment(text)),
                     'classification',
                         CASE
-                            WHEN SNOWFLAKE.CORTEX.SENTIMENT(text) > 0.3 THEN 'positive'
-                            WHEN SNOWFLAKE.CORTEX.SENTIMENT(text) < -0.3 THEN 'negative'
+                            WHEN self.modern_stack.await self.lambda_gpu.analyze_sentiment(text) > 0.3 THEN 'positive'
+                            WHEN self.modern_stack.await self.lambda_gpu.analyze_sentiment(text) < -0.3 THEN 'negative'
                             ELSE 'neutral'
                         END
                 )
@@ -178,7 +178,7 @@ class EnhancedSnowflakeCortexService:
             LANGUAGE SQL
             AS
             $$
-                SELECT SNOWFLAKE.CORTEX.EXTRACT_ANSWER(text, 'Extract all named entities (people, organizations, locations) from this text. Return as JSON array.')
+                SELECT await self.lambda_gpu.EXTRACT_ANSWER(text, 'Extract all named entities (people, organizations, locations) from this text. Return as JSON array.')
             $$;
             """
 
@@ -189,7 +189,7 @@ class EnhancedSnowflakeCortexService:
             LANGUAGE SQL
             AS
             $$
-                SELECT SNOWFLAKE.CORTEX.CLASSIFY_TEXT(text, categories)
+                SELECT await self.lambda_gpu.CLASSIFY_TEXT(text, categories)
             $$;
             """
 
@@ -242,7 +242,7 @@ class EnhancedSnowflakeCortexService:
             if config.search_mode == CortexSearchMode.SEMANTIC:
                 search_sql = f"""
                 SELECT *
-                FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                     '{search_service}',
                     '{query}',
                     {config.max_results}
@@ -255,7 +255,7 @@ class EnhancedSnowflakeCortexService:
                 search_sql = f"""
                 WITH semantic_results AS (
                     SELECT *, 'semantic' as search_type
-                    FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                    FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                         '{search_service}',
                         '{query}',
                         {config.max_results}
@@ -264,7 +264,7 @@ class EnhancedSnowflakeCortexService:
                 ),
                 keyword_results AS (
                     SELECT *, 'keyword' as search_type
-                    FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                    FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                         '{search_service}',
                         '{query}',
                         {config.max_results}
@@ -282,7 +282,7 @@ class EnhancedSnowflakeCortexService:
                 search_sql = f"""
                 WITH initial_results AS (
                     SELECT *
-                    FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                    FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                         '{search_service}',
                         '{query}',
                         {config.max_results * 2}
@@ -291,7 +291,7 @@ class EnhancedSnowflakeCortexService:
                 ),
                 reranked_results AS (
                     SELECT *,
-                        SNOWFLAKE.CORTEX.COMPLETE(
+                        self.modern_stack.await self.lambda_gpu.complete(
                             'mistral-7b',
                             'Rate the relevance of this content to the query "' || '{query}' || '" on a scale of 0-1: ' || content
                         ) as rerank_score
@@ -305,7 +305,7 @@ class EnhancedSnowflakeCortexService:
             else:  # KEYWORD mode
                 search_sql = f"""
                 SELECT *
-                FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                     '{search_service}',
                     '{query}',
                     {config.max_results}

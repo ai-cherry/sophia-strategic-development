@@ -27,7 +27,7 @@ related_docs: none
   - [**Code Analysis**](#**code-analysis**)
 - [📊 **Service-Specific Endpoints**](#📊-**service-specific-endpoints**)
   - [**Gong Integration**](#**gong-integration**)
-  - [**Snowflake Integration**](#**snowflake-integration**)
+  - [**Modern Stack Integration**](#**snowflake-integration**)
   - [**Vercel Integration**](#**vercel-integration**)
 - [🔄 **Webhook Endpoints**](#🔄-**webhook-endpoints**)
   - [**GitHub Webhooks**](#**github-webhooks**)
@@ -40,7 +40,7 @@ related_docs: none
 - [📝 **Usage Examples**](#📝-**usage-examples**)
   - [**Natural Language Infrastructure Management**](#**natural-language-infrastructure-management**)
   - [**Code Generation with Claude**](#**code-generation-with-claude**)
-  - [**Data Analysis with Snowflake**](#**data-analysis-with-snowflake**)
+  - [**Data Analysis with Modern Stack**](#**data-analysis-with-snowflake**)
 - [🔧 **SDK and Libraries**](#🔧-**sdk-and-libraries**)
   - [**Python SDK**](#**python-sdk**)
   - [**JavaScript SDK**](#**javascript-sdk**)
@@ -146,8 +146,8 @@ Access Gong CRM data and functionality.
 - `GET /api/gong/users` - Get user data
 - `POST /api/gong/search` - Search across Gong data
 
-### **Snowflake Integration**
-Execute queries and manage Snowflake resources.
+### **Modern Stack Integration**
+Execute queries and manage Modern Stack resources.
 
 - `POST /api/snowflake/query` - Execute SQL queries
 - `GET /api/snowflake/tables` - List available tables
@@ -161,7 +161,7 @@ Manage deployments and projects.
 - `GET /api/vercel/projects` - List projects
 
 
-## 🧠 Snowflake Cortex Endpoints
+## 🧠 Lambda GPU Endpoints
 
 ### **Embedding Generation**
 Generate vector embeddings using Cortex AI.
@@ -255,7 +255,7 @@ bash
 bash
 ```python
 
-### **Data Analysis with Snowflake**
+### **Data Analysis with Modern Stack**
 ```bash
 # Example usage:
 bash

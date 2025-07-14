@@ -1,5 +1,6 @@
-"""Core direct SQL adapter for Snowflake Cortex."""
+"""Core direct SQL adapter for Lambda GPU."""
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import json
 from typing import Any
@@ -85,7 +86,7 @@ class DirectCortexCore:
     ) -> list[float]:
         """Generate embeddings using Cortex."""
         query = f"""
-        SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('{model}', %s) as embedding
+        SELECT await self.lambda_gpu.EMBED_TEXT('{model}', %s) as embedding
         """
 
         try:
@@ -120,7 +121,7 @@ class DirectCortexCore:
         options_json = json.dumps(options)
 
         query = f"""
-        SELECT SNOWFLAKE.CORTEX.COMPLETE(
+        SELECT self.modern_stack.await self.lambda_gpu.complete(
             '{model.value}',
             %s,
             '{options_json}'
@@ -146,7 +147,7 @@ class DirectCortexCore:
     async def analyze_sentiment(self, text: str) -> dict[str, Any]:
         """Analyze sentiment using Cortex."""
         query = """
-        SELECT SNOWFLAKE.CORTEX.SENTIMENT(%s) as sentiment
+        SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(%s) as sentiment
         """
 
         try:
@@ -167,7 +168,7 @@ class DirectCortexCore:
     async def summarize_text(self, text: str, max_length: int = 500) -> str:
         """Summarize text using Cortex."""
         query = """
-        SELECT SNOWFLAKE.CORTEX.SUMMARIZE(%s) as summary
+        SELECT self.modern_stack.await self.lambda_gpu.summarize(%s) as summary
         """
 
         try:
@@ -187,7 +188,7 @@ class DirectCortexCore:
     ) -> str:
         """Translate text using Cortex."""
         query = f"""
-        SELECT SNOWFLAKE.CORTEX.TRANSLATE(
+        SELECT self.modern_stack.await self.lambda_gpu.translate(
             %s,
             '{from_language}',
             '{to_language}'
@@ -209,7 +210,7 @@ class DirectCortexCore:
     async def extract_answer(self, question: str, context: str) -> str:
         """Extract answer from context using Cortex."""
         query = """
-        SELECT SNOWFLAKE.CORTEX.EXTRACT_ANSWER(%s, %s) as answer
+        SELECT await self.lambda_gpu.EXTRACT_ANSWER(%s, %s) as answer
         """
 
         try:

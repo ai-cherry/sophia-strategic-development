@@ -1,6 +1,6 @@
 """
-Enhanced Snowflake Cortex Service
-Deep integration with Snowflake AI Cortex functions for advanced search and analysis
+Enhanced Lambda GPU Service
+Deep integration with ModernStack AI Cortex functions for advanced search and analysis
 """
 
 import json
@@ -8,13 +8,13 @@ import logging
 from datetime import datetime
 from typing import Any, Union
 
-from backend.services.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.modern_stack_cortex_service import ModernStackCortexService
 
 logger = logging.getLogger(__name__)
 
 
-class EnhancedSnowflakeCortexService(SnowflakeCortexService):
-    """Enhanced Snowflake Cortex service with advanced AI functions"""
+class EnhancedModernStackCortexService(ModernStackCortexService):
+    """Enhanced Lambda GPU service with advanced AI functions"""
 
     def __init__(self):
         super().__init__()
@@ -34,7 +34,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             "balanced": "llama3.1-70b",
             "powerful": "llama3.1-405b",
             "code": "codellama-70b",
-            "embedding": "snowflake-arctic-embed-l",
+            "embedding": "modern_stack-arctic-embed-l",
         }
 
     async def enhanced_search_with_cortex(
@@ -45,7 +45,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         use_ai_classify: bool = True,
         max_results: int = 10,
     ) -> dict[str, Any]:
-        """Enhanced search using Snowflake Cortex AI functions"""
+        """Enhanced search using Lambda GPU AI functions"""
 
         try:
             # Build search query with AI functions
@@ -607,7 +607,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         """Hybrid search fusion combining internal and external results"""
 
         try:
-            # Internal search using Snowflake Cortex
+            # Internal search using Lambda GPU
             internal_results = await self.enhanced_search_with_cortex(
                 query=query, max_results=20
             )
@@ -737,7 +737,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         return combined_results
 
     async def get_cortex_health_status(self) -> dict[str, Any]:
-        """Get health status of Snowflake Cortex functions"""
+        """Get health status of Lambda GPU functions"""
 
         try:
             # Test each AI function

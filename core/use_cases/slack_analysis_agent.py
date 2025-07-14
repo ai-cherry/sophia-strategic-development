@@ -4,6 +4,7 @@ Slack Analysis Agent
 Advanced AI-driven analysis of Slack conversations for business insights
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -80,7 +81,7 @@ class SlackAnalysisAgent(BaseAgent):
         self.name = "slack_analysis"
         self.description = "AI-driven Slack conversation analysis and insights"
 
-        self.cortex_service: SnowflakeCortexService | None = None
+        self.cortex_service: ModernStackCortexService | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.initialized = False
 
@@ -183,7 +184,7 @@ class SlackAnalysisAgent(BaseAgent):
                 Provide overall sentiment score (-1 to 1) and tone analysis.
                 """
 
-                sentiment_analysis = await cortex.complete_text_with_cortex(
+                sentiment_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=sentiment_prompt, max_tokens=200
                 )
 
@@ -216,7 +217,7 @@ class SlackAnalysisAgent(BaseAgent):
                 List the main topics discussed.
                 """
 
-                topic_analysis = await cortex.complete_text_with_cortex(
+                topic_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=topic_prompt, max_tokens=200
                 )
 
@@ -263,7 +264,7 @@ class SlackAnalysisAgent(BaseAgent):
         try:
             async with self.cortex_service as cortex:
                 topics_prompt = f"Extract 3 key topics from: {text[:300]}"
-                topics_result = await cortex.complete_text_with_cortex(
+                topics_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                     topics_prompt, max_tokens=50
                 )
                 return [topic.strip() for topic in topics_result.split(",")[:3]]
@@ -276,7 +277,7 @@ class SlackAnalysisAgent(BaseAgent):
         try:
             async with self.cortex_service as cortex:
                 actions_prompt = f"Extract action items from: {text[:300]}"
-                actions_result = await cortex.complete_text_with_cortex(
+                actions_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                     actions_prompt, max_tokens=100
                 )
                 return [
@@ -293,7 +294,7 @@ class SlackAnalysisAgent(BaseAgent):
         try:
             async with self.cortex_service as cortex:
                 decisions_prompt = f"Extract decisions made from: {text[:300]}"
-                decisions_result = await cortex.complete_text_with_cortex(
+                decisions_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                     decisions_prompt, max_tokens=100
                 )
                 return [

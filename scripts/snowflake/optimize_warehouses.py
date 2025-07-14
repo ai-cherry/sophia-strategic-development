@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
 """
-🏔️ Snowflake Warehouse Optimization Script
+🏔️ ModernStack Warehouse Optimization Script
 ==========================================
 
-Optimizes Snowflake warehouses for AI workloads and cost efficiency.
+Optimizes ModernStack warehouses for AI workloads and cost efficiency.
 """
 
 import logging
 
-import snowflake.connector
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
 logger = logging.getLogger(__name__)
 
 
-class SnowflakeOptimizer:
-    """Optimizes Snowflake warehouses and configurations."""
+class ModernStackOptimizer:
+# REMOVED: ModernStack dependencyurations."""
 
     def __init__(self, config: dict):
         self.config = config
         self.connection = None
 
     def connect(self):
-        """Connect to Snowflake."""
+        """Connect to ModernStack."""
         try:
-            self.connection = snowflake.connector.connect(**self.config)
-            logger.info("✅ Connected to Snowflake")
+            self.connection = self.modern_stack_connection(**self.config)
+            logger.info("✅ Connected to ModernStack")
         except Exception as e:
-            logger.exception(f"❌ Failed to connect to Snowflake: {e}")
+            logger.exception(f"❌ Failed to connect to ModernStack: {e}")
             raise
 
     def optimize_ai_warehouses(self):
@@ -82,7 +82,7 @@ class SnowflakeOptimizer:
         cursor.close()
 
     def close(self):
-        """Close Snowflake connection."""
+        """Close ModernStack connection."""
         if self.connection:
             self.connection.close()
 
@@ -96,12 +96,12 @@ def main():
         "role": "ACCOUNTADMIN",
     }
 
-    optimizer = SnowflakeOptimizer(config)
+# REMOVED: ModernStack dependency)
     try:
         optimizer.connect()
         optimizer.optimize_ai_warehouses()
         optimizer.create_resource_monitors()
-        logger.info("🎉 Snowflake optimization complete!")
+        logger.info("🎉 ModernStack optimization complete!")
     finally:
         optimizer.close()
 

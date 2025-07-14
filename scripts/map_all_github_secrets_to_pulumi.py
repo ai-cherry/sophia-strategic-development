@@ -32,16 +32,16 @@ GITHUB_TO_PULUMI_MAPPING = {
     "DOCKER_TOKEN": "docker_token",  # Map to same
     "DOCKERHUB_USERNAME": "docker_username",
     "DOCKERHUB_USERNAME": "docker_username",  # Map to same
-    # Snowflake
-    "SNOWFLAKE_ACCOUNT": "snowflake_account",
-    "SNOWFLAKE_USER": "snowflake_user",
-    "SNOWFLAKE_PASSWORD": "snowflake_password",
-    "SNOWFLAKE_WAREHOUSE": "snowflake_warehouse",
-    "SNOWFLAKE_DATABASE": "snowflake_database",
-    "SNOWFLAKE_SCHEMA": "snowflake_schema",
-    "SNOWFLAKE_ROLE": "snowflake_role",
-    "SNOWFLAKE_PAT": "snowflake_pat",
-    "SNOWFLAKE_CONNECTION_URL": "snowflake_connection_url",
+    # ModernStack
+    "SNOWFLAKE_ACCOUNT": "postgres_host",
+    "SNOWFLAKE_USER": "modern_stack_user",
+    "SNOWFLAKE_PASSWORD": "postgres_password",
+    "SNOWFLAKE_WAREHOUSE": "postgres_database",
+    "SNOWFLAKE_DATABASE": "postgres_database",
+    "SNOWFLAKE_SCHEMA": "postgres_schema",
+    "SNOWFLAKE_ROLE": "modern_stack_role",
+    "SNOWFLAKE_PAT": "modern_stack_pat",
+    "SNOWFLAKE_CONNECTION_URL": "modern_stack_connection_url",
     # Lambda Labs
     "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
     "LAMBDA_API_CLOUD_ENDPOINT": "lambda_api_cloud_endpoint",

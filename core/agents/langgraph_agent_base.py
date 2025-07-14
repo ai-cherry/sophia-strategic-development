@@ -5,6 +5,7 @@ Pure Python base class for all Sophia AI agents designed for LangGraph integrati
 Replaces AgnoMCPBridge with optimized Python patterns and LangGraph compatibility.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import logging
@@ -31,7 +32,7 @@ class AgentCapability(Enum):
     KNOWLEDGE_CURATION = "knowledge_curation"
     BUSINESS_INTELLIGENCE = "business_intelligence"
     EXECUTIVE_INTELLIGENCE = "executive_intelligence"
-    SNOWFLAKE_ADMIN = "snowflake_admin"
+    # REMOVED: ModernStack dependency "modern_stack_admin"
 
 
 class AgentStatus(Enum):

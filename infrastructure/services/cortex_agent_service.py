@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
 """
-Snowflake Cortex Agent Service for Sophia AI
+Lambda GPU Agent Service for Sophia AI
 Manages AI agents with JWT authentication and tool execution
 """
 
@@ -15,12 +15,12 @@ from typing import Any
 
 import jwt
 
-# from snowflake.cortex import Cortex
+# # REMOVED: ModernStack dependency
 import yaml
 from pydantic import BaseModel
-from snowflake.connector import DictCursor
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
 
-from core.config_manager import get_config_value, get_snowflake_connection
+from core.config_manager import get_config_value, get_modern_stack_connection
 
 logger = logging.getLogger(__name__)
 
@@ -82,12 +82,12 @@ class CortexAgentConfig(BaseModel):
 
 
 class CortexAgentService:
-    """Service for managing Snowflake Cortex AI agents"""
+    """Service for managing Lambda GPU AI agents"""
 
     def __init__(self):
         self.agents: dict[str, CortexAgentConfig] = {}
         self.cortex_client = None
-        self.snowflake_conn = None
+        self.# REMOVED: ModernStack dependency None
         self._load_agent_configs()
 
     def _load_agent_configs(self):
@@ -119,15 +119,15 @@ class CortexAgentService:
 
     def _create_default_agents(self):
         """Create default agent configurations"""
-        # Snowflake Operations Agent
-        self.agents["snowflake_ops"] = CortexAgentConfig(
-            name="snowflake_ops",
+        # ModernStack Operations Agent
+# REMOVED: ModernStack dependency(
+            name="modern_stack_ops",
             model="mistral-large",
             temperature=0.1,
             tools=[
                 CortexTool(
                     name="execute_query",
-                    description="Execute SQL query on Snowflake",
+                    description="Execute SQL query on ModernStack",
                     parameters={"query": "string", "warehouse": "string"},
                 ),
                 CortexTool(
@@ -141,7 +141,7 @@ class CortexAgentService:
                     parameters={"operation": "string", "schema": "object"},
                 ),
             ],
-            system_prompt="You are a Snowflake database expert. Help users with SQL queries, performance optimization, and schema management.",
+            system_prompt="You are a ModernStack database expert. Help users with SQL queries, performance optimization, and schema management.",
         )
 
         # Semantic Memory Agent
@@ -195,13 +195,13 @@ class CortexAgentService:
         )
 
     async def initialize(self):
-        """Initialize Snowflake connection and Cortex client"""
+        """Initialize ModernStack connection and Cortex client"""
         try:
-            # Get Snowflake connection
-            self.snowflake_conn = await get_snowflake_connection()
+            # Get ModernStack connection
+            self.# REMOVED: ModernStack dependency await get_modern_stack_connection()
 
             # Initialize Cortex client
-            self.cortex_client = Cortex(self.snowflake_conn)
+            self.cortex_client = Cortex(self.modern_stack_conn)
 
             logger.info("✅ Cortex Agent Service initialized successfully")
 
@@ -319,14 +319,14 @@ class CortexAgentService:
         max_tokens: int,
         stream: bool = False,
     ) -> dict[str, Any]:
-        """Call Snowflake Cortex model"""
+        """Call Lambda GPU model"""
         if not self.cortex_client:
             await self.initialize()
 
         try:
             # Use Cortex Complete function
             query = f"""
-            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+            SELECT self.modern_stack.await self.lambda_gpu.complete(
                 '{model}',
                 '{prompt.replace("'", "''")}',
                 {{
@@ -336,7 +336,7 @@ class CortexAgentService:
             ) as response
             """
 
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
             cursor.execute(query)
             result = cursor.fetchone()
 
@@ -357,7 +357,7 @@ class CortexAgentService:
         """Execute a tool for an agent"""
         # Tool handlers based on agent and tool name
         tool_handlers = {
-            "snowflake_ops": {
+            "modern_stack_ops": {
                 "execute_query": self._execute_query_tool,
                 "optimize_query": self._optimize_query_tool,
                 "manage_schema": self._manage_schema_tool,
@@ -388,7 +388,7 @@ class CortexAgentService:
         warehouse = params.get("warehouse", "SOPHIA_AI_WH")
 
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
             cursor.execute("USE WAREHOUSE " + self._validate_warehouse(warehouse))
             cursor.execute(query)
 
@@ -409,13 +409,13 @@ class CortexAgentService:
         try:
             # Generate embedding using Cortex
             embedding_query = f"""
-            SELECT SNOWFLAKE.CORTEX.EMBED_TEXT(
+            SELECT await self.lambda_gpu.EMBED_TEXT(
                 'e5-base-v2',
                 '{content.replace("'", "''")}'
             ) as embedding
             """
 
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
             cursor.execute(embedding_query, (model, text_content))
             result = cursor.fetchone()
 
@@ -453,14 +453,14 @@ class CortexAgentService:
             search_query = f"""
             SELECT content, metadata,
                    VECTOR_DISTANCE(embedding,
-                     SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query.replace("'", "''")}')
+                     await self.lambda_gpu.EMBED_TEXT('e5-base-v2', '{query.replace("'", "''")}')
                    ) as distance
             FROM SOPHIA_AI.CORTEX_VECTORS.embeddings
             ORDER BY distance ASC
             LIMIT {limit}
             """
 
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
             cursor.execute(search_query, (query_embedding, similarity_threshold, top_k))
             results = cursor.fetchall()
 
@@ -566,6 +566,6 @@ def get_cortex_service() -> CortexAgentService:
 async def get_cortex_agent_service() -> CortexAgentService:
     """FastAPI dependency for Cortex Agent Service"""
     service = get_cortex_service()
-    if not service.snowflake_conn:
+    if not service.modern_stack_conn:
         await service.initialize()
     return service

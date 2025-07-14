@@ -67,25 +67,25 @@ spec:
 # AI PROCESSING WORKLOADS
 # =============================================================================
 
-# Snowflake Cortex AI Processing Service
+# Lambda GPU AI Processing Service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: snowflake-cortex-ai
+  name: modern_stack-cortex-ai
   namespace: sophia-gpu-workloads
   labels:
-    app: snowflake-cortex-ai
+    app: modern_stack-cortex-ai
     workload-type: ai-processing
     gpu-required: "true"
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: snowflake-cortex-ai
+      app: modern_stack-cortex-ai
   template:
     metadata:
       labels:
-        app: snowflake-cortex-ai
+        app: modern_stack-cortex-ai
         workload-type: ai-processing
         gpu-required: "true"
     spec:
@@ -100,8 +100,8 @@ spec:
           effect: "NoSchedule"
 
       containers:
-        - name: snowflake-cortex-ai
-          image: scoobyjava15/sophia-snowflake-cortex:latest
+        - name: modern_stack-cortex-ai
+          image: scoobyjava15/sophia-modern_stack-cortex:latest
           imagePullPolicy: Always
 
           ports:
@@ -128,7 +128,7 @@ spec:
 
           envFrom:
             - secretRef:
-                name: sophia-snowflake-secrets
+                name: sophia-modern_stack-secrets
 
           resources:
             requests:
@@ -167,7 +167,7 @@ spec:
       volumes:
         - name: model-cache
           persistentVolumeClaim:
-            claimName: snowflake-cortex-models
+            claimName: modern_stack-cortex-models
         - name: tmp
           emptyDir: {}
 
@@ -366,11 +366,11 @@ spec:
 # PERSISTENT VOLUMES FOR GPU WORKLOADS
 # =============================================================================
 
-# Snowflake Cortex Model Cache
+# Lambda GPU Model Cache
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: snowflake-cortex-models
+  name: modern_stack-cortex-models
   namespace: sophia-gpu-workloads
 spec:
   accessModes:
@@ -400,11 +400,11 @@ spec:
 # SERVICES
 # =============================================================================
 
-# Snowflake Cortex AI Service
+# Lambda GPU AI Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: snowflake-cortex-ai-service
+  name: modern_stack-cortex-ai-service
   namespace: sophia-gpu-workloads
 spec:
   type: ClusterIP
@@ -418,7 +418,7 @@ spec:
       targetPort: metrics
       protocol: TCP
   selector:
-    app: snowflake-cortex-ai
+    app: modern_stack-cortex-ai
 
 ---
 # Local LLM Service
@@ -463,17 +463,17 @@ spec:
 # HORIZONTAL POD AUTOSCALERS (GPU-AWARE)
 # =============================================================================
 
-# Snowflake Cortex AI HPA
+# Lambda GPU AI HPA
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: snowflake-cortex-ai-hpa
+  name: modern_stack-cortex-ai-hpa
   namespace: sophia-gpu-workloads
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: snowflake-cortex-ai
+    name: modern_stack-cortex-ai
   minReplicas: 2
   maxReplicas: 6
   metrics:
@@ -695,11 +695,11 @@ spec:
 # SECRETS TEMPLATE (To be created via Pulumi ESC)
 # =============================================================================
 
-# Snowflake Secrets Template
+# ModernStack Secrets Template
 apiVersion: v1
 kind: Secret
 metadata:
-  name: sophia-snowflake-secrets
+  name: sophia-modern_stack-secrets
   namespace: sophia-gpu-workloads
   annotations:
     pulumi.com/secret-source: "esc://scoobyjava-org/default/sophia-ai-production"

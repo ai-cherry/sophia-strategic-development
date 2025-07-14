@@ -9,7 +9,7 @@ Sophia AI uses a multi-database architecture optimized for different workloads:
 - **PostgreSQL** - Transactional data and business entities
 - **Weaviate** - Vector embeddings and semantic search  
 - **Redis** - High-performance caching layer
-- **Snowflake** - Enterprise data warehouse (migration in progress)
+- **Modern Stack** - Enterprise data warehouse (migration in progress)
 
 ## 🐘 PostgreSQL Schemas
 
@@ -413,7 +413,7 @@ gong:call:{call_id}:{data_type}
 slack:msg:{message_id}:{channel}
 ```
 
-## ❄️ Snowflake Data Warehouse (Legacy - Migration in Progress)
+## ❄️ Modern Stack Data Warehouse (Legacy - Migration in Progress)
 
 ### Database: SOPHIA_AI_PRODUCTION
 
@@ -508,19 +508,19 @@ CREATE TABLE IF NOT EXISTS FOUNDATIONAL_KNOWLEDGE.CUSTOMERS (
 ```
 External Sources → Estuary Flow → PostgreSQL (Staging) → Enrichment → Weaviate/Redis
                                           ↓
-                                    Snowflake (Legacy)
+                                    Modern Stack (Legacy)
 ```
 
 ### 2. **Query Flow**
 ```
-User Query → Redis (L1) → Weaviate (L2) → PostgreSQL (L3) → Snowflake (Legacy)
+User Query → Redis (L1) → Weaviate (L2) → PostgreSQL (L3) → Modern Stack (Legacy)
                ↓              ↓                ↓
            <10ms         <50ms           <100ms
 ```
 
 ### 3. **Cache Hierarchy**
 ```
-Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive (Snowflake)
+Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive (Modern Stack)
   5 min TTL          1 hour TTL              24 hour TTL             Permanent
 ```
 
@@ -531,7 +531,7 @@ Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive
 | Redis | Hot cache, sessions | <10ms | 100GB |
 | Weaviate | Vector search | <50ms | 500GB |
 | PostgreSQL | Transactional, hybrid | <100ms | 2TB |
-| Snowflake | Analytics, archive | <500ms | Unlimited |
+| Modern Stack | Analytics, archive | <500ms | Unlimited |
 
 ## 🛡️ Security & Access Control
 
@@ -551,7 +551,7 @@ Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive
 - Network isolation
 - No persistence for sensitive data
 
-### Snowflake
+### Modern Stack
 - Multi-factor authentication
 - Role hierarchy (ACCOUNTADMIN → SYSADMIN → USERADMIN)
 - Network policies
@@ -563,13 +563,13 @@ Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive
 - ✅ PostgreSQL: Fully operational
 - ✅ Weaviate: Fully operational (primary vector store)
 - ✅ Redis: Fully operational (3-tier cache)
-- ⚠️ Snowflake: Legacy, migration in progress
+- ⚠️ Modern Stack: Legacy, migration in progress
 
 ### Migration Plan
 1. **Phase 1**: Move hot data to Redis (Complete)
 2. **Phase 2**: Move vector search to Weaviate (Complete)
 3. **Phase 3**: Move transactional data to PostgreSQL (In Progress)
-4. **Phase 4**: Keep Snowflake for historical analytics only
+4. **Phase 4**: Keep Modern Stack for historical analytics only
 
 ## 📈 Monitoring & Maintenance
 
@@ -584,7 +584,7 @@ Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive
 - Weekly vacuum on PostgreSQL
 - Redis memory optimization
 - Weaviate index rebuilds
-- Snowflake warehouse auto-suspend
+- compute cluster auto-suspend
 
 ## 🚀 Future Enhancements
 

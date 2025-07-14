@@ -70,7 +70,7 @@ class MCPHealthMonitor:
             "codacy": {"port": 3008, "health_endpoint": "/health"},
             "github": {"port": 9003, "health_endpoint": "/health"},
             "linear": {"port": 9004, "health_endpoint": "/health"},
-            "snowflake_admin": {"port": 9020, "health_endpoint": "/health"},
+            "modern_stack_admin": {"port": 9020, "health_endpoint": "/health"},
             "ui_ux_agent": {"port": 9002, "health_endpoint": "/health"},
             "slack": {"port": 9005, "health_endpoint": "/health"},
             "hubspot": {"port": 9006, "health_endpoint": "/health"},

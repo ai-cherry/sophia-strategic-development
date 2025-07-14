@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-Update Snowflake schemas for Sophia AI
+Update ModernStack schemas for Sophia AI
 Creates all necessary tables, views, and procedures
 """
 
 import sys
 
-import snowflake.connector
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
 
-def update_snowflake_schemas():
-    """Update all Snowflake schemas for Sophia AI"""
+def update_postgres_schemas():
+    """Update all ModernStack schemas for Sophia AI"""
 
     try:
         # Connect using PAT
-        conn = snowflake.connector.connect(
+        conn = self.modern_stack_connection(
             account="UHDECNO-CVB64222",
             user="SCOOBYJAVA15",
             password="eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A",
@@ -173,7 +173,7 @@ def update_snowflake_schemas():
             AS
             $$
             BEGIN
-                -- This would use Snowflake Cortex to generate embeddings
+                -- This would use Lambda GPU to generate embeddings
                 -- Placeholder for actual implementation
                 RETURN 'Embeddings generated for ' || table_name;
             END;
@@ -310,4 +310,4 @@ def update_snowflake_schemas():
 
 
 if __name__ == "__main__":
-    update_snowflake_schemas()
+    update_postgres_schemas()

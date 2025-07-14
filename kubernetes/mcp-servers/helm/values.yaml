@@ -91,13 +91,13 @@ servers:
       MAX_MEMORIES: "10000"
       CACHE_TTL: "3600"
   
-  snowflake:
+  modern_stack:
     enabled: true
-    name: snowflake-unified
+    name: modern_stack-unified
     tier: PRIMARY
     port: 9001
     replicas: 2
-    image: "sophia-mcp-snowflake:latest"
+    image: "sophia-mcp-modern_stack:latest"
     capabilities:
       - ANALYTICS
       - EMBEDDING

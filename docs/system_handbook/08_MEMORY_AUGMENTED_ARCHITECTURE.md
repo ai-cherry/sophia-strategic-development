@@ -9,7 +9,7 @@
 
 ## 🧠 EXECUTIVE SUMMARY
 
-This document outlines the comprehensive enhancement of Sophia AI's memory architecture, integrating Mem0 persistent memory, RLHF (Reinforcement Learning from Human Feedback), and conversational training capabilities while maintaining the Phoenix Platform's core principle of Snowflake as the center of the universe.
+This document outlines the comprehensive enhancement of Sophia AI's memory architecture, integrating Mem0 persistent memory, RLHF (Reinforcement Learning from Human Feedback), and conversational training capabilities while maintaining the Phoenix Platform's core principle of Modern Stack as the center of the universe.
 
 ### Key Enhancements
 - **5-Tier Memory Architecture** with Mem0 integration
@@ -28,7 +28,7 @@ Building on the existing Phoenix architecture, we implement a sophisticated 5-ti
 
 ```
 L1: Session Cache (Redis)           - <50ms   - Active conversation state
-L2: Snowflake Cortex (Core)         - <100ms  - Semantic search & embeddings
+L2: Lambda GPU (Core)         - <100ms  - Semantic search & embeddings
 L3: Mem0 Persistent (New)           - <200ms  - Cross-session learning
 L4: Knowledge Graph (Enhanced)      - <300ms  - Entity relationship memory
 L5: LangGraph Workflow (Enhanced)   - <400ms  - Behavioral pattern memory
@@ -42,7 +42,7 @@ L5: LangGraph Workflow (Enhanced)   - <400ms  - Behavioral pattern memory
 - Learning experiences and feedback loops
 - Cross-session context preservation
 
-**Semantic Memory (Snowflake Cortex)**:
+**Semantic Memory (Lambda GPU)**:
 - Business knowledge and facts
 - Document embeddings and search
 - Structured data relationships
@@ -119,7 +119,7 @@ class Mem0PersistentMCPServer(StandardizedMCPServer):
         return [m.content for m in memories]
 ```
 
-**1.2 Enhanced Snowflake Schema**
+**1.2 Enhanced Modern Stack Schema**
 ```sql
 -- Extend existing SOPHIA_AI_MEMORY schema
 ALTER TABLE SOPHIA_AI_MEMORY.MEMORY_RECORDS
@@ -225,7 +225,7 @@ class ConversationalTrainingService:
 
     def __init__(self):
         self.mem0_client = Mem0PersistentMCPServer()
-        self.snowflake_cortex = SnowflakeCortexService()
+        self.snowflake_cortex = Modern StackCortexService()
         self.ai_memory = EnhancedAiMemoryMCPServer()
 
     async def process_user_feedback(self, feedback: RLHFFeedback) -> Dict[str, Any]:
@@ -242,7 +242,7 @@ class ConversationalTrainingService:
             }
         )
 
-        # Update learning analytics in Snowflake
+        # Update learning analytics in Modern Stack
         await self.snowflake_cortex.execute_sql(
             """
             INSERT INTO SOPHIA_AI_MEMORY.MEMORY_LEARNING_ANALYTICS
@@ -291,7 +291,7 @@ class BusinessIntelligenceTrainingService:
                                        user_context: Dict[str, Any]) -> Dict[str, Any]:
         """Train on natural language to SQL conversion"""
 
-        # Use Snowflake Cortex for natural language to SQL
+        # Use Lambda GPU for natural language to SQL
         sql_response = await self.snowflake_cortex.complete(
             messages=[
                 {"role": "system", "content": "Convert business questions to SQL queries using our schema"},
@@ -407,7 +407,7 @@ class LangGraphLearningOrchestrator:
         # Consolidate memory updates
         consolidated_memories = []
         for update in state.get("memory_updates", []):
-            # Store in both Mem0 and Snowflake for redundancy
+            # Store in both Mem0 and Modern Stack for redundancy
             mem0_id = await self.mem0_client.store_episodic_memory(
                 content=update["content"],
                 context=update["context"]
@@ -445,13 +445,13 @@ class GraphMemoryService:
 
     def __init__(self):
         self.memory_graph = nx.DiGraph()
-        self.snowflake_cortex = SnowflakeCortexService()
+        self.snowflake_cortex = Modern StackCortexService()
         self.mem0_client = Mem0PersistentMCPServer()
 
     async def extract_entities_and_relationships(self, content: str) -> Dict[str, Any]:
         """Extract entities and relationships from content"""
 
-        # Use Snowflake Cortex for entity extraction
+        # Use Lambda GPU for entity extraction
         entity_response = await self.snowflake_cortex.complete(
             messages=[
                 {"role": "system", "content": "Extract business entities and relationships from text"},
@@ -491,7 +491,7 @@ class GraphMemoryService:
                 strength=rel.get("strength", 1.0)
             )
 
-        # Store graph state in Snowflake
+        # Store graph state in Modern Stack
         await self._persist_graph_state()
 
     async def query_memory_graph(self, query: str) -> List[Dict[str, Any]]:
@@ -625,7 +625,7 @@ class MemoryMonitoringService:
 
 ### 5-Tier Memory System
 - **L1 (Session Cache)**: Real-time conversation state
-- **L2 (Snowflake Cortex)**: Core semantic search and embeddings
+- **L2 (Lambda GPU)**: Core semantic search and embeddings
 - **L3 (Mem0 Persistent)**: Cross-session learning and adaptation
 - **L4 (Knowledge Graph)**: Entity relationships and connections
 - **L5 (LangGraph Workflow)**: Behavioral patterns and procedures

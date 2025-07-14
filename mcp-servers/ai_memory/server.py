@@ -4,6 +4,13 @@ Refactored to use UnifiedMemoryServiceV2 with Weaviate/Redis/PostgreSQL
 Date: July 12, 2025
 """
 
+# Modern stack imports
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
+import redis.asyncio as redis
+import asyncpg
+
+
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -61,6 +68,12 @@ class AIMemoryServerV2(StandardizedMCPServer):
             self.logger.error(f"Failed to initialize UnifiedMemoryServiceV2: {e}")
             # Still allow server to start but in limited mode
             self.memory_service = None
+
+
+        # Initialize modern stack services
+        self.memory_service = UnifiedMemoryServiceV3()
+        self.lambda_gpu = LambdaLabsServerlessService()
+        self.redis = redis.Redis(host='localhost', port=6379)
 
     async def get_custom_tools(self) -> list[Tool]:
         """Define AI Memory tools"""

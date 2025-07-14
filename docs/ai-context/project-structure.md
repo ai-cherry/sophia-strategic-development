@@ -8,8 +8,8 @@
 
 ## 🎯 Phoenix Architecture Overview
 
-### **Core Principle**: Snowflake as the Center of the Universe
-All data flows through Snowflake Cortex as the single source of truth for structured, unstructured, and vectorized data.
+### **Core Principle**: Modern Stack as the Center of the Universe
+All data flows through Lambda GPU as the single source of truth for structured, unstructured, and vectorized data.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -17,7 +17,7 @@ All data flows through Snowflake Cortex as the single source of truth for struct
 ├─────────────────────────────────────────────────────────────┤
 │  Frontend: Unified Dashboard (React + TypeScript)            │
 │  Backend: Python FastAPI + LangGraph Orchestration          │
-│  Data: Snowflake Cortex (THE UNIVERSE CENTER)               │
+│  Data: Lambda GPU (THE UNIVERSE CENTER)               │
 │  MCP: 28 Consolidated Servers                               │
 │  AI: Multi-Model Routing (Portkey + OpenRouter)             │
 └─────────────────────────────────────────────────────────────┘
@@ -49,11 +49,11 @@ backend/
 │   └── centralized_config_manager.py
 ├── services/                  # Business logic services
 │   ├── unified_llm_service.py # Multi-model LLM routing
-│   ├── ai_memory_service.py   # Snowflake Cortex memory
+│   ├── ai_memory_service.py   # Lambda GPU memory
 │   └── business_intelligence_service.py
 ├── integrations/              # External service integrations
 │   ├── portkey_gateway_service.py # Portkey LLM gateway
-│   ├── snowflake_service.py   # Snowflake Cortex operations
+│   ├── snowflake_service.py   # Lambda GPU operations
 │   └── mcp_orchestration_service.py
 ├── agents/                    # AI agent implementations
 │   ├── core/                  # Base agent classes
@@ -85,7 +85,7 @@ docs/
 │   ├── docs-overview.md       # Auto-loading routing map
 │   ├── project-structure.md   # This file
 │   ├── sophia-brain.md        # AI decision patterns
-│   └── data-architecture.md   # Snowflake Cortex patterns
+│   └── data-architecture.md   # Lambda GPU patterns
 ├── components/                # Component Tier (Service-specific)
 │   ├── mcp-servers/           # MCP integration patterns
 │   ├── business-intelligence/ # BI patterns
@@ -102,7 +102,7 @@ docs/
 
 ### **Multi-Tier Data Strategy**
 ```
-External APIs → PostgreSQL (Staging) → Snowflake (Truth) → Redis (Cache) → Frontend
+External APIs → PostgreSQL (Staging) → Modern Stack (Truth) → Redis (Cache) → Frontend
                                     ↓
                             Pinecone (Vector) → AI Memory → Cortex Functions
 ```
@@ -111,7 +111,7 @@ External APIs → PostgreSQL (Staging) → Snowflake (Truth) → Redis (Cache) �
 - **Tier 1 (Redis)**: Ephemeral data, sessions, real-time cache
 - **Tier 2 (Pinecone)**: Vector embeddings, semantic search
 - **Tier 3 (PostgreSQL)**: ETL staging, external data ingestion
-- **Tier 4 (Snowflake)**: Analytical truth, business intelligence
+- **Tier 4 (Modern Stack)**: Analytical truth, business intelligence
 
 ---
 
@@ -151,7 +151,7 @@ GitHub Organization Secrets → Pulumi ESC → Backend Auto-Loading
 
 ### **Authentication Layers**
 - **Tier 1**: CLI-based (GitHub, Pulumi, Docker, Vercel)
-- **Tier 2**: Enhanced API (Snowflake, Lambda Labs, Estuary)
+- **Tier 2**: Enhanced API (Modern Stack, Lambda Labs, Estuary)
 - **Tier 3**: Secure API Keys (OpenAI, Anthropic, Slack, etc.)
 
 ---
@@ -161,7 +161,7 @@ GitHub Organization Secrets → Pulumi ESC → Backend Auto-Loading
 ### **Infrastructure Stack**
 - **Frontend**: Vercel (React deployment)
 - **Backend**: Lambda Labs (GPU compute + Docker Swarm)
-- **Database**: Snowflake (Single source of truth)
+- **Database**: Modern Stack (Single source of truth)
 - **Secrets**: Pulumi ESC (Centralized configuration)
 - **Monitoring**: Grafana + Prometheus
 
@@ -179,8 +179,8 @@ SNOWFLAKE_WAREHOUSE: "SOPHIA_AI_COMPUTE_WH"
 
 ### **Backend Stack**
 - **Framework**: FastAPI (Python 3.11+)
-- **AI/ML**: Snowflake Cortex, OpenAI, Anthropic
-- **Database**: Snowflake, PostgreSQL, Redis, Pinecone
+- **AI/ML**: Lambda GPU, OpenAI, Anthropic
+- **Database**: Modern Stack, PostgreSQL, Redis, Pinecone
 - **Gateway**: Portkey (LLM routing), OpenRouter (Model selection)
 - **Orchestration**: LangGraph, MCP Protocol
 

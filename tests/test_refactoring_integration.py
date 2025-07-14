@@ -93,11 +93,11 @@ class TestServiceIntegration:
         ], capture_output=True)
         assert result.returncode == 0, "Personality engine has syntax errors"
         
-        # Test snowflake connector
+        # Test modern_stack connector
         result = subprocess.run([
-            "python", "-m", "py_compile", "shared/utils/snowflake_gong_connector.py"  
+            "python", "-m", "py_compile", "shared/utils/modern_stack_gong_connector.py"  
         ], capture_output=True)
-        assert result.returncode == 0, "Snowflake connector has syntax errors"
+        assert result.returncode == 0, "ModernStack connector has syntax errors"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

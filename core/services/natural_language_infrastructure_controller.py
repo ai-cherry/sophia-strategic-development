@@ -3,13 +3,13 @@ Natural Language Infrastructure Controller
 =========================================
 Provides a thin, dependency-light wrapper around existing infrastructure
 services so that other components (e.g. Unified Chat) can issue natural
-language commands that orchestrate both Snowflake Cortex and Lambda Labs
+language commands that orchestrate both Lambda GPU and Lambda Labs
 resources.
 
 Key design principles
 ---------------------
 1. **Reuse, don't duplicate**:  Delegates to already-existing services such
-   as `optimized_cortex_service` for Snowflake operations and
+   as `optimized_cortex_service` for ModernStack operations and
    `LambdaLabsHybridRouter` for Lambda Labs LLM generation.  No new AI
    routing logic is implemented here – we simply expose a pragmatic facade
    for NL control so higher-level agents can remain agnostic.
@@ -24,6 +24,7 @@ Key design principles
    zero while we validate usefulness.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import logging
@@ -32,7 +33,7 @@ from typing import Any
 from infrastructure.services.lambda_labs_hybrid_router import (
     LambdaLabsHybridRouter,
 )
-from shared.utils.optimized_snowflake_cortex_service import (
+from shared.utils.optimized_modern_stack_cortex_service import (
     optimized_cortex_service,
 )
 
@@ -44,7 +45,7 @@ class NaturalLanguageInfrastructureController:  # pragma: no cover – thin faç
 
     def __init__(self) -> None:
         self._lambda_router = LambdaLabsHybridRouter()
-        self._snowflake = optimized_cortex_service  # global singleton
+        self._modern_stack = optimized_cortex_service  # global singleton
 
     # ---------------------------------------------------------------------
     # Public helpers
@@ -54,26 +55,26 @@ class NaturalLanguageInfrastructureController:  # pragma: no cover – thin faç
         """Route *command* to the right subsystem and return structured reply.
 
         Very simple heuristic routing for now: if the command mentions the
-        word *snowflake* we treat it as a warehouse optimisation request –
+        word *modern_stack* we treat it as a warehouse optimisation request –
         otherwise we treat it as a Lambda-Labs LLM request.  This keeps us
         entirely additive (does not modify existing routers).
         """
         logger.info("NL-Infra-Controller received command: %s", command)
 
-        if "snowflake" in command.lower():
-            return await self._handle_snowflake_command(command)
+        if "modern_stack" in command.lower():
+            return await self._handle_modern_stack_command(command)
         return await self._handle_lambda_command(command)
 
     async def health(self) -> dict[str, Any]:
         """Lightweight health probe combining underlying component checks."""
-        snowflake_status = "unknown"
+        # REMOVED: ModernStack dependency "unknown"
         try:
-            snowflake_status = (
-                "healthy" if await self._snowflake.health_check() else "degraded"
+            # REMOVED: ModernStack dependency (
+                "healthy" if await self._modern_stack.health_check() else "degraded"
             )
         except Exception as exc:  # broad except OK for health check
-            logger.warning("Snowflake health check failed: %s", exc)
-            snowflake_status = "unhealthy"
+            logger.warning("ModernStack health check failed: %s", exc)
+            # REMOVED: ModernStack dependency "unhealthy"
 
         lambda_status = "unknown"
         try:
@@ -85,7 +86,7 @@ class NaturalLanguageInfrastructureController:  # pragma: no cover – thin faç
             lambda_status = "unhealthy"
 
         return {
-            "snowflake": snowflake_status,
+            "modern_stack": modern_stack_status,
             "lambda_labs": lambda_status,
         }
 
@@ -93,27 +94,27 @@ class NaturalLanguageInfrastructureController:  # pragma: no cover – thin faç
     # Internal helpers
     # ------------------------------------------------------------------
 
-    async def _handle_snowflake_command(self, command: str) -> dict[str, Any]:
-        """Pass command to Snowflake Cortex for optimisation/analysis."""
+    async def _handle_modern_stack_command(self, command: str) -> dict[str, Any]:
+        """Pass command to Lambda GPU for optimisation/analysis."""
         try:
             sql_prompt = (
-                """Convert the following prose into an optimised Snowflake SQL
+                """Convert the following prose into an optimised ModernStack SQL
                 query and briefly explain key optimisation choices:\n\n"""
                 + command
             )
-            result = await self._snowflake.complete_text_with_cortex(  # type: ignore[attr-defined]
+            result = await self._modern_stack.complete_text_with_cortex(  # type: ignore[attr-defined]
                 sql_prompt,
-                model="snowflake-arctic",
+                model="modern_stack-arctic",
                 temperature=0,
                 max_tokens=800,
             )
             return {
                 "success": True,
-                "provider": "snowflake_cortex",
+                "provider": "modern_stack_cortex",
                 "response": result,
             }
         except Exception as exc:  # pragma: no cover – propagate gracefully
-            logger.error("Snowflake command failed: %s", exc)
+            logger.error("ModernStack command failed: %s", exc)
             return {"success": False, "error": str(exc)}
 
     async def _handle_lambda_command(self, command: str) -> dict[str, Any]:

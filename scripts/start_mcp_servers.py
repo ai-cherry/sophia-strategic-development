@@ -93,7 +93,7 @@ class MCPServerManager:
 
         # Get startup order if defined
         startup_order = [
-            "snowflake_admin",
+            "modern_stack_admin",
             "ai_memory",
             "codacy",
             "linear",

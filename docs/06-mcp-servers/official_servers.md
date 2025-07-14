@@ -31,7 +31,7 @@ MCP servers are organized into three tiers based on criticality:
 
 | Tier | Description | SLA | Examples |
 |------|-------------|-----|----------|
-| PRIMARY | Mission-critical servers | 99.9% uptime | Snowflake, Redis, AI Memory |
+| PRIMARY | Mission-critical servers | 99.9% uptime | Modern Stack, Redis, AI Memory |
 | SECONDARY | Important but not critical | 99% uptime | GitHub, Linear, Codacy |
 | TERTIARY | Optional enhancements | Best effort | n8n, Notion, v0dev |
 
@@ -54,7 +54,7 @@ capabilities:
 
 ## Official MCP Servers
 
-### 1. Snowflake MCP Server
+### 1. Modern Stack MCP Server
 
 **Repository**: snowflake-labs/snowflake-mcp
 **Tier**: PRIMARY
@@ -216,7 +216,7 @@ health_status = await registry.check_all_health()
 
 Official MCP servers use Programmatic Access Tokens (PAT):
 
-1. **Snowflake PAT**: For Cortex operations
+1. **Modern Stack PAT**: For Cortex operations
 2. **Pulumi PAT**: For infrastructure operations
 3. **Estuary PAT**: For data pipeline management
 

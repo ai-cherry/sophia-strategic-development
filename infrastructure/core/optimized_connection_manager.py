@@ -64,32 +64,32 @@ except ImportError:
 # Configuration and monitoring
 from backend.core.auto_esc_config import get_config_value
 from core.performance_monitor import performance_monitor
-from infrastructure.core.secure_snowflake_config import get_secure_snowflake_config
+# REMOVED: ModernStack dependency
 
-# Import Snowflake configuration override for correct connectivity
+# REMOVED: ModernStack dependencyuration override for correct connectivity
 
 
 # Try to import optional dependencies
 try:
-    import snowflake.connector
+    # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
-    SNOWFLAKE_AVAILABLE = True
+    # REMOVED: ModernStack dependency True
 except ImportError:
-    SNOWFLAKE_AVAILABLE = False
+    # REMOVED: ModernStack dependency False
 
-    # Create placeholder for snowflake.connector
-    class MockSnowflakeConnector:
+    # Create placeholder for modern_stack.connector
+    class MockModernStackConnector:
         @staticmethod
         def connect(**kwargs):
-            raise NotImplementedError("Snowflake connector not available")
+            raise NotImplementedError("ModernStack connector not available")
 
         @staticmethod
         async def connect_async(**kwargs):
             raise NotImplementedError(
-                "Snowflake connector not available - install with: pip install snowflake-connector-python"
+                "ModernStack connector not available - install with: pip install modern_stack-connector-python"
             )
 
-    snowflake = type("snowflake", (), {"connector": MockSnowflakeConnector()})()
+    modern_stack = type("modern_stack", (), {"connector": MockModernStackConnector()})()
 
 try:
     import psycopg2
@@ -104,7 +104,7 @@ logger = logging.getLogger(__name__)
 class ConnectionType(str, Enum):
     """Supported connection types"""
 
-    SNOWFLAKE = "snowflake"
+    SNOWFLAKE = "modern_stack"
     POSTGRES = "postgres"
     MYSQL = "mysql"
     REDIS = "redis"
@@ -262,8 +262,8 @@ class OptimizedConnectionPool:
         connection_start = time.time()
 
         try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
-                connection = await self._create_snowflake_connection()
+            if self.connection_type == ConnectionType.POSTGRESQL:
+                connection = await self._create_modern_stack_connection()
             elif self.connection_type == ConnectionType.POSTGRES:
                 connection = await self._create_postgres_connection()
             elif self.connection_type == ConnectionType.REDIS:
@@ -289,11 +289,11 @@ class OptimizedConnectionPool:
             self.circuit_breaker.record_failure()
             return None
 
-    async def _create_snowflake_connection(self):
-        """Create Snowflake connection with secure configuration"""
+    async def _create_modern_stack_connection(self):
+# REMOVED: ModernStack dependencyuration"""
 
         # Get secure connection parameters using lazy initialization
-        config = get_secure_snowflake_config()
+# REMOVED: ModernStack dependency()
         connection_params = config.get_connection_params()
         connection_params["timeout"] = self.connection_timeout
         # Add global query tag for cost/credit tracking
@@ -303,12 +303,12 @@ class OptimizedConnectionPool:
 
         # Force log the correct account
         logger.info(
-            f"🔧 SECURE CONFIG: Connecting to Snowflake account {connection_params['account']}"
+            f"🔧 SECURE CONFIG: Connecting to ModernStack account {connection_params['account']}"
         )
 
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
-            conn = snowflake.connector.connect(**connection_params)
+            conn = self.modern_stack_connection(**connection_params)
             # Set global query tag for cost tracking
             cursor = conn.cursor()
             cursor.execute("ALTER SESSION SET QUERY_TAG = 'sophia_ai_global'")
@@ -412,7 +412,7 @@ class OptimizedConnectionPool:
     async def _is_connection_healthy(self, connection: Any) -> bool:
         """Check if connection is healthy"""
         try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
+            if self.connection_type == ConnectionType.POSTGRESQL:
 
                 def _sync_health_check():
                     cursor = connection.cursor()
@@ -434,7 +434,7 @@ class OptimizedConnectionPool:
     async def _close_connection(self, connection: Any):
         """Close database connection"""
         try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
+            if self.connection_type == ConnectionType.POSTGRESQL:
 
                 def _sync_close():
                     connection.close()
@@ -569,16 +569,16 @@ class OptimizedConnectionManager:
         logger.info("🚀 Initializing Optimized Connection Manager...")
 
         try:
-            # Initialize Snowflake pool (primary database)
-            snowflake_pool = OptimizedConnectionPool(
-                ConnectionType.SNOWFLAKE,
+            # Initialize ModernStack pool (primary database)
+            # REMOVED: ModernStack dependency OptimizedConnectionPool(
+                ConnectionType.POSTGRESQL,
                 min_connections=3,
                 max_connections=15,
                 connection_timeout=30,
                 idle_timeout=600,
             )
-            await snowflake_pool.initialize()
-            self.pools[ConnectionType.SNOWFLAKE] = snowflake_pool
+            await modern_stack_pool.initialize()
+            self.pools[ConnectionType.POSTGRESQL] = modern_stack_pool
 
             # Initialize Redis pool (caching)
             try:
@@ -606,7 +606,7 @@ class OptimizedConnectionManager:
         self,
         query: str,
         params: tuple | dict | None = None,
-        connection_type: ConnectionType = ConnectionType.SNOWFLAKE,
+        connection_type: ConnectionType = ConnectionType.POSTGRESQL,
     ) -> Any:
         """Execute single query with connection pooling"""
         if not self.initialized:
@@ -620,7 +620,7 @@ class OptimizedConnectionManager:
 
         async with pool.get_connection() as connection:
             try:
-                if connection_type == ConnectionType.SNOWFLAKE:
+                if connection_type == ConnectionType.POSTGRESQL:
 
                     def _sync_execute():
                         cursor = connection.cursor()
@@ -667,7 +667,7 @@ class OptimizedConnectionManager:
     async def execute_batch_queries(
         self,
         queries: list[BatchQuery],
-        connection_type: ConnectionType = ConnectionType.SNOWFLAKE,
+        connection_type: ConnectionType = ConnectionType.POSTGRESQL,
     ) -> list[BatchResult]:
         """
         ✅ OPTIMIZED: Execute batch queries eliminating N+1 patterns
@@ -695,7 +695,7 @@ class OptimizedConnectionManager:
                     query_id = batch_query.query_id or f"batch_query_{i}"
 
                     try:
-                        if connection_type == ConnectionType.SNOWFLAKE:
+                        if connection_type == ConnectionType.POSTGRESQL:
 
                             def _sync_batch_execute():
                                 cursor = connection.cursor()

@@ -1,13 +1,13 @@
-# Snowflake Cortex MCP Integration - Deployment Summary
+# Lambda GPU MCP Integration - Deployment Summary
 
 ## 🎯 Overview
 
-This document summarizes the comprehensive Snowflake Cortex MCP integration that has been implemented for Sophia AI, providing dual-mode execution (direct and MCP), automatic fallback, enterprise-grade security, and comprehensive monitoring.
+This document summarizes the comprehensive Lambda GPU MCP integration that has been implemented for Sophia AI, providing dual-mode execution (direct and MCP), automatic fallback, enterprise-grade security, and comprehensive monitoring.
 
 ## 📦 Components Implemented
 
 ### 1. Core Adapter (`backend/core/services/snowflake_cortex_adapter.py`)
-- **Dual-mode execution**: Supports both direct Snowflake connections and MCP server communication
+- **Dual-mode execution**: Supports both direct Modern Stack connections and MCP server communication
 - **Automatic fallback**: Transparent failover from MCP to direct mode
 - **Circuit breaker**: Prevents cascading failures with intelligent circuit breaking
 - **Retry logic**: Exponential backoff for transient failures
@@ -38,7 +38,7 @@ This document summarizes the comprehensive Snowflake Cortex MCP integration that
 - **Circuit breaker state**: Real-time circuit status
 
 ### 6. MCP Registry (`config/mcp/registry.yaml`)
-- **Server definitions**: Primary and secondary Snowflake Cortex servers
+- **Server definitions**: Primary and secondary Lambda GPU servers
 - **Capability mapping**: Detailed capability specifications
 - **Tier-based routing**: Intelligent server selection
 - **Health endpoints**: Standardized health checking
@@ -93,7 +93,7 @@ python scripts/validate_cortex_integration.py
 - `cortex_calls_total`: Total API calls by mode, task, and status
 - `cortex_latency_seconds`: Call latency distribution
 - `snowflake_pool_size`: Connection pool sizes
-- `cortex_credits_used`: Snowflake credit consumption
+- `cortex_credits_used`: Modern Stack credit consumption
 - `mcp_server_health_score`: MCP server health status
 
 ### Grafana Dashboard

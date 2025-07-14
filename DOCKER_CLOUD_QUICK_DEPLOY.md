@@ -51,7 +51,7 @@ docker stack services sophia-mcp-v2
 ```bash
 # From Lambda Labs
 curl http://localhost:9000/health  # AI Memory
-curl http://localhost:9001/health  # Snowflake
+curl http://localhost:9001/health  # Modern Stack
 curl http://localhost:9006/health  # GitHub
 curl http://localhost:9007/health  # Slack
 curl http://localhost:9009/health  # Gong

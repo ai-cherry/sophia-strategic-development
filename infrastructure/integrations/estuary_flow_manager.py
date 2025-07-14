@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from backend.core.auto_esc_config import get_config_value
 Estuary Flow Manager for Sophia AI Platform
 Comprehensive integration replacing Estuary with Estuary Flow
@@ -43,7 +44,7 @@ class EstuaryConnectorType(Enum):
     GITHUB = "ghcr.io/estuary/source-github:dev"
     HUBSPOT = "ghcr.io/estuary/source-hubspot:dev"
     SLACK = "ghcr.io/estuary/source-slack:dev"
-    SNOWFLAKE = "ghcr.io/estuary/materialize-snowflake:dev"
+    SNOWFLAKE = "ghcr.io/estuary/materialize-modern_stack:dev"
     PINECONE = "ghcr.io/estuary/materialize-pinecone:dev"
     HTTP_INBOUND = "ghcr.io/estuary/source-http-inbound:dev"
     WEBHOOK = "ghcr.io/estuary/source-webhook:dev"
@@ -407,19 +408,19 @@ class EstuaryFlowManager:
             tenant=self.credentials.tenant,
         )
 
-    def create_snowflake_materialization(
-        self, snowflake_config: dict[str, str]
+    def create_modern_stack_materialization(
+# REMOVED: ModernStack dependency: dict[str, str]
     ) -> EstuaryMaterialization:
-        """Create Snowflake materialization configuration"""
+# REMOVED: ModernStack dependencyuration"""
         config = {
-            "host": f"{snowflake_config['account']}.snowflakecomputing.com",
-            "account": snowflake_config["account"],
-            "user": snowflake_config["user"],
-            "password": snowflake_config["password"],
-            "role": snowflake_config.get("role", "ACCOUNTADMIN"),
-            "warehouse": snowflake_config.get("warehouse", "CORTEX_SOPHIA_AI_WH"),
-            "database": snowflake_config.get("database", "SOPHIA_AI"),
-            "schema": snowflake_config.get("schema", "ESTUARY_STAGING"),
+# REMOVED: ModernStack dependency['account']}.modern_stackcomputing.com",
+# REMOVED: ModernStack dependency["account"],
+# REMOVED: ModernStack dependency["user"],
+# REMOVED: ModernStack dependency["password"],
+# REMOVED: ModernStack dependency.get("role", "ACCOUNTADMIN"),
+# REMOVED: ModernStack dependency.get("warehouse", "CORTEX_SOPHIA_AI_WH"),
+# REMOVED: ModernStack dependency.get("database", "SOPHIA_AI"),
+# REMOVED: ModernStack dependency.get("schema", "ESTUARY_STAGING"),
             "advanced": {
                 "updateDelay": "0s",  # Real-time processing
                 "deltaUpdates": True,
@@ -430,8 +431,8 @@ class EstuaryFlowManager:
         bindings = []
 
         return EstuaryMaterialization(
-            name="snowflake-sophia-ai",
-            connector_image=EstuaryConnectorType.SNOWFLAKE.value,
+            name="modern_stack-sophia-ai",
+            connector_image=EstuaryConnectorType.self.modern_stack.value,
             config=config,
             bindings=bindings,
             tenant=self.credentials.tenant,
@@ -639,8 +640,8 @@ class EstuaryFlowManager:
         }
 
         try:
-            # Create Snowflake materialization (configuration only, requires credentials)
-            snowflake_config = {
+# REMOVED: ModernStack dependencyuration only, requires credentials)
+            # REMOVED: ModernStack dependency {
                 "account": "ZNB04675.us-east-1",
                 "user": "SCOOBYJAVA15",
                 "password": "${SNOWFLAKE_PAT_TOKEN}",  # Will be replaced with actual token
@@ -650,15 +651,15 @@ class EstuaryFlowManager:
                 "schema": "ESTUARY_STAGING",
             }
 
-            snowflake_mat = self.create_snowflake_materialization(snowflake_config)
+# REMOVED: ModernStack dependency)
 
             # Save configuration for manual deployment
-            config_file = self.config_dir / "snowflake-materialization.flow.yaml"
+            config_file = self.config_dir / "modern_stack-materialization.flow.yaml"
             with open(config_file, "w") as f:
-                yaml.dump(snowflake_mat.to_flow_yaml(), f, default_flow_style=False)
+                yaml.dump(# REMOVED: ModernStack dependencyFalse)
 
             deployment_results["materializations_deployed"].append(
-                "snowflake-sophia-ai"
+                "modern_stack-sophia-ai"
             )
 
             # Create capture configurations (will require API keys for deployment)
@@ -760,9 +761,9 @@ echo "🚀 Starting Sophia AI Estuary Flow deployment..."
 # Ensure flowctl is authenticated
 flowctl auth token --token "$ESTUARY_ACCESS_TOKEN"
 
-# Deploy Snowflake materialization
-echo "❄️ Deploying Snowflake materialization..."
-flowctl catalog publish --source config/estuary/snowflake-materialization.flow.yaml
+# Deploy ModernStack materialization
+echo "❄️ Deploying ModernStack materialization..."
+flowctl catalog publish --source config/estuary/modern_stack-materialization.flow.yaml
 
 # Deploy GitHub capture
 echo "🐙 Deploying GitHub capture..."

@@ -58,17 +58,17 @@ spec:
           valueFrom:
             secretKeyRef:
               name: sophia-secrets
-              key: snowflake-account
+              key: modern_stack-account
         - name: SNOWFLAKE_USER
           valueFrom:
             secretKeyRef:
               name: sophia-secrets
-              key: snowflake-user
+              key: modern_stack-user
         - name: SNOWFLAKE_PASSWORD
           valueFrom:
             secretKeyRef:
               name: sophia-secrets
-              key: snowflake-password
+              key: modern_stack-password
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:

@@ -34,8 +34,8 @@ graph TD
 
     subgraph Deep Knowledge Layer
         F[Vector Search<br>(Pinecone/Weaviate)]
-        G[Structured Data<br>(Snowflake)]
-        H[AI SQL Generation<br>(Snowflake Cortex)]
+        G[Structured Data<br>(Modern Stack)]
+        H[AI SQL Generation<br>(Lambda GPU)]
     end
 
     subgraph AI Model Layer
@@ -87,7 +87,7 @@ graph TD
 
 5.  **L3 Vector Search (Pinecone/Weaviate):** Concurrently, the entity `"ACME Corp"` is used to perform a vector search across our deep knowledge bases in Pinecone/Weaviate. This finds semantically similar concepts, such as call transcripts where ACME's new product line was discussed, even if the exact company name wasn't tagged.
 
-6.  **L4 Structured Data Search (Snowflake Cortex):** The system recognizes that "call outcome" and "ACME Corp" relate to structured data. It uses **Snowflake Cortex** to translate the natural language query into an optimized SQL query (e.g., `SELECT call_summary, sentiment FROM gong_calls WHERE company_name = 'ACME Corp' ORDER BY call_date DESC LIMIT 1;`). This AI-SQL query is executed against our structured data warehouse.
+6.  **L4 Structured Data Search (Lambda GPU):** The system recognizes that "call outcome" and "ACME Corp" relate to structured data. It uses **Lambda GPU** to translate the natural language query into an optimized SQL query (e.g., `SELECT call_summary, sentiment FROM gong_calls WHERE company_name = 'ACME Corp' ORDER BY call_date DESC LIMIT 1;`). This AI-SQL query is executed against our structured data warehouse.
 
 7.  **Context Synthesis:** The results from all layers (L2, L3, L4) are collected. A synthesizer service compiles these disparate pieces of information—tagged memories, semantically related text chunks, and structured query results—into a rich, comprehensive context.
 
@@ -196,10 +196,10 @@ graph TD
 
     subgraph "Backend Services & AI"
         TS(Training Service)
-        GS(Gap Analysis Script<br>w/ Snowflake Cortex)
+        GS(Gap Analysis Script<br>w/ Lambda GPU)
     end
 
-    subgraph "Snowflake Database"
+    subgraph "Modern Stack Database"
         AK[authoritative_knowledge]
         KG[knowledge_gaps]
     end
@@ -226,14 +226,14 @@ graph TD
 
 ### 8.1. The Reactive Loop (User-Driven Training)
 - **Trigger:** An authorized user provides an explicit instruction, such as `@sophia remember: [definition]` or `@sophia correct: [correction]`.
-- **Flow:** The command is routed through the MCP Gateway to the "Submit Training" N8N workflow. This workflow calls our internal `InteractiveTrainingService`, which validates the user's impact score and writes the information to the `authoritative_knowledge` table in Snowflake.
+- **Flow:** The command is routed through the MCP Gateway to the "Submit Training" N8N workflow. This workflow calls our internal `InteractiveTrainingService`, which validates the user's impact score and writes the information to the `authoritative_knowledge` table in Modern Stack.
 - **Purpose:** To capture explicit, high-value knowledge directly from trusted human experts.
 
 ### 8.2. The Proactive Loop (AI-Driven Discovery)
 - **Trigger:** A scheduled N8N workflow (`proactive_knowledge_gap_analysis`) runs automatically every night.
 - **Flow:**
     1. **Ingest:** The workflow pulls raw conversational data from key platforms (Gong, Slack, HubSpot).
-    2. **Analyze:** It executes our `analyze_knowledge_gaps.py` script. This script leverages Snowflake Cortex AI functions to perform topic modeling and entity extraction on the raw text, identifying recurring themes.
+    2. **Analyze:** It executes our `analyze_knowledge_gaps.py` script. This script leverages Lambda GPU AI functions to perform topic modeling and entity extraction on the raw text, identifying recurring themes.
     3. **Compare & Identify:** For each theme, the script checks if a corresponding entry exists in the `authoritative_knowledge` table. If not, it's flagged as a "knowledge gap."
     4. **Store & Alert:** The prioritized list of gaps is stored in the `knowledge_gaps` table and a summary notification is sent to a dedicated Slack channel.
 - **Purpose:** To autonomously discover the "unknown unknowns"—the questions and topics that are important to the business but that no one has explicitly taught the AI yet. This allows curators to focus their training efforts on the most impactful areas.
@@ -268,10 +268,10 @@ graph TD
 
     subgraph "Backend Services & AI"
         TS(Training Service)
-        GS(Gap Analysis Script<br>w/ Snowflake Cortex)
+        GS(Gap Analysis Script<br>w/ Lambda GPU)
     end
 
-    subgraph "Snowflake Database"
+    subgraph "Modern Stack Database"
         AK[authoritative_knowledge]
         KG[knowledge_gaps]
     end
@@ -298,14 +298,14 @@ graph TD
 
 ### 8.1. The Reactive Loop (User-Driven Training)
 - **Trigger:** An authorized user provides an explicit instruction, such as `@sophia remember: [definition]` or `@sophia correct: [correction]`.
-- **Flow:** The command is routed through the MCP Gateway to the "Submit Training" N8N workflow. This workflow calls our internal `InteractiveTrainingService`, which validates the user's impact score and writes the information to the `authoritative_knowledge` table in Snowflake.
+- **Flow:** The command is routed through the MCP Gateway to the "Submit Training" N8N workflow. This workflow calls our internal `InteractiveTrainingService`, which validates the user's impact score and writes the information to the `authoritative_knowledge` table in Modern Stack.
 - **Purpose:** To capture explicit, high-value knowledge directly from trusted human experts.
 
 ### 8.2. The Proactive Loop (AI-Driven Discovery)
 - **Trigger:** A scheduled N8N workflow (`proactive_knowledge_gap_analysis`) runs automatically every night.
 - **Flow:**
     1. **Ingest:** The workflow pulls raw conversational data from key platforms (Gong, Slack, HubSpot).
-    2. **Analyze:** It executes our `analyze_knowledge_gaps.py` script. This script leverages Snowflake Cortex AI functions to perform topic modeling and entity extraction on the raw text, identifying recurring themes.
+    2. **Analyze:** It executes our `analyze_knowledge_gaps.py` script. This script leverages Lambda GPU AI functions to perform topic modeling and entity extraction on the raw text, identifying recurring themes.
     3. **Compare & Identify:** For each theme, the script checks if a corresponding entry exists in the `authoritative_knowledge` table. If not, it's flagged as a "knowledge gap."
     4. **Store & Alert:** The prioritized list of gaps is stored in the `knowledge_gaps` table and a summary notification is sent to a dedicated Slack channel.
 - **Purpose:** To autonomously discover the "unknown unknowns"—the questions and topics that are important to the business but that no one has explicitly taught the AI yet. This allows curators to focus their training efforts on the most impactful areas.

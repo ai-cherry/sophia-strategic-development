@@ -45,7 +45,7 @@ def main():
             print("   - Chat with AI assistant")
             print("   - View system metrics")
             print("   - Access business intelligence")
-            print("   - Snowflake data integration")
+            print("   - ModernStack data integration")
 
             print("\n✨ The dashboard uses a glassmorphism design")
             print("   with a dark theme optimized for executives.")

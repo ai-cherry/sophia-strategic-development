@@ -168,7 +168,7 @@ This document provides performance metrics comparing the original infrastructure
 4. **Cost Optimization**: Strategic model routing for cost efficiency
 5. **Performance Monitoring**: Real-time gateway performance tracking
 
-## Snowflake Cortex AI Performance
+## Lambda GPU AI Performance
 
 | Cortex Metric | Before Optimization | After Optimization | Improvement |
 |---------------|---------------------|-------------------|-------------|
@@ -178,7 +178,7 @@ This document provides performance metrics comparing the original infrastructure
 | Concurrent Users | 50 | 200 | 300% |
 | Data Processing Rate | 1GB/hour | 4.5GB/hour | 350% |
 
-**Snowflake Cortex Optimization Techniques:**
+**Lambda GPU Optimization Techniques:**
 1. **Warehouse Optimization**: Right-sized compute resources
 2. **Query Optimization**: Efficient SQL patterns for AI workloads
 3. **Caching Strategy**: Intelligent result caching

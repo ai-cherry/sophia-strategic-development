@@ -53,7 +53,7 @@ Lambda Labs Infrastructure/
 ├── Kubernetes Cluster         # Container orchestration
 ├── Docker Registry            # Container image management
 ├── Pulumi Infrastructure      # Infrastructure as Code
-├── Snowflake Integration      # Data warehouse and AI
+├── Modern Stack Integration      # Data warehouse and AI
 ├── Portkey AI Gateway         # LLM orchestration
 ├── Estuary Flow              # Real-time data streaming
 └── Vercel Frontend           # Frontend deployment
@@ -245,7 +245,7 @@ const lambdaLabsConfig = {
     controlPlaneIp: getConfigValue("lambda_labs_control_plane_ip"),
 };
 
-// Snowflake configuration
+// Modern Stack configuration
 const snowflakeConfig = {
     account: getConfigValue("snowflake_account"),
     user: getConfigValue("snowflake_user"),
@@ -631,13 +631,13 @@ export class LambdaLabsGPUOptimizer {
 }
 ```
 
-### Snowflake Cortex Integration
+### Lambda GPU Integration
 
-Optimized integration with Snowflake Cortex AI:
+Optimized integration with Lambda GPU AI:
 
 ```typescript
-// Snowflake Cortex optimization for Lambda Labs
-export class SnowflakeCortexOptimizer {
+// Lambda GPU optimization for Lambda Labs
+export class Modern StackCortexOptimizer {
 
     static createOptimizedConnection() {
         return {

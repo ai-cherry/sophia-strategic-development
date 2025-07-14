@@ -48,12 +48,12 @@ class DesignAutomationLayer:
 ### **Layer 3: Business Intelligence Orchestration**
 ```python
 class BusinessIntelligenceLayer:
-    """Apollo.io + HubSpot + Snowflake Cortex = Comprehensive BI"""
+    """Apollo.io + HubSpot + Lambda GPU = Comprehensive BI"""
 
     def __init__(self):
         self.apollo_mcp = ApolloMCPServer()             # Sales intelligence powerhouse
         self.hubspot_mcp = HubSpotAIMCPServer()         # CRM with AI capabilities
-        self.snowflake_cortex_mcp = SnowflakeCortexMCP() # Official Snowflake Labs
+        self.snowflake_cortex_mcp = Modern StackCortexMCP() # Official Modern Stack Labs
         self.phantombuster_mcp = PhantomBusterMCP()     # Social automation
 
     async def comprehensive_business_intelligence(self, query: str):
@@ -532,7 +532,7 @@ jobs:
 - **Web Automation Success**: 95% success rate for Playwright operations
 - **Design-to-Code Acceleration**: 10x faster design-to-deployment pipeline
 - **Sales Intelligence Quality**: 90% accuracy in Apollo.io enrichment
-- **Data Processing Speed**: 5x faster with Snowflake Cortex integration
+- **Data Processing Speed**: 5x faster with Lambda GPU integration
 - **AI Model Efficiency**: 40% cost reduction with intelligent routing
 
 ### **Operational Metrics**

@@ -25,17 +25,17 @@ servers:
       max_memories: 10000
       cache_ttl: 3600
       pinecone_enabled: false
-      persistence: "snowflake"
+      persistence: "modern_stack"
     resources:
       memory: "4G"
       cpu: "2"
       replicas: 2
 
-  - name: snowflake-unified
-    type: snowflake
+  - name: modern_stack-unified
+    type: modern_stack
     tier: PRIMARY
     port: 9001
-    path: "mcp-servers/snowflake_unified/server.py"
+    path: "mcp-servers/modern_stack_unified/server.py"
     capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]
     version: "3.0.1"
     config:

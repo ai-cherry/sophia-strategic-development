@@ -3,8 +3,8 @@
 
 servers:
   # Official MCP Servers
-  - name: snowflake-official
-    type: snowflake
+  - name: modern_stack-official
+    type: modern_stack
     tier: PRIMARY
     port: 9130
     capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]

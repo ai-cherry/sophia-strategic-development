@@ -3,6 +3,7 @@ Centralized Settings Configuration
 Uses Pydantic for validation and environment variable loading
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from functools import lru_cache
 from typing import Any
 
@@ -39,14 +40,14 @@ class Settings(BaseSettings):
     openrouter_api_key: str | None = Field(None, env="OPENROUTER_API_KEY")
     portkey_api_key: str | None = Field(None, env="PORTKEY_API_KEY")
 
-    # Snowflake
-    snowflake_account: str = Field(..., env="SNOWFLAKE_ACCOUNT")
-    snowflake_user: str = Field(..., env="SNOWFLAKE_USER")
-    snowflake_password: str = Field(..., env="SNOWFLAKE_PASSWORD")
-    snowflake_warehouse: str = Field(default="COMPUTE_WH", env="SNOWFLAKE_WAREHOUSE")
-    snowflake_database: str = Field(default="SOPHIA_AI", env="SNOWFLAKE_DATABASE")
-    snowflake_schema: str = Field(default="PUBLIC", env="SNOWFLAKE_SCHEMA")
-    snowflake_role: str = Field(default="ACCOUNTADMIN", env="SNOWFLAKE_ROLE")
+    # ModernStack
+    # REMOVED: ModernStack dependency"SNOWFLAKE_ACCOUNT")
+    # REMOVED: ModernStack dependency"SNOWFLAKE_USER")
+    # REMOVED: ModernStack dependency"SNOWFLAKE_PASSWORD")
+    # REMOVED: ModernStack dependency"SNOWFLAKE_WAREHOUSE")
+    # REMOVED: ModernStack dependency"SNOWFLAKE_DATABASE")
+    # REMOVED: ModernStack dependency"SNOWFLAKE_SCHEMA")
+    # REMOVED: ModernStack dependency"SNOWFLAKE_ROLE")
 
     # Vector Databases
     pinecone_api_key: str | None = Field(None, env="PINECONE_API_KEY")

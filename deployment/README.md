@@ -9,9 +9,9 @@ The Sophia AI platform is distributed across 5 specialized Lambda Labs instances
 | Instance | GPU | IP Address | Role | Key Services |
 |----------|-----|------------|------|--------------|
 | **sophia-production-instance** | RTX6000 | `104.171.202.103` | Core Platform Services | Backend API, Dashboard, Chat, Load Balancer |
-| **sophia-ai-core** | GH200 | `192.222.58.232` | AI/ML Compute Engine | AI Memory, Snowflake Cortex, LLM Processing |
+| **sophia-ai-core** | GH200 | `192.222.58.232` | AI/ML Compute Engine | AI Memory, Lambda GPU, LLM Processing |
 | **sophia-mcp-orchestrator** | A6000 | `104.171.202.117` | MCP Services Hub | GitHub, Slack, Linear, Notion, Codacy |
-| **sophia-data-pipeline** | A100 | `104.171.202.134` | Data Processing Center | Snowflake, Data Analytics, Monitoring |
+| **sophia-data-pipeline** | A100 | `104.171.202.134` | Data Processing Center | Modern Stack, Data Analytics, Monitoring |
 | **sophia-development** | A10 | `155.248.194.183` | Development & Monitoring | Testing, CI/CD, Performance Monitoring |
 
 ## 🚀 Quick Start
@@ -134,7 +134,7 @@ services:
 # deployment/docker-compose-ai-core.yml
 services:
   - ai-memory-v2            # AI Memory (Port 9000)
-  - snowflake-cortex        # Snowflake AI (Port 8081)
+  - snowflake-cortex        # Modern Stack AI (Port 8081)
   - mem0-openmemory         # Memory Persistence (Port 8080)
   - huggingface-ai          # ML Models (Port 9012)
   - portkey-admin           # LLM Gateway (Port 9013)
@@ -328,7 +328,7 @@ After deployment, services are accessible at:
 
 #### AI Core Instance (192.222.58.232)
 - **AI Memory**: http://192.222.58.232:9000
-- **Snowflake Cortex**: http://192.222.58.232:8081
+- **Lambda GPU**: http://192.222.58.232:8081
 - **Mem0 OpenMemory**: http://192.222.58.232:8080
 - **HuggingFace AI**: http://192.222.58.232:9012
 - **Portkey Admin**: http://192.222.58.232:9013
@@ -342,7 +342,7 @@ After deployment, services are accessible at:
 - **Codacy Integration**: http://104.171.202.117:9005
 
 #### Data Pipeline Instance (104.171.202.134)
-- **Snowflake Data Hub**: http://104.171.202.134:9001
+- **Modern Stack Data Hub**: http://104.171.202.134:9001
 - **Prometheus**: http://104.171.202.134:9090
 - **Grafana**: http://104.171.202.134:3000
 - **Alert Manager**: http://104.171.202.134:9093

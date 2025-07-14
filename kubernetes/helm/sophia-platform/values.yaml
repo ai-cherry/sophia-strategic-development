@@ -163,10 +163,10 @@ mcpServers:
     gpuRequired: true
     gpuCount: 1
 
-  # Snowflake Cortex
-  snowflakeCortex:
+  # Lambda GPU
+  modern_stackCortex:
     enabled: true
-    name: snowflake-cortex
+    name: modern_stack-cortex
     port: 9001
     tier: PRIMARY
     resources:

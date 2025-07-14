@@ -128,7 +128,7 @@ def main():
 
     # Secrets to update
     secrets_mapping = {
-        # Snowflake
+        # ModernStack
         "SNOWFLAKE_ACCOUNT": os.getenv("SNOWFLAKE_ACCOUNT"),
         "SNOWFLAKE_USER": os.getenv("SNOWFLAKE_USER"),
         "SNOWFLAKE_PASSWORD": os.getenv("SNOWFLAKE_PASSWORD"),

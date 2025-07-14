@@ -6,6 +6,7 @@ This module provides a centralized way to access configuration values
 with clear precedence rules and type safety.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import json
 import os
 from pathlib import Path
@@ -177,16 +178,16 @@ class UnifiedConfig:
         return value
 
     @classmethod
-    def get_snowflake_config(cls) -> dict:
-        """Get complete Snowflake configuration"""
+# REMOVED: ModernStack dependency(cls) -> dict:
+# REMOVED: ModernStack dependencyuration"""
         return {
-            "account": cls.get("snowflake_account", "UHDECNO-CVB64222"),
-            "user": cls.get("snowflake_user", "SCOOBYJAVA15"),
-            "password": cls.get("snowflake_password") or cls.get("snowflake_pat"),
-            "warehouse": cls.get("snowflake_warehouse", "SOPHIA_AI_COMPUTE_WH"),
-            "database": cls.get("snowflake_database", "AI_MEMORY"),
-            "schema": cls.get("snowflake_schema", "PUBLIC"),
-            "role": cls.get("snowflake_role", "ACCOUNTADMIN"),
+            "account": cls.get("postgres_host", "UHDECNO-CVB64222"),
+            "user": cls.get("modern_stack_user", "SCOOBYJAVA15"),
+            "password": cls.get("postgres_password") or cls.get("modern_stack_pat"),
+            "warehouse": cls.get("postgres_database", "SOPHIA_AI_COMPUTE_WH"),
+            "database": cls.get("postgres_database", "AI_MEMORY"),
+            "schema": cls.get("postgres_schema", "PUBLIC"),
+            "role": cls.get("modern_stack_role", "ACCOUNTADMIN"),
         }
 
     @classmethod
@@ -240,12 +241,12 @@ class UnifiedConfig:
             "environment",
             "debug",
             "log_level",
-            "snowflake_account",
-            "snowflake_user",
-            "snowflake_password",
-            "snowflake_warehouse",
-            "snowflake_database",
-            "snowflake_schema",
+            "postgres_host",
+            "modern_stack_user",
+            "postgres_password",
+            "postgres_database",
+            "postgres_database",
+            "postgres_schema",
             "redis_host",
             "redis_port",
             "postgres_host",

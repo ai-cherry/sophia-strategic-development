@@ -1,4 +1,4 @@
-# Snowflake Cortex MCP Deep-Dive Integration Blueprint
+# Lambda GPU MCP Deep-Dive Integration Blueprint
 
 **Version**: 1.0.0
 **Status**: Implementation Ready
@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-This document provides the complete engineering blueprint for integrating Snowflake Cortex AI capabilities through a dual-mode adapter supporting both direct connections and MCP (Model Context Protocol) server communication. The integration enables seamless AI operations with automatic fallback, comprehensive monitoring, and enterprise-grade security.
+This document provides the complete engineering blueprint for integrating Lambda GPU AI capabilities through a dual-mode adapter supporting both direct connections and MCP (Model Context Protocol) server communication. The integration enables seamless AI operations with automatic fallback, comprehensive monitoring, and enterprise-grade security.
 
 ## Table of Contents
 
@@ -38,8 +38,8 @@ graph TB
         MM[MCP Mode]
     end
 
-    subgraph "Snowflake"
-        SC[Snowflake Cortex]
+    subgraph "Modern Stack"
+        SC[Lambda GPU]
         MS[MCP Server]
     end
 
@@ -58,7 +58,7 @@ graph TB
 
 ### 1.1 Core Implementation
 
-The CortexAdapter provides seamless switching between direct Snowflake connections and MCP server communication with automatic fallback capabilities.
+The CortexAdapter provides seamless switching between direct Modern Stack connections and MCP server communication with automatic fallback capabilities.
 
 #### Key Components:
 - **ExecutionMode Enum**: Controls routing between DIRECT and MCP modes
@@ -116,7 +116,7 @@ class CortexResult:
 
 ```python
 # File: backend/core/services/snowflake_pool.py
-class SnowflakePoolManager:
+class Modern StackPoolManager:
     """Manages connection pools for both direct and MCP modes"""
 
     def __init__(self, config: PoolConfig):
@@ -124,7 +124,7 @@ class SnowflakePoolManager:
         self.mcp_pool = asyncio.Queue(maxsize=config.mcp_pool_size)
         self.metrics = PoolMetrics()
 
-    async def acquire(self, mode: ExecutionMode) -> Union[SnowflakeConnection, MCPSession]:
+    async def acquire(self, mode: ExecutionMode) -> Union[Modern StackConnection, MCPSession]:
         """Acquire connection with wait time tracking"""
         start_time = time.time()
         pool = self.direct_pool if mode == ExecutionMode.DIRECT else self.mcp_pool
@@ -185,7 +185,7 @@ servers:
 ```python
 # File: backend/services/mcp_orchestration_service.py
 class MCPOrchestrationService:
-    """Enhanced orchestration with Snowflake Cortex support"""
+    """Enhanced orchestration with Lambda GPU support"""
 
     async def route_cortex_request(
         self,
@@ -268,7 +268,7 @@ class DynamicGraphBuilder:
 
         # Conditional Cortex integration
         if self._requires_cortex_analysis(initial_state):
-            cortex_node = SnowflakeCortexNode(
+            cortex_node = Modern StackCortexNode(
                 adapter=self.cortex_adapter,
                 streaming_callback=self.streaming_callback
             )
@@ -342,7 +342,7 @@ class SemanticCache(Protocol):
 class PoolAutoscaler:
     """Intelligent pool size management"""
 
-    def __init__(self, pool_manager: SnowflakePoolManager):
+    def __init__(self, pool_manager: Modern StackPoolManager):
         self.pool_manager = pool_manager
         self.metrics_window = deque(maxlen=10)
         self.scaling_decisions = []
@@ -412,7 +412,7 @@ mcp_server_health_score = Gauge(
 # Cost tracking
 cortex_credits_used = Counter(
     'cortex_credits_used',
-    'Snowflake credits consumed',
+    'Modern Stack credits consumed',
     ['task', 'model']
 )
 ```
@@ -422,7 +422,7 @@ cortex_credits_used = Counter(
 ```json
 {
   "dashboard": {
-    "title": "Snowflake Cortex MCP Integration",
+    "title": "Lambda GPU MCP Integration",
     "panels": [
       {
         "title": "Request Rate by Mode",
@@ -462,7 +462,7 @@ cortex_credits_used = Counter(
 
 ```python
 # File: backend/security/pat_manager.py
-class SnowflakePATManager:
+class Modern StackPATManager:
     """Secure PAT lifecycle management"""
 
     def __init__(self, esc_client: PulumiESCClient):
@@ -508,8 +508,8 @@ class SnowflakePATManager:
 
 ```python
 # File: backend/security/audit_middleware.py
-class SnowflakeAuditMiddleware:
-    """Comprehensive audit trail for Snowflake operations"""
+class Modern StackAuditMiddleware:
+    """Comprehensive audit trail for Modern Stack operations"""
 
     async def __call__(self, request: Request, call_next):
         # Generate trace ID
@@ -535,7 +535,7 @@ class SnowflakeAuditMiddleware:
         audit_entry.update({
             "status_code": response.status_code,
             "duration_ms": (time.time() - start_time) * 1000,
-            "credits_used": response.headers.get("X-Snowflake-Credits", "0")
+            "credits_used": response.headers.get("X-Modern Stack-Credits", "0")
         })
 
         await self.audit_logger.log(audit_entry)
@@ -565,7 +565,7 @@ class TestCortexAdapter:
     def adapter(self):
         return CortexAdapter(
             execution_mode=ExecutionMode.AUTO,
-            mcp_client=AsyncMock(spec=SnowflakeMCPClient)
+            mcp_client=AsyncMock(spec=Modern StackMCPClient)
         )
 
     @pytest.mark.parametrize("task_type,mode", [
@@ -645,7 +645,7 @@ class TestCortexAdapter:
 @pytest.mark.e2e
 @pytest.mark.snowflake
 class TestCortexE2E:
-    """End-to-end tests with real Snowflake connection"""
+    """End-to-end tests with real Modern Stack connection"""
 
     async def test_call_transcript_analysis(self, test_db, cortex_adapter):
         """Test analyzing call transcripts"""
@@ -692,7 +692,7 @@ class TestCortexE2E:
 from locust import HttpUser, task, between
 import json
 
-class SnowflakeMCPUser(HttpUser):
+class Modern StackMCPUser(HttpUser):
     wait_time = between(1, 3)
 
     @task(weight=3)
@@ -756,7 +756,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate Snowflake PAT
+      - name: Validate Modern Stack PAT
         run: |
           if [ -z "$SNOWFLAKE_PAT" ]; then
             echo "::error::SNOWFLAKE_PAT_PROD secret not configured"
@@ -770,7 +770,7 @@ jobs:
             --target production \
             -t sophia-ai:${{ github.sha }} .
 
-      - name: Run Snowflake MCP Smoke Tests
+      - name: Run Modern Stack MCP Smoke Tests
         run: |
           docker run --rm \
             -e SNOWFLAKE_PAT="${SNOWFLAKE_PAT}" \
@@ -816,7 +816,7 @@ jobs:
 5. **Production Deployment**
    - Create release tag
    - Merge to main
-   - Monitor Grafana dashboard "Snowflake Cortex MCP"
+   - Monitor Grafana dashboard "Lambda GPU MCP"
 
 ## Rollback Procedure
 1. Set environment variable: `MCP_SNOWFLAKE_ENABLED=false`
@@ -878,11 +878,11 @@ class CortexCircuitBreaker:
 
 ### BACKLOG-01: Redis MCP Semantic Cache
 - Implement Redis-based semantic similarity cache
-- Integration with Snowflake embeddings
+- Integration with Modern Stack embeddings
 - Cache warming strategies
 
 ### BACKLOG-02: Estuary Flow Streaming
-- Real-time data ingestion from Snowflake
+- Real-time data ingestion from Modern Stack
 - Change data capture integration
 - Stream processing with Cortex
 
@@ -893,11 +893,11 @@ class CortexCircuitBreaker:
 
 ### BACKLOG-04: Multi-Region Strategy
 - Lambda Labs multi-region deployment
-- Snowflake region affinity
+- Modern Stack region affinity
 - Latency-based routing
 
 ## Conclusion
 
-This comprehensive integration blueprint provides a production-ready implementation of Snowflake Cortex capabilities within the Sophia AI platform. The dual-mode architecture ensures reliability, the monitoring stack provides observability, and the security measures maintain compliance. The phased rollout approach minimizes risk while the extensive testing strategy ensures quality.
+This comprehensive integration blueprint provides a production-ready implementation of Lambda GPU capabilities within the Sophia AI platform. The dual-mode architecture ensures reliability, the monitoring stack provides observability, and the security measures maintain compliance. The phased rollout approach minimizes risk while the extensive testing strategy ensures quality.
 
 The implementation follows Sophia AI's quality-first principles, reuses existing infrastructure where possible, and provides clear extension points for future enhancements.

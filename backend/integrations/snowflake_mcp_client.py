@@ -1,8 +1,9 @@
 """
-Snowflake MCP Client
-Lightweight HTTP client for communication with Snowflake MCP server.
+ModernStack MCP Client
+Lightweight HTTP client for communication with ModernStack MCP server.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import json
 import time
@@ -51,9 +52,9 @@ class RetryConfig(BaseModel):
     exponential_base: float = 2.0
 
 
-class SnowflakeMCPClient:
+class ModernStackMCPClient:
     """
-    HTTP client for Snowflake MCP server communication.
+    HTTP client for ModernStack MCP server communication.
     Handles PAT authentication, retries, and streaming responses.
     """
 
@@ -65,7 +66,7 @@ class SnowflakeMCPClient:
         retry_config: RetryConfig | None = None,
     ):
         self.base_url = base_url or get_config_value(
-            "snowflake_mcp_url", "https://mcp-snowflake.sophia-ai.com"
+            "modern_stack_mcp_url", "https://mcp-modern_stack.sophia-ai.com"
         )
         self.pat = pat or self._get_pat()
         self.timeout = timeout
@@ -83,21 +84,21 @@ class SnowflakeMCPClient:
             limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
         )
 
-        logger.info("SnowflakeMCPClient initialized", base_url=self.base_url)
+        logger.info("ModernStackMCPClient initialized", base_url=self.base_url)
 
     def _get_pat(self) -> str:
         """Get PAT from configuration."""
         environment = get_config_value("environment", "prod")
-        pat_key = f"snowflake_pat_{environment}"
+        pat_key = f"modern_stack_pat_{environment}"
 
         pat = get_config_value(pat_key)
         if not pat:
             # Try without environment suffix
-            pat = get_config_value("snowflake_pat")
+            pat = get_config_value("modern_stack_pat")
 
         if not pat:
             raise ValueError(
-                f"Snowflake PAT not configured for environment: {environment}"
+# REMOVED: ModernStack dependencyured for environment: {environment}"
             )
 
         return pat
@@ -296,7 +297,7 @@ class SnowflakeMCPClient:
 class Session:
     """MCP session for connection pooling compatibility."""
 
-    def __init__(self, client: SnowflakeMCPClient):
+    def __init__(self, client: ModernStackMCPClient):
         self.client = client
         self.session_id = uuid.uuid4().hex
 

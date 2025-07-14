@@ -1,3 +1,4 @@
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import asyncio
@@ -34,7 +35,7 @@ class OrchestrationResearchAgent(BaseAgent):
     """Specialized AI agent for deep research on Sophia AI orchestration patterns"""
 
     async def _agent_initialize(self):
-        self.snowflake_cortex = UnifiedMemoryServiceV2()
+        self.# REMOVED: ModernStack dependency UnifiedMemoryServiceV2()
         self.research_memory = EnhancedAiMemoryMCPServer()
         # self.mcp_orchestrator = LangGraphMCPOrchestrator()
         logger.info("OrchestrationResearchAgent initialized.")
@@ -51,9 +52,9 @@ class OrchestrationResearchAgent(BaseAgent):
 
         research_queries = [
             "LangGraph orchestration patterns for 28 MCP servers enterprise deployment",
-            "LangChain agent coordination with Snowflake Cortex AI integration",
+            "LangChain agent coordination with Lambda GPU AI integration",
             "Multi-agent collaboration frameworks for business intelligence platforms",
-            "5-tier memory system orchestration patterns Redis Snowflake Mem0 LangGraph",
+            "5-tier memory system orchestration patterns Redis ModernStack Mem0 LangGraph",
         ]
 
         # Mocking research results for now

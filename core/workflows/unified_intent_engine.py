@@ -3,6 +3,7 @@ Unified Intent Engine for Sophia AI
 Provides centralized intent understanding with learning capabilities
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import json
@@ -147,7 +148,7 @@ class UnifiedIntentEngine:
 
         try:
             async with self.cortex_service as cortex:
-                intent_result = await cortex.complete_text_with_cortex(
+                intent_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=analysis_prompt, max_tokens=500
                 )
 
@@ -229,7 +230,7 @@ class UnifiedIntentEngine:
         }
 
         # Simple pattern matching for demo
-        # In production, use Snowflake Cortex or spaCy
+        # In production, use Lambda GPU or spaCy
         import re
 
         # Company names (simple capitalized words for demo)
@@ -246,7 +247,7 @@ class UnifiedIntentEngine:
             "react",
             "docker",
             "kubernetes",
-            "snowflake",
+            "modern_stack",
             "langchain",
         ]
         message_lower = message.lower()

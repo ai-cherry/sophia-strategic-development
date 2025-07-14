@@ -1,7 +1,7 @@
 """
 Unified ETL Adapter for GPU-powered Memory Service
 Bridges ETL pipelines to our new Weaviate/Redis/PostgreSQL stack
-Goodbye Snowflake bottlenecks, hello sub-200ms pipelines!
+Goodbye ModernStack bottlenecks, hello sub-200ms pipelines!
 """
 
 import asyncio
@@ -31,7 +31,7 @@ class UnifiedETLAdapter:
     async def process_gong_call(self, call_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process a Gong call record
-        Old way: 500ms to Snowflake
+        Old way: 500ms to ModernStack
         New way: <100ms to GPU + Weaviate
         """
         start_time = datetime.utcnow()
@@ -69,7 +69,7 @@ class UnifiedETLAdapter:
                 "success": True,
                 "memory_id": result["id"],
                 "processing_time_ms": elapsed_ms,
-                "snowflake_estimate_ms": elapsed_ms * 5,  # Conservative 5x
+                "modern_stack_estimate_ms": elapsed_ms * 5,  # Conservative 5x
             }
 
         except Exception as e:
@@ -280,7 +280,7 @@ class UnifiedETLAdapter:
                 if self.processing_stats["total_processed"] > 0
                 else 0
             ),
-            "performance_vs_snowflake": "5-10x faster",
+            "performance_vs_modern_stack": "5-10x faster",
             "cost_savings": f"${self.processing_stats['total_processed'] * 0.001:.2f}",
         }
 

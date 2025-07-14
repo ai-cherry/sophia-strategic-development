@@ -64,7 +64,7 @@ class UnifiedIntentEngine:
     Central intent understanding with context awareness
     """
     def __init__(self):
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = Modern StackCortexService()
         self.memory_service = EnhancedAiMemoryMCPServer()
         self.intent_patterns = self._load_learned_patterns()
 

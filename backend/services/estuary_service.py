@@ -6,6 +6,7 @@ This service manages Estuary Flow for real-time CDC (Change Data Capture)
 and data replication across systems.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 from dataclasses import dataclass, field
 from typing import Any, Optional
@@ -199,18 +200,18 @@ class EstuaryService:
             logger.error(f"Failed to create PostgreSQL capture: {e}")
             return False
 
-    async def create_snowflake_materialization(
+    async def create_modern_stack_materialization(
         self,
         name: str,
-        snowflake_config: dict[str, Any],
+# REMOVED: ModernStack dependency: dict[str, Any],
         collections: list[dict[str, str]],
     ) -> bool:
         """
-        Create a Snowflake materialization.
+        Create a ModernStack materialization.
 
         Args:
             name: Name for the materialization pipeline
-            snowflake_config: Snowflake connection config
+# REMOVED: ModernStack dependency
             collections: List of dicts with 'collection' and 'table' keys
         """
         if not self.session:
@@ -221,14 +222,14 @@ class EstuaryService:
             mat_spec = {
                 "name": name,
                 "connector": {
-                    "image": "ghcr.io/estuary/materialize-snowflake:latest",
+                    "image": "ghcr.io/estuary/materialize-modern_stack:latest",
                     "config": {
-                        "account": snowflake_config["account"],
-                        "user": snowflake_config["user"],
-                        "password": snowflake_config["password"],
-                        "warehouse": snowflake_config["warehouse"],
-                        "database": snowflake_config["database"],
-                        "schema": snowflake_config.get("schema", "PUBLIC"),
+# REMOVED: ModernStack dependency["account"],
+# REMOVED: ModernStack dependency["user"],
+# REMOVED: ModernStack dependency["password"],
+# REMOVED: ModernStack dependency["warehouse"],
+# REMOVED: ModernStack dependency["database"],
+# REMOVED: ModernStack dependency.get("schema", "PUBLIC"),
                     },
                 },
                 "bindings": [
@@ -236,7 +237,7 @@ class EstuaryService:
                         "source": {"collection": col["collection"]},
                         "resource": {
                             "table": col["table"],
-                            "schema": snowflake_config.get("schema", "PUBLIC"),
+# REMOVED: ModernStack dependency.get("schema", "PUBLIC"),
                             "delta_updates": True,
                         },
                     }
@@ -248,11 +249,11 @@ class EstuaryService:
                 f"{self.api_url}/materializations", json=mat_spec
             ) as response:
                 response.raise_for_status()
-                logger.info(f"Created Snowflake materialization: {name}")
+                logger.info(f"Created ModernStack materialization: {name}")
                 return True
 
         except Exception as e:
-            logger.error(f"Failed to create Snowflake materialization: {e}")
+            logger.error(f"Failed to create ModernStack materialization: {e}")
             return False
 
     async def get_flow_stats(self, flow_name: str, flow_type: str) -> dict[str, Any]:

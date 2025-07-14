@@ -239,7 +239,7 @@ export const DataFetchError: React.FC<DataFetchErrorProps> = ({
 }) => {
   const isNetworkError = error.message.includes('Network') ||
                         error.message.includes('fetch');
-  const isDataSourceError = error.message.includes('Snowflake') ||
+  const isDataSourceError = error.message.includes('Modern Stack') ||
                            error.message.includes('Gong') ||
                            error.message.includes('HubSpot');
 

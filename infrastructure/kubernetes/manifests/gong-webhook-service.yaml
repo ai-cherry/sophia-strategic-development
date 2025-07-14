@@ -549,7 +549,7 @@ spec:
       ports:
         - protocol: TCP
           port: 6379
-    # Allow traffic to Snowflake (HTTPS)
+    # Allow traffic to ModernStack (HTTPS)
     - to: []
       ports:
         - protocol: TCP

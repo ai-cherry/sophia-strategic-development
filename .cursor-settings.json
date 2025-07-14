@@ -7,7 +7,7 @@
   "typescript.preferences.includePackageJsonAutoImports": "on",
   "typescript.suggest.autoImports": true,
   "pulumi.ai.customPrompts": {
-    "dashboard": "Generate Pulumi infrastructure for Sophia AI dashboard with Gong, Snowflake, and OpenAI integrations",
+    "dashboard": "Generate Pulumi infrastructure for Sophia AI dashboard with Gong, ModernStack, and OpenAI integrations",
     "security": "Apply enterprise security policies for financial services compliance",
     "scaling": "Implement auto-scaling infrastructure for high-availability deployment"
   },

@@ -88,7 +88,7 @@ except Exception as e:
 
 2. **Architecture Alignment**
    - Phoenix architecture pattern compliance
-   - Snowflake-centric data architecture
+   - Modern Stack-centric data architecture
    - Service decomposition strategy
 
 3. **Performance Requirements**
@@ -112,7 +112,7 @@ Last Modified: [date]
 Business Context:
 - Supports Pay Ready CEO operations
 - Integrates with Phoenix architecture
-- Part of Snowflake-centric data strategy
+- Part of Modern Stack-centric data strategy
 
 Performance Requirements:
 - Response Time: [target milliseconds]
@@ -232,8 +232,8 @@ async def generate_executive_insights(
 ) -> ExecutiveInsights:
     """Generate executive-level business insights."""
     
-    # Use Snowflake Cortex for AI analysis
-    cortex_service = SnowflakeCortexService()
+    # Use Lambda GPU for AI analysis
+    cortex_service = Modern StackCortexService()
     
     # Get AI configuration from Pulumi ESC
     ai_config = {

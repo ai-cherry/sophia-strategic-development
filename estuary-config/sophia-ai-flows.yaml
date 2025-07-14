@@ -25,7 +25,7 @@ captures:
           password: ${POSTGRESQL_ESTUARY_PASSWORD}
           user: estuary_user
         image: ghcr.io/estuary/source-postgres:dev
-  sophia/snowflake:
+  sophia/modern_stack:
     bindings:
       - resource:
           table: SOPHIA_AI.PUBLIC.ENRICHED_GONG_CALLS
@@ -42,7 +42,7 @@ captures:
           schema: PUBLIC
           user: ${SNOWFLAKE_USER}
           warehouse: ${SNOWFLAKE_WAREHOUSE}
-        image: ghcr.io/estuary/source-snowflake:dev
+        image: ghcr.io/estuary/source-modern_stack:dev
 collections:
   sophia/conversations:
     key:

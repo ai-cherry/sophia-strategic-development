@@ -2,11 +2,11 @@
 
 ## Overview
 
-This document provides a comprehensive guide to the AI SQL query lifecycle in Sophia AI, from natural language input to execution via Snowflake Cortex, including the roles and interaction patterns of each Cortex Agent.
+This document provides a comprehensive guide to the AI SQL query lifecycle in Sophia AI, from natural language input to execution via Lambda GPU, including the roles and interaction patterns of each Cortex Agent.
 
 ## Architecture Principles
 
-### Snowflake as the Center of the Universe
+### Modern Stack as the Center of the Universe
 - **Data Locality**: AI processing happens where data lives
 - **Cost Optimization**: Eliminates data movement costs (60-80% savings)
 - **Performance**: Sub-100ms query execution with native AI functions
@@ -19,7 +19,7 @@ This document provides a comprehensive guide to the AI SQL query lifecycle in So
 ```mermaid
 flowchart TD
     A[User Query: "What are our top deals?"] --> B[SophiaUnifiedChatService]
-    B --> C[SnowflakeCortexService Intent Detection]
+    B --> C[Modern StackCortexService Intent Detection]
     C --> D[Query Classification]
     D --> E[Context Retrieval from AI Memory]
     E --> F[Task Routing Decision]
@@ -27,7 +27,7 @@ flowchart TD
 
 **Components:**
 - **Input Handler**: `SophiaUnifiedChatService.process_query()`
-- **Intent Detection**: `SnowflakeCortexService.classify_intent()`
+- **Intent Detection**: `Modern StackCortexService.classify_intent()`
 - **Context Retrieval**: `EnhancedAiMemoryMCPServer.recall_context()`
 
 ### Phase 2: Cortex Agent Selection and Orchestration
@@ -51,7 +51,7 @@ async def route_to_cortex_agent(query: str, intent: QueryIntent) -> CortexAgent:
 
 ### Phase 3: SQL Generation and Optimization
 
-**Snowflake Ops Agent** (`snowflake_ops`):
+**Modern Stack Ops Agent** (`snowflake_ops`):
 ```sql
 -- Native Cortex AI SQL generation
 SELECT SNOWFLAKE.CORTEX.COMPLETE(
@@ -75,7 +75,7 @@ FROM enriched_hubspot_deals;
 ### Phase 4: Execution and Result Processing
 
 ```python
-class SnowflakeCortexQueryExecutor:
+class Modern StackCortexQueryExecutor:
     """
     Executes AI-generated SQL with performance monitoring and optimization
     """
@@ -103,7 +103,7 @@ class SnowflakeCortexQueryExecutor:
 
 ## Cortex Agent Specifications
 
-### 1. Snowflake Ops Agent
+### 1. Modern Stack Ops Agent
 
 **Role**: Database operations, query optimization, schema management
 
@@ -114,9 +114,9 @@ class SnowflakeCortexQueryExecutor:
 
 **Capabilities**:
 ```python
-class SnowflakeOpsAgent:
+class Modern StackOpsAgent:
     """
-    Specialized agent for Snowflake database operations
+    Specialized agent for PostgreSQL database operations
     """
 
     async def generate_sql(self, natural_language_query: str) -> str:
@@ -135,7 +135,7 @@ class SnowflakeOpsAgent:
 
 **Architecture**:
 - **L1 Cache**: Session context (<50ms)
-- **L2 Cortex**: Snowflake Cortex Search (<100ms)
+- **L2 Cortex**: Lambda GPU Search (<100ms)
 - **L3 Memory**: Persistent AI Memory (<200ms)
 - **L4 Knowledge**: Knowledge Graph (<300ms)
 - **L5 Workflow**: LangGraph patterns (<400ms)
@@ -196,7 +196,7 @@ FROM deal_insights;
 
 ### 1. Connection Pooling
 ```python
-class OptimizedSnowflakeConnection:
+class OptimizedModern StackConnection:
     """
     95% overhead reduction through connection pooling
     """

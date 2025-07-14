@@ -94,7 +94,7 @@
 **Pros:**
 - GPU support for AI
 - Already configured in your setup
-- Best for Snowflake Cortex AI
+- Best for Lambda GPU AI
 - Professional infrastructure
 
 **Cons:**
@@ -130,7 +130,7 @@ python scripts/deploy_backend_free.py
 python scripts/deploy_to_lambda_quick.py
 ```
 - When you need serious compute
-- For Snowflake Cortex AI operations
+- For Lambda GPU AI operations
 - Worth the $1.10/hour
 
 ## 🔧 After Deployment

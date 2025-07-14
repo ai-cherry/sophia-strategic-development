@@ -1,13 +1,13 @@
 {
-  "snowflake": {
+  "modern_stack": {
     "type": "database",
-    "description": "Snowflake data warehouse - PRIMARY VECTOR STORE via Cortex",
+    "description": "ModernStack data warehouse - PRIMARY VECTOR STORE via Cortex",
     "config_keys": ["account", "warehouse", "database", "schema", "role"],
     "secret_keys": ["user", "password"],
     "rotation_schedule": "30d",
     "owner": "data-team",
     "dependencies": [],
-    "notes": "Handles all vector operations via Snowflake Cortex"
+    "notes": "Handles all vector operations via Lambda GPU"
   },
   "gong": {
     "type": "api",
@@ -112,7 +112,7 @@
     "secret_keys": [],
     "rotation_schedule": "never",
     "owner": "platform-team",
-    "dependencies": ["snowflake", "redis", "mem0"],
+    "dependencies": ["modern_stack", "redis", "mem0"],
     "notes": "All memory operations MUST go through this service"
   }
 } 

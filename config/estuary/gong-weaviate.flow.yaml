@@ -1,5 +1,5 @@
 # Estuary Flow Specification for Gong Data → Weaviate/PostgreSQL
-# GPU-powered embeddings, no more Snowflake!
+# GPU-powered embeddings, no more ModernStack!
 # Date: July 11, 2025
 
 collections:
@@ -268,7 +268,7 @@ performance:
       target: "> 1000 records/minute"
   
   comparison:
-    snowflake_baseline:
+    modern_stack_baseline:
       embedding_latency: "300-500ms"
       end_to_end_latency: "600-1000ms"
       throughput: "100-200 records/minute"

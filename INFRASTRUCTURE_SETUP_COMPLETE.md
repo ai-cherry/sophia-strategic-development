@@ -18,7 +18,7 @@ I've successfully set up and configured your comprehensive infrastructure for So
 
 ## 🏗️ Infrastructure Components Status
 
-### 1. ❄️ Snowflake Configuration
+### 1. ❄️ Modern Stack Configuration
 - **Account**: UHDECNO-CVB64222
 - **Authentication**: Using PAT token for MFA bypass
 - **Status**: ✅ Configured (manual Python path fix required)
@@ -70,7 +70,7 @@ I've successfully set up and configured your comprehensive infrastructure for So
 3. **k3s_cluster_config.json** - K3s cluster configuration
 4. **INFRASTRUCTURE_SETUP_GUIDE.md** - Comprehensive setup guide
 5. **scripts/setup_infrastructure_comprehensive.py** - Master setup script
-6. **scripts/setup_snowflake_infrastructure.py** - Snowflake setup
+6. **scripts/setup_snowflake_infrastructure.py** - Modern Stack setup
 7. **scripts/setup_lambda_labs_infrastructure.py** - Lambda Labs management
 8. **scripts/update_github_secrets.py** - GitHub secrets updater
 
@@ -81,10 +81,10 @@ I've successfully set up and configured your comprehensive infrastructure for So
 
 ## ⚠️ Important Notes
 
-### Snowflake Connection Issue
-The Snowflake connector has a conflict with our project's Python path. To fix:
+### Modern Stack Connection Issue
+The PostgreSQL connector has a conflict with our project's Python path. To fix:
 ```bash
-# Run Snowflake scripts from outside project directory
+# Run Modern Stack scripts from outside project directory
 cd /tmp && PYTHONPATH="" python /path/to/script.py
 ```
 
@@ -107,7 +107,7 @@ The Lambda Labs instances don't show public IPs via API. You'll need to:
    ./deploy_mcp_lambda_labs.sh
    ```
 
-3. **Configure Snowflake Infrastructure**:
+3. **Configure Modern Stack Infrastructure**:
    ```bash
    cd /tmp && PYTHONPATH="" python scripts/setup_snowflake_infrastructure.py
    ```

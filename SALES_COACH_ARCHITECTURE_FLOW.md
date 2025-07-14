@@ -6,13 +6,13 @@
 
 ```mermaid
 graph TD
-    A[Gong.io API] --> B[Snowflake Data Warehouse]
+    A[Gong.io API] --> B[Modern Stack Data Warehouse]
     C[Slack API] --> D[Enhanced Sentiment Analyzer]
     E[HubSpot API] --> B
     F[Google Calendar API] --> G[Activity Analyzer]
     H[Linear API] --> I[Project Context Engine]
 
-    B --> J[Snowflake Cortex AI]
+    B --> J[Lambda GPU AI]
     D --> J
     G --> J
     I --> J
@@ -54,7 +54,7 @@ async def extract_gong_data():
             "outcome": call.outcome
         }
 
-        # Store in Snowflake for Cortex analysis
+        # Store in Modern Stack for Cortex analysis
         await snowflake_cortex.store_call_data(call_data)
 ```
 
@@ -100,9 +100,9 @@ async def analyze_riley_sentiment():
     }
 ```
 
-### **Step 3: Snowflake Cortex AI Analysis**
+### **Step 3: Lambda GPU AI Analysis**
 ```sql
--- Advanced Call Analysis Using Snowflake Cortex
+-- Advanced Call Analysis Using Lambda GPU
 WITH call_analysis AS (
     SELECT
         call_id,

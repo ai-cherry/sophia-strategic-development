@@ -1,3 +1,4 @@
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import os
@@ -254,9 +255,9 @@ class SecretManager:
         """Validate infrastructure secrets."""
         results = {}
 
-        # Snowflake
-        if self.config.snowflake_account and self.config.snowflake_password:
-            results["snowflake"] = await self._validate_snowflake_credentials()
+        # ModernStack
+# REMOVED: ModernStack dependency.postgres_password:
+            results["modern_stack"] = await self._validate_modern_stack_credentials()
 
         # Redis
         if self.config.redis_password:
@@ -460,13 +461,13 @@ class SecretManager:
             self.logger.exception(f"Anthropic API validation failed: {e}")
             return False
 
-    async def _validate_snowflake_credentials(self) -> bool:
-        """Validate Snowflake credentials."""
+    async def _validate_modern_stack_credentials(self) -> bool:
+        """Validate ModernStack credentials."""
         try:
-            # In production, this would use actual Snowflake connector
+            # In production, this would use actual ModernStack connector
             # For now, just validate format and presence
-            account = self.config.snowflake_account
-            password = self.config.snowflake_password
+            account = self.config.postgres_host
+            password = self.config.postgres_password
 
             if not account or not password:
                 return False
@@ -475,11 +476,11 @@ class SecretManager:
             if len(account) < 5 or len(password) < 8:
                 return False
 
-            self.logger.info("Snowflake credentials format validated")
+            self.logger.info("ModernStack credentials format validated")
             return True
 
         except Exception as e:
-            self.logger.exception(f"Snowflake validation failed: {e}")
+            self.logger.exception(f"ModernStack validation failed: {e}")
             return False
 
     async def _validate_redis_credentials(self) -> bool:
@@ -611,7 +612,7 @@ class SecretManager:
             ("gong_access_key", SecretType.API_KEY, SecurityLevel.CRITICAL, 90),
             ("gong_client_secret", SecretType.API_KEY, SecurityLevel.CRITICAL, 90),
             (
-                "snowflake_password",
+                "postgres_password",
                 SecretType.DATABASE_PASSWORD,
                 SecurityLevel.CRITICAL,
                 90,
@@ -731,7 +732,7 @@ class SecretManager:
 
         self._audit_log.append(event)
 
-        # In production, this would send to Snowflake or other audit storage
+        # In production, this would send to ModernStack or other audit storage
         self.logger.info(
             "Security audit event logged",
             event_type=event_type,

@@ -74,7 +74,7 @@ async def call_tool(name: str, arguments: dict) -> Sequence[TextContent]:
 **Cleanup Implemented:**
 - Removed 260+ unnecessary files (previous session)
 - 80% reduction in code duplication (previous session)
-- Unified memory architecture with Snowflake Cortex
+- Unified memory architecture with Lambda GPU
 - Single orchestrator replacing 5 separate ones
 
 ## 📊 Current State Assessment

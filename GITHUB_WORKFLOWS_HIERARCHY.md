@@ -72,7 +72,7 @@ All workflows use centralized environment configuration:
 - `PULUMI_ORG: scoobyjava-org`
 - `ENVIRONMENT: prod` (default)
 - Secrets managed via Pulumi ESC
-- No DATABASE_URL dependencies (use Snowflake via ESC)
+- No DATABASE_URL dependencies (use Modern Stack via ESC)
 
 ## Monitoring
 

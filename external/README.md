@@ -45,8 +45,8 @@ This collection represents essential MCP (Model Context Protocol) repositories s
 ### **Removed Repositories (8 total)**
 The following repositories were removed to streamline maintenance and focus on essential functionality:
 
-**Snowflake Implementations (4 removed)**:
-- `davidamom_snowflake` - Redundant with our working Snowflake integration
+**Modern Stack Implementations (4 removed)**:
+- `davidamom_snowflake` - Redundant with our working Modern Stack integration
 - `dynamike_snowflake` - Performance patterns already implemented
 - `isaacwasserman_snowflake` - Specialized operations not needed
 - `snowflake_cortex_official` - Functionality covered by our implementation

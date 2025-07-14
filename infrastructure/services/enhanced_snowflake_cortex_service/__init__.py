@@ -1,11 +1,11 @@
 """
-Enhanced Snowflake Cortex Service Module
+Enhanced Lambda GPU Service Module
 Decomposed from monolithic file on 2025-07-13
 """
 
-from .enhanced_snowflake_cortex_service_core import *
+from .enhanced_modern_stack_cortex_service_core import *
 
 __all__ = [
-    "EnhancedSnowflakeCortexService",
+    "EnhancedModernStackCortexService",
     # Add other exports as needed
 ]

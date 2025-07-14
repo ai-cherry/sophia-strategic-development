@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Create and configure Snowflake resources for Sophia AI
+Create and configure ModernStack resources for Sophia AI
 """
 import os
-import snowflake.connector
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 from pathlib import Path
 
 # Load environment
@@ -16,10 +16,10 @@ if env_file.exists():
                 key, value = line.split("=", 1)
                 os.environ[key] = value.strip('"').strip("'")
 
-print("🔍 Setting up Snowflake resources for Sophia AI...")
+print("🔍 Setting up ModernStack resources for Sophia AI...")
 
 try:
-    conn = snowflake.connector.connect(
+    conn = self.modern_stack_connection(
         account=os.environ.get("SNOWFLAKE_ACCOUNT"),
         user=os.environ.get("SNOWFLAKE_USER"),
         password=os.environ.get("SNOWFLAKE_PAT"),
@@ -118,7 +118,7 @@ try:
         """
         INSERT INTO KNOWLEDGE_BASE (id, content, source, metadata)
         SELECT 'test_' || CURRENT_TIMESTAMP()::VARCHAR, 
-               'Sophia AI is operational with Snowflake!',
+               'Sophia AI is operational with ModernStack!',
                'system_test',
                OBJECT_CONSTRUCT('test', TRUE, 'version', '4.0.0')
     """
@@ -141,11 +141,11 @@ try:
     cursor.close()
     conn.close()
 
-    print("\n✅ All Snowflake resources are ready!")
+    print("\n✅ All ModernStack resources are ready!")
     print("\n📝 Configuration to use:")
-    print("   SNOWFLAKE_WAREHOUSE=SOPHIA_AI_COMPUTE_WH")
-    print("   SNOWFLAKE_DATABASE=AI_MEMORY")
-    print("   SNOWFLAKE_SCHEMA=VECTORS")
+    print("   # REMOVED: ModernStack dependencySOPHIA_AI_COMPUTE_WH")
+    print("   # REMOVED: ModernStack dependencyAI_MEMORY")
+    print("   # REMOVED: ModernStack dependencyVECTORS")
 
 except Exception as e:
     print(f"\n❌ Error: {e}")

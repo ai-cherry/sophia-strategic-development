@@ -10,8 +10,8 @@ This document explains how the Clean Architecture implementation aligns with Sop
 - **Docker**: Containerization with optimized multi-stage builds
 
 ### Data Layer
-- **Snowflake**: Primary data warehouse and analytics engine
-  - Snowflake Cortex for AI/ML capabilities
+- **Modern Stack**: Primary data warehouse and analytics engine
+  - Lambda GPU for AI/ML capabilities
   - Native vector embeddings support
 - **Estuary Flow**: Real-time data integration and ETL
 
@@ -40,10 +40,10 @@ The application layer defines interfaces (ports) that align with our tech stack:
 
 #### Repository Interfaces
 ```python
-# Designed to work with Snowflake's specific features
+# Designed to work with Modern Stack's specific features
 class CallRepository(ABC):
     async def get_high_value_calls(self) -> List[Call]:
-        # Can leverage Snowflake's analytical capabilities
+        # Can leverage Modern Stack's analytical capabilities
         pass
 ```
 
@@ -58,16 +58,16 @@ class AIService(ABC):
 
 ### 3. Infrastructure Layer
 
-#### Snowflake Integration
+#### Modern Stack Integration
 ```python
 # backend/infrastructure/persistence/repositories/snowflake_call_repository.py
-class SnowflakeCallRepository(CallRepository):
-    def __init__(self, snowflake_service: SnowflakeCortexService):
-        # Reuses existing Snowflake Cortex service
+class Modern StackCallRepository(CallRepository):
+    def __init__(self, snowflake_service: Modern StackCortexService):
+        # Reuses existing Lambda GPU service
         self.snowflake = snowflake_service
 ```
 
-- Leverages Snowflake Cortex for AI operations
+- Leverages Lambda GPU for AI operations
 - Uses native vector embeddings
 - Optimized queries for analytical workloads
 
@@ -133,9 +133,9 @@ const sophiaDeployment = new k8s.apps.v1.Deployment("sophia-api", {
 
 ## Technology-Specific Considerations
 
-### 1. Snowflake Cortex AI
+### 1. Lambda GPU AI
 - Repository implementations leverage Cortex functions
-- Vector embeddings stored natively in Snowflake
+- Vector embeddings stored natively in Modern Stack
 - Semantic search capabilities built into queries
 
 ### 2. Pulumi ESC Integration
@@ -161,7 +161,7 @@ const sophiaDeployment = new k8s.apps.v1.Deployment("sophia-api", {
 - Basic infrastructure adapters
 
 ### Phase 2: Service Integration (Current)
-- Snowflake repository implementations
+- Modern Stack repository implementations
 - Portkey AI service adapter
 - Estuary Flow data streaming
 

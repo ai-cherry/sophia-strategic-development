@@ -1,5 +1,5 @@
 """
-Snowflake Cortex Service - Utils Module
+Lambda GPU Service - Utils Module
 Contains helper functions, utility classes, and performance monitoring
 """
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class CortexUtils:
-    """Utility functions for Snowflake Cortex operations"""
+    """Utility functions for Lambda GPU operations"""
 
     @staticmethod
     def escape_sql(value: str) -> str:
@@ -90,7 +90,7 @@ class CortexUtils:
 
 
 class QueryBuilder:
-    """Builder for complex Snowflake Cortex queries"""
+    """Builder for complex Lambda GPU queries"""
 
     def __init__(self):
         self.query_parts = []
@@ -137,7 +137,7 @@ class QueryBuilder:
 
 
 class ResultFormatter:
-    """Format results from Snowflake Cortex operations"""
+    """Format results from Lambda GPU operations"""
 
     @staticmethod
     def format_embedding_results(results: list) -> list[dict[str, Any]]:

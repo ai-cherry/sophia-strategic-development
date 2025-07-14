@@ -44,8 +44,8 @@ class DataTieringManager:
     Manages automatic data movement between storage tiers.
 
     Hot Tier (L1 - Redis): Frequently accessed, < 1 hour old
-    Warm Tier (L3 - Snowflake): Recent data, < 7 days old
-    Cold Tier (L3 - Snowflake Compressed): Archival, > 30 days old
+    Warm Tier (L3 - ModernStack): Recent data, < 7 days old
+    Cold Tier (L3 - ModernStack Compressed): Archival, > 30 days old
     """
 
     def __init__(self):
@@ -160,7 +160,7 @@ class DataTieringManager:
             LIMIT %s
             """
 
-            results = await self.memory_service.execute_snowflake_query(
+            results = await self.memory_service.execute_modern_stack_query(
                 query, (self.config.COLD_TIER_ACCESS_THRESHOLD, self.config.BATCH_SIZE)
             )
 
@@ -202,7 +202,7 @@ class DataTieringManager:
             LIMIT %s
             """
 
-            results = await self.memory_service.execute_snowflake_query(
+            results = await self.memory_service.execute_modern_stack_query(
                 query, (self.config.HOT_TIER_ACCESS_COUNT, self.config.BATCH_SIZE)
             )
 
@@ -255,7 +255,7 @@ class DataTieringManager:
             LIMIT %s
             """
 
-            results = await self.memory_service.execute_snowflake_query(
+            results = await self.memory_service.execute_modern_stack_query(
                 query, (self.config.BATCH_SIZE,)
             )
 
@@ -298,7 +298,7 @@ class DataTieringManager:
             LIMIT %s
             """
 
-            results = await self.memory_service.execute_snowflake_query(
+            results = await self.memory_service.execute_modern_stack_query(
                 query, (self.config.BATCH_SIZE,)
             )
 
@@ -336,7 +336,7 @@ class DataTieringManager:
         WHERE id = %s
         """
 
-        await self.memory_service.execute_snowflake_query(
+        await self.memory_service.execute_modern_stack_query(
             update_query, (json.dumps(metadata), doc_id)
         )
 
@@ -405,7 +405,7 @@ class DataTieringManager:
         WHERE id = %s
         """
 
-        await self.memory_service.execute_snowflake_query(
+        await self.memory_service.execute_modern_stack_query(
             update_query,
             (compressed_data["content_compressed"], json.dumps(metadata), doc_id),
         )
@@ -428,7 +428,7 @@ class DataTieringManager:
         GROUP BY tier
         """
 
-        results = await self.memory_service.execute_snowflake_query(stats_query)
+        results = await self.memory_service.execute_modern_stack_query(stats_query)
 
         stats = {
             "tiers": {},
@@ -468,14 +468,14 @@ class DataTieringManager:
             Success status
         """
         try:
-            # Get document from Snowflake
+            # Get document from ModernStack
             query = """
             SELECT id, content, source, metadata
             FROM AI_MEMORY.VECTORS.KNOWLEDGE_BASE
             WHERE id = %s
             """
 
-            results = await self.memory_service.execute_snowflake_query(
+            results = await self.memory_service.execute_modern_stack_query(
                 query, (doc_id,)
             )
 

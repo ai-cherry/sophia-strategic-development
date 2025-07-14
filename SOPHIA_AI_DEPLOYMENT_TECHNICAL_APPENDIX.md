@@ -14,7 +14,7 @@ python backend/app/unified_chat_backend.py
 # Output shows:
 # ✅ Sophia AI Unified Chat Backend initialized
 # Environment: prod
-# Snowflake connection successful
+# Modern Stack connection successful
 # Running on http://127.0.0.1:8001
 ```
 
@@ -23,7 +23,7 @@ python backend/app/unified_chat_backend.py
 # Attempted but failed due to build issues
 ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
 docker build -f Dockerfile.backend -t sophia-backend .
-# ERROR: g++ compiler missing, snowflake-connector-python build fails
+# ERROR: g++ compiler missing, asyncpg build fails
 ```
 
 ### 2. Frontend Deployment to Vercel
@@ -109,7 +109,7 @@ spec:
 
 ### 6. Error Messages & Diagnostics
 
-#### Snowflake Connection Error
+#### Modern Stack Connection Error
 ```
 snowflake.connector.errors.ProgrammingError: 251005: 251005: User is empty
 ```
@@ -122,7 +122,7 @@ TypeError: Cannot read properties of undefined (reading 'toUpperCase')
 
 #### MCP Server Build Failures
 ```
-ERROR: Missing Python packages: ['snowflake-connector-python']
+ERROR: Missing Python packages: ['asyncpg']
 # When g++ compiler is missing:
 error: Microsoft Visual C++ 14.0 or greater is required
 ```

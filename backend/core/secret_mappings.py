@@ -11,12 +11,12 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "OPENROUTER_API_KEY": "openrouter_api_key",
     "MEM0_API_KEY": "mem0_api_key",
     # Data Infrastructure
-    "SNOWFLAKE_ACCOUNT": "snowflake_account",
-    "SNOWFLAKE_USER": "snowflake_user",
-    "SNOWFLAKE_PASSWORD": "snowflake_password",
-    "SNOWFLAKE_WAREHOUSE": "snowflake_warehouse",
-    "SNOWFLAKE_DATABASE": "snowflake_database",
-    "SNOWFLAKE_ROLE": "snowflake_role",
+    "SNOWFLAKE_ACCOUNT": "postgres_host",
+    "SNOWFLAKE_USER": "modern_stack_user",
+    "SNOWFLAKE_PASSWORD": "postgres_password",
+    "SNOWFLAKE_WAREHOUSE": "postgres_database",
+    "SNOWFLAKE_DATABASE": "postgres_database",
+    "SNOWFLAKE_ROLE": "modern_stack_role",
     # Business Intelligence
     "GONG_ACCESS_KEY": "gong_access_key",
     "GONG_ACCESS_KEY_SECRET": "gong_access_key_secret",
@@ -66,17 +66,17 @@ LAMBDA_LABS_CONFIG = {
 
 # Service dependencies
 SERVICE_DEPENDENCIES = {
-    "lambda_labs": ["snowflake", "redis"],
-    "snowflake": ["estuary"],
-    "gong": ["snowflake", "ai_memory"],
-    "slack": ["snowflake", "ai_memory"],
-    "ai_memory": ["snowflake"],
+    "lambda_labs": ["modern_stack", "redis"],
+    "modern_stack": ["estuary"],
+    "gong": ["modern_stack", "ai_memory"],
+    "slack": ["modern_stack", "ai_memory"],
+    "ai_memory": ["modern_stack"],
 }
 
 # Health check endpoints
 HEALTH_CHECK_ENDPOINTS = {
     "lambda_labs": "/v1/models",
-    "snowflake": "/health",
+    "modern_stack": "/health",
     "gong": "/v2/calls",
     "slack": "/api/test",
     "linear": "/graphql",

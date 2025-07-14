@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Populate Snowflake with test data for Sophia AI
+Populate ModernStack with test data for Sophia AI
 """
 import os
-import snowflake.connector
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 from pathlib import Path
 
 # Load environment
@@ -16,11 +16,11 @@ if env_file.exists():
                 key, value = line.split("=", 1)
                 os.environ[key] = value.strip('"').strip("'")
 
-print("🔍 Populating Snowflake with Sophia AI data...")
+print("🔍 Populating ModernStack with Sophia AI data...")
 
 try:
     # Connect
-    conn = snowflake.connector.connect(
+    conn = self.modern_stack_connection(
         account=os.environ.get("SNOWFLAKE_ACCOUNT"),
         user=os.environ.get("SNOWFLAKE_USER"),
         password=os.environ.get("SNOWFLAKE_PAT"),
@@ -31,7 +31,7 @@ try:
     )
 
     cursor = conn.cursor()
-    print("✅ Connected to Snowflake")
+    print("✅ Connected to ModernStack")
 
     # Add business insights using simpler approach
     print("\n📝 Adding business insights...")
@@ -42,12 +42,12 @@ try:
         INSERT INTO KNOWLEDGE_BASE 
         SELECT 
             'sophia_deploy_001' as id,
-            'Sophia AI successfully deployed with full Snowflake integration' as content,
+            'Sophia AI successfully deployed with full ModernStack integration' as content,
             'sophia_ai_deployment' as source,
             OBJECT_CONSTRUCT(
                 'version', '4.0.0',
                 'date', '2025-07-10',
-                'components', ARRAY_CONSTRUCT('backend', 'frontend', 'snowflake', 'redis')
+                'components', ARRAY_CONSTRUCT('backend', 'frontend', 'modern_stack', 'redis')
             ) as metadata,
             CURRENT_TIMESTAMP() as created_at,
             CURRENT_TIMESTAMP() as updated_at
@@ -61,7 +61,7 @@ try:
         INSERT INTO KNOWLEDGE_BASE 
         SELECT 
             'sophia_cap_001' as id,
-            'System can store and retrieve business intelligence insights using Snowflake AI_MEMORY database' as content,
+            'System can store and retrieve business intelligence insights using ModernStack AI_MEMORY database' as content,
             'sophia_ai_capabilities' as source,
             OBJECT_CONSTRUCT(
                 'features', ARRAY_CONSTRUCT('knowledge_base', 'memory_records', 'business_insights'),
@@ -108,7 +108,7 @@ try:
             OBJECT_CONSTRUCT(
                 'timestamp', CURRENT_TIMESTAMP()::STRING,
                 'status', 'success',
-                'components_tested', ARRAY_CONSTRUCT('backend', 'frontend', 'snowflake', 'redis')
+                'components_tested', ARRAY_CONSTRUCT('backend', 'frontend', 'modern_stack', 'redis')
             ) as metadata,
             'deployment' as memory_type,
             CURRENT_TIMESTAMP() as created_at
@@ -167,11 +167,11 @@ try:
     cursor.close()
     conn.close()
 
-    print("\n✅ Snowflake populated successfully!")
+    print("\n✅ ModernStack populated successfully!")
     print("\n🎉 Sophia AI is now fully operational with:")
     print("   - Backend API: http://localhost:8001")
     print("   - Frontend UI: http://localhost:5173")
-    print("   - Snowflake Database: AI_MEMORY")
+    print("   - ModernStack Database: AI_MEMORY")
     print("   - Knowledge Base: Ready for use")
 
 except Exception as e:

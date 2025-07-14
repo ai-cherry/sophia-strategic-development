@@ -1,3 +1,4 @@
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import pulumi
 
 # Configuration
@@ -22,11 +23,11 @@ lambda_labs_config = {
     ],
 }
 
-# Snowflake Configuration
-snowflake_config = {
-    "account": config.require("snowflake_account"),
-    "user": config.require("snowflake_user"),
-    "password": config.require_secret("snowflake_password"),
+# REMOVED: ModernStack dependencyuration
+# REMOVED: ModernStack dependency {
+    "account": config.require("postgres_host"),
+    "user": config.require("modern_stack_user"),
+    "password": config.require_secret("postgres_password"),
     "warehouses": {
         "compute": "SOPHIA_AI_COMPUTE_WH",
         "analytics": "SOPHIA_AI_ANALYTICS_WH",
@@ -35,5 +36,5 @@ snowflake_config = {
 
 # Export configurations
 pulumi.export("lambda_labs_config", lambda_labs_config)
-pulumi.export("snowflake_config", snowflake_config)
+# REMOVED: ModernStack dependency)
 pulumi.export("environment", env)

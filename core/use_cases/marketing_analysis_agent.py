@@ -4,7 +4,7 @@ Marketing Analysis Agent - AI-Powered Marketing Intelligence
 Provides comprehensive marketing analysis capabilities including:
 - Campaign performance analysis with AI insights
 - Content generation using SmartAIService
-- Audience segmentation with Snowflake Cortex
+- Audience segmentation with Lambda GPU
 - ROI analysis and optimization recommendations
 - Competitive marketing intelligence
 """
@@ -19,6 +19,7 @@ Provides comprehensive marketing analysis capabilities including:
 # - marketing_analysis_agent_handlers.py - Request handlers
 #
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import logging
@@ -40,7 +41,7 @@ from infrastructure.services.unified_llm_service import (
     get_unified_llm_service,
 )
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
+from shared.utils.modern_stack_hubspot_connector import ModernStackHubSpotConnector
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +166,7 @@ class MarketingAnalysisAgent(BaseAgent):
     Capabilities:
     - Campaign performance analysis with AI insights
     - Content generation using SmartAIService
-    - Audience segmentation with Snowflake Cortex
+    - Audience segmentation with Lambda GPU
     - Competitive analysis and positioning
     - ROI optimization recommendations
     """
@@ -176,8 +177,8 @@ class MarketingAnalysisAgent(BaseAgent):
         self.description = "AI-powered marketing intelligence and content generation"
 
         # Service integrations
-        self.cortex_service: SnowflakeCortexService | None = None
-        self.hubspot_connector: SnowflakeHubSpotConnector | None = None
+        self.cortex_service: ModernStackCortexService | None = None
+        self.hubspot_connector: ModernStackHubSpotConnector | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.knowledge_service: FoundationalKnowledgeService | None = None
 
@@ -194,7 +195,7 @@ class MarketingAnalysisAgent(BaseAgent):
         try:
             # Initialize services
             self.cortex_service = UnifiedMemoryServiceV2()
-            self.hubspot_connector = SnowflakeHubSpotConnector()
+            self.hubspot_connector = ModernStackHubSpotConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             self.knowledge_service = FoundationalKnowledgeService()
 
@@ -228,7 +229,7 @@ class MarketingAnalysisAgent(BaseAgent):
             await self.initialize()
 
         try:
-            # Get campaign data from Snowflake
+            # Get campaign data from ModernStack
             async with self.cortex_service as cortex:
                 campaign_data = await cortex.query_structured_data(
                     table="STG_MARKETING_CAMPAIGNS",
@@ -317,7 +318,7 @@ class MarketingAnalysisAgent(BaseAgent):
                     Format as a numbered list of concrete actions.
                     """
 
-                    recommendations_text = await cortex.complete_text_with_cortex(
+                    recommendations_text = await # REMOVED: ModernStack dependency_text_with_cortex(
                         prompt=recommendations_prompt, max_tokens=300
                     )
 
@@ -498,7 +499,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 Variations should maintain the same key message but use different approaches.
                 """
 
-                variations_text = await cortex.complete_text_with_cortex(
+                variations_text = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=variation_prompt, max_tokens=800
                 )
 
@@ -551,7 +552,7 @@ class MarketingAnalysisAgent(BaseAgent):
         self, segment_criteria: dict[str, Any] = None
     ) -> list[AudienceSegmentAnalysis]:
         """
-        Analyze audience segments using Snowflake Cortex AI
+        Analyze audience segments using Lambda GPU AI
 
         Args:
             segment_criteria: Criteria for segmentation analysis
@@ -565,7 +566,7 @@ class MarketingAnalysisAgent(BaseAgent):
         try:
             segments = []
 
-            # Get customer data from HubSpot via Snowflake
+            # Get customer data from HubSpot via ModernStack
             async with self.hubspot_connector as connector:
                 customer_data = await connector.query_hubspot_contacts(limit=1000)
 
@@ -573,7 +574,7 @@ class MarketingAnalysisAgent(BaseAgent):
                     logger.warning("No customer data available for segmentation")
                     return segments
 
-            # Use Snowflake Cortex for intelligent segmentation
+            # Use Lambda GPU for intelligent segmentation
             async with self.cortex_service as cortex:
                 segmentation_prompt = f"""
                 Analyze this customer dataset and identify key audience segments:
@@ -597,7 +598,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 - Decision-making factors
                 """
 
-                segmentation_analysis = await cortex.complete_text_with_cortex(
+                segmentation_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=segmentation_prompt, max_tokens=1000
                 )
 
@@ -741,7 +742,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 Focus on actionable intelligence for marketing strategy.
                 """
 
-                key_insights = await cortex.complete_text_with_cortex(
+                key_insights = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=insights_prompt, max_tokens=300
                 )
 
@@ -753,7 +754,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 Format as actionable recommendations for marketing team.
                 """
 
-                recommendations = await cortex.complete_text_with_cortex(
+                recommendations = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=strategic_recommendations_prompt, max_tokens=300
                 )
 
@@ -906,7 +907,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 Provide only a numeric score (0-100).
                 """
 
-                score_text = await cortex.complete_text_with_cortex(
+                score_text = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=quality_prompt, max_tokens=10
                 )
 

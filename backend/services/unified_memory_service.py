@@ -9,9 +9,9 @@ This service implements the 6-tier memory architecture:
 - L0: GPU Cache (Lambda Labs) - Not managed here
 - L1: Redis (Ephemeral cache)
 - L2: Mem0 (Agent conversational memory)
-- L3: Snowflake Cortex (Vector knowledge base) - PRIMARY VECTOR STORE
-- L4: Snowflake Tables (Structured data warehouse)
-- L5: Snowflake Cortex AI (Intelligence layer)
+- L3: Lambda GPU (Vector knowledge base) - PRIMARY VECTOR STORE
+- L4: ModernStack Tables (Structured data warehouse)
+- L5: Lambda GPU AI (Intelligence layer)
 
 CRITICAL: This replaces ALL usage of Pinecone, Weaviate, ChromaDB, Qdrant
 """
@@ -30,8 +30,8 @@ from typing import Any, Optional
 from datetime import datetime
 
 import redis
-import snowflake.connector
-from snowflake.connector import DictCursor
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
 
 from backend.core.date_time_manager import date_manager
 from backend.core.redis_helper import RedisHelper
@@ -56,43 +56,43 @@ class UnifiedMemoryService:
     The single, authoritative memory service for Sophia AI.
 
     This service manages all memory tiers except L0 (GPU cache).
-    All vector operations go through Snowflake Cortex ONLY.
+    All vector operations go through Lambda GPU ONLY.
     """
 
-    def __init__(self, require_snowflake: bool = False):
+    def __init__(self, require_modern_stack: bool = False):
         """
         Initialize the Unified Memory Service with all tiers.
 
         Args:
-            require_snowflake: If True, raise error if Snowflake unavailable.
-                             If False (default), run in degraded mode without Snowflake.
+            require_modern_stack: If True, raise error if ModernStack unavailable.
+                             If False (default), run in degraded mode without ModernStack.
         """
         # Initialize instance variables
-        self.require_snowflake = require_snowflake
+        self.require_modern_stack = require_modern_stack
         self.degraded_mode = False
-        self.snowflake_conn = None
+        self.# REMOVED: ModernStack dependency None
         self.redis_client = None
         self.redis_helper = None
         self.mem0_client = None
         self.cache_ttl = 3600  # 1 hour default TTL
 
         # Configuration - must be set before initialize_mem0
-        self.vector_dimension = 768  # Standard for CORTEX.EMBED_TEXT_768
+        self.vector_dimension = 768  # Standard for await self.lambda_gpu.embed_text
         self.default_limit = 10
 
         self.initialize_date_awareness()
         self.initialize_redis()  # L1
         self.initialize_mem0()  # L2
 
-        # Initialize Snowflake but don't fail if unavailable
+        # Initialize ModernStack but don't fail if unavailable
         try:
-            self.initialize_snowflake()  # L3, L4, L5
+            self.initialize_modern_stack()  # L3, L4, L5
         except Exception as e:
-            if require_snowflake:
+            if require_modern_stack:
                 raise
             else:
-                logger.warning(f"Snowflake unavailable, running in degraded mode: {e}")
-                self.snowflake_conn = None
+                logger.warning(f"ModernStack unavailable, running in degraded mode: {e}")
+                self.# REMOVED: ModernStack dependency None
                 self.degraded_mode = True
 
         logger.info(f"UnifiedMemoryService initialized - Date: {self.current_date}")
@@ -166,62 +166,62 @@ class UnifiedMemoryService:
             logger.warning({"event": f"⚠️ L2 Mem0 initialization failed: {e}"})
             self.mem0_client = None
 
-    def initialize_snowflake(self) -> None:
-        """Initialize L3, L4, L5 - Snowflake connection"""
+    def initialize_modern_stack(self) -> None:
+        """Initialize L3, L4, L5 - ModernStack connection"""
         try:
-            # Get Snowflake configuration using UnifiedConfig
-            snowflake_config = UnifiedConfig.get_snowflake_config()
+# REMOVED: ModernStack dependency
+# REMOVED: ModernStack dependency()
 
             # PAT token takes precedence if available
-            pat_token = UnifiedConfig.get("snowflake_pat")
+            pat_token = UnifiedConfig.get("modern_stack_pat")
             if pat_token:
-                logger.info("Using Snowflake PAT token for authentication")
-                snowflake_config["password"] = pat_token
+                logger.info("Using ModernStack PAT token for authentication")
+                # REMOVED: ModernStack dependency pat_token
 
             # Log connection attempt (without exposing password)
             logger.info(
-                f"Connecting to Snowflake account: {snowflake_config.get('account', 'unknown')}"
+# REMOVED: ModernStack dependency.get('account', 'unknown')}"
             )
-            logger.info(f"Using user: {snowflake_config.get('user', 'unknown')}")
+# REMOVED: ModernStack dependency.get('user', 'unknown')}")
 
             # Ensure required fields are present
-            if not snowflake_config.get("user"):
-                raise ValueError("Snowflake user is required but not configured")
+# REMOVED: ModernStack dependency.get("user"):
+# REMOVED: ModernStack dependencyured")
 
-            if not snowflake_config.get("password"):
+# REMOVED: ModernStack dependency.get("password"):
                 raise ValueError(
-                    "Snowflake password/PAT is required but not configured"
+# REMOVED: ModernStack dependencyured"
                 )
 
-            # Connect to Snowflake
-            self.snowflake_conn = snowflake.connector.connect(
-                account=snowflake_config["account"],
-                user=snowflake_config["user"],
-                password=snowflake_config["password"],
-                role=snowflake_config.get("role", "ACCOUNTADMIN"),
-                warehouse=snowflake_config.get("warehouse", "SOPHIA_AI_COMPUTE_WH"),
-                database=snowflake_config.get("database", "AI_MEMORY"),
-                schema=snowflake_config.get("schema", "VECTORS"),
+            # Connect to ModernStack
+            self.# REMOVED: ModernStack dependency self.modern_stack_connection(
+# REMOVED: ModernStack dependency["account"],
+# REMOVED: ModernStack dependency["user"],
+# REMOVED: ModernStack dependency["password"],
+# REMOVED: ModernStack dependency.get("role", "ACCOUNTADMIN"),
+# REMOVED: ModernStack dependency.get("warehouse", "SOPHIA_AI_COMPUTE_WH"),
+# REMOVED: ModernStack dependency.get("database", "AI_MEMORY"),
+# REMOVED: ModernStack dependency.get("schema", "VECTORS"),
             )
 
             # Test connection
-            cursor = self.snowflake_conn.cursor()
+            cursor = self.modern_stack_conn.cursor()
             cursor.execute("SELECT CURRENT_VERSION()")
             version = cursor.fetchone()
             cursor.close()
 
             logger.info(
                 {
-                    "event": "✅ L3/L4/L5 Snowflake initialized successfully",
+                    "event": "✅ L3/L4/L5 ModernStack initialized successfully",
                     "version": version[0] if version else "unknown",
                 }
             )
             self.degraded_mode = False
 
         except Exception as e:
-            logger.error(f"❌ Snowflake initialization failed: {e}")
+            logger.error(f"❌ ModernStack initialization failed: {e}")
             # Don't raise - let the caller handle degraded mode
-            self.snowflake_conn = None
+            self.# REMOVED: ModernStack dependency None
             self.degraded_mode = True
 
     @log_execution_time
@@ -233,13 +233,13 @@ class UnifiedMemoryService:
         user_id: str = "system",
     ) -> str:
         """
-        Add knowledge to L3 Snowflake Cortex vectors.
+        Add knowledge to L3 Lambda GPU vectors.
 
         This is the PRIMARY method for storing vectorized knowledge.
         """
         if self.degraded_mode:
             logger.warning(
-                "Running in degraded mode - knowledge not persisted to Snowflake"
+                "Running in degraded mode - knowledge not persisted to ModernStack"
             )
             # Could still cache in Redis temporarily
             return "degraded_mode_no_id"
@@ -250,11 +250,11 @@ class UnifiedMemoryService:
         metadata["timestamp"] = self.current_date.isoformat()
 
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
-            # Generate embedding using Snowflake Cortex
+            # Generate embedding using Lambda GPU
             embedding_sql = """
-            SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', %s) as embedding
+            SELECT self.modern_stack.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
             """
             cursor.execute(embedding_sql, (content,))
             result = cursor.fetchone()
@@ -262,7 +262,7 @@ class UnifiedMemoryService:
             if not result:
                 raise DataValidationError("Failed to generate embedding")
 
-            # Store in Snowflake with vector
+            # Store in ModernStack with vector
             insert_sql = """
             INSERT INTO AI_MEMORY.VECTORS.KNOWLEDGE_BASE
             (content, embedding, source, metadata, created_at)
@@ -279,9 +279,9 @@ class UnifiedMemoryService:
             query_id = cursor.fetchone()[0]
 
             cursor.close()
-            self.snowflake_conn.commit()
+            self.modern_stack_conn.commit()
 
-            logger.info(f"✅ Knowledge added to Snowflake Cortex: {query_id}")
+            logger.info(f"✅ Knowledge added to Lambda GPU: {query_id}")
 
             # Also cache in Redis for fast access using RedisHelper
             if self.redis_helper:
@@ -294,8 +294,8 @@ class UnifiedMemoryService:
 
         except Exception as e:
             logger.error(f"Failed to add knowledge: {e}")
-            if self.snowflake_conn:
-                self.snowflake_conn.rollback()
+            if self.modern_stack_conn:
+                self.modern_stack_conn.rollback()
             raise
 
     @log_execution_time
@@ -307,7 +307,7 @@ class UnifiedMemoryService:
         user_id: str | None = None,
     ) -> list[dict[str, Any]]:
         """
-        Search knowledge using Snowflake Cortex vector similarity.
+        Search knowledge using Lambda GPU vector similarity.
 
         This is the PRIMARY vector search method.
         """
@@ -322,7 +322,7 @@ class UnifiedMemoryService:
             return cached_results[:limit]  # Respect limit even for cached results
 
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Build metadata filter if provided
             filter_conditions = []
@@ -341,10 +341,10 @@ class UnifiedMemoryService:
             if filter_conditions:
                 where_clause = "WHERE " + " AND ".join(filter_conditions)
 
-            # Vector similarity search using Snowflake Cortex
+            # Vector similarity search using Lambda GPU
             search_sql = f"""
             WITH query_embedding AS (
-                SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', %s) as embedding
+                SELECT self.modern_stack.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
             )
             SELECT
                 kb.id,
@@ -455,11 +455,11 @@ class UnifiedMemoryService:
             logger.error(f"Failed to get conversation context: {e}")
             return []
 
-    async def execute_snowflake_query(
+    async def execute_modern_stack_query(
         self, query: str, params: tuple = None
     ) -> list[dict[str, Any]]:
         """
-        Execute a raw Snowflake query.
+        Execute a raw ModernStack query.
 
         Args:
             query: SQL query to execute
@@ -468,12 +468,12 @@ class UnifiedMemoryService:
         Returns:
             Query results as list of dictionaries
         """
-        if self.degraded_mode or not self.snowflake_conn:
-            logger.warning("Snowflake not available for query execution")
+        if self.degraded_mode or not self.modern_stack_conn:
+            logger.warning("ModernStack not available for query execution")
             return []
 
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             if params:
                 cursor.execute(query, params)
@@ -486,7 +486,7 @@ class UnifiedMemoryService:
             return results
 
         except Exception as e:
-            logger.error(f"Snowflake query failed: {e}")
+            logger.error(f"ModernStack query failed: {e}")
             return []
 
     async def get_document_metadata(self, doc_id: str) -> dict[str, Any]:
@@ -509,7 +509,7 @@ class UnifiedMemoryService:
             WHERE id = %s
             """
 
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
             cursor.execute(query, (doc_id,))
             result = cursor.fetchone()
             cursor.close()
@@ -547,7 +547,7 @@ class UnifiedMemoryService:
             WHERE id = %s
             """
 
-            cursor = self.snowflake_conn.cursor()
+            cursor = self.modern_stack_conn.cursor()
             cursor.execute(update_query, (json.dumps(metadata), doc_id))
             cursor.close()
 
@@ -563,7 +563,7 @@ class UnifiedMemoryService:
         options: dict[str, Any] | None = None,
     ) -> str:
         """
-        Use L5 Snowflake Cortex AI for intelligent operations.
+        Use L5 Lambda GPU AI for intelligent operations.
 
         Operations: SUMMARIZE, SENTIMENT, TRANSLATE, COMPLETE
         """
@@ -572,22 +572,22 @@ class UnifiedMemoryService:
             return f"[Degraded mode: {operation} unavailable]"
 
         try:
-            cursor = self.snowflake_conn.cursor()
+            cursor = self.modern_stack_conn.cursor()
 
             # Build Cortex AI query based on operation
             if operation == "SUMMARIZE":
-                sql = "SELECT SNOWFLAKE.CORTEX.SUMMARIZE(%s) as result"
+                sql = "SELECT self.modern_stack.await self.lambda_gpu.summarize(%s) as result"
                 params = (text,)
             elif operation == "SENTIMENT":
-                sql = "SELECT SNOWFLAKE.CORTEX.SENTIMENT(%s) as result"
+                sql = "SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(%s) as result"
                 params = (text,)
             elif operation == "TRANSLATE":
                 target_lang = options.get("target_language", "es")
-                sql = f"SELECT SNOWFLAKE.CORTEX.TRANSLATE(%s, 'en', '{target_lang}') as result"
+                sql = f"SELECT self.modern_stack.await self.lambda_gpu.translate(%s, 'en', '{target_lang}') as result"
                 params = (text,)
             elif operation == "COMPLETE":
                 model = options.get("model", "mistral-7b")
-                sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', %s) as result"
+                sql = f"SELECT self.modern_stack.await self.lambda_gpu.complete('{model}', %s) as result"
                 params = (text,)
             else:
                 raise ValueError(f"Unknown operation: {operation}")
@@ -719,8 +719,8 @@ class UnifiedMemoryService:
 
     def close(self):
         """Clean up connections"""
-        if self.snowflake_conn:
-            self.snowflake_conn.close()
+        if self.modern_stack_conn:
+            self.modern_stack_conn.close()
         if self.redis_client:
             self.redis_client.close()
 
@@ -729,12 +729,12 @@ class UnifiedMemoryService:
 _memory_service_instance = None
 
 
-def get_unified_memory_service(require_snowflake: bool = False) -> UnifiedMemoryServiceV2:
+def get_unified_memory_service(require_modern_stack: bool = False) -> UnifiedMemoryServiceV2:
     """
     Get the singleton UnifiedMemoryService instance.
 
     Args:
-        require_snowflake: If True, raise error if Snowflake is unavailable
+        require_modern_stack: If True, raise error if ModernStack is unavailable
 
     Returns:
         The unified memory service instance
@@ -743,7 +743,7 @@ def get_unified_memory_service(require_snowflake: bool = False) -> UnifiedMemory
 
     if _memory_service_instance is None:
         _memory_service_instance = UnifiedMemoryServiceV2(
-            require_snowflake=require_snowflake
+            require_modern_stack=require_modern_stack
         )
 
     return _memory_service_instance

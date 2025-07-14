@@ -1,14 +1,14 @@
 # SQL Injection fixes applied by phase1_ruff_remediation.py
 """
-Snowflake HubSpot Connector
+ModernStack HubSpot Connector
 
-Utility module for accessing HubSpot data directly from Snowflake Secure Data Share.
+Utility module for accessing HubSpot data directly from ModernStack Secure Data Share.
 This provides a hybrid approach where we maintain existing ingestion capabilities
-while adding enterprise-grade Snowflake native access for analytics and AI processing.
+while adding enterprise-grade ModernStack native access for analytics and AI processing.
 
 Key Features:
-- Direct access to HubSpot Secure Data Share within Snowflake
-- Integration with Snowflake Cortex for AI processing
+- Direct access to HubSpot Secure Data Share within ModernStack
+- Integration with Lambda GPU for AI processing
 - Blended approach with existing ingestion for training/interaction
 - Optimized for BI agents and contextual analysis
 """
@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import pandas as pd
-import snowflake.connector
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
 from core.config_manager import get_config_value as config
 
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class HubSpotDataQuery:
-    """Configuration for HubSpot data queries via Snowflake"""
+    """Configuration for HubSpot data queries via ModernStack"""
 
     table_name: str
     filters: dict[str, Any]
@@ -39,12 +39,12 @@ class HubSpotDataQuery:
     columns: list[str] | None = None
 
 
-class SnowflakeHubSpotConnector:
+class ModernStackHubSpotConnector:
     """
-    Connector for accessing HubSpot data via Snowflake Secure Data Share
+    Connector for accessing HubSpot data via ModernStack Secure Data Share
 
-    This class provides methods to query HubSpot data directly within Snowflake,
-    leveraging native Snowflake capabilities while maintaining compatibility
+    This class provides methods to query HubSpot data directly within ModernStack,
+    leveraging native ModernStack capabilities while maintaining compatibility
     with existing ingestion patterns.
     """
 
@@ -81,27 +81,27 @@ class SnowflakeHubSpotConnector:
         await self.close()
 
     async def initialize(self) -> None:
-        """Initialize Snowflake connection for HubSpot data access"""
+        """Initialize ModernStack connection for HubSpot data access"""
         if self.initialized:
             return
 
         try:
-            # TODO: Update with actual Snowflake connection from ESC config
-            self.connection = snowflake.connector.connect(
-                user=config.get("snowflake_user"),
-                password=config.get("snowflake_password"),
-                account=config.get("snowflake_account"),
-                warehouse=config.get("snowflake_warehouse", "SOPHIA_AI_WH"),
+# REMOVED: ModernStack dependency
+            self.connection = self.modern_stack_connection(
+                user=config.get("modern_stack_user"),
+                password=config.get("postgres_password"),
+                account=config.get("postgres_host"),
+                warehouse=config.get("postgres_database", "SOPHIA_AI_WH"),
                 database=self.hubspot_database,
                 schema=self.hubspot_schema,
-                role=config.get("snowflake_role", "ACCOUNTADMIN"),
+                role=config.get("modern_stack_role", "ACCOUNTADMIN"),
             )
 
             self.initialized = True
-            logger.info("✅ Snowflake HubSpot connector initialized successfully")
+            logger.info("✅ ModernStack HubSpot connector initialized successfully")
 
         except Exception as e:
-            logger.exception(f"Failed to initialize Snowflake HubSpot connector: {e}")
+            logger.exception(f"Failed to initialize ModernStack HubSpot connector: {e}")
             raise
 
     async def query_hubspot_contacts(
@@ -111,7 +111,7 @@ class SnowflakeHubSpotConnector:
         limit: int | None = 1000,
     ) -> pd.DataFrame:
         """
-        Query HubSpot contacts from Snowflake Secure Data Share
+        Query HubSpot contacts from ModernStack Secure Data Share
 
         Args:
             filters: Dictionary of filter conditions
@@ -445,7 +445,7 @@ class SnowflakeHubSpotConnector:
             limit: Maximum records to process
 
         Returns:
-            Dictionary with data ready for AI agents and Snowflake Cortex processing
+            Dictionary with data ready for AI agents and Lambda GPU processing
         """
         # Placeholder implementation - will be expanded based on actual Secure Data Share structure
         logger.info(
@@ -460,18 +460,18 @@ class SnowflakeHubSpotConnector:
         }
 
     async def close(self):
-        """Close Snowflake connection"""
+        """Close ModernStack connection"""
         if self.connection:
             self.connection.close()
             self.initialized = False
-            logger.info("Snowflake HubSpot connector closed")
+            logger.info("ModernStack HubSpot connector closed")
 
 
 # Global connector instance
-hubspot_connector = SnowflakeHubSpotConnector()
+hubspot_connector = ModernStackHubSpotConnector()
 
 
-async def get_hubspot_connector() -> SnowflakeHubSpotConnector:
+async def get_hubspot_connector() -> ModernStackHubSpotConnector:
     """Get the global HubSpot connector instance"""
     if not hubspot_connector.initialized:
         await hubspot_connector.initialize()
@@ -527,7 +527,7 @@ async def get_hubspot_activity_summary(
             activities_df["activity_date"].max() if len(activities_df) > 0 else None
         ),
         "engagement_score": len(activities_df) / days * 30,  # Activities per month
-        "data_source": "snowflake_secure_share",
+        "data_source": "modern_stack_secure_share",
     }
 
     return summary

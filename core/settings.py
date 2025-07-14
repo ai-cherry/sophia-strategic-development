@@ -2,6 +2,7 @@
 Enhanced Settings for Sophia AI Platform - 2025 Best Practices
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from pydantic_settings import BaseSettings
 
 
@@ -29,11 +30,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     pinecone_api_key: str = ""
 
-    # Snowflake
-    snowflake_account: str = ""
-    snowflake_user: str = ""
-    snowflake_password: str = ""
-    snowflake_database: str = "SOPHIA_AI"
+    # ModernStack
+    # REMOVED: ModernStack dependency ""
+    # REMOVED: ModernStack dependency ""
+    # REMOVED: ModernStack dependency ""
+    # REMOVED: ModernStack dependency "SOPHIA_AI"
 
     # Rate Limiting
     rate_limit_per_minute: int = 60

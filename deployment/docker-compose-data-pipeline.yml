@@ -24,9 +24,9 @@ x-default-healthcheck: &default-healthcheck
   start_period: 40s
 
 services:
-  # Snowflake Data Hub (Port 9001)
-  snowflake-v2:
-    image: ${DOCKER_REGISTRY}/sophia-snowflake-v2:${IMAGE_TAG}
+  # ModernStack Data Hub (Port 9001)
+  modern_stack-v2:
+    image: ${DOCKER_REGISTRY}/sophia-modern_stack-v2:${IMAGE_TAG}
     ports:
       - "9001:9001"
     environment:
@@ -49,9 +49,9 @@ services:
       <<: *default-healthcheck
       test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
 
-  # Snowflake Unified Processing (Port 9028)
-  snowflake-unified:
-    image: ${DOCKER_REGISTRY}/sophia-snowflake-unified:${IMAGE_TAG}
+  # ModernStack Unified Processing (Port 9028)
+  modern_stack-unified:
+    image: ${DOCKER_REGISTRY}/sophia-modern_stack-unified:${IMAGE_TAG}
     ports:
       - "9028:9028"
     environment:
@@ -93,9 +93,9 @@ services:
       <<: *default-healthcheck
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
 
-  # Snowflake Cortex Processing (Port 9029)
-  snowflake-cortex:
-    image: ${DOCKER_REGISTRY}/sophia-snowflake-cortex:${IMAGE_TAG}
+  # Lambda GPU Processing (Port 9029)
+  modern_stack-cortex:
+    image: ${DOCKER_REGISTRY}/sophia-modern_stack-cortex:${IMAGE_TAG}
     ports:
       - "9029:9029"
     environment:

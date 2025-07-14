@@ -38,7 +38,7 @@ from backend.infrastructure.adapters.portkey_adapter import PortkeyAdapter
 from backend.infrastructure.adapters.slack_adapter import SlackAdapter
 
 # Platform adapters
-from backend.infrastructure.adapters.snowflake_adapter import SnowflakeAdapter
+from backend.infrastructure.adapters.modern_stack_adapter import ModernStackAdapter
 from backend.infrastructure.adapters.usergems_adapter import UserGemsAdapter
 from backend.infrastructure.adapters.vercel_adapter import VercelAdapter
 from backend.infrastructure.core.dependency_manager import DependencyManager
@@ -157,8 +157,8 @@ class SophiaIaCOrchestrator:
     def _initialize_adapters(self):
         """Initialize all platform adapters."""
         # Data Stack
-        self.platform_adapters["snowflake"] = SnowflakeAdapter(
-            "snowflake", PlatformType.DATA_STACK
+        self.platform_adapters["modern_stack"] = ModernStackAdapter(
+            "modern_stack", PlatformType.DATA_STACK
         )
         self.platform_adapters["estuary"] = EstuaryAdapter(
             "estuary", PlatformType.DATA_STACK
@@ -224,7 +224,7 @@ Your capabilities include:
 - Handling rollbacks and error recovery
 
 Platforms you manage:
-Data Stack: Snowflake, Estuary, HubSpot, Gong, UserGems, Apollo.io
+Data Stack: ModernStack, Estuary, HubSpot, Gong, UserGems, Apollo.io
 Dev Stack: Vercel, Lambda Labs, Figma
 AI Stack: Portkey, OpenRouter
 Ops Stack: Slack, Linear, Asana

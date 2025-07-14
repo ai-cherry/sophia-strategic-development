@@ -3,6 +3,7 @@ EnhancedIngestionService Core
 Main service implementation
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from core.optimized_connection_manager import connection_manager
 from core.performance_monitor import performance_monitor
 import asyncio
@@ -156,8 +157,8 @@ class DocumentChunk(BaseModel):
 class EnhancedIngestionService:
     """Enhanced ingestion service with large file support and contextual processing"""
 
-    def __init__(self, snowflake_config: dict[str, str]):
-        self.snowflake_config = snowflake_config
+# REMOVED: ModernStack dependency: dict[str, str]):
+# REMOVED: ModernStack dependency
         self.connection = None
         self.active_jobs: dict[str, IngestionJob] = {}
 
@@ -182,26 +183,26 @@ class EnhancedIngestionService:
 
     @performance_monitor.monitor_performance("ingestion_connect")
     async def connect(self):
-        """Connect to Snowflake"""
+        """Connect to ModernStack"""
         try:
             # Initialize connection manager if needed
             if not connection_manager.initialized:
                 await connection_manager.initialize()
             self.connection = connection_manager
-            logger.info("✅ Enhanced Ingestion Service connected to Snowflake")
+            logger.info("✅ Enhanced Ingestion Service connected to ModernStack")
         except Exception as e:
             logger.exception(f"❌ Enhanced Ingestion Service connection failed: {e}")
             raise
 
     async def disconnect(self):
-        """Disconnect from Snowflake"""
+        """Disconnect from ModernStack"""
         # Connection manager handles cleanup automatically
         self.connection = None
 
     async def execute_query(
         self, query: str, params: tuple | None = None
     ) -> list[dict[str, Any]]:
-        """Execute Snowflake query"""
+        """Execute ModernStack query"""
         try:
             result = await self.connection.execute_query(query, params)
             return result

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from shared.utils.snowflake_cortex_service_core import SnowflakeCortexService
+from shared.utils.modern_stack_cortex_service_core import ModernStackCortexService
 
 LEDGER_TABLE = "OPS_MONITORING.DEDUPE_WATERMARKS"
 
@@ -10,7 +10,7 @@ LEDGER_TABLE = "OPS_MONITORING.DEDUPE_WATERMARKS"
 class WatermarkLedger:
     """Simple helper for reading/writing dedupe watermarks."""
 
-    def __init__(self, cortex: SnowflakeCortexService):
+    def __init__(self, cortex: ModernStackCortexService):
         self.cortex = cortex
 
     async def get(self, source: str, job: str) -> Any | None:

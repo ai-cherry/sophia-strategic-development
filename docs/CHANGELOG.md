@@ -10,7 +10,7 @@ All notable changes to the Sophia AI platform will be documented in this file.
   - Intelligent model selection based on query complexity
   - Real-time cost monitoring with budget enforcement
   - Natural language infrastructure control via MCP server
-  - Comprehensive usage analytics in Snowflake
+  - Comprehensive usage analytics in Modern Stack
   - Automatic fallback between backends for high availability
 
 ### Infrastructure
@@ -28,7 +28,7 @@ All notable changes to the Sophia AI platform will be documented in this file.
 
 - **Monitoring**
   - SQLite usage tracking database
-  - Snowflake analytics schema (AI_INSIGHTS.LAMBDA_LABS_*)
+  - Modern Stack analytics schema (AI_INSIGHTS.LAMBDA_LABS_*)
   - CloudWatch dashboards
   - Slack alerts for budget thresholds
 

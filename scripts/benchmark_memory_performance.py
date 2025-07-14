@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Memory Performance Benchmark: Snowflake vs GPU Stack
-Let's see Snowflake cry as we destroy it with facts and logic (and GPUs)
+Memory Performance Benchmark: ModernStack vs GPU Stack
+Let's see ModernStack cry as we destroy it with facts and logic (and GPUs)
 """
 
 import asyncio
@@ -24,12 +24,12 @@ logger = get_logger(__name__)
 
 
 class MemoryBenchmark:
-    """Benchmark to prove Snowflake is obsolete"""
+    """Benchmark to prove ModernStack is obsolete"""
 
     def __init__(self, iterations: int = 100):
         self.iterations = iterations
         self.results = {
-            "v1_snowflake": {"embeddings": [], "searches": []},
+            "v1_modern_stack": {"embeddings": [], "searches": []},
             "v2_gpu": {"embeddings": [], "searches": []},
         }
 
@@ -153,7 +153,7 @@ class MemoryBenchmark:
 ╔═══════════════════════════════════════════════════════════════════════╗
 ║                    PERFORMANCE COMPARISON RESULTS                     ║
 ╠═══════════════════════════════════════════════════════════════════════╣
-║ Operation    │ Metric │ Snowflake (v1) │ GPU Stack (v2) │ Speedup    ║
+║ Operation    │ Metric │ ModernStack (v1) │ GPU Stack (v2) │ Speedup    ║
 ╠══════════════╪════════╪════════════════╪════════════════╪════════════╣
 ║ Embeddings   │ Avg    │ {v1_stats["embeddings"]["avg"]:>6.1f}ms       │ {v2_stats["embeddings"]["avg"]:>6.1f}ms       │ {embed_speedup:>5.1f}x     ║
 ║              │ p50    │ {v1_stats["embeddings"]["p50"]:>6.1f}ms       │ {v2_stats["embeddings"]["p50"]:>6.1f}ms       │            ║
@@ -165,7 +165,7 @@ class MemoryBenchmark:
 ╚══════════════╧════════╧════════════════╧════════════════╧════════════╝
 
 💰 COST IMPACT:
-  Monthly Snowflake: $3,500
+  Monthly ModernStack: $3,500
   Monthly GPU Stack: $700
   Savings: $2,800/month (80% reduction)
   
@@ -174,7 +174,7 @@ class MemoryBenchmark:
   Searches: {search_speedup:.1f}x faster
   Developer Happiness: ∞
   
-🔥 VERDICT: Snowflake has been DEMOLISHED by GPU supremacy!
+🔥 VERDICT: ModernStack has been DEMOLISHED by GPU supremacy!
 """
         print(table)
 
@@ -210,9 +210,9 @@ async def main():
     ⚔️  MEMORY PERFORMANCE BENCHMARK SHOWDOWN ⚔️
     ═══════════════════════════════════════════
     
-    Snowflake (v1) vs GPU Stack (v2)
+    ModernStack (v1) vs GPU Stack (v2)
     
-    In the left corner: Snowflake
+    In the left corner: ModernStack
     - 500ms embeddings
     - $3,500/month
     - Vendor lock-in champion
@@ -229,13 +229,13 @@ async def main():
     benchmark = MemoryBenchmark(iterations=100)
 
     try:
-        # Test v1 (Snowflake)
-        logger.info("\n📊 Testing v1 (Snowflake)...")
+        # Test v1 (ModernStack)
+        logger.info("\n📊 Testing v1 (ModernStack)...")
         service_v1 = await get_v1()
         v1_embed_stats = await benchmark.benchmark_embeddings(
-            service_v1, "v1_snowflake"
+            service_v1, "v1_modern_stack"
         )
-        v1_search_stats = await benchmark.benchmark_searches(service_v1, "v1_snowflake")
+        v1_search_stats = await benchmark.benchmark_searches(service_v1, "v1_modern_stack")
 
         # Test v2 (GPU Stack)
         logger.info("\n🚀 Testing v2 (GPU Stack)...")
@@ -254,14 +254,14 @@ async def main():
         perf_stats = await service_v2.get_performance_stats()
         print("\n📊 V2 Internal Performance Stats:")
         print(f"  Cache Hit Rate: {perf_stats['searches']['cache_hit_rate']:.1f}%")
-        print(f"  Snowflake Status: {perf_stats['snowflake_status']}")
+        print(f"  ModernStack Status: {perf_stats['modern_stack_status']}")
 
     except Exception as e:
         logger.error(f"Benchmark failed: {e}")
         print(
             "\n⚠️  Note: This benchmark requires both v1 and v2 services to be running."
         )
-        print("  If v1 (Snowflake) is not available, we'll use estimated values:")
+        print("  If v1 (ModernStack) is not available, we'll use estimated values:")
         print("  - Embedding: ~300-500ms")
         print("  - Search: ~200-400ms")
         raise

@@ -25,7 +25,7 @@ values:
         fn::secret: ${OPENROUTER_API_KEY}
 
   # Database Configuration
-  snowflake:
+  modern_stack:
     account:
       fn::secret: ${SNOWFLAKE_ACCOUNT}
     user:
@@ -82,11 +82,11 @@ environmentVariables:
   ANTHROPIC_API_KEY: ${ai_providers.anthropic.api_key}
   PORTKEY_API_KEY: ${ai_providers.portkey.api_key}
   OPENROUTER_API_KEY: ${ai_providers.openrouter.api_key}
-  SNOWFLAKE_ACCOUNT: ${snowflake.account}
-  SNOWFLAKE_USER: ${snowflake.user}
-  SNOWFLAKE_PASSWORD: ${snowflake.password}
-  SNOWFLAKE_DATABASE: ${snowflake.database}
-  SNOWFLAKE_WAREHOUSE: ${snowflake.warehouse}
+  SNOWFLAKE_ACCOUNT: ${modern_stack.account}
+  SNOWFLAKE_USER: ${modern_stack.user}
+  SNOWFLAKE_PASSWORD: ${modern_stack.password}
+  SNOWFLAKE_DATABASE: ${modern_stack.database}
+  SNOWFLAKE_WAREHOUSE: ${modern_stack.warehouse}
   GONG_API_KEY: ${gong.api_key}
   GONG_API_SECRET: ${gong.api_secret}
   GONG_WEBHOOK_SECRET: ${gong.webhook_secret}

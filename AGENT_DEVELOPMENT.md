@@ -50,7 +50,7 @@ uvicorn backend.app.fastapi_app:app --reload --port 8000
 
 ### MCP Server Types
 - **AI Memory**: Structured storage and data retrieval
-- **Snowflake Admin**: Data management and analysis
+- **Modern Stack Admin**: Data management and analysis
 - **Gong Intelligence**: Sales intelligence and CRM integration
 - **HubSpot CRM**: Customer relationship management
 - **Slack Integration**: Communication and project management

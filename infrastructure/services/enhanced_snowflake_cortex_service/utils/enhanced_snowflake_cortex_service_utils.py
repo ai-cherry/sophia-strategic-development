@@ -1,5 +1,5 @@
 """
-Enhanced Snowflake Cortex Service Utilities
+Enhanced Lambda GPU Service Utilities
 Helper functions and utility classes
 """
 
@@ -11,8 +11,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
-import snowflake.connector
-from snowflake.connector import DictCursor
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
 from core.enhanced_cache_manager import EnhancedCacheManager
 from infrastructure.security.audit_logger import AuditLogger
 from infrastructure.services.cost_engineering_service import (
@@ -28,7 +28,7 @@ def __init__(self):
         self.cache_manager = EnhancedCacheManager()
 
         # Connection management
-        self.connection: snowflake.connector.SnowflakeConnection | None = None
+        self.connection: modern_stack.connector.ModernStackConnection | None = None
         self.connection_params: dict[str, Any] = {}
 
         # Pipeline management
@@ -119,7 +119,7 @@ summarization_sql = """
             LANGUAGE SQL
             AS
             $$
-                SELECT SNOWFLAKE.CORTEX.SUMMARIZE(text, max_length)
+                SELECT self.modern_stack.await self.lambda_gpu.summarize(text, max_length)
             $$;
             """
 sentiment_sql = """
@@ -129,12 +129,12 @@ sentiment_sql = """
             AS
             $$
                 SELECT OBJECT_CONSTRUCT(
-                    'sentiment', SNOWFLAKE.CORTEX.SENTIMENT(text),
-                    'confidence', ABS(SNOWFLAKE.CORTEX.SENTIMENT(text)),
+                    'sentiment', self.modern_stack.await self.lambda_gpu.analyze_sentiment(text),
+                    'confidence', ABS(self.modern_stack.await self.lambda_gpu.analyze_sentiment(text)),
                     'classification',
                         CASE
-                            WHEN SNOWFLAKE.CORTEX.SENTIMENT(text) > 0.3 THEN 'positive'
-                            WHEN SNOWFLAKE.CORTEX.SENTIMENT(text) < -0.3 THEN 'negative'
+                            WHEN self.modern_stack.await self.lambda_gpu.analyze_sentiment(text) > 0.3 THEN 'positive'
+                            WHEN self.modern_stack.await self.lambda_gpu.analyze_sentiment(text) < -0.3 THEN 'negative'
                             ELSE 'neutral'
                         END
                 )
@@ -146,7 +146,7 @@ entity_sql = """
             LANGUAGE SQL
             AS
             $$
-                SELECT SNOWFLAKE.CORTEX.EXTRACT_ANSWER(text, 'Extract all named entities (people, organizations, locations) from this text. Return as JSON array.')
+                SELECT await self.lambda_gpu.EXTRACT_ANSWER(text, 'Extract all named entities (people, organizations, locations) from this text. Return as JSON array.')
             $$;
             """
 classification_sql = """
@@ -155,7 +155,7 @@ classification_sql = """
             LANGUAGE SQL
             AS
             $$
-                SELECT SNOWFLAKE.CORTEX.CLASSIFY_TEXT(text, categories)
+                SELECT await self.lambda_gpu.CLASSIFY_TEXT(text, categories)
             $$;
             """
 config = CortexSearchConfig()
@@ -208,7 +208,7 @@ avg_completeness = sum(
             ) / len(quality_checks)
 search_sql = f"""
                 SELECT *
-                FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                     '{search_service}',
                     '{query}',
                     {config.max_results}
@@ -235,7 +235,7 @@ null_stats = cursor.fetchone()
 search_sql = f"""
                 WITH semantic_results AS (
                     SELECT *, 'semantic' as search_type
-                    FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                    FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                         '{search_service}',
                         '{query}',
                         {config.max_results}
@@ -244,7 +244,7 @@ search_sql = f"""
                 ),
                 keyword_results AS (
                     SELECT *, 'keyword' as search_type
-                    FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                    FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                         '{search_service}',
                         '{query}',
                         {config.max_results}
@@ -275,7 +275,7 @@ results = self.pipeline_results.get(execution_id, [])
 search_sql = f"""
                 WITH initial_results AS (
                     SELECT *
-                    FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                    FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                         '{search_service}',
                         '{query}',
                         {config.max_results * 2}
@@ -284,7 +284,7 @@ search_sql = f"""
                 ),
                 reranked_results AS (
                     SELECT *,
-                        SNOWFLAKE.CORTEX.COMPLETE(
+                        self.modern_stack.await self.lambda_gpu.complete(
                             'mistral-7b',
                             'Rate the relevance of this content to the query "' || '{query}' || '" on a scale of 0-1: ' || content
                         ) as rerank_score
@@ -296,7 +296,7 @@ search_sql = f"""
                 """
 search_sql = f"""
                 SELECT *
-                FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW(
                     '{search_service}',
                     '{query}',
                     {config.max_results}

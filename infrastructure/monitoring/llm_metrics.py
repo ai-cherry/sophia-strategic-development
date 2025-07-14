@@ -28,6 +28,6 @@ llm_cost_per_request = Histogram(
 # Data locality metrics
 data_movement_avoided = Counter(
     "data_movement_avoided_kb",
-    "Amount of data movement avoided by using Snowflake Cortex (KB)",
+    "Amount of data movement avoided by using Lambda GPU (KB)",
     ["operation_type"],
 )

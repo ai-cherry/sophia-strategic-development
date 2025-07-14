@@ -112,7 +112,7 @@
    - Real-time result visualization
    - Mobile-responsive interface
 
-5. **Snowflake Cortex Integration**
+5. **Lambda GPU Integration**
    - AI_FILTER, AI_CLASSIFY, AI_AGG, AI_SIMILARITY functions
    - Enhanced semantic search capabilities
    - Business intelligence integration
@@ -219,7 +219,7 @@
 2. **Activate Enhanced Features**
    - Multi-tier search interface
    - Real-time streaming capabilities
-   - Snowflake Cortex AI integration
+   - Lambda GPU AI integration
    - Executive dashboard integration
 
 3. **Monitor Performance**

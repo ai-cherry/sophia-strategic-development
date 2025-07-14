@@ -2,7 +2,7 @@
 
 ## 🚀 Essential Commands
 
-### Snowflake Connection
+### Modern Stack Connection
 ```bash
 # Test connection (run from /tmp to avoid Python path issues)
 cd /tmp && PYTHONPATH="" python -c "
@@ -57,7 +57,7 @@ kubectl get all -A
 
 ## 🔑 Key Endpoints
 
-- **Snowflake**: UHDECNO-CVB64222.snowflakecomputing.com
+- **Modern Stack**: UHDECNO-CVB64222.snowflakecomputing.com
 - **Lambda Labs**: 192.222.58.232 (primary cluster)
 - **Docker Registry**: docker.io/scoobyjava15
 - **GitHub Org**: https://github.com/ai-cherry
@@ -75,7 +75,7 @@ python scripts/setup_infrastructure_comprehensive.py report
 
 ## 🚨 Important Notes
 
-1. **Snowflake PAT**: Valid until June 24, 2026
+1. **Modern Stack PAT**: Valid until June 24, 2026
 2. **Master Token**: Valid until June 24, 2026
 3. **Environment**: Always defaults to "prod"
 4. **Deployment**: Always via GitHub Actions
@@ -90,7 +90,7 @@ rm deploy_mcp_lambda_labs.sh
 
 ## 💡 Troubleshooting
 
-### Snowflake Connection Issues
+### Modern Stack Connection Issues
 - Use PAT token as password
 - Run from outside project directory
 - Check account format includes organization

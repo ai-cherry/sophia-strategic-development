@@ -18,7 +18,7 @@
         "postgres",
         "sophia-data-intelligence",
         "sophia-infrastructure",
-        "snowflake-admin",
+        "modern_stack-admin",
         "portkey-admin",
         "openrouter-search",
         "sophia-business-intelligence",
@@ -33,7 +33,7 @@
     "strategic_enhancements": {
       "servers": [
         "lambda-labs-cli",
-        "snowflake-cli-enhanced",
+        "modern_stack-cli-enhanced",
         "estuary-flow-cli",
         "pulumi",
         "docker"
@@ -57,10 +57,10 @@
     },
     "data_integrations": {
       "servers": [
-        "snowflake",
-        "snowflake-cortex",
+        "modern_stack",
+        "modern_stack-cortex",
         "estuary",
-        "snowflake-unified"
+        "modern_stack-unified"
       ],
       "port_range": "9200-9219",
       "description": "Data integration and processing services"
@@ -96,7 +96,7 @@
     "postgres",
     "sophia-data-intelligence",
     "sophia-infrastructure",
-    "snowflake-admin",
+    "modern_stack-admin",
     "portkey-admin",
     "openrouter-search",
     "sophia-business-intelligence",
@@ -105,7 +105,7 @@
     "bright-data",
     "graphiti",
     "lambda-labs-cli",
-    "snowflake-cli-enhanced",
+    "modern_stack-cli-enhanced",
     "estuary-flow-cli",
     "pulumi",
     "docker",
@@ -117,10 +117,10 @@
     "slack-unified",
     "intercom",
     "salesforce",
-    "snowflake",
-    "snowflake-cortex",
+    "modern_stack",
+    "modern_stack-cortex",
     "estuary",
-    "snowflake-unified",
+    "modern_stack-unified",
     "prompt-optimizer",
     "mem0-bridge",
     "mem0-openmemory",

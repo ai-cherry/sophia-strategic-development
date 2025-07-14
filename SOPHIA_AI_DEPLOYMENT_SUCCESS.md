@@ -13,7 +13,7 @@
 
 - **Backend**: Running on port 8001 with ngrok tunnel
 - **Frontend**: Deployed to Vercel successfully
-- **Database**: Connected to Snowflake
+- **Database**: Connected to Modern Stack
 - **AI Chat**: Fully functional with orchestrator
 - **Error Handling**: No more blank screens!
 

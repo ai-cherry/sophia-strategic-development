@@ -186,7 +186,7 @@ scripts/one_time/
 
 #### **2A. Priority 1: Core Services**
 
-**Enhanced Snowflake Cortex Service** (Split into 4 files):
+**Enhanced Lambda GPU Service** (Split into 4 files):
 ```python
 infrastructure/services/snowflake_cortex/
 ├── __init__.py

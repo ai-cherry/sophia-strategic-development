@@ -63,7 +63,7 @@ TTL: Automatic
 1. **Frontend**: Deployed and accessible
 2. **Backend**: Connected via ngrok public URL
 3. **Chat**: Fully functional with AI responses
-4. **Database**: Connected to Snowflake
+4. **Database**: Connected to Modern Stack
 5. **Error Handling**: No more connection errors!
 
 ## 🔧 Important Notes

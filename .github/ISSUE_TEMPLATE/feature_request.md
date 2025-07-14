@@ -38,7 +38,7 @@ assignees: ''
 - [ ] Affects MCP servers
 - [ ] Requires new MCP server
 - [ ] Impacts AI Memory system
-- [ ] Affects Snowflake integration
+- [ ] Affects Modern Stack integration
 - [ ] Requires database changes
 - [ ] Impacts frontend/UI
 - [ ] Requires API changes
@@ -71,7 +71,7 @@ assignees: ''
 ### **Affected Existing Servers**
 - [ ] AI Memory (`ai_memory`)
 - [ ] Codacy (`codacy`)
-- [ ] Snowflake Admin (`snowflake_admin`)
+- [ ] Modern Stack Admin (`snowflake_admin`)
 - [ ] Asana (`asana`)
 - [ ] Notion (`notion`)
 - [ ] Sophia Intelligence (`sophia_intelligence`)

@@ -73,7 +73,7 @@ infrastructure/
 ├── package.json               # Dependencies
 ├── providers/                 # Service providers
 │   ├── lambda-labs.ts        # Lambda Labs with SSH automation
-│   ├── snowflake.ts          # Snowflake provider
+│   ├── snowflake.ts          # Modern Stack provider
 │   ├── estuary.ts            # Estuary Flow provider
 │   ├── github.ts             # GitHub provider
 │   └── portkey.ts            # Portkey provider

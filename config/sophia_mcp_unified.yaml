@@ -27,7 +27,7 @@ mcp_servers:
         cpu: 2000m
         replicas: 2
       
-    snowflake_unified:
+    modern_stack_unified:
       port: 9001
       status: active
       capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]
@@ -214,12 +214,12 @@ central_services:
 # Deprecated servers - DO NOT USE
 deprecated_servers:
   - name: pinecone_server
-    reason: "Replaced by Snowflake Cortex in UnifiedMemoryService"
+    reason: "Replaced by Lambda GPU in UnifiedMemoryService"
     removal_date: "2025-08-01"
     migration_guide: "Use UnifiedMemoryService.search_knowledge() instead"
     
   - name: weaviate_server
-    reason: "Replaced by Snowflake Cortex in UnifiedMemoryService"
+    reason: "Replaced by Lambda GPU in UnifiedMemoryService"
     removal_date: "2025-08-01"
     migration_guide: "Use UnifiedMemoryService.search_knowledge() instead"
     

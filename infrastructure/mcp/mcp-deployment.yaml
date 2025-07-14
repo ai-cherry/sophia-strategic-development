@@ -23,10 +23,10 @@ data:
         "health_check": "/health",
         "capabilities": ["code_analysis", "security_scanning", "quality_metrics"]
       },
-      "snowflake_admin": {
+      "modern_stack_admin": {
         "type": "kubernetes",
-        "deployment": "snowflake-admin-mcp",
-        "service": "snowflake-admin-mcp-service",
+        "deployment": "modern_stack-admin-mcp",
+        "service": "modern_stack-admin-mcp-service",
         "port": 8080,
         "health_check": "/health",
         "capabilities": ["sql_execution", "admin_operations", "multi_environment"]
@@ -310,28 +310,28 @@ spec:
       targetPort: 9000
 
 ---
-# Snowflake Admin MCP Server - Critical, runs on K8s
+# ModernStack Admin MCP Server - Critical, runs on K8s
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: snowflake-admin-mcp
+  name: modern_stack-admin-mcp
   namespace: sophia-ai
   labels:
-    app: snowflake-admin-mcp
+    app: modern_stack-admin-mcp
     component: mcp-server
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: snowflake-admin-mcp
+      app: modern_stack-admin-mcp
   template:
     metadata:
       labels:
-        app: snowflake-admin-mcp
+        app: modern_stack-admin-mcp
     spec:
       containers:
-        - name: snowflake-admin-mcp
-          image: registry.digitalocean.com/sophia-ai/snowflake-admin-mcp:latest
+        - name: modern_stack-admin-mcp
+          image: registry.digitalocean.com/sophia-ai/modern_stack-admin-mcp:latest
           ports:
             - containerPort: 8080
           env:
@@ -341,17 +341,17 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: snowflake-account
+                  key: modern_stack-account
             - name: SNOWFLAKE_USER
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: snowflake-user
+                  key: modern_stack-user
             - name: SNOWFLAKE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: snowflake-password
+                  key: modern_stack-password
           resources:
             requests:
               cpu: 100m
@@ -370,13 +370,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: snowflake-admin-mcp-service
+  name: modern_stack-admin-mcp-service
   namespace: sophia-ai
   labels:
-    app: snowflake-admin-mcp
+    app: modern_stack-admin-mcp
 spec:
   selector:
-    app: snowflake-admin-mcp
+    app: modern_stack-admin-mcp
   ports:
     - name: http
       port: 8080
@@ -444,7 +444,7 @@ spec:
         - protocol: TCP
           port: 9000 # AI Memory MCP
         - protocol: TCP
-          port: 8080 # Snowflake Admin MCP
+          port: 8080 # ModernStack Admin MCP
     - to: [] # Allow external connections for external MCP servers
       ports:
         - protocol: TCP

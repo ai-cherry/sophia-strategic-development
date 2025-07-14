@@ -30,7 +30,7 @@ This is your LIVE production deployment - no special browser tricks needed!
 ### Backend (Local for now)
 - **Current**: Running locally on port 8001
 - **Planned**: Deploy to Lambda Labs at api.sophia-intel.ai
-- **Database**: Snowflake (UHDECNO-CVB64222)
+- **Database**: Modern Stack (UHDECNO-CVB64222)
 - **Cache**: Redis
 
 ## 🔧 TROUBLESHOOTING
@@ -59,7 +59,7 @@ If you're experiencing issues with the Vercel deployment:
 
 ### ⚠️ Needs Backend Deployment
 - Chat functionality (requires backend API)
-- Snowflake data queries
+- Modern Stack data queries
 - MCP server orchestration
 - Real-time updates
 
@@ -72,7 +72,7 @@ If you're experiencing issues with the Vercel deployment:
    ```
 
 2. **Configure Environment Variables**
-   - Snowflake credentials
+   - Modern Stack credentials
    - API keys
    - WebSocket URLs
 

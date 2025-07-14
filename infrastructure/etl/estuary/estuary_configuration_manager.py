@@ -1,3 +1,4 @@
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from datetime import UTC, datetime
 
 #!/usr/bin/env python3
@@ -122,13 +123,13 @@ class EnhancedEstuaryManager:
     def __init__(self, environment: str = "dev"):
         self.environment = environment
         self.session: aiohttp.ClientSession | None = None
-        self.cortex_service: SnowflakeCortexService | None = None
+        self.cortex_service: ModernStackCortexService | None = None
 
         # Configuration
         self.estuary_config = self._load_estuary_config()
         self.gong_config = self._load_gong_config()
         self.asana_config = self._load_asana_config()
-        self.snowflake_config = self._load_snowflake_config()
+# REMOVED: ModernStack dependency()
 
         # Retry configuration
         self.retry_config = RetryConfig()
@@ -185,19 +186,19 @@ class EnhancedEstuaryManager:
             "team_gids": get_config_value("asana_team_gids", []),
         }
 
-    def _load_snowflake_config(self) -> dict[str, Any]:
-        """Load Snowflake configuration from Pulumi ESC"""
+# REMOVED: ModernStack dependency(self) -> dict[str, Any]:
+# REMOVED: ModernStack dependencyuration from Pulumi ESC"""
         return {
-            "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
-            "username": get_config_value("snowflake_user", "SCOOBYJAVA15"),
-            "password": get_config_value("snowflake_password"),
+            "host": f"{get_config_value('postgres_host')}.modern_stackcomputing.com",
+            "username": get_config_value("modern_stack_user", "SCOOBYJAVA15"),
+            "password": get_config_value("postgres_password"),
             "warehouse": get_config_value(
-                "snowflake_warehouse", "WH_SOPHIA_ETL_TRANSFORM"
+                "postgres_database", "WH_SOPHIA_ETL_TRANSFORM"
             ),
             "database": get_config_value(
-                "snowflake_database", f"SOPHIA_AI_{self.environment.upper()}"
+                "postgres_database", f"SOPHIA_AI_{self.environment.upper()}"
             ),
-            "role": get_config_value("snowflake_role", "ROLE_SOPHIA_ESTUARY_INGEST"),
+            "role": get_config_value("modern_stack_role", "ROLE_SOPHIA_ESTUARY_INGEST"),
             "raw_schema": "RAW_ESTUARY",
         }
 
@@ -358,29 +359,29 @@ class EnhancedEstuaryManager:
                 error_message=str(e),
             )
 
-    async def configure_asana_snowflake_destination(self) -> EstuaryOperationResult:
-        """Configure Snowflake destination for Asana data"""
+    async def configure_asana_modern_stack_destination(self) -> EstuaryOperationResult:
+        """Configure ModernStack destination for Asana data"""
         try:
-            logger.info("🔄 Configuring Snowflake destination for Asana")
+            logger.info("🔄 Configuring ModernStack destination for Asana")
 
             destination_config = {
-                "destinationDefinitionId": "424892c4-daac-4491-b35d-c6688ba547ba",  # Snowflake destination ID
+                "destinationDefinitionId": "424892c4-daac-4491-b35d-c6688ba547ba",  # ModernStack destination ID
                 "connectionConfiguration": {
-                    "host": self.snowflake_config["host"],
-                    "role": self.snowflake_config["role"],
-                    "warehouse": self.snowflake_config["warehouse"],
-                    "database": self.snowflake_config["database"],
-                    "schema": self.snowflake_config["raw_schema"],
-                    "username": self.snowflake_config["username"],
-                    "password": self.snowflake_config["password"],
+# REMOVED: ModernStack dependency["host"],
+# REMOVED: ModernStack dependency["role"],
+# REMOVED: ModernStack dependency["warehouse"],
+# REMOVED: ModernStack dependency["database"],
+# REMOVED: ModernStack dependency["raw_schema"],
+# REMOVED: ModernStack dependency["username"],
+# REMOVED: ModernStack dependency["password"],
                     "jdbc_url_params": "",
-                    "raw_data_schema": self.snowflake_config["raw_schema"],
+# REMOVED: ModernStack dependency["raw_schema"],
                     "loading_method": {"method": "Standard"},
                     "purge_staging_data": True,
                     "upload_threads_count": 6,
                     "batch_size": 50000,
                 },
-                "name": "Snowflake-Asana-Destination",
+                "name": "ModernStack-Asana-Destination",
                 "workspaceId": self.estuary_config["workspace_id"],
             }
 
@@ -390,32 +391,32 @@ class EnhancedEstuaryManager:
             destination_id = response["destinationId"]
 
             logger.info(
-                f"✅ Snowflake destination configured for Asana: {destination_id}"
+# REMOVED: ModernStack dependencyured for Asana: {destination_id}"
             )
 
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.SUCCESS,
-                operation_type="configure_asana_snowflake_destination",
+                operation_type="configure_asana_modern_stack_destination",
                 resource_id=destination_id,
                 metadata={"destination_config": destination_config},
             )
 
         except Exception as e:
             logger.exception(
-                f"❌ Failed to configure Snowflake destination for Asana: {e}"
+                f"❌ Failed to configure ModernStack destination for Asana: {e}"
             )
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
-                operation_type="configure_asana_snowflake_destination",
+                operation_type="configure_asana_modern_stack_destination",
                 error_message=str(e),
             )
 
     async def create_asana_connection(
         self, source_id: str, destination_id: str
     ) -> EstuaryOperationResult:
-        """Create connection between Asana source and Snowflake destination"""
+        """Create connection between Asana source and ModernStack destination"""
         try:
-            logger.info("🔄 Creating Asana to Snowflake connection")
+            logger.info("🔄 Creating Asana to ModernStack connection")
 
             # Define Asana streams to sync
             streams_config = [
@@ -504,7 +505,7 @@ class EnhancedEstuaryManager:
                     "scheduleType": "cron",
                     "cronExpression": "0 */1 * * *",  # Every hour
                 },
-                "name": "Asana-to-Snowflake-Connection",
+                "name": "Asana-to-ModernStack-Connection",
                 "namespaceDefinition": "source",
                 "namespaceFormat": "${SOURCE_NAMESPACE}",
                 "prefix": "asana_",
@@ -555,16 +556,16 @@ class EnhancedEstuaryManager:
                     f"Asana source configuration failed: {source_result.error_message}"
                 )
 
-            # Step 2: Configure Snowflake destination
+            # Step 2: Configure ModernStack destination
             destination_result = await self.execute_with_retry(
-                self.configure_asana_snowflake_destination,
-                "configure_asana_snowflake_destination",
+                self.configure_asana_modern_stack_destination,
+                "configure_asana_modern_stack_destination",
             )
             results["destination"] = destination_result
 
             if destination_result.status != EstuaryOperationStatus.SUCCESS:
                 raise Exception(
-                    f"Snowflake destination configuration failed: {destination_result.error_message}"
+# REMOVED: ModernStack dependencyuration failed: {destination_result.error_message}"
                 )
 
             # Step 3: Create connection
@@ -648,7 +649,7 @@ class EnhancedEstuaryManager:
         try:
             logger.info("🔍 Validating Asana data quality")
 
-            # Query raw Asana data from Snowflake
+            # Query raw Asana data from ModernStack
             quality_queries = {
                 "projects": """
                     SELECT
@@ -740,12 +741,12 @@ class EnhancedEstuaryManager:
                 health_status["components"]["estuary_server"] = f"unhealthy: {e!s}"
                 health_status["overall_status"] = "degraded"
 
-            # Check Snowflake connectivity
+            # Check ModernStack connectivity
             try:
                 await self.cortex_service.execute_query("SELECT 1 as health_check")
-                health_status["components"]["snowflake"] = "healthy"
+                health_status["components"]["modern_stack"] = "healthy"
             except Exception as e:
-                health_status["components"]["snowflake"] = f"unhealthy: {e!s}"
+                health_status["components"]["modern_stack"] = f"unhealthy: {e!s}"
                 health_status["overall_status"] = "degraded"
 
             # Validate Asana data quality

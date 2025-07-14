@@ -1,8 +1,9 @@
 """
-Comprehensive Snowflake monitoring and optimization system
+Comprehensive ModernStack monitoring and optimization system
 Provides real-time insights and automated optimization recommendations
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import json
 import logging
@@ -16,41 +17,41 @@ import schedule
 from prometheus_client import Counter, Gauge, Histogram, start_http_server
 
 from core.infra.cortex_gateway import get_gateway
-from infrastructure.adapters.enhanced_snowflake_adapter import get_adapter
+from infrastructure.adapters.enhanced_modern_stack_adapter import get_adapter
 
 logger = logging.getLogger(__name__)
 
 # Prometheus metrics
-snowflake_query_duration = Histogram(
-    "snowflake_query_duration_seconds",
-    "Time spent on Snowflake queries",
+# REMOVED: ModernStack dependency Histogram(
+    "modern_stack_query_duration_seconds",
+    "Time spent on ModernStack queries",
     ["function", "warehouse"],
 )
-snowflake_query_count = Counter(
-    "snowflake_queries_total",
-    "Total number of Snowflake queries",
+# REMOVED: ModernStack dependency Counter(
+    "modern_stack_queries_total",
+    "Total number of ModernStack queries",
     ["function", "status"],
 )
-snowflake_warehouse_utilization = Gauge(
-    "snowflake_warehouse_utilization", "Warehouse utilization percentage", ["warehouse"]
+# REMOVED: ModernStack dependency Gauge(
+    "postgres_database_utilization", "Warehouse utilization percentage", ["warehouse"]
 )
-snowflake_credits_used = Counter(
-    "snowflake_credits_total",
-    "Total Snowflake credits consumed",
+# REMOVED: ModernStack dependency Counter(
+    "modern_stack_credits_total",
+    "Total ModernStack credits consumed",
     ["warehouse", "function"],
 )
-snowflake_daily_credits = Gauge(
-    "snowflake_daily_credits_remaining", "Remaining daily credit allowance"
+# REMOVED: ModernStack dependency Gauge(
+    "modern_stack_daily_credits_remaining", "Remaining daily credit allowance"
 )
-snowflake_cost_optimization = Gauge(
-    "snowflake_cost_savings_potential", "Potential cost savings in dollars"
+# REMOVED: ModernStack dependency Gauge(
+    "modern_stack_cost_savings_potential", "Potential cost savings in dollars"
 )
-snowflake_cache_hits = Counter(
-    "snowflake_cache_hits_total", "Number of cache hits", ["cache_type"]
+# REMOVED: ModernStack dependency Counter(
+    "modern_stack_cache_hits_total", "Number of cache hits", ["cache_type"]
 )
-snowflake_errors = Counter(
-    "snowflake_errors_total",
-    "Total number of Snowflake errors",
+# REMOVED: ModernStack dependency Counter(
+    "modern_stack_errors_total",
+    "Total number of ModernStack errors",
     ["error_type", "warehouse"],
 )
 
@@ -72,8 +73,8 @@ class Alert:
     metric_value: float | None = None
 
 
-class SnowflakeMonitor:
-    """Comprehensive Snowflake monitoring system"""
+class ModernStackMonitor:
+    """Comprehensive ModernStack monitoring system"""
 
     def __init__(self):
         self.gateway = get_gateway()
@@ -95,10 +96,10 @@ class SnowflakeMonitor:
         await self._create_monitoring_tables()
 
         self._initialized = True
-        logger.info("✅ SnowflakeMonitor initialized")
+        logger.info("✅ ModernStackMonitor initialized")
 
     async def _create_monitoring_tables(self):
-        """Create monitoring tables in Snowflake"""
+        """Create monitoring tables in ModernStack"""
         create_tables_sql = """
         -- Create monitoring schema if not exists
         CREATE SCHEMA IF NOT EXISTS SOPHIA_AI_UNIFIED.MONITORING;
@@ -174,7 +175,7 @@ class SnowflakeMonitor:
             COALESCE(SUM(CREDITS_USED), 0) as total_credits,
             COUNT(*) as query_count,
             MAX(START_TIME) as last_activity
-        FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_LOAD_HISTORY
+        # REMOVED: ModernStack dependency
         WHERE START_TIME >= DATEADD(hour, -24, CURRENT_TIMESTAMP())
         GROUP BY WAREHOUSE_NAME
         ORDER BY total_credits DESC;
@@ -197,7 +198,7 @@ class SnowflakeMonitor:
             AVG(COMPILATION_TIME) as avg_compilation_time,
             AVG(EXECUTION_TIME) as avg_execution_time,
             SUM(CASE WHEN ERROR_CODE IS NOT NULL THEN 1 ELSE 0 END) as error_count
-        FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+        # REMOVED: ModernStack dependency
         WHERE START_TIME >= DATEADD(hour, -24, CURRENT_TIMESTAMP())
             AND WAREHOUSE_NAME IS NOT NULL
         GROUP BY WAREHOUSE_NAME;
@@ -213,13 +214,13 @@ class SnowflakeMonitor:
 
         # Update Prometheus metrics
         for warehouse in utilization_data:
-            snowflake_warehouse_utilization.labels(
+            postgres_database_utilization.labels(
                 warehouse=warehouse["WAREHOUSE_NAME"]
             ).set(warehouse["AVG_UTILIZATION"] or 0)
 
         # Log to monitoring table
         if utilization_data or performance_data:
-            await self._log_metrics_to_snowflake(utilization_data, performance_data)
+            await self._log_metrics_to_modern_stack(utilization_data, performance_data)
 
         return {
             "utilization": utilization_data,
@@ -227,10 +228,10 @@ class SnowflakeMonitor:
             "timestamp": datetime.now().isoformat(),
         }
 
-    async def _log_metrics_to_snowflake(
+    async def _log_metrics_to_modern_stack(
         self, utilization_data: list[dict], performance_data: list[dict]
     ):
-        """Log metrics to Snowflake monitoring tables"""
+        """Log metrics to ModernStack monitoring tables"""
 
         # Prepare credit usage data
         if utilization_data:
@@ -324,7 +325,7 @@ class SnowflakeMonitor:
         total_potential_savings = sum(
             rec.get("potential_savings", 0) for rec in optimization_recommendations
         )
-        snowflake_cost_optimization.set(total_potential_savings)
+        modern_stack_cost_optimization.set(total_potential_savings)
 
         return {
             "recommendations": optimization_recommendations,
@@ -333,7 +334,7 @@ class SnowflakeMonitor:
         }
 
     async def _log_optimization_recommendation(self, recommendation: dict[str, Any]):
-        """Log optimization recommendation to Snowflake"""
+        """Log optimization recommendation to ModernStack"""
 
         insert_sql = """
         INSERT INTO SOPHIA_AI_UNIFIED.MONITORING.OPTIMIZATION_LOG
@@ -361,7 +362,7 @@ class SnowflakeMonitor:
                 alerts.append(
                     Alert(
                         severity=AlertSeverity.INFO,
-                        title="Snowflake Monitoring Active",
+                        title="ModernStack Monitoring Active",
                         description="Monitoring system is operational and collecting metrics",
                         timestamp=datetime.now(),
                     )
@@ -400,7 +401,7 @@ class SnowflakeMonitor:
         return alerts
 
     async def _log_alert(self, alert: Alert):
-        """Log alert to Snowflake"""
+        """Log alert to ModernStack"""
 
         insert_sql = """
         INSERT INTO SOPHIA_AI_UNIFIED.MONITORING.ALERT_HISTORY
@@ -464,7 +465,7 @@ class SnowflakeMonitor:
     async def run_monitoring_cycle(self):
         """Run complete monitoring cycle"""
 
-        logger.info("🔍 Starting Snowflake monitoring cycle")
+        logger.info("🔍 Starting ModernStack monitoring cycle")
 
         try:
             await self.initialize()
@@ -480,13 +481,13 @@ class SnowflakeMonitor:
             self.alerts.extend(new_alerts)
 
             # Update Prometheus metrics
-            snowflake_query_count.labels(function="monitoring", status="success").inc()
+            # REMOVED: ModernStack dependency"success").inc()
 
             # Generate dashboard data
             dashboard_data = await self.generate_monitoring_dashboard_data()
 
             # Save dashboard data for API access
-            with open("reports/snowflake_monitoring_latest.json", "w") as f:
+            with open("reports/modern_stack_monitoring_latest.json", "w") as f:
                 json.dump(dashboard_data, f, indent=2, default=str)
 
             # Log summary
@@ -506,20 +507,20 @@ class SnowflakeMonitor:
 
         except Exception as e:
             logger.error(f"❌ Monitoring cycle failed: {e}")
-            snowflake_query_count.labels(function="monitoring", status="error").inc()
-            snowflake_errors.labels(
+            # REMOVED: ModernStack dependency"error").inc()
+            modern_stack_errors.labels(
                 error_type="monitoring_cycle", warehouse="system"
             ).inc()
             return None
 
 
 # Global monitor instance
-snowflake_monitor = SnowflakeMonitor()
+# REMOVED: ModernStack dependency ModernStackMonitor()
 
 
 async def scheduled_monitoring():
     """Scheduled monitoring function"""
-    await snowflake_monitor.run_monitoring_cycle()
+    await modern_stack_monitor.run_monitoring_cycle()
 
 
 def start_monitoring_service(port: int = 8003):
@@ -549,4 +550,4 @@ if __name__ == "__main__":
     # For testing, run one monitoring cycle
     import asyncio
 
-    asyncio.run(snowflake_monitor.run_monitoring_cycle())
+    asyncio.run(modern_stack_monitor.run_monitoring_cycle())

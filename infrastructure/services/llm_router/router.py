@@ -3,6 +3,7 @@ LLM Router - Core routing engine
 Stateless, observable, and performance-optimized
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import time
 from collections.abc import AsyncGenerator
 from typing import Any
@@ -123,9 +124,9 @@ class LLMRouter:
                 TaskType.DATA_ANALYSIS,
                 TaskType.EMBEDDINGS,
             }:
-                # Use Snowflake Cortex for data operations
+                # Use Lambda GPU for data operations
                 provider = Provider.SNOWFLAKE
-                async for chunk in self._cortex.complete(
+                async for chunk in self._# REMOVED: ModernStack dependency(
                     prompt=prompt,
                     task=task,
                     temperature=temperature,
@@ -221,10 +222,10 @@ class LLMRouter:
             TaskType.EMBEDDINGS,
         }:
             return {
-                "provider": Provider.SNOWFLAKE.value,
-                "model": "snowflake-cortex",
-                "estimated_cost": 0.0,  # Snowflake Cortex is free within platform
-                "reasoning": "Data operations use Snowflake Cortex (no additional cost)",
+                "provider": Provider.self.modern_stack.value,
+                "model": "modern_stack-cortex",
+                "estimated_cost": 0.0,  # Lambda GPU is free within platform
+                "reasoning": "Data operations use Lambda GPU (no additional cost)",
             }
         else:
             return await self._gateway.estimate_cost(
@@ -239,7 +240,7 @@ class LLMRouter:
         await self._ensure_initialized()
 
         models = {
-            "snowflake": await self._cortex.get_available_models(),
+            "modern_stack": await self._cortex.get_available_models(),
             "gateway": await self._gateway.get_available_models(),
         }
 
@@ -253,7 +254,7 @@ class LLMRouter:
 
         # Check each component
         if self._cortex:
-            health["providers"]["snowflake"] = await self._cortex.health_check()
+            health["providers"]["modern_stack"] = await self._cortex.health_check()
 
         if self._gateway:
             health["providers"]["gateway"] = await self._gateway.health_check()

@@ -110,7 +110,7 @@ Deploy to your Lambda Labs servers:
 |-----------|--------|-----|
 | Frontend | ✅ LIVE | https://frontend-kvw21qx72-lynn-musils-projects.vercel.app |
 | Backend | ✅ RUNNING | https://44d334838362.ngrok.app |
-| Database | ✅ CONNECTED | Snowflake |
+| Database | ✅ CONNECTED | Modern Stack |
 | AI Chat | ✅ WORKING | Via orchestrator |
 | Domain | 🔄 PENDING | sophia-intel.ai |
 
@@ -128,7 +128,7 @@ Deploy to your Lambda Labs servers:
    - Team insights
 
 3. **Data Integration**
-   - Snowflake connection
+   - Modern Stack connection
    - Redis caching
    - Real-time updates
 

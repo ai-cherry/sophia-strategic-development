@@ -1,4 +1,4 @@
-"""Error classes for Snowflake Cortex service."""
+"""Error classes for Lambda GPU service."""
 
 from .enums import ErrorSeverity
 
@@ -18,7 +18,7 @@ class CortexError(Exception):
 
 
 class CortexConnectionError(CortexError):
-    """Raised when connection to Snowflake fails."""
+    """Raised when connection to ModernStack fails."""
 
     def __init__(self, message: str, details: dict | None = None):
         super().__init__(message, ErrorSeverity.HIGH, details)

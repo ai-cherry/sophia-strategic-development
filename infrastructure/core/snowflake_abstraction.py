@@ -1,10 +1,10 @@
 # SQL injection fixes applied - using parameterized queries
 """
-Snowflake Abstraction Layer for Sophia AI
-Provides secure, scalable interface to Snowflake with proper abstraction
+ModernStack Abstraction Layer for Sophia AI
+Provides secure, scalable interface to ModernStack with proper abstraction
 
 This module implements:
-- Abstract base classes for Snowflake operations
+- Abstract base classes for ModernStack operations
 - Secure query execution with parameterization
 - Connection pooling integration
 - Performance monitoring
@@ -53,8 +53,8 @@ class QueryResult:
             self.warnings = []
 
 
-class SnowflakeAbstraction(ABC):
-    """Abstract base for all Snowflake operations"""
+class ModernStackAbstraction(ABC):
+    """Abstract base for all ModernStack operations"""
 
     @abstractmethod
     async def execute_query(
@@ -109,7 +109,7 @@ class SnowflakeAbstraction(ABC):
         pass
 
 
-class SecureSnowflakeExecutor(SnowflakeAbstraction):
+class SecureModernStackExecutor(ModernStackAbstraction):
     """Secure implementation with parameterized queries and monitoring"""
 
     def __init__(

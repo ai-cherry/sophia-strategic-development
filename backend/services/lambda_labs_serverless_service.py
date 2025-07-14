@@ -5,6 +5,7 @@ Revolutionary serverless AI infrastructure using Lambda Labs Inference API
 with intelligent model routing, cost optimization, and enterprise-grade monitoring.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import json
 import logging
@@ -192,8 +193,8 @@ class LambdaLabsServerlessService:
             "qwen-3-32b",
         ]
 
-        # Integration with Snowflake Cortex
-        self.snowflake_cortex = UnifiedMemoryServiceV2()
+        # Integration with Lambda GPU
+        self.# REMOVED: ModernStack dependency UnifiedMemoryServiceV2()
 
         logger.info(
             "🚀 Lambda Labs Serverless Service initialized with 5 premium models"

@@ -1,6 +1,6 @@
 """
 Unified Memory Service V2 - GPU-Powered Beast Mode
-Goodbye Snowflake's 500ms torture, hello sub-50ms nirvana!
+Goodbye ModernStack's 500ms torture, hello sub-50ms nirvana!
 Lambda B200 GPUs + Weaviate + Redis + pgvector = 🚀
 """
 
@@ -51,7 +51,7 @@ tracer = trace.get_tracer(__name__)
 class UnifiedMemoryServiceV2:
     """
     The new brain of Sophia AI - 10x faster, 80% cheaper.
-    Snowflake can kiss our GPU-accelerated ass.
+    ModernStack can kiss our GPU-accelerated ass.
     """
 
     def __init__(self):
@@ -83,7 +83,7 @@ class UnifiedMemoryServiceV2:
             "embeddings": {"count": 0, "total_ms": 0},
             "searches": {"count": 0, "total_ms": 0},
             "cache_hits": 0,
-            "snowflake_tears": float("inf"),  # Infinite sadness
+            "modern_stack_tears": float("inf"),  # Infinite sadness
         }
 
     async def initialize(self):
@@ -207,7 +207,7 @@ class UnifiedMemoryServiceV2:
         self, content: str, source: str, metadata: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
-        Add knowledge to all stores in parallel - because sequential is for Snowflake losers
+        Add knowledge to all stores in parallel - because sequential is for ModernStack losers
         """
         start_time = time.time()
         metadata = metadata or {}
@@ -237,7 +237,7 @@ class UnifiedMemoryServiceV2:
 
         elapsed_ms = (time.time() - start_time) * 1000
         logger.info(
-            f"Knowledge added in {elapsed_ms:.1f}ms (Snowflake would cry at {elapsed_ms * 5:.0f}ms)"
+            f"Knowledge added in {elapsed_ms:.1f}ms (ModernStack would cry at {elapsed_ms * 5:.0f}ms)"
         )
 
         return {
@@ -245,7 +245,7 @@ class UnifiedMemoryServiceV2:
             "weaviate_id": str(weaviate_id),
             "content_hash": content_hash,
             "elapsed_ms": elapsed_ms,
-            "snowflake_jealousy_factor": 5.0,
+            "modern_stack_jealousy_factor": 5.0,
         }
 
     async def _store_weaviate(
@@ -367,7 +367,7 @@ class UnifiedMemoryServiceV2:
                 self.perf_stats["searches"]["total_ms"] += elapsed_ms
 
                 logger.info(
-                    f"Search completed in {elapsed_ms:.1f}ms (Snowflake is still warming up at {elapsed_ms * 6:.0f}ms)"
+                    f"Search completed in {elapsed_ms:.1f}ms (ModernStack is still warming up at {elapsed_ms * 6:.0f}ms)"
                 )
 
                 return merged_results
@@ -505,7 +505,7 @@ class UnifiedMemoryServiceV2:
 
     async def get_performance_stats(self) -> Dict[str, Any]:
         """
-        Show off our performance gains - make Snowflake weep
+        Show off our performance gains - make ModernStack weep
         """
         total_embeddings = self.perf_stats["embeddings"]["count"]
         total_searches = self.perf_stats["searches"]["count"]
@@ -526,7 +526,7 @@ class UnifiedMemoryServiceV2:
             "embeddings": {
                 "count": total_embeddings,
                 "avg_ms": round(avg_embedding_ms, 1),
-                "snowflake_multiplier": 10,  # We're 10x faster
+                "modern_stack_multiplier": 10,  # We're 10x faster
                 "monthly_savings": "$2,000",  # No more Cortex costs
             },
             "searches": {
@@ -537,15 +537,15 @@ class UnifiedMemoryServiceV2:
                     if total_searches > 0
                     else 0
                 ),
-                "snowflake_multiplier": 6,  # We're 6x faster
+                "modern_stack_multiplier": 6,  # We're 6x faster
             },
             "total_monthly_savings": "$2,800",
             "developer_happiness": "∞",
-            "snowflake_status": "MELTED 🫠",
+            "modern_stack_status": "MELTED 🫠",
         }
 
     async def close(self):
-        """Clean shutdown - unlike Snowflake's dirty expensive exit"""
+        """Clean shutdown - unlike ModernStack's dirty expensive exit"""
         if self.redis:
             await self.redis.close()
         if self.pg_pool:

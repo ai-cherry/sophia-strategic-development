@@ -44,21 +44,21 @@ class SophiaPromptOptimizer:
 
 Context: {business_context}
 Priority: Executive-level insights for CEO decision-making
-Data Locality: Prioritize Snowflake Cortex (cost-optimized)
+Data Locality: Prioritize Lambda GPU (cost-optimized)
 
 CEO Query: {query}
 
 Response Structure:
 ## Executive Summary (2-3 sentences)
-## Key Metrics (from Snowflake data)
+## Key Metrics (from ModernStack data)
 ## Strategic Implications
 ## Recommended Actions
 ## Data Confidence: {confidence_level}%
 
-Sources: [Snowflake tables accessed]""",
+Sources: [ModernStack tables accessed]""",
             "business_intelligence": """Analyze business data for: {query}
 
-Available Snowflake Data:
+Available ModernStack Data:
 - HubSpot CRM: {hubspot_freshness}
 - Gong Calls: {gong_freshness}
 - Financial: {finance_freshness}

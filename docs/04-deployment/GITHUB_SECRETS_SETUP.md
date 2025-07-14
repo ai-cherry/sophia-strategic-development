@@ -40,9 +40,9 @@ OPENAI_API_KEY: OpenAI API key
 ANTHROPIC_API_KEY: Anthropic API key
 
 # Database
-SNOWFLAKE_ACCOUNT: Your Snowflake account
-SNOWFLAKE_USER: Snowflake username
-SNOWFLAKE_PASSWORD: Snowflake password
+SNOWFLAKE_ACCOUNT: Your Modern Stack account
+SNOWFLAKE_USER: Modern Stack username
+SNOWFLAKE_PASSWORD: Modern Stack password
 
 # Other Services
 GONG_ACCESS_KEY: Gong API access key

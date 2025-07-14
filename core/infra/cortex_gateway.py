@@ -1,5 +1,5 @@
 """
-CortexGateway: unified async entry-point for all Snowflake Cortex and SQL operations.
+CortexGateway: unified async entry-point for all Lambda GPU and SQL operations.
 
 – Guarantees ONE pooled connection via OptimizedConnectionManager
 – Adds hooks for Prometheus metrics & credit-limit guardrails
@@ -7,6 +7,7 @@ CortexGateway: unified async entry-point for all Snowflake Cortex and SQL operat
     complete(), embed(), batch_embed(), search(), sentiment(), execute_sql(), health_check()
 
 Downstream services & agents should call:
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
     from core.infra.cortex_gateway import get_gateway
     gateway = get_gateway()
     await gateway.complete("Hello")
@@ -35,7 +36,7 @@ def _prom_metrics(func):  # placeholder – connect to real Prom client later
         duration = (datetime.utcnow() - start).total_seconds()
         logger.debug("CortexGateway.%s executed in %.3fs", func.__name__, duration)
 
-        # Log usage to Snowflake table (fire-and-forget)
+        # Log usage to ModernStack table (fire-and-forget)
         try:
             await self._log_usage(func.__name__, duration)
         except Exception as log_exc:  # pragma: no cover
@@ -63,7 +64,7 @@ def _credit_limit(max_credits_day: int = 100, max_tokens: int = 10_000):
 
 
 class CortexGateway:
-    """Async singleton that routes every Snowflake call through one pooled connection."""
+    """Async singleton that routes every ModernStack call through one pooled connection."""
 
     _instance: CortexGateway | None = None
     _lock = asyncio.Lock()
@@ -88,7 +89,7 @@ class CortexGateway:
         return await self.connection_manager.execute_query(
             sql,
             params=params,
-            connection_type=ConnectionType.SNOWFLAKE,
+            connection_type=ConnectionType.POSTGRESQL,
         )
 
     # ------------------------------------------------------------------
@@ -97,19 +98,19 @@ class CortexGateway:
     @_prom_metrics
     @_credit_limit()
     async def complete(self, prompt: str, model: str = "mixtral-8x7b") -> str:
-        sql = "SELECT SNOWFLAKE.CORTEX.COMPLETE(%s, %s) AS COMPLETION"
+        sql = "SELECT self.modern_stack.await self.lambda_gpu.complete(%s, %s) AS COMPLETION"
         rows = await self._execute(sql, (model, prompt))
         return rows[0]["COMPLETION"] if rows else ""
 
     @_prom_metrics
     async def sentiment(self, text: str) -> str:
-        sql = "SELECT SNOWFLAKE.CORTEX.SENTIMENT(%s) AS SENTIMENT"
+        sql = "SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(%s) AS SENTIMENT"
         rows = await self._execute(sql, (text,))
         return rows[0]["SENTIMENT"] if rows else ""
 
     @_prom_metrics
     async def embed(self, text: str, model: str = "e5-base-v2") -> list[float]:
-        sql = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT(%s, %s) AS EMBED"
+        sql = "SELECT await self.lambda_gpu.EMBED_TEXT(%s, %s) AS EMBED"
         rows = await self._execute(sql, (model, text))
         if not rows:
             return []
@@ -121,7 +122,7 @@ class CortexGateway:
         self, texts: list[str], model: str = "e5-base-v2"
     ) -> list[list[float]]:
         # Uses array flatten trick to embed many rows in one query
-        sql = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT(%s, value) AS EMBED FROM TABLE(FLATTEN(INPUT=>%s))"
+        sql = "SELECT await self.lambda_gpu.EMBED_TEXT(%s, value) AS EMBED FROM TABLE(FLATTEN(INPUT=>%s))"
         rows = await self._execute(sql, (model, json.dumps(texts)))
         embeds: list[list[float]] = []
         for r in rows:
@@ -131,7 +132,7 @@ class CortexGateway:
 
     @_prom_metrics
     async def search(self, service: str, query: str, limit: int = 10):
-        sql = f"SELECT * FROM TABLE(SNOWFLAKE.CORTEX.SEARCH_PREVIEW('{service}', %s, {limit}))"
+        sql = f"SELECT * FROM TABLE(await self.lambda_gpu.SEARCH_PREVIEW('{service}', %s, {limit}))"
         return await self._execute(sql, (query,))
 
     async def execute_sql(self, sql: str):

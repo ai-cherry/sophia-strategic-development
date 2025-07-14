@@ -26,7 +26,7 @@ The file decomposition implementation has achieved **outstanding results** that 
 ### **🏗️ Decomposition Implementation Results**
 
 #### **Successfully Decomposed Services** ✅
-1. **Enhanced Snowflake Cortex Service** (1142 lines → modular)
+1. **Enhanced Lambda GPU Service** (1142 lines → modular)
 2. **Enhanced Ingestion Service** (775 lines → modular)  
 3. **Enhanced LangGraph Orchestration** (986 lines → modular)
 4. **Multi-Agent Workflow** (774 lines → modular)
@@ -92,7 +92,7 @@ The file decomposition implementation has achieved **outstanding results** that 
 
 ## 📁 CREATED MODULAR STRUCTURES
 
-### **1. Enhanced Snowflake Cortex Service**
+### **1. Enhanced Lambda GPU Service**
 ```
 infrastructure/services/enhanced_snowflake_cortex_service/
 ├── __init__.py                                    # Module initialization

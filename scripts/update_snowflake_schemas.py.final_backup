@@ -1,0 +1,313 @@
+#!/usr/bin/env python3
+"""
+Update Snowflake schemas for Sophia AI
+Creates all necessary tables, views, and procedures
+"""
+
+import sys
+
+# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
+
+
+def update_snowflake_schemas():
+    """Update all Snowflake schemas for Sophia AI"""
+
+    try:
+        # Connect using PAT
+        conn = self.modern_stack_connection(
+            account="UHDECNO-CVB64222",
+            user="SCOOBYJAVA15",
+            password="eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A",
+            role="ACCOUNTADMIN",
+        )
+
+        cursor = conn.cursor()
+
+        # Use Sophia AI database
+        cursor.execute("USE DATABASE SOPHIA_AI_PROD")
+
+        # Create AI Memory tables
+        cursor.execute("USE SCHEMA AI_MEMORY")
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS MEMORY_RECORDS (
+                id VARCHAR PRIMARY KEY,
+                category VARCHAR,
+                content TEXT,
+                embedding VECTOR(FLOAT, 768),
+                metadata VARIANT,
+                created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+                updated_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+            )
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS CONVERSATION_HISTORY (
+                id VARCHAR PRIMARY KEY,
+                session_id VARCHAR,
+                user_message TEXT,
+                assistant_response TEXT,
+                context VARIANT,
+                created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+            )
+        """
+        )
+
+        # Create Business Intelligence tables
+        cursor.execute("USE SCHEMA BUSINESS_INTELLIGENCE")
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS GONG_CALLS (
+                call_id VARCHAR PRIMARY KEY,
+                transcript TEXT,
+                duration_seconds INTEGER,
+                participants VARIANT,
+                sentiment_score FLOAT,
+                topics ARRAY,
+                action_items ARRAY,
+                embedding VECTOR(FLOAT, 768),
+                created_at TIMESTAMP_NTZ,
+                processed_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+            )
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS HUBSPOT_DEALS (
+                deal_id VARCHAR PRIMARY KEY,
+                deal_name VARCHAR,
+                amount DECIMAL(15,2),
+                stage VARCHAR,
+                close_date DATE,
+                probability FLOAT,
+                owner_id VARCHAR,
+                company_id VARCHAR,
+                ai_insights VARIANT,
+                embedding VECTOR(FLOAT, 768),
+                created_at TIMESTAMP_NTZ,
+                updated_at TIMESTAMP_NTZ
+            )
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS SLACK_MESSAGES (
+                message_id VARCHAR PRIMARY KEY,
+                channel_id VARCHAR,
+                channel_name VARCHAR,
+                user_id VARCHAR,
+                text TEXT,
+                thread_ts VARCHAR,
+                sentiment_score FLOAT,
+                is_action_item BOOLEAN,
+                embedding VECTOR(FLOAT, 768),
+                created_at TIMESTAMP_NTZ
+            )
+        """
+        )
+
+        # Create Executive Dashboard views
+        cursor.execute("USE SCHEMA EXECUTIVE_DASHBOARD")
+
+        cursor.execute(
+            """
+            CREATE OR REPLACE VIEW REVENUE_PIPELINE AS
+            SELECT
+                DATE_TRUNC('month', close_date) as month,
+                stage,
+                COUNT(*) as deal_count,
+                SUM(amount) as total_value,
+                AVG(probability) as avg_probability,
+                SUM(amount * probability / 100) as weighted_value
+            FROM BUSINESS_INTELLIGENCE.HUBSPOT_DEALS
+            WHERE close_date >= DATEADD('month', -12, CURRENT_DATE())
+            GROUP BY 1, 2
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE OR REPLACE VIEW CALL_INSIGHTS AS
+            SELECT
+                DATE_TRUNC('week', created_at) as week,
+                AVG(sentiment_score) as avg_sentiment,
+                COUNT(*) as call_count,
+                AVG(duration_seconds) / 60 as avg_duration_minutes,
+                ARRAY_AGG(DISTINCT f.value) as all_topics
+            FROM BUSINESS_INTELLIGENCE.GONG_CALLS,
+            LATERAL FLATTEN(input => topics) f
+            WHERE created_at >= DATEADD('month', -3, CURRENT_DATE())
+            GROUP BY 1
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE OR REPLACE VIEW TEAM_ACTIVITY AS
+            SELECT
+                DATE_TRUNC('day', created_at) as day,
+                channel_name,
+                COUNT(*) as message_count,
+                AVG(sentiment_score) as avg_sentiment,
+                SUM(CASE WHEN is_action_item THEN 1 ELSE 0 END) as action_items
+            FROM BUSINESS_INTELLIGENCE.SLACK_MESSAGES
+            WHERE created_at >= DATEADD('day', -30, CURRENT_DATE())
+            GROUP BY 1, 2
+        """
+        )
+
+        # Create AI-powered procedures
+        cursor.execute("USE SCHEMA PUBLIC")
+
+        cursor.execute(
+            """
+            CREATE OR REPLACE PROCEDURE GENERATE_EMBEDDINGS(table_name VARCHAR, text_column VARCHAR)
+            RETURNS VARCHAR
+            LANGUAGE SQL
+            AS
+            $$
+            BEGIN
+                -- This would use Snowflake Cortex to generate embeddings
+                -- Placeholder for actual implementation
+                RETURN 'Embeddings generated for ' || table_name;
+            END;
+            $$
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE OR REPLACE FUNCTION SEMANTIC_SEARCH(query_text VARCHAR, table_name VARCHAR, limit_count INTEGER)
+            RETURNS TABLE(id VARCHAR, content TEXT, similarity FLOAT)
+            LANGUAGE SQL
+            AS
+            $$
+                SELECT
+                    id,
+                    content,
+                    1.0 as similarity
+                FROM AI_MEMORY.MEMORY_RECORDS
+                WHERE content ILIKE '%' || query_text || '%'
+                LIMIT limit_count
+            $$
+        """
+        )
+
+        # Create MCP data tables
+        cursor.execute("USE SCHEMA MCP_DATA")
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS MCP_SERVER_STATUS (
+                server_name VARCHAR PRIMARY KEY,
+                status VARCHAR,
+                last_health_check TIMESTAMP_NTZ,
+                response_time_ms INTEGER,
+                error_count INTEGER DEFAULT 0,
+                metadata VARIANT
+            )
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS MCP_REQUEST_LOG (
+                request_id VARCHAR PRIMARY KEY,
+                server_name VARCHAR,
+                endpoint VARCHAR,
+                request_data VARIANT,
+                response_data VARIANT,
+                response_time_ms INTEGER,
+                status_code INTEGER,
+                created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+            )
+        """
+        )
+
+        # Create data quality monitoring
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS PUBLIC.DATA_QUALITY_METRICS (
+                table_name VARCHAR,
+                metric_name VARCHAR,
+                metric_value FLOAT,
+                threshold_value FLOAT,
+                is_passing BOOLEAN,
+                checked_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+                PRIMARY KEY (table_name, metric_name, checked_at)
+            )
+        """
+        )
+
+        # Create scheduled tasks
+        cursor.execute(
+            """
+            CREATE OR REPLACE TASK REFRESH_EXECUTIVE_VIEWS
+            WAREHOUSE = SOPHIA_AI_COMPUTE_WH
+            SCHEDULE = 'USING CRON 0 */1 * * * UTC'
+            AS
+            BEGIN
+                -- Refresh materialized views
+                ALTER VIEW EXECUTIVE_DASHBOARD.REVENUE_PIPELINE REFRESH;
+                ALTER VIEW EXECUTIVE_DASHBOARD.CALL_INSIGHTS REFRESH;
+                ALTER VIEW EXECUTIVE_DASHBOARD.TEAM_ACTIVITY REFRESH;
+            END;
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE OR REPLACE TASK MONITOR_DATA_QUALITY
+            WAREHOUSE = SOPHIA_AI_COMPUTE_WH
+            SCHEDULE = 'USING CRON 0 */6 * * * UTC'
+            AS
+            BEGIN
+                -- Monitor data quality
+                INSERT INTO PUBLIC.DATA_QUALITY_METRICS
+                SELECT
+                    'BUSINESS_INTELLIGENCE.GONG_CALLS',
+                    'row_count',
+                    COUNT(*),
+                    1000,
+                    COUNT(*) >= 1000,
+                    CURRENT_TIMESTAMP()
+                FROM BUSINESS_INTELLIGENCE.GONG_CALLS;
+            END;
+        """
+        )
+
+        # Enable tasks
+        cursor.execute("ALTER TASK REFRESH_EXECUTIVE_VIEWS RESUME")
+        cursor.execute("ALTER TASK MONITOR_DATA_QUALITY RESUME")
+
+        # Generate summary
+        cursor.execute(
+            """
+            SELECT
+                TABLE_SCHEMA,
+                COUNT(*) as table_count
+            FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_CATALOG = 'SOPHIA_AI_PROD'
+            AND TABLE_TYPE = 'BASE TABLE'
+            GROUP BY 1
+            ORDER BY 1
+        """
+        )
+
+        for _row in cursor.fetchall():
+            pass
+
+        conn.close()
+
+    except Exception:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    update_snowflake_schemas()

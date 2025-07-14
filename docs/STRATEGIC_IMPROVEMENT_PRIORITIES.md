@@ -100,11 +100,11 @@ Phase 1: Infrastructure Apps
 ## 🚀 **MEDIUM TERM PRIORITIES (Month 2)**
 
 ### **Priority 5: AI Intelligence Enhancements**
-**Current State:** Snowflake Cortex working, need optimization
+**Current State:** Lambda GPU working, need optimization
 **Solution:** Implement advanced AI capabilities from improvement plan
 
 #### **Focus Areas:**
-1. **Snowflake Cortex Optimization**
+1. **Lambda GPU Optimization**
    - Query performance optimization
    - Materialized views for common operations
    - External caching layer (Redis)

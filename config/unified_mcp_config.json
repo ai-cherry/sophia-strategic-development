@@ -140,10 +140,10 @@
       ],
       "health_endpoint": "/health"
     },
-    "snowflake_admin": {
+    "modern_stack_admin": {
       "command": "python3",
       "args": [
-        "backend/mcp_servers/snowflake_admin_mcp_server.py"
+        "backend/mcp_servers/modern_stack_admin_mcp_server.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
@@ -363,10 +363,10 @@
         "log_level": "INFO"
       }
     },
-    "snowflake_cortex": {
+    "modern_stack_cortex": {
       "command": "python3",
       "args": [
-        "mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py"
+        "mcp-servers/modern_stack_cortex/production_modern_stack_cortex_mcp_server.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
@@ -462,8 +462,8 @@
       "lambda_labs_cli",
       "figma",
       "openrouter_search",
-      "snowflake_admin",
-      "snowflake_cortex"
+      "modern_stack_admin",
+      "modern_stack_cortex"
     ],
     "health_check_timeout": 30,
     "retry_attempts": 3,
@@ -497,9 +497,9 @@
   },
   "migration": {
     "status": "completed",
-    "from": "snowflake_unified",
+    "from": "modern_stack_unified",
     "to": "gpu_accelerated_stack",
-    "deprecated_servers": ["snowflake_unified"],
-    "legacy_support": ["snowflake_admin", "snowflake_cortex"]
+    "deprecated_servers": ["modern_stack_unified"],
+    "legacy_support": ["modern_stack_admin", "modern_stack_cortex"]
   }
 }

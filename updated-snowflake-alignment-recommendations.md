@@ -1,4 +1,4 @@
-# Updated Snowflake Alignment Recommendations
+# Updated Modern Stack Alignment Recommendations
 ## Estuary Flow Integration & Implementation Status
 
 **Date:** January 7, 2025
@@ -19,11 +19,11 @@
 #### 2. **DATA PIPELINE MODERNIZATION** ✅
 - **Estuary Flow Orchestrator:** Complete replacement of estuary with Estuary Flow
 - **PostgreSQL Staging Manager:** New staging layer with comprehensive schema management
-- **ELT Architecture:** Implemented Estuary Flow → PostgreSQL → Redis → Snowflake pipeline
+- **ELT Architecture:** Implemented Estuary Flow → PostgreSQL → Redis → Modern Stack pipeline
 - **Real-time CDC:** Change Data Capture for continuous data synchronization
 
 #### 3. **MCP SERVER PRODUCTION UPGRADE** ✅
-- **Production Snowflake Cortex MCP:** Real Snowflake Cortex AI integration
+- **Production Lambda GPU MCP:** Real Lambda GPU AI integration
 - **Connection Pool Manager:** High-performance connection pooling with health monitoring
 - **Comprehensive Functions:** COMPLETE, SENTIMENT, TRANSLATE, EXTRACT_ANSWER, SUMMARIZE, EMBED_TEXT
 - **Vector Operations:** Full vector similarity and embedding support
@@ -34,12 +34,12 @@
 
 ### **Previous Architecture (estuary-based)**
 ```
-HubSpot/Gong/Slack → estuary → PostgreSQL → Snowflake
+HubSpot/Gong/Slack → estuary → PostgreSQL → Modern Stack
 ```
 
 ### **New Architecture (Estuary Flow-based)** ✅
 ```
-HubSpot/Gong/Slack → Estuary Flow → PostgreSQL Staging → Redis Cache → Snowflake
+HubSpot/Gong/Slack → Estuary Flow → PostgreSQL Staging → Redis Cache → Modern Stack
                                         ↓
                                    Data Transformations
                                         ↓
@@ -84,7 +84,7 @@ slack_bot_token = get_config_value("slack_bot_token")
 
 **Schema Architecture:**
 - **Raw Schemas:** `hubspot_raw`, `gong_raw`, `slack_raw`
-- **Processed Schema:** `processed_data` for Snowflake ingestion
+- **Processed Schema:** `processed_data` for Modern Stack ingestion
 - **Unified Models:** `unified_contacts`, `interaction_timeline`
 - **Automated Indexing:** Performance-optimized indexes for all tables
 
@@ -111,7 +111,7 @@ SELECT
 FROM hubspot_raw.contacts
 ```
 
-### **3. Production Snowflake Cortex MCP**
+### **3. Production Lambda GPU MCP**
 **File:** `mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py`
 
 **Real Cortex Functions Implemented:**
@@ -173,7 +173,7 @@ FROM hubspot_raw.contacts
 
 2. **Testing & Validation:**
    - Run end-to-end pipeline tests
-   - Validate Snowflake Cortex functions
+   - Validate Lambda GPU functions
    - Performance benchmark new architecture
 
 3. **Monitoring Setup:**
@@ -193,13 +193,13 @@ FROM hubspot_raw.contacts
    - Create data lineage tracking
 
 3. **Security Enhancements:**
-   - Implement row-level security in Snowflake
+   - Implement row-level security in Modern Stack
    - Add data encryption at rest
    - Enhance audit logging
 
 ### **Long-term Optimization (1 Month)**
 1. **Machine Learning Integration:**
-   - Deploy ML models using Snowflake Cortex
+   - Deploy ML models using Lambda GPU
    - Implement automated feature engineering
    - Add model performance monitoring
 
@@ -214,7 +214,7 @@ FROM hubspot_raw.contacts
 
 ### **Cost Optimization**
 - **Estuary Flow:** Pay-per-use vs. fixed estuary infrastructure (-60% ETL costs)
-- **Connection Pooling:** Reduced Snowflake compute usage (-40% warehouse costs)
+- **Connection Pooling:** Reduced Modern Stack compute usage (-40% warehouse costs)
 - **Real-time Processing:** Eliminated batch processing delays (+95% data freshness)
 
 ### **Performance Gains**
@@ -268,7 +268,7 @@ CREATE INDEX CONCURRENTLY idx_calls_sentiment ON gong_raw.call_transcripts(senti
 CREATE INDEX CONCURRENTLY idx_messages_channel ON slack_raw.messages(channel);
 ```
 
-### **Snowflake Cortex Integration**
+### **Lambda GPU Integration**
 ```python
 # Real Cortex function calls
 async def cortex_complete(prompt: str, model: str = "mistral-7b"):

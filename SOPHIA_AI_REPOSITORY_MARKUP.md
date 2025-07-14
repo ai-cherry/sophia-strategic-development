@@ -238,7 +238,7 @@ Core backend application with FastAPI, containing:
 - **GitHub Server** - Repository management
 - **Linear Server** - Project tracking
 - **Slack Server** - Team communication
-- **Snowflake Server** - Data warehouse access
+- **Modern Stack Server** - Data warehouse access
 
 ### `/infrastructure`
 Complete infrastructure as code:
@@ -261,7 +261,7 @@ Strategic external repositories:
 - **Microsoft Playwright** (13.4k stars) - Browser automation
 - **GLips Figma Context** (8.7k stars) - Design integration
 - **Anthropic MCP SDK** - Official MCP implementation
-- **Snowflake Cortex** - AI/ML integrations
+- **Lambda GPU** - AI/ML integrations
 
 ## 🛠️ Technology Stack
 
@@ -291,12 +291,12 @@ Strategic external repositories:
 - **PostgreSQL** - Primary database with pgvector
 - **Weaviate** - Vector database
 - **Redis** - Caching layer
-- **Snowflake** - Data warehouse (legacy)
+- **Modern Stack** - Data warehouse (legacy)
 
 ### AI/ML
 - **OpenAI GPT-4** - Language model
 - **Claude 3.5** - Language model
-- **Snowflake Cortex** - Embeddings (migrating away)
+- **Lambda GPU** - Embeddings (migrating away)
 - **Lambda GPU** - Model inference
 - **Portkey** - LLM gateway
 
@@ -358,7 +358,7 @@ Strategic external repositories:
 ## 📊 Active Development Areas
 
 1. **Memory Architecture Migration**
-   - Moving from Snowflake to Weaviate
+   - Moving from Modern Stack to Weaviate
    - GPU-accelerated embeddings
    - 3-tier caching strategy
 

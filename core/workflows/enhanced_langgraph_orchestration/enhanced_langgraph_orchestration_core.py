@@ -3,6 +3,7 @@ EnhancedLangGraphOrchestration Core
 Main service implementation
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 import asyncio
 import json
@@ -236,7 +237,7 @@ class EnhancedLangGraphOrchestrator:
         self.checkpointer: SqliteSaver | None = None
         self.audit_logger = AuditLogger()
         self.cache_manager = EnhancedCacheManager()
-        self.cortex_service: SnowflakeCortexService | None = None
+        self.cortex_service: ModernStackCortexService | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
 
         # Workflow registry
@@ -409,7 +410,7 @@ class EnhancedLangGraphOrchestrator:
                 Return as JSON with clear structure.
                 """
 
-                analysis_result = await cortex.complete_text_with_cortex(
+                analysis_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=analysis_prompt, max_tokens=500
                 )
 
@@ -591,7 +592,7 @@ class EnhancedLangGraphOrchestrator:
                 """
 
                 checkpoint_config.natural_language_prompt = (
-                    await cortex.complete_text_with_cortex(
+                    await # REMOVED: ModernStack dependency_text_with_cortex(
                         prompt=prompt_generation, max_tokens=300
                     )
                 )
@@ -790,7 +791,7 @@ class EnhancedLangGraphOrchestrator:
 
         # Process user input using Cortex
         async with self.cortex_service as cortex:
-            input_analysis = await cortex.complete_text_with_cortex(
+            input_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
                 prompt=f"""
                 Analyze this user input in the context of the current workflow:
 

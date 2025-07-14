@@ -1,16 +1,17 @@
-"""Snowflake Cortex service with async context management."""
+"""Lambda GPU service with async context management."""
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 from collections.abc import Sequence
 from typing import Any
 
-from infrastructure.adapters.snowflake_adapter import SnowflakeConfigManager
+# REMOVED: ModernStack dependencyManager
 
 logger = logging.getLogger(__name__)
 
 
-class SnowflakeCortexService:
-    """Service for Snowflake Cortex AI operations.
+class ModernStackCortexService:
+    """Service for Lambda GPU AI operations.
 
     This service provides:
     - Text completion with Cortex LLMs
@@ -22,7 +23,7 @@ class SnowflakeCortexService:
     and error handling.
 
     Attributes:
-        config_manager: Snowflake configuration manager
+# REMOVED: ModernStack dependencyuration manager
         default_model: Default Cortex model
     """
 
@@ -35,12 +36,12 @@ class SnowflakeCortexService:
 
         Args:
             default_model: Default model for completions
-            warehouse: Snowflake warehouse to use
+            warehouse: ModernStack warehouse to use
         """
-        self.config_manager = SnowflakeConfigManager(warehouse=warehouse)
+# REMOVED: ModernStack dependencyManager(warehouse=warehouse)
         self.default_model = default_model
 
-    async def __aenter__(self) -> "SnowflakeCortexService":
+    async def __aenter__(self) -> "ModernStackCortexService":
         """Async context manager entry.
 
         Returns:
@@ -89,7 +90,7 @@ class SnowflakeCortexService:
         try:
             result = await self.config_manager.execute_query(
                 f"""
-                SELECT SNOWFLAKE.CORTEX.COMPLETE(
+                SELECT self.modern_stack.await self.lambda_gpu.complete(
                     '{model_name}',
                     :prompt,
                     {{
@@ -144,7 +145,7 @@ class SnowflakeCortexService:
 
             result = await self.config_manager.execute_query(
                 f"""
-                SELECT SNOWFLAKE.CORTEX.EMBED_TEXT(
+                SELECT await self.lambda_gpu.EMBED_TEXT(
                     '{model}',
                     :text
                 ) as embedding
@@ -180,7 +181,7 @@ class SnowflakeCortexService:
 
         result = await self.config_manager.execute_query(
             """
-            SELECT SNOWFLAKE.CORTEX.SENTIMENT(:text) as sentiment
+            SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(:text) as sentiment
             """,
             {"text": text},
         )

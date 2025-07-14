@@ -16,7 +16,7 @@ You are tasked with conducting deep research to find the **latest, most cutting-
 - **Sophia AI**: Enterprise AI orchestrator with 25+ MCP (Model Context Protocol) servers
 - **Backend**: FastAPI with Clean Architecture, Python 3.12
 - **Infrastructure**: Lambda Labs GPU instances, Kubernetes orchestration
-- **Data Stack**: PostgreSQL, Redis, Snowflake, Pinecone, Weaviate
+- **Data Stack**: PostgreSQL, Redis, Modern Stack, Pinecone, Weaviate
 - **Current Integrations**: GitHub Actions, existing N8N bridge, multiple Docker configurations
 
 ### Migration Goals
@@ -117,7 +117,7 @@ You are tasked with conducting deep research to find the **latest, most cutting-
 ### 5. Estuary Flow Real-Time Data Streaming
 
 **Research Focus:**
-- **CDC Patterns**: Change data capture from PostgreSQL, Snowflake integration
+- **CDC Patterns**: Change data capture from PostgreSQL, Modern Stack integration
 - **Real-Time Processing**: Stream processing, event sourcing, CQRS patterns
 - **AI Integration**: Real-time feature engineering, vector database updates
 - **Scaling**: Multi-tenant patterns, performance optimization, cost management

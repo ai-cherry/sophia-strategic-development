@@ -21,10 +21,10 @@
       ],
       "health_endpoint": "/health"
     },
-    "snowflake_unified": {
+    "modern_stack_unified": {
       "command": "python",
       "args": [
-        "mcp-servers/snowflake_unified/unified_snowflake_server.py"
+        "mcp-servers/modern_stack_unified/unified_modern_stack_server.py"
       ],
       "env": {
         "PORT": "9200",
@@ -137,7 +137,7 @@
         "agent_types": ["infrastructure_agent"]
       },
       "tier_2_enhanced_api": {
-        "services": ["snowflake", "lambda_labs", "estuary_flow"],
+        "services": ["modern_stack", "lambda_labs", "estuary_flow"],
         "risk_level": "high",
         "agent_types": ["data_agent", "infrastructure_agent"]
       },
@@ -149,13 +149,13 @@
     },
     "audit_trail": {
       "enabled": true,
-      "storage": "snowflake",
+      "storage": "modern_stack",
       "retention_days": 365,
       "compliance": ["SOX", "GDPR", "enterprise_audit"]
     },
     "confirmation_workflows": {
       "critical_operations": ["pulumi:destroy", "lambda_labs:terminate_instance"],
-      "high_risk_operations": ["snowflake:drop_table", "docker:push"],
+      "high_risk_operations": ["modern_stack:drop_table", "docker:push"],
       "confirmation_timeout_seconds": 300
     }
   },

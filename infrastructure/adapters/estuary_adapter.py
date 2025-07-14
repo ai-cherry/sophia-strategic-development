@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from backend.core.auto_esc_config import get_config_value
 Sophia AI - Estuary Platform Adapter
 Optimal mix of API, CLI, and webhook integration for data pipeline management
@@ -185,7 +186,7 @@ class EstuaryAdapter(PlatformAdapter):
             }
 
             # Dependencies - Estuary depends on data sources and destinations
-            dependencies = ["snowflake", "gong", "slack", "hubspot"]
+            dependencies = ["modern_stack", "gong", "slack", "hubspot"]
 
             return PlatformStatus(
                 name=self.name,
@@ -526,25 +527,25 @@ class EstuaryAdapter(PlatformAdapter):
 
         return await self.configure({"create_source": slack_config})
 
-    async def execute_create_snowflake_destination(
+    async def execute_create_modern_stack_destination(
         self, parameters: dict[str, Any]
     ) -> dict[str, Any]:
-        """Create Snowflake destination with intelligent configuration."""
-        snowflake_config = {
-            "name": "Sophia AI Snowflake",
-            "destination_type": "snowflake",
+# REMOVED: ModernStack dependencyuration."""
+        # REMOVED: ModernStack dependency {
+            "name": "Sophia AI ModernStack",
+            "destination_type": "modern_stack",
             "configuration": {
-                "host": f"{os.getenv('SNOWFLAKE_ACCOUNT')}.snowflakecomputing.com",
+                "host": f"{os.getenv('SNOWFLAKE_ACCOUNT')}.modern_stackcomputing.com",
                 "role": "ACCOUNTADMIN",
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",
                 "schema": "PUBLIC",
-                "username": get_config_value("snowflake_user"),
+                "username": get_config_value("modern_stack_user"),
                 "password": os.getenv("SOPHIA_AI_TOKEN"),
             },
         }
 
-        return await self.configure({"create_destination": snowflake_config})
+# REMOVED: ModernStack dependency})
 
 
 # CLI interface for testing

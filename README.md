@@ -112,7 +112,7 @@ cd frontend && npm run dev
 - **HubSpot**: CRM data and customer intelligence
 - **Slack**: Team communication and notifications
 - **Linear**: Project management and tracking
-- **Snowflake**: Data warehouse and analytics
+- **Modern Stack**: Data warehouse and analytics
 
 ### 🏗️ Architecture
 - **MCP-Driven**: Model Context Protocol for all integrations
@@ -123,7 +123,7 @@ cd frontend && npm run dev
 
 ### 🤖 **Revolutionary AI Agent Capabilities**
 - **Infrastructure Agent**: Deploy via Pulumi, manage Docker containers, control Vercel deployments
-- **Data Agent**: Execute Snowflake queries, manage database schemas, control Estuary Flow pipelines
+- **Data Agent**: Execute Modern Stack queries, manage database schemas, control Estuary Flow pipelines
 - **Integration Agent**: Create Linear tickets, send Slack messages, update HubSpot records
 - **🛡️ Enterprise Security**: Zero Trust authentication, risk-based confirmations, complete audit trails
 
@@ -205,13 +205,13 @@ await auth_manager.execute_operation(
 ```bash
 # Infrastructure operations
 "Deploy the updated infrastructure to production"
-"Scale up the Snowflake warehouse for analytics"
+"Scale up the compute cluster for analytics"
 "Create a new Docker service for the MCP gateway"
 
 # Data operations
 "Create a new schema for AI agent testing"
 "Run the quarterly revenue analysis query"
-"Set up a data flow from HubSpot to Snowflake"
+"Set up a data flow from HubSpot to Modern Stack"
 
 # Business tool integration
 "Create a Linear ticket for the authentication bug"

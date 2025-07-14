@@ -20,7 +20,7 @@ Intent Classification → Context Loading → Agent Routing → Model Selection 
 #### **1. Task Complexity Classification**
 ```python
 def classify_task_complexity(user_input: str) -> str:
-    """Snowflake Cortex classification of task complexity"""
+    """Lambda GPU classification of task complexity"""
 
     COMPLEXITY_INDICATORS = {
         "simple": [
@@ -281,7 +281,7 @@ MCP_INTEGRATION_PATTERNS = {
 EXTERNAL_SERVICE_PATTERNS = {
     "snowflake_cortex": {
         "primary_use": "Data analysis and SQL generation",
-        "fallback": "External LLM with Snowflake context",
+        "fallback": "External LLM with Modern Stack context",
         "optimization": "Cache query results and embeddings"
     },
 

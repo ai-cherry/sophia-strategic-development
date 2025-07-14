@@ -140,7 +140,7 @@ Control Plane (RTX6000) - 104.171.202.103
 
 AI Core (GH200) - 192.222.58.232
 ├── AI Memory MCP
-├── Snowflake Cortex
+├── Lambda GPU
 ├── LLM Processing
 └── Vector Databases
 
@@ -151,7 +151,7 @@ MCP Hub (A6000) - 104.171.202.117
 └── All Integration MCPs
 
 Data Pipeline (A100) - 104.171.202.134
-├── Snowflake Processing
+├── Modern Stack Processing
 ├── Data Analytics
 └── Prometheus/Grafana
 

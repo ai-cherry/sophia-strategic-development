@@ -22,8 +22,8 @@ values:
   # Database Credentials (SECRETS)
   # =============================================================================
 
-  snowflake_password: os.getenv("SNOWFLAKE_PASSWORD")
-  # Snowflake database password/PAT
+  postgres_password: os.getenv("SNOWFLAKE_PASSWORD")
+  # ModernStack database password/PAT
 
   redis_password: "PLACEHOLDER_REDIS_PASSWORD"
   # Redis password for caching
@@ -77,13 +77,13 @@ values:
   # Non-Secret Configuration (Safe to store in plain text)
   # =============================================================================
 
-  # Snowflake Connection Details
-  snowflake_account: "ZNB04675.us-east-1"
-  snowflake_user: "SCOOBYJAVA15"
-  snowflake_role: "ACCOUNTADMIN"
-  snowflake_warehouse: "SOPHIA_AI_WH"
-  snowflake_database: "SOPHIA_AI"
-  snowflake_schema: "PROCESSED_AI"
+  # ModernStack Connection Details
+  postgres_host: "ZNB04675.us-east-1"
+  modern_stack_user: "SCOOBYJAVA15"
+  modern_stack_role: "ACCOUNTADMIN"
+  postgres_database: "SOPHIA_AI_WH"
+  postgres_database: "SOPHIA_AI"
+  postgres_schema: "PROCESSED_AI"
 
   # Redis Configuration
   redis_host: "localhost"
@@ -118,7 +118,7 @@ values:
     PINECONE_API_KEY: ${pinecone_api_key}
 
     # Database Credentials
-    SNOWFLAKE_PASSWORD: ${snowflake_password}
+    SNOWFLAKE_PASSWORD: ${postgres_password}
     REDIS_PASSWORD: ${redis_password}
 
     # Business Integration API Keys
@@ -139,12 +139,12 @@ values:
     PULUMI_ACCESS_TOKEN: ${pulumi_access_token}
 
     # Non-Secret Configuration
-    SNOWFLAKE_ACCOUNT: ${snowflake_account}
-    SNOWFLAKE_USER: ${snowflake_user}
-    SNOWFLAKE_ROLE: ${snowflake_role}
-    SNOWFLAKE_WAREHOUSE: ${snowflake_warehouse}
-    SNOWFLAKE_DATABASE: ${snowflake_database}
-    SNOWFLAKE_SCHEMA: ${snowflake_schema}
+    SNOWFLAKE_ACCOUNT: ${postgres_host}
+    SNOWFLAKE_USER: ${modern_stack_user}
+    SNOWFLAKE_ROLE: ${modern_stack_role}
+    SNOWFLAKE_WAREHOUSE: ${postgres_database}
+    SNOWFLAKE_DATABASE: ${postgres_database}
+    SNOWFLAKE_SCHEMA: ${postgres_schema}
     REDIS_HOST: ${redis_host}
     REDIS_PORT: ${redis_port}
     REDIS_DB: ${redis_db}

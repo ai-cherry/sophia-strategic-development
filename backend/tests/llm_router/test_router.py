@@ -94,7 +94,7 @@ class TestLLMRouter:
     @pytest.mark.asyncio
     async def test_task_routing(self, router):
         """Test different tasks route to appropriate providers"""
-        # SQL task should route to Snowflake
+        # SQL task should route to ModernStack
         with patch.object(router._cortex, "complete") as mock_cortex:
             mock_cortex.return_value = self._async_generator(["SQL result"])
 

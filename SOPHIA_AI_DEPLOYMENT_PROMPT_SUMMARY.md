@@ -1,7 +1,7 @@
 # Sophia AI Deployment - Comprehensive Technical Summary & Troubleshooting Prompt
 
 ## Project Overview
-I'm deploying Sophia AI, an executive intelligence assistant platform with multi-agent orchestration capabilities. The system consists of a React/TypeScript frontend, Python FastAPI backend, multiple MCP (Model Context Protocol) servers, and integrations with Snowflake, various business tools, and AI services.
+I'm deploying Sophia AI, an executive intelligence assistant platform with multi-agent orchestration capabilities. The system consists of a React/TypeScript frontend, Python FastAPI backend, multiple MCP (Model Context Protocol) servers, and integrations with Modern Stack, various business tools, and AI services.
 
 ## Deployment Goals
 1. **MCP Servers**: Deploy all MCP servers on Lambda Labs server at IP 104.171.202.117 (sophia-mcp-orchestrator)
@@ -25,7 +25,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
    - Instance API: `secret_sophia5apikey_a404a99d985d41828d7020f0b9a122a2.PjbWZb0lLubKu1nmyWYLy9Ycl3vyL18o`
    - Endpoint: https://cloud.lambda.ai/api/v1/instances
 
-2. **Snowflake Credentials**:
+2. **Modern Stack Credentials**:
    - Account: UHDECNO-CVB64222
    - User: SCOOBYJAVA15
    - Database: SOPHIA_AI_PRODUCTION
@@ -53,7 +53,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 - **Port**: 8001
 - **Features**: 
   - Unified chat orchestration
-  - Snowflake integration
+  - Modern Stack integration
   - Multi-agent coordination
   - WebSocket support
   - Health endpoints
@@ -70,9 +70,9 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 - **Architecture**: StandardizedMCPServer base class pattern
 
 ### Database & Storage
-- **Primary**: Snowflake (L3/L4/L5 in unified memory architecture)
+- **Primary**: Modern Stack (L3/L4/L5 in unified memory architecture)
 - **Cache**: Redis (L1 layer)
-- **Vector Search**: Snowflake Cortex AI (replacing Pinecone/Weaviate)
+- **Vector Search**: Lambda GPU AI (replacing Pinecone/Weaviate)
 - **Memory Service**: UnifiedMemoryService handling all memory operations
 
 ### Infrastructure & Deployment
@@ -106,14 +106,14 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 - **Problem**: Complex environment variable setup across local, Vercel, and Lambda Labs
 - **Specific Issues**:
   - VITE_API_URL not persisting in Vercel deployments
-  - Snowflake credentials not loading correctly ("User is empty" errors)
+  - Modern Stack credentials not loading correctly ("User is empty" errors)
   - Different variable prefixes (REACT_APP_ vs VITE_) causing confusion
 
 ### 4. MCP Server Deployment
 - **Problem**: MCP servers not successfully deployed to Lambda Labs
 - **Issues**:
   - Missing build dependencies (g++ compiler)
-  - snowflake-connector-python build failures
+  - asyncpg build failures
   - Port conflicts and networking issues
   - File path mismatches
 
@@ -129,7 +129,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 ### Successful Elements:
 - Frontend deploys to Vercel successfully
 - Backend runs locally on port 8001
-- Snowflake connection works when environment is configured correctly
+- Modern Stack connection works when environment is configured correctly
 - SSH access to all Lambda Labs servers confirmed
 - ngrok tunnel successfully exposes local backend
 
@@ -144,7 +144,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 1. **MCP Servers**: All 7 MCP servers running on 104.171.202.117 in K3s pods
 2. **Backend API**: Running on Lambda Labs with public endpoint
 3. **Frontend**: Deployed on Vercel with sophia-intel.ai domain pointing to it
-4. **Data Flow**: Frontend → Backend API → MCP Servers → Snowflake/Redis
+4. **Data Flow**: Frontend → Backend API → MCP Servers → Modern Stack/Redis
 5. **Monitoring**: Full observability with Prometheus/Grafana
 6. **Automation**: GitHub Actions deploying on push to main
 
@@ -154,7 +154,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 2. How can we ensure VITE_API_URL persists in Vercel deployments?
 3. What's the best way to expose backend API (nginx, Traefik, ngrok permanent)?
 4. Should MCP servers be containerized individually or as a monolithic service?
-5. How to handle Snowflake authentication in production (PAT token vs password)?
+5. How to handle Modern Stack authentication in production (PAT token vs password)?
 6. Best practice for managing secrets across Vercel, Lambda Labs, and GitHub Actions?
 
 ## Deployment Script Requirements
