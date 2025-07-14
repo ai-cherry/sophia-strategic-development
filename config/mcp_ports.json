@@ -1,0 +1,20 @@
+{
+  "servers": {
+    "ai_memory": 9000,
+    "ui_ux_agent": 9002,
+    "github": 9007,
+    "gong": 9101,
+    "hubspot_unified": 9103,
+    "slack": 9104,
+    "lambda_labs_cli": 9020,
+    "asana": 9015,
+    "codacy": 3008,
+    "figma": 9001,
+    "linear": 9006,
+    "notion": 9008,
+    "openrouter_search": 9014,
+    "unified_project": 9005
+  },
+  "description": "Active MCP servers for local deployment",
+  "last_updated": "2025-07-13T23:12:00Z"
+}
