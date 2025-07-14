@@ -11,9 +11,16 @@ import sys
 from datetime import datetime
 
 # Configuration
-SERVER_IP = "192.222.58.232"
+# Using sophia-production-instance (us-south-1)
+SERVER_IP = "104.171.202.103"
 SSH_KEY = os.path.expanduser("~/.ssh/sophia2025.pem")
 DOMAIN = "sophia-intel.ai"
+
+# Alternative servers:
+# sophia-ai-core: 192.222.58.232 (gpu_1x_gh200, us-east-3)
+# sophia-mcp-orchestrator: 104.171.202.117 (gpu_1x_a6000, us-south-1)
+# sophia-data-pipeline: 104.171.202.134 (gpu_1x_a100, us-south-1)
+# sophia-development: 155.248.194.183 (gpu_1x_a10, us-west-1)
 
 # Colors for output
 RED = '\033[0;31m'

@@ -1,6 +1,6 @@
 # SOPHIA AI REAL DEPLOYMENT STATUS
 **Date:** December 2024  
-**Server IP:** 192.222.58.232 (Lambda Labs)  
+**Server IP:** 104.171.202.103 (sophia-production-instance)  
 **Domain:** sophia-intel.ai
 
 ## 🔴 CURRENT REALITY
