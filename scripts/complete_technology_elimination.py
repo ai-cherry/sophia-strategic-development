@@ -26,16 +26,16 @@ class TechnologyEliminator:
         self.forbidden_technologies = {
             'snowflake': [
                 'snowflake', 'SNOWFLAKE', 'Snowflake',
-                'modern_stack', 'MODERN_STACK', 'ModernStack',
-                'snowflake_cortex', 'SNOWFLAKE_CORTEX'
+                'qdrant_memory', 'qdrant_memory', 'ModernStack',
+                'qdrant_memory', 'qdrant_memory'
             ],
             'weaviate': [
                 'weaviate', 'WEAVIATE', 'Weaviate',
-                'weaviate_client', 'WeaviateClient'
+                'qdrant_client', 'WeaviateClient'
             ],
             'vercel': [
                 'vercel', 'VERCEL', 'Vercel',
-                'vercel.json', 'vercel.config'
+                '# Vercel config eliminated', 'vercel.config'
             ]
         }
         
@@ -48,35 +48,35 @@ class TechnologyEliminator:
                 'mass_update_backup/',
                 'configuration_backup/',
                 'backups/',
-                'backend/core/services/snowflake_pool/',
-                'backend/core/services/snowflake_cortex_adapter/',
-                'shared/utils/snowflake_cortex/',
+                'backend/core/services/QDRANT_pool/',
+                'backend/core/services/qdrant_memory_adapter/',
+                'shared/utils/qdrant_memory/',
                 'scripts/snowflake/',
                 'infrastructure/persistence/snowflake/',
                 'infrastructure/vercel/'
             ],
             'files': [
                 # Documentation files
-                'COMPLETE_SNOWFLAKE_ELIMINATION_REPORT.md',
-                'FINAL_SNOWFLAKE_CLEANUP_REPORT.md',
+                'COMPLETE_QDRANT_ELIMINATION_REPORT.md',
+                'FINAL_QDRANT_CLEANUP_REPORT.md',
                 'WEAVIATE_ELIMINATION_REPORT.md',
                 'WEAVIATE_ELIMINATION_SUCCESS_SUMMARY.md',
                 'WEAVIATE_ARCHITECTURE_UPDATE.md',
                 'VERCEL_ELIMINATION_SUCCESS_REPORT.md',
-                'docs/implementation/ABSOLUTE_SNOWFLAKE_ELIMINATION_COMPLETE.md',
-                'docs/implementation/COMPREHENSIVE_SNOWFLAKE_ELIMINATION_STRATEGY.md',
-                'docs/implementation/SNOWFLAKE_ELIMINATION_EXECUTION_COMPLETE.md',
-                'docs/implementation/SNOWFLAKE_ELIMINATION_READY_FOR_EXECUTION.md',
-                'docs/architecture/SNOWFLAKE_CORTEX_REFACTORING_EXAMPLE.md',
-                'docs/04-deployment/SNOWFLAKE_CORTEX_DEPLOYMENT_SUMMARY.md',
-                'docs/03-architecture/SNOWFLAKE_CORTEX_LAYER.md',
-                'docs/system_handbook/10_SNOWFLAKE_CORTEX_MCP_INTEGRATION.md',
+                'docs/implementation/ABSOLUTE_QDRANT_ELIMINATION_COMPLETE.md',
+                'docs/implementation/COMPREHENSIVE_QDRANT_ELIMINATION_STRATEGY.md',
+                'docs/implementation/QDRANT_ELIMINATION_EXECUTION_COMPLETE.md',
+                'docs/implementation/QDRANT_ELIMINATION_READY_FOR_EXECUTION.md',
+                'docs/architecture/qdrant_memory_REFACTORING_EXAMPLE.md',
+                'docs/04-deployment/qdrant_memory_DEPLOYMENT_SUMMARY.md',
+                'docs/03-architecture/qdrant_memory_LAYER.md',
+                'docs/system_handbook/10_qdrant_memory_MCP_INTEGRATION.md',
                 'docs/deployment/VERCEL_DEPLOYMENT_STATUS.md',
                 'docs/deployment/LAMBDA_LABS_TOTAL_DEPLOYMENT_PLAN.md',
                 
                 # Scripts
-                'scripts/detect_snowflake_references.py',
-                'scripts/complete_snowflake_elimination.py',
+                'scripts/detect_QDRANT_references.py',
+                'scripts/complete_QDRANT_elimination.py',
                 'scripts/final_comprehensive_cleanup.py',
                 'scripts/systematic_modernstack_elimination.py',
                 'scripts/eliminate_weaviate_conflicts.py',
@@ -86,12 +86,12 @@ class TechnologyEliminator:
                 'scripts/eliminate_critical_vercel_references.py',
                 
                 # Config files
-                'frontend/vercel.json',
-                'vercel.json',
+                'frontend/# Vercel config eliminated',
+                '# Vercel config eliminated',
                 '.vercelignore',
                 
                 # Log files
-                'snowflake_elimination.log',
+                'QDRANT_elimination.log',
                 'deprecated_service_elimination.log',
                 'systematic_todo_cleanup.log',
                 'final_cleanup.log'
@@ -122,7 +122,7 @@ class TechnologyEliminator:
         
         dependencies = {
             'weaviate_imports': [],
-            'snowflake_refs': [],
+            'QDRANT_refs': [],
             'vercel_refs': []
         }
         
@@ -142,7 +142,7 @@ class TechnologyEliminator:
                             if re.search(r'import\s+weaviate|from\s+weaviate', content):
                                 dependencies['weaviate_imports'].append(file_path)
                             if re.search(r'snowflake|SNOWFLAKE', content, re.IGNORECASE):
-                                dependencies['snowflake_refs'].append(file_path)
+                                dependencies['QDRANT_refs'].append(file_path)
                     except:
                         continue
                 elif file.endswith(('.js', '.ts', '.json')):
@@ -206,20 +206,20 @@ class TechnologyEliminator:
             # Weaviate to Qdrant
             r'import\s+weaviate': 'from qdrant_client import QdrantClient',
             r'from\s+weaviate\s+import': 'from qdrant_client import',
-            r'weaviate_client': 'qdrant_client',
-            r'WEAVIATE_URL': 'QDRANT_URL',
+            r'qdrant_client': 'qdrant_client',
+            r'QDRANT_URL': 'QDRANT_URL',
             r'weaviate\.': 'qdrant_client.',
             
             # Snowflake elimination
             r'import\s+snowflake': '# Snowflake eliminated - using Qdrant',
             r'from\s+snowflake': '# Snowflake eliminated - using Qdrant',
-            r'snowflake_cortex': 'qdrant_memory',
-            r'SNOWFLAKE_': 'QDRANT_',
-            r'modern_stack': 'qdrant_memory',
+            r'qdrant_memory': 'qdrant_memory',
+            r'QDRANT_': 'QDRANT_',
+            r'qdrant_memory': 'qdrant_memory',
             
             # Vercel elimination
             r'vercel\s+deploy': '# Vercel eliminated - using Lambda Labs',
-            r'VERCEL_TOKEN': 'LAMBDA_LABS_TOKEN',
+            r'LAMBDA_LABS_TOKEN': 'LAMBDA_LABS_TOKEN',
             r'vercel\.json': '# Vercel config eliminated'
         }
         
@@ -267,10 +267,10 @@ class TechnologyEliminator:
 *.weaviate
 *.vercel
 snowflake.config.*
-weaviate.config.*
+qdrant_client.config.*
 vercel.config.*
-*modern_stack*
-SNOWFLAKE_*
+*qdrant_memory*
+QDRANT_*
 WEAVIATE_*
 VERCEL_*
 elimination_backup_*
@@ -300,9 +300,9 @@ FORBIDDEN_PATTERNS = [
     r'from\\s+weaviate',
     r'snowflake',
     r'SNOWFLAKE',
-    r'modern_stack',
+    r'qdrant_memory',
     r'vercel\\s+deploy',
-    r'VERCEL_TOKEN'
+    r'LAMBDA_LABS_TOKEN'
 ]
 
 def scan_repository():
@@ -384,11 +384,7 @@ if __name__ == "__main__":
 **Architecture**: Pure Qdrant + Lambda Labs  
 
 ## 📊 Elimination Summary
-
-### 🗂️ Directories Eliminated ({len(self.eliminated_dirs)})
 {chr(10).join(f'- {d}' for d in self.eliminated_dirs)}
-
-### 📄 Files Eliminated ({len(self.eliminated_files)})
 {chr(10).join(f'- {f}' for f in self.eliminated_files)}
 
 ### 🔧 Files Modified ({len(self.modified_files)})

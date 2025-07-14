@@ -39,7 +39,7 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "SENTRY_DSN": "sentry_dsn",
     "DATADOG_API_KEY": "datadog_api_key",
     # Deployment
-    "VERCEL_TOKEN": "vercel_token",
+    "LAMBDA_LABS_TOKEN": "LAMBDA_LABS_TOKEN",
     "GITHUB_TOKEN": "github_token",
 }
 

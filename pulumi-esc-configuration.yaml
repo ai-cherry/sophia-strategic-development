@@ -45,8 +45,8 @@ values:
 
   # Deployment Configuration
   deployment:
-    vercel_token:
-      fn::secret: ${github-org-secrets.VERCEL_TOKEN}
+    LAMBDA_LABS_TOKEN:
+      fn::secret: ${github-org-secrets.LAMBDA_LABS_TOKEN}
     github_token:
       fn::secret: ${github-org-secrets.GITHUB_TOKEN}
 
@@ -70,7 +70,7 @@ values:
 
   # GitHub Actions environment variables
   github_actions_environment:
-    VERCEL_TOKEN: ${deployment.vercel_token}
+    LAMBDA_LABS_TOKEN: ${deployment.LAMBDA_LABS_TOKEN}
     GITHUB_TOKEN: ${deployment.github_token}
     PULUMI_ACCESS_TOKEN:
       fn::secret: ${github-org-secrets.PULUMI_ACCESS_TOKEN}

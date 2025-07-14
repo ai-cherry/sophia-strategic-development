@@ -141,7 +141,7 @@ derivations:
         # Lambda GPU endpoint
         lambda_inference_url: ${LAMBDA_INFERENCE_URL}
         # Weaviate connection
-        weaviate_url: ${WEAVIATE_URL}
+        QDRANT_URL: ${QDRANT_URL}
         # Redis for caching
         redis_host: ${REDIS_HOST}
         redis_port: ${REDIS_PORT}

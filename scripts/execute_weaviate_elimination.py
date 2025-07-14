@@ -80,18 +80,18 @@ class WeaviateEliminator:
             original_content = content
             
             # Replace Weaviate imports
-            content = re.sub(r'from weaviate.*?\n', '', content, flags=re.MULTILINE)
-            content = re.sub(r'import weaviate.*?\n', '', content, flags=re.MULTILINE)
+            content = re.sub(r'from qdrant_client.*?\n', '', content, flags=re.MULTILINE)
+            content = re.sub(r'from qdrant_client import QdrantClient.*?\n', '', content, flags=re.MULTILINE)
             
             # Replace Weaviate client references
-            content = re.sub(r'weaviate_client', 'qdrant_client', content)
+            content = re.sub(r'qdrant_client', 'qdrant_client', content)
             content = re.sub(r'self\.weaviate', 'self.qdrant_client', content)
-            content = re.sub(r'\.weaviate_client', '.qdrant_client', content)
+            content = re.sub(r'\.qdrant_client', '.qdrant_client', content)
             
             # Replace Weaviate URLs and configurations
-            content = re.sub(r'WEAVIATE_URL', 'QDRANT_URL', content)
-            content = re.sub(r'weaviate_url', 'qdrant_url', content)
-            content = re.sub(r'http://.*weaviate.*:8080', 'http://localhost:6333', content)
+            content = re.sub(r'QDRANT_URL', 'QDRANT_URL', content)
+            content = re.sub(r'QDRANT_URL', 'qdrant_url', content)
+            content = re.sub(r'http://.*qdrant_client.*:8080', 'http://localhost:6333', content)
             content = re.sub(r'weaviate:8080', 'qdrant:6333', content)
             
             # Replace Weaviate-specific method calls

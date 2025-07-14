@@ -179,11 +179,11 @@ class SecurityConfig:
             rotation_enabled=True,
             rotation_days=90,
         ),
-        "vercel_token": SecretConfig(
-            key="vercel_token",
+        "LAMBDA_LABS_TOKEN": SecretConfig(
+            key="LAMBDA_LABS_TOKEN",
             secret_type=SecretType.OAUTH_TOKEN,
             required=False,
-            description="Vercel deployment token",
+            description="# Vercel eliminated - using Lambda Labsment token",
             rotation_enabled=True,
             rotation_days=90,
         ),

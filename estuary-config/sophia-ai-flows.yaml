@@ -116,5 +116,5 @@ materializations:
         config:
           api_key: ${WEAVIATE_API_KEY}
           batch_size: 100
-          url: ${WEAVIATE_URL}
+          url: ${QDRANT_URL}
         image: ghcr.io/estuary/materialize-weaviate:dev

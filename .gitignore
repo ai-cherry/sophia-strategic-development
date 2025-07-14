@@ -285,3 +285,18 @@ archive/
 *.snowflake
 snowflake.config.*
 modern_stack.config.*
+# ELIMINATION PREVENTION - Never allow these back
+*snowflake*
+*weaviate*
+*vercel*
+*.snowflake
+*.weaviate
+*.vercel
+snowflake.config.*
+weaviate.config.*
+vercel.config.*
+*modern_stack*
+SNOWFLAKE_*
+WEAVIATE_*
+VERCEL_*
+elimination_backup_*

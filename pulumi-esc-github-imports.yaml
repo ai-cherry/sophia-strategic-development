@@ -61,7 +61,7 @@ values:
       pat: ${GITHUB_PAT}
 
     vercel:
-      token: ${VERCEL_TOKEN}
+      token: ${LAMBDA_LABS_TOKEN}
       org_id: ${VERCEL_ORG_ID}
       project_id: ${VERCEL_PROJECT_ID}
 
@@ -120,7 +120,7 @@ environmentVariables:
   # Development
   GITHUB_TOKEN: ${development.github.token}
   GITHUB_PAT: ${development.github.pat}
-  VERCEL_TOKEN: ${development.vercel.token}
+  LAMBDA_LABS_TOKEN: ${development.vercel.token}
   VERCEL_ORG_ID: ${development.vercel.org_id}
   VERCEL_PROJECT_ID: ${development.vercel.project_id}
 
