@@ -2,7 +2,7 @@
 # Enable BuildKit features for 2025 best practices
 
 # Build stage - optimized for caching
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 # Install build dependencies with cache mount
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev
 
 # Production stage - minimal runtime
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 # Install runtime dependencies and security updates
 RUN apt-get update && apt-get install -y \
