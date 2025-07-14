@@ -57,16 +57,16 @@
 **Description**: Linear API key for project management
 **Required**: 🟡 Important
 
-### `SNOWFLAKE_ACCOUNT`
-**Description**: Snowflake account identifier
+### `modern_stack_ACCOUNT`
+**Description**: Modern Stack account identifier
 **Required**: 🟡 Important
 
-### `SNOWFLAKE_USER`
-**Description**: Snowflake username
+### `modern_stack_USER`
+**Description**: Modern Stack username
 **Required**: 🟡 Important
 
-### `SNOWFLAKE_PASSWORD`
-**Description**: Snowflake password or PAT
+### `modern_stack_PASSWORD`
+**Description**: Modern Stack password or PAT
 **Required**: 🟡 Important
 
 ## How to Set GitHub Organization Secrets

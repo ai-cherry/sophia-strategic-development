@@ -23,7 +23,7 @@ spec:
             - name: PERSONA
               value: "You are an expert financial analyst."
             - name: TOOLS
-              value: "gong_tools,looker_tools,snowflake_tools"
+              value: "gong_tools,looker_tools,modern_stack_tools"
             - name: KNOWLEDGE_BASES
               value: "quarterly_reports_kb,sec_filings_kb"
           # Secrets will be mounted from a Kubernetes Secret object

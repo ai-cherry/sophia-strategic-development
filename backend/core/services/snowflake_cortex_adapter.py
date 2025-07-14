@@ -1,8 +1,9 @@
 """
-Snowflake Cortex Dual-Mode Adapter
+Lambda GPU Dual-Mode Adapter
 Supports both direct connections and MCP server communication with automatic fallback.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import time
 import uuid
@@ -13,10 +14,10 @@ from typing import Any
 import structlog
 from prometheus_client import Counter, Histogram
 
-from backend.core.services.snowflake_pool import (
-    SnowflakePoolManager,
+from backend.core.services.modern_stack_pool import (
+    ModernStackPoolManager,
 )
-from backend.integrations.snowflake_mcp_client import SnowflakeMCPClient
+from backend.integrations.modern_stack_mcp_client import ModernStackMCPClient
 
 logger = structlog.get_logger(__name__)
 
@@ -60,7 +61,7 @@ class CortexTask:
     """Cortex task configuration"""
 
     type: str  # "complete", "search", "analyst"
-    model: str = "snowflake-arctic"
+    model: str = "modern_stack-arctic"
     temperature: float = 0.7
     max_tokens: int = 2048
     additional_params: dict[str, Any] = field(default_factory=dict)
@@ -93,7 +94,7 @@ class CortexResult:
 
 class CortexAdapter:
     """
-    Dual-mode adapter for Snowflake Cortex operations.
+    Dual-mode adapter for Lambda GPU operations.
     Supports direct connections and MCP server communication with automatic fallback.
     """
 
@@ -101,13 +102,13 @@ class CortexAdapter:
         self,
         *,
         execution_mode: ExecutionMode = ExecutionMode.AUTO,
-        mcp_client: SnowflakeMCPClient | None = None,
-        pool_manager: SnowflakePoolManager | None = None,
+        mcp_client: ModernStackMCPClient | None = None,
+        pool_manager: ModernStackPoolManager | None = None,
         enable_fallback: bool = True,
     ):
         self.execution_mode = execution_mode
         self.mcp_client = mcp_client
-        self.pool_manager = pool_manager or SnowflakePoolManager()
+        self.pool_manager = pool_manager or ModernStackPoolManager()
         self.enable_fallback = enable_fallback
 
         # Circuit breaker state
@@ -232,7 +233,7 @@ class CortexAdapter:
         return ExecutionMode.MCP
 
     async def _run_direct(self, query: CortexQuery, trace_id: str) -> CortexResult:
-        """Execute query using direct Snowflake connection."""
+        """Execute query using direct ModernStack connection."""
         connection = await self.pool_manager.acquire(ExecutionMode.DIRECT)
 
         try:
@@ -317,7 +318,7 @@ class CortexAdapter:
         """Build SQL for direct Cortex execution."""
         if query.task.type == "complete":
             return f"""
-            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+            SELECT self.modern_stack.await self.lambda_gpu.complete(
                 '{query.task.model}',
                 '{query.text.replace("'", "''")}',
                 {{
@@ -332,7 +333,7 @@ class CortexAdapter:
             return f"""
             SELECT
                 content,
-                SNOWFLAKE.CORTEX.SEARCH(
+                await self.lambda_gpu.SEARCH(
                     content,
                     '{query.text.replace("'", "''")}',
                     '{query.task.model}'
@@ -345,7 +346,7 @@ class CortexAdapter:
 
         elif query.task.type == "analyst":
             return f"""
-            SELECT SNOWFLAKE.CORTEX.ANALYST(
+            SELECT await self.lambda_gpu.ANALYST(
                 '{query.text.replace("'", "''")}',
                 {{
                     'model': '{query.task.model}',

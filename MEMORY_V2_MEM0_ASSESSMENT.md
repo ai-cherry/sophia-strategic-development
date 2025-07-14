@@ -4,7 +4,7 @@
 
 We've built a practical memory system with:
 - Redis L1 cache (fast access)
-- Snowflake L2 persistence (analytics)
+- Modern Stack L2 persistence (analytics)
 - Basic memory types (Chat, Event, Insight, Decision)
 - Time-based search
 - RBAC controls
@@ -37,7 +37,7 @@ We've built a practical memory system with:
 
 1. **We Have the Basics** ✅
    - Our implementation covers 80% of use cases
-   - Redis + Snowflake is sufficient for current scale
+   - Redis + Modern Stack is sufficient for current scale
    - Basic search works for CEO's immediate needs
 
 2. **Complexity vs Value** ⚖️

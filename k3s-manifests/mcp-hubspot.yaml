@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mcp-hubspot
+    service-tier: secondary
+    tier: mcp
+    version: v1.0.0
+  name: mcp-hubspot
+  namespace: sophia-mcp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mcp-hubspot
+  template:
+    metadata:
+      labels:
+        app: mcp-hubspot
+        service-tier: secondary
+        tier: mcp
+    spec:
+      containers:
+      - env:
+        - name: ENVIRONMENT
+          value: prod
+        - name: PULUMI_ORG
+          value: scoobyjava-org
+        - name: K3S_DEPLOYMENT
+          value: 'true'
+        - name: ENVIRONMENT
+          value: ${ENVIRONMENT:-prod}
+        - name: PULUMI_ORG
+          value: ${PULUMI_ORG:-scoobyjava-org}
+        - name: PORT
+          value: '9017'
+        - name: REDIS_URL
+          value: redis://redis:6379
+        envFrom:
+        - secretRef:
+            name: mcp-hubspot-secrets
+        image: ${DOCKER_REGISTRY}/sophia-hubspot:${IMAGE_TAG}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: mcp
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: hubspot
+        ports:
+        - containerPort: 9009
+          name: mcp
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: mcp
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: '1'
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mcp-hubspot
+  name: mcp-hubspot
+  namespace: sophia-mcp
+spec:
+  ports:
+  - name: mcp
+    port: 9009
+    protocol: TCP
+    targetPort: mcp
+  selector:
+    app: mcp-hubspot
+  type: ClusterIP
+---
+apiVersion: v1
+data:
+  server-config.json: "{\n  \"name\": \"hubspot\",\n  \"version\": \"1.0.0\",\n  \"\
+    port\": 9009,\n  \"tier\": \"SECONDARY\",\n  \"description\": \"MCP hubspot server\"\
+    \n}"
+kind: ConfigMap
+metadata:
+  name: mcp-hubspot-config
+  namespace: sophia-mcp
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mcp-hubspot-hpa
+  namespace: sophia-mcp
+spec:
+  maxReplicas: 5
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 70
+        type: Utilization
+    type: Resource
+  - resource:
+      name: memory
+      target:
+        averageUtilization: 80
+        type: Utilization
+    type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mcp-hubspot

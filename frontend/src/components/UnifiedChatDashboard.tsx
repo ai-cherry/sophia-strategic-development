@@ -56,7 +56,7 @@ interface SystemStatus {
   };
 }
 
-const CHAT_API_BASE = 'http://localhost:8001';
+const CHAT_API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 
 const UnifiedChatDashboard: React.FC = () => {
   // State management
@@ -65,6 +65,7 @@ const UnifiedChatDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [sessionId] = useState(`session_${Date.now()}`); // Stable session ID
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when new messages arrive
@@ -83,7 +84,7 @@ const UnifiedChatDashboard: React.FC = () => {
         // Add welcome message
         const welcomeMessage: ChatMessage = {
           role: 'system',
-          content: '🚀 Welcome to Sophia AI - Your Executive Intelligence Assistant. I can help you with project management, team insights, sales analysis, and data analytics across all your business systems.',
+          content: '🚀 Welcome to Sophia AI v4 - Your Executive Intelligence Assistant. I can help you with project management, team insights, sales analysis, and data analytics across all your business systems.',
           timestamp: new Date().toISOString()
         };
         setMessages([welcomeMessage]);
@@ -115,7 +116,7 @@ const UnifiedChatDashboard: React.FC = () => {
     }
   };
 
-  // Send chat message
+  // Send chat message using v4 orchestrator
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
@@ -130,29 +131,61 @@ const UnifiedChatDashboard: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${CHAT_API_BASE}/api/v3/chat`, {
-        message: inputMessage
+      // Use v4 orchestrate endpoint
+      const response = await axios.post(`${CHAT_API_BASE}/api/v4/orchestrate`, {
+        query: inputMessage,
+        user_id: "ceo_user",
+        session_id: sessionId
       });
 
+      const responseData = response.data;
       const assistantMessage: ChatMessage = {
         role: 'assistant',
-        content: response.data.response,
+        content: responseData.response,
         timestamp: new Date().toISOString(),
-        sources: response.data.data_sources,
-        insights: response.data.insights,
-        recommendations: response.data.recommendations,
-        metadata: response.data.metadata
+        sources: responseData.sources,
+        insights: responseData.insights,
+        recommendations: responseData.recommendations,
+        metadata: responseData.metadata
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Update system status if metrics are available
+      if (responseData.metadata?.health_score) {
+        setSystemStatus(prev => ({
+          ...prev,
+          health_score: responseData.metadata.health_score,
+          last_updated: new Date().toISOString()
+        }));
+      }
     } catch (error) {
       console.error('Failed to send message:', error);
-      const errorMessage: ChatMessage = {
-        role: 'system',
-        content: '❌ Failed to process your request. Please try again.',
-        timestamp: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      
+      // Fallback to v3 endpoint if v4 fails
+      try {
+        const fallbackResponse = await axios.post(`${CHAT_API_BASE}/api/v3/chat`, {
+          message: inputMessage,
+          user_id: "ceo_user",
+          session_id: sessionId
+        });
+        
+        const assistantMessage: ChatMessage = {
+          role: 'assistant',
+          content: fallbackResponse.data.response,
+          timestamp: new Date().toISOString(),
+          metadata: { ...fallbackResponse.data.metadata, fallback: true }
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+      } catch (fallbackError) {
+        const errorMessage: ChatMessage = {
+          role: 'system',
+          content: '❌ Failed to process your request. Please try again.',
+          timestamp: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -258,7 +291,7 @@ const UnifiedChatDashboard: React.FC = () => {
                       <span>📊 Sources: {message.sources.join(', ')}</span>
                     )}
                     {message.metadata && (
-                      <span>⚡ {message.metadata.response_time.toFixed(3)}s</span>
+                      <span>⚡ {typeof message.metadata.response_time === 'number' ? message.metadata.response_time.toFixed(3) : 'N/A'}s</span>
                     )}
                   </div>
                   <span>{formatTime(message.timestamp)}</span>
@@ -318,12 +351,12 @@ const UnifiedChatDashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium">Overall Status</span>
                 <span className={`font-bold ${getStatusColor(systemStatus.overall_status)}`}>
-                  {systemStatus.overall_status.toUpperCase()}
+                  {(systemStatus.overall_status || 'unknown').toUpperCase()}
                 </span>
               </div>
               <div className="text-sm text-gray-600 space-y-1">
                 <div>Servers: {systemStatus.metrics.healthy_servers}/{systemStatus.metrics.total_servers}</div>
-                <div>Avg Response: {systemStatus.metrics.avg_response_time.toFixed(3)}s</div>
+                <div>Avg Response: {typeof systemStatus.metrics.avg_response_time === 'number' ? systemStatus.metrics.avg_response_time.toFixed(3) : 'N/A'}s</div>
                 <div>Connections: {systemStatus.metrics.active_connections}</div>
               </div>
             </div>
@@ -339,7 +372,7 @@ const UnifiedChatDashboard: React.FC = () => {
                   </div>
                   <div className="text-xs text-gray-600 mb-1">{server.description}</div>
                   {server.healthy && (
-                    <div className="text-xs text-green-600">⚡ {server.response_time.toFixed(3)}s</div>
+                    <div className="text-xs text-green-600">⚡ {typeof server.response_time === 'number' ? server.response_time.toFixed(3) : 'N/A'}s</div>
                   )}
                 </div>
               ))}

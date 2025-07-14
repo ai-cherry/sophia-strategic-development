@@ -9,6 +9,7 @@ Created: July 4, 2025
 Usage:
     uvicorn backend.app.app:app --host 0.0.0.0 --port 8000
 """
+
 import logging
 import os
 from contextlib import asynccontextmanager

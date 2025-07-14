@@ -2,11 +2,11 @@
 
 ## Overview
 
-This document provides a comprehensive guide to the AI SQL query lifecycle in Sophia AI, from natural language input to execution via Snowflake Cortex, including the roles and interaction patterns of each Cortex Agent.
+This document provides a comprehensive guide to the AI SQL query lifecycle in Sophia AI, from natural language input to execution via Lambda GPU, including the roles and interaction patterns of each Cortex Agent.
 
 ## Architecture Principles
 
-### Snowflake as the Center of the Universe
+### Modern Stack as the Center of the Universe
 - **Data Locality**: AI processing happens where data lives
 - **Cost Optimization**: Eliminates data movement costs (60-80% savings)
 - **Performance**: Sub-100ms query execution with native AI functions
@@ -19,7 +19,7 @@ This document provides a comprehensive guide to the AI SQL query lifecycle in So
 ```mermaid
 flowchart TD
     A[User Query: "What are our top deals?"] --> B[SophiaUnifiedChatService]
-    B --> C[SnowflakeCortexService Intent Detection]
+    B --> C[Modern StackCortexService Intent Detection]
     C --> D[Query Classification]
     D --> E[Context Retrieval from AI Memory]
     E --> F[Task Routing Decision]
@@ -27,7 +27,7 @@ flowchart TD
 
 **Components:**
 - **Input Handler**: `SophiaUnifiedChatService.process_query()`
-- **Intent Detection**: `SnowflakeCortexService.classify_intent()`
+- **Intent Detection**: `Modern StackCortexService.classify_intent()`
 - **Context Retrieval**: `EnhancedAiMemoryMCPServer.recall_context()`
 
 ### Phase 2: Cortex Agent Selection and Orchestration
@@ -39,11 +39,11 @@ async def route_to_cortex_agent(query: str, intent: QueryIntent) -> CortexAgent:
     Route queries to specialized Cortex Agents based on intent and complexity
     """
     routing_map = {
-        QueryIntent.DATA_ANALYSIS: "snowflake_ops",
+        QueryIntent.DATA_ANALYSIS: "modern_stack_ops",
         QueryIntent.BUSINESS_INTELLIGENCE: "business_intelligence",
         QueryIntent.SEMANTIC_SEARCH: "semantic_memory",
-        QueryIntent.SQL_OPTIMIZATION: "snowflake_ops",
-        QueryIntent.SCHEMA_MANAGEMENT: "snowflake_ops"
+        QueryIntent.SQL_OPTIMIZATION: "modern_stack_ops",
+        QueryIntent.SCHEMA_MANAGEMENT: "modern_stack_ops"
     }
 
     return await get_cortex_agent(routing_map[intent])
@@ -51,10 +51,10 @@ async def route_to_cortex_agent(query: str, intent: QueryIntent) -> CortexAgent:
 
 ### Phase 3: SQL Generation and Optimization
 
-**Snowflake Ops Agent** (`snowflake_ops`):
+**Modern Stack Ops Agent** (`modern_stack_ops`):
 ```sql
 -- Native Cortex AI SQL generation
-SELECT SNOWFLAKE.CORTEX.COMPLETE(
+SELECT modern_stack.CORTEX.COMPLETE(
     'mistral-large',
     'Generate SQL for: ' || :user_query,
     {'schema_context': :schema_info, 'optimization_hints': :performance_hints}
@@ -66,16 +66,16 @@ SELECT SNOWFLAKE.CORTEX.COMPLETE(
 -- Advanced analytics with Cortex
 SELECT
     deal_name,
-    SNOWFLAKE.CORTEX.SENTIMENT(description) as sentiment_score,
-    SNOWFLAKE.CORTEX.SUMMARIZE(notes) as deal_summary,
-    SNOWFLAKE.CORTEX.EXTRACT_ANSWER(description, 'What is the deal value?') as extracted_value
+    modern_stack.CORTEX.SENTIMENT(description) as sentiment_score,
+    modern_stack.CORTEX.SUMMARIZE(notes) as deal_summary,
+    modern_stack.CORTEX.EXTRACT_ANSWER(description, 'What is the deal value?') as extracted_value
 FROM enriched_hubspot_deals;
 ```
 
 ### Phase 4: Execution and Result Processing
 
 ```python
-class SnowflakeCortexQueryExecutor:
+class Modern StackCortexQueryExecutor:
     """
     Executes AI-generated SQL with performance monitoring and optimization
     """
@@ -89,7 +89,7 @@ class SnowflakeCortexQueryExecutor:
 
         # 2. Execute with performance tracking
         start_time = time.time()
-        result = await self.snowflake_connection.execute(optimized_sql)
+        result = await self.modern_stack_connection.execute(optimized_sql)
         execution_time = time.time() - start_time
 
         # 3. AI enhancement of results
@@ -103,20 +103,20 @@ class SnowflakeCortexQueryExecutor:
 
 ## Cortex Agent Specifications
 
-### 1. Snowflake Ops Agent
+### 1. Modern Stack Ops Agent
 
 **Role**: Database operations, query optimization, schema management
 
 **Cortex Functions Used**:
-- `SNOWFLAKE.CORTEX.COMPLETE()` - SQL generation
-- `SNOWFLAKE.CORTEX.EXTRACT_ANSWER()` - Data extraction
-- `SNOWFLAKE.CORTEX.CLASSIFY()` - Query classification
+- `modern_stack.CORTEX.COMPLETE()` - SQL generation
+- `modern_stack.CORTEX.EXTRACT_ANSWER()` - Data extraction
+- `modern_stack.CORTEX.CLASSIFY()` - Query classification
 
 **Capabilities**:
 ```python
-class SnowflakeOpsAgent:
+class Modern StackOpsAgent:
     """
-    Specialized agent for Snowflake database operations
+    Specialized agent for PostgreSQL database operations
     """
 
     async def generate_sql(self, natural_language_query: str) -> str:
@@ -135,25 +135,25 @@ class SnowflakeOpsAgent:
 
 **Architecture**:
 - **L1 Cache**: Session context (<50ms)
-- **L2 Cortex**: Snowflake Cortex Search (<100ms)
+- **L2 Cortex**: Lambda GPU Search (<100ms)
 - **L3 Memory**: Persistent AI Memory (<200ms)
 - **L4 Knowledge**: Knowledge Graph (<300ms)
 - **L5 Workflow**: LangGraph patterns (<400ms)
 
 **Cortex Functions Used**:
-- `SNOWFLAKE.CORTEX.EMBED_TEXT()` - Vector generation
-- `SNOWFLAKE.CORTEX.VECTOR_SIMILARITY()` - Semantic search
-- `SNOWFLAKE.CORTEX.COMPLETE()` - Context synthesis
+- `modern_stack.CORTEX.EMBED_TEXT()` - Vector generation
+- `modern_stack.CORTEX.VECTOR_SIMILARITY()` - Semantic search
+- `modern_stack.CORTEX.COMPLETE()` - Context synthesis
 
 ### 3. Business Intelligence Agent
 
 **Role**: Executive insights, KPI analysis, predictive analytics
 
 **Cortex Functions Used**:
-- `SNOWFLAKE.CORTEX.SENTIMENT()` - Sentiment analysis
-- `SNOWFLAKE.CORTEX.SUMMARIZE()` - Executive summaries
-- `SNOWFLAKE.CORTEX.COMPLETE()` - Insight generation
-- `SNOWFLAKE.CORTEX.FORECAST()` - Predictive modeling
+- `modern_stack.CORTEX.SENTIMENT()` - Sentiment analysis
+- `modern_stack.CORTEX.SUMMARIZE()` - Executive summaries
+- `modern_stack.CORTEX.COMPLETE()` - Insight generation
+- `modern_stack.CORTEX.FORECAST()` - Predictive modeling
 
 **Sample Workflows**:
 ```sql
@@ -162,12 +162,12 @@ WITH deal_insights AS (
     SELECT
         deal_name,
         amount,
-        SNOWFLAKE.CORTEX.SENTIMENT(sales_notes) as sentiment,
-        SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+        modern_stack.CORTEX.SENTIMENT(sales_notes) as sentiment,
+        modern_stack.CORTEX.EXTRACT_ANSWER(
             sales_notes,
             'What are the main risks for this deal?'
         ) as risk_factors,
-        SNOWFLAKE.CORTEX.CLASSIFY(
+        modern_stack.CORTEX.CLASSIFY(
             stage,
             ['qualified', 'proposal', 'negotiation', 'closed']
         ) as normalized_stage
@@ -179,7 +179,7 @@ SELECT
     amount,
     sentiment,
     risk_factors,
-    SNOWFLAKE.CORTEX.COMPLETE(
+    modern_stack.CORTEX.COMPLETE(
         'mistral-large',
         'Based on this deal data, provide executive recommendations: ' ||
         OBJECT_CONSTRUCT(
@@ -196,7 +196,7 @@ FROM deal_insights;
 
 ### 1. Connection Pooling
 ```python
-class OptimizedSnowflakeConnection:
+class OptimizedModern StackConnection:
     """
     95% overhead reduction through connection pooling
     """
@@ -356,13 +356,13 @@ def select_optimal_cortex_agent(query_intent: QueryIntent, complexity: int) -> s
     Select the most appropriate Cortex agent based on query characteristics
     """
     if query_intent in [QueryIntent.DATA_ANALYSIS, QueryIntent.SQL_GENERATION]:
-        return "snowflake_ops"
+        return "modern_stack_ops"
     elif query_intent == QueryIntent.BUSINESS_INSIGHTS:
         return "business_intelligence"
     elif query_intent == QueryIntent.SEMANTIC_SEARCH:
         return "semantic_memory"
     else:
-        return "snowflake_ops"  # Default fallback
+        return "modern_stack_ops"  # Default fallback
 ```
 
 ### 3. Cost Optimization

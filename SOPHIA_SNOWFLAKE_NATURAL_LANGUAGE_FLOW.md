@@ -1,8 +1,8 @@
-# How Natural Language Directs Agents in Sophia's Snowflake Integration
+# How Natural Language Directs Agents in Sophia's Modern Stack Integration
 
 ## Overview
 
-The Sophia AI ecosystem uses a sophisticated natural language processing pipeline to direct agents through interactions with Snowflake. This document explains the complete flow from user input to Snowflake operations.
+The Sophia AI ecosystem uses a sophisticated natural language processing pipeline to direct agents through interactions with Modern Stack. This document explains the complete flow from user input to Modern Stack operations.
 
 ## Natural Language Processing Architecture
 
@@ -12,17 +12,17 @@ The Sophia AI ecosystem uses a sophisticated natural language processing pipelin
 The Model Context Protocol (MCP) servers serve as the primary interface for natural language commands:
 
 ```python
-# From backend/mcp_servers/snowflake_admin_mcp_server.py
-class SnowflakeAdminMCPServer(StandardizedMCPServer):
+# From backend/mcp_servers/modern_stack_admin_mcp_server.py
+class Modern StackAdminMCPServer(StandardizedMCPServer):
     def get_available_tools(self) -> List[Dict[str, Any]]:
         return [
             {
                 "name": "sync_schemas",
-                "description": "Synchronize Snowflake schemas with GitHub codebase",
+                "description": "Synchronize Modern Stack schemas with GitHub codebase",
             },
             {
                 "name": "execute_query",
-                "description": "Execute a SQL query on Snowflake",
+                "description": "Execute a SQL query on Modern Stack",
             }
         ]
 ```
@@ -111,16 +111,16 @@ class CortexAgentOrchestrator:
             capable_agents = self._find_capable_agents(task.required_capabilities)
             selected_agent = self._select_optimal_agent(capable_agents, task)
 
-            # Execute with Snowflake Cortex capabilities
+            # Execute with Lambda GPU capabilities
             task_result = await agent.execute_with_cortex(task)
 ```
 
-## Natural Language to Snowflake Flow
+## Natural Language to Modern Stack Flow
 
 ### Step 1: User Input Processing
 When a user asks "Show me customer health insights for Acme Corp":
 
-1. **MCP Server receives command** → Parsed by Snowflake Admin MCP Server
+1. **MCP Server receives command** → Parsed by Modern Stack Admin MCP Server
 2. **Smart AI Service analyzes intent** → Categorized as `EXECUTIVE_INSIGHTS`
 3. **Agent selection** → Routes to appropriate specialized agent
 
@@ -149,19 +149,19 @@ def _create_task_plan(self, workflow_request: Dict[str, Any]) -> List[AgentTask]
         ]
 ```
 
-### Step 3: Snowflake Cortex Integration
-Agents use Snowflake Cortex functions for AI operations:
+### Step 3: Lambda GPU Integration
+Agents use Lambda GPU functions for AI operations:
 
 ```python
-# From backend/utils/optimized_snowflake_cortex_service.py
-class SnowflakeCortexService:
+# From backend/utils/optimized_modern_stack_cortex_service.py
+class Modern StackCortexService:
     async def analyze_with_cortex(self, text: str, analysis_type: str):
         if analysis_type == "sentiment":
-            query = f"SELECT SNOWFLAKE.CORTEX.SENTIMENT('{text}') as sentiment"
+            query = f"SELECT modern_stack.CORTEX.SENTIMENT('{text}') as sentiment"
         elif analysis_type == "summarize":
-            query = f"SELECT SNOWFLAKE.CORTEX.SUMMARIZE('{text}') as summary"
+            query = f"SELECT modern_stack.CORTEX.SUMMARIZE('{text}') as summary"
         elif analysis_type == "complete":
-            query = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('claude-3-haiku', '{text}') as response"
+            query = f"SELECT modern_stack.CORTEX.COMPLETE('claude-3-haiku', '{text}') as response"
 
         return await self.execute_query(query)
 ```
@@ -177,7 +177,7 @@ class EnhancedAiMemoryMCPServer:
         use_cortex_search: bool = True,
     ) -> List[Dict[str, Any]]:
         if use_cortex_search and self.cortex_service:
-            # Use Snowflake Cortex vector search
+            # Use Lambda GPU vector search
             cortex_results = await self.cortex_service.search_gong_calls_with_ai_memory(
                 query_text=query,
                 similarity_threshold=0.7,
@@ -193,7 +193,7 @@ class EnhancedAiMemoryMCPServer:
 1. Smart AI Service → Routes to `EXECUTIVE_INSIGHTS` with GPT-4
 2. Cortex Orchestrator → Creates multi-agent workflow
 3. Agents execute:
-   - SQL Agent: Query enterprise customer data from Snowflake
+   - SQL Agent: Query enterprise customer data from Modern Stack
    - Sentiment Agent: Analyze communication sentiment using Cortex
    - Predictive Agent: Run churn prediction models
 4. Results synthesized and returned in natural language
@@ -204,7 +204,7 @@ class EnhancedAiMemoryMCPServer:
 **Flow:**
 1. MCP Server → Interprets as Gong call analysis request
 2. AI Memory → Searches stored call insights with sentiment filter
-3. Snowflake Query:
+3. Modern Stack Query:
 ```sql
 SELECT * FROM STG_ESTUARY.STG_GONG_CALLS
 WHERE SENTIMENT_SCORE < -0.3
@@ -230,7 +230,7 @@ The Smart AI Service uses LLM models to understand user intent:
 - Context awareness (previous queries, user role)
 
 ### 2. Query Translation
-Agents translate natural language to Snowflake operations:
+Agents translate natural language to Modern Stack operations:
 - SQL generation for data retrieval
 - Cortex function calls for AI analysis
 - Vector searches for semantic queries
@@ -269,7 +269,7 @@ Based on query complexity:
 - Simple queries → Direct SQL execution
 - Complex analysis → Multi-agent orchestration
 - Real-time needs → Optimized Cortex functions
-- Historical analysis → AI Memory + Snowflake warehouse
+- Historical analysis → AI Memory + compute cluster
 
 ## Performance Optimization
 
@@ -334,11 +334,11 @@ Sensitive data handling:
 
 ## Conclusion
 
-The Sophia AI ecosystem provides a sophisticated natural language interface to Snowflake through:
+The Sophia AI ecosystem provides a sophisticated natural language interface to Modern Stack through:
 
 1. **Intelligent Routing**: Smart AI Service directs queries to appropriate models and agents
 2. **Multi-Agent Orchestration**: Complex queries are decomposed into coordinated agent tasks
-3. **Snowflake Cortex Integration**: Native AI functions provide in-database processing
+3. **Lambda GPU Integration**: Native AI functions provide in-database processing
 4. **Context Awareness**: AI Memory maintains conversation state and learns from interactions
 5. **Performance Optimization**: Caching, parallel execution, and smart model selection ensure fast responses
 

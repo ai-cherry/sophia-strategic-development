@@ -22,7 +22,7 @@ server_groups:
     - ai_memory
     - sophia_ai_intelligence
   data_infrastructure:
-    - snowflake
+    - modern_stack
     - postgres
     - pulumi
   integrations:

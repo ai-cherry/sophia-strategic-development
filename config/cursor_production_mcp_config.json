@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "sophia-snowflake": {
+    "sophia-modern_stack": {
       "command": "uv",
       "args": [
         "run",
         "python",
-        "mcp-servers/snowflake/production_snowflake_mcp_server.py"
+        "mcp-servers/modern_stack/production_modern_stack_mcp_server.py"
       ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {

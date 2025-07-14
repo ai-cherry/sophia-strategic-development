@@ -4,7 +4,7 @@
 - Python 3.12+
 - UV package manager
 - Docker Desktop
-- Snowflake account
+- Modern Stack account
 
 ## Quick Setup (5 minutes)
 

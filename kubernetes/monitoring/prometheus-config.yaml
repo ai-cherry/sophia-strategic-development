@@ -20,7 +20,7 @@ data:
       - targets: 
         - 'mcp-ai-memory:9000'
         - 'mcp-gong:9001'
-        - 'mcp-snowflake:9002'
+        - 'mcp-modern_stack:9002'
         - 'mcp-slack:9003'
         - 'mcp-linear:9004'
         - 'mcp-github:9005'

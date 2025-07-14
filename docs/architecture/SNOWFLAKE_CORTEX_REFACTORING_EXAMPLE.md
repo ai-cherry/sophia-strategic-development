@@ -1,26 +1,26 @@
-# SnowflakeCortexService Refactoring Example
+# Modern StackCortexService Refactoring Example
 
-This document demonstrates the step-by-step refactoring of the monolithic `SnowflakeCortexService` (2,134 lines) into a clean, modular architecture.
+This document demonstrates the step-by-step refactoring of the monolithic `Modern StackCortexService` (2,134 lines) into a clean, modular architecture.
 
 ## Current Monolithic Structure
 
 ```python
-# backend/utils/snowflake_cortex_service.py (2,134 lines)
-class SnowflakeCortexService:
+# backend/utils/modern_stack_cortex_service.py (2,134 lines)
+class Modern StackCortexService:
     def __init__(self):
         # Connection management
-        self.connection = snowflake.connector.connect(...)
+        self.connection = modern_stack.connector.connect(...)
 
-    async def summarize_text_in_snowflake(self, ...):
+    async def summarize_text_in_modern_stack(self, ...):
         # Text summarization logic
 
-    async def analyze_sentiment_in_snowflake(self, ...):
+    async def analyze_sentiment_in_modern_stack(self, ...):
         # Sentiment analysis logic
 
-    async def generate_embedding_in_snowflake(self, ...):
+    async def generate_embedding_in_modern_stack(self, ...):
         # Embedding generation logic
 
-    async def vector_search_in_snowflake(self, ...):
+    async def vector_search_in_modern_stack(self, ...):
         # Vector search logic
 
     async def search_hubspot_deals_with_ai_memory(self, ...):
@@ -162,22 +162,22 @@ class AnalyzeTextUseCase:
 ### 3. Infrastructure Layer
 
 ```python
-# backend/infrastructure/ai/snowflake_cortex_client.py
-import snowflake.connector
+# backend/infrastructure/ai/modern_stack_cortex_client.py
+import modern_stack.connector
 from backend.application.ports import AIService
 from backend.domain.value_objects import Sentiment, TextSummary, Embedding
 
-class SnowflakeCortexClient(AIService):
-    """Snowflake Cortex implementation of AI operations."""
+class Modern StackCortexClient(AIService):
+    """Lambda GPU implementation of AI operations."""
 
     def __init__(self, connection_pool):
         self._pool = connection_pool
 
     async def summarize_text(self, text: str, max_length: int = 200) -> TextSummary:
-        """Use Snowflake Cortex SUMMARIZE function."""
+        """Use Lambda GPU SUMMARIZE function."""
         async with self._pool.get_connection() as conn:
             query = f"""
-            SELECT SNOWFLAKE.CORTEX.SUMMARIZE(?, ?) as summary
+            SELECT modern_stack.CORTEX.SUMMARIZE(?, ?) as summary
             """
             result = await conn.execute(query, (text, max_length))
             return TextSummary(
@@ -187,10 +187,10 @@ class SnowflakeCortexClient(AIService):
             )
 
     async def analyze_sentiment(self, text: str) -> Sentiment:
-        """Use Snowflake Cortex SENTIMENT function."""
+        """Use Lambda GPU SENTIMENT function."""
         async with self._pool.get_connection() as conn:
             query = """
-            SELECT SNOWFLAKE.CORTEX.SENTIMENT(?) as sentiment_score
+            SELECT modern_stack.CORTEX.SENTIMENT(?) as sentiment_score
             """
             result = await conn.execute(query, (text,))
             return Sentiment(
@@ -199,10 +199,10 @@ class SnowflakeCortexClient(AIService):
             )
 
     async def generate_embedding(self, text: str) -> Embedding:
-        """Use Snowflake Cortex EMBED_TEXT function."""
+        """Use Lambda GPU EMBED_TEXT function."""
         async with self._pool.get_connection() as conn:
             query = """
-            SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', ?) as embedding
+            SELECT modern_stack.CORTEX.EMBED_TEXT('e5-base-v2', ?) as embedding
             """
             result = await conn.execute(query, (text,))
             return Embedding(
@@ -213,14 +213,14 @@ class SnowflakeCortexClient(AIService):
 ```
 
 ```python
-# backend/infrastructure/persistence/snowflake_connection_pool.py
+# backend/infrastructure/persistence/modern_stack_connection_pool.py
 import asyncio
 from contextlib import asynccontextmanager
-import snowflake.connector
-from snowflake.connector.pool import ConnectionPool
+import modern_stack.connector
+from modern_stack.connector.pool import ConnectionPool
 
-class SnowflakeConnectionPool:
-    """Manages Snowflake database connections."""
+class Modern StackConnectionPool:
+    """Manages PostgreSQL database connections."""
 
     def __init__(self, config):
         self._config = config
@@ -229,7 +229,7 @@ class SnowflakeConnectionPool:
     async def initialize(self):
         """Initialize the connection pool."""
         self._pool = ConnectionPool(
-            'snowflake_pool',
+            'modern_stack_pool',
             max_connections=10,
             min_connections=2,
             **self._config
@@ -246,14 +246,14 @@ class SnowflakeConnectionPool:
 ```
 
 ```python
-# backend/infrastructure/search/snowflake_vector_search.py
+# backend/infrastructure/search/modern_stack_vector_search.py
 from typing import List
 from backend.application.ports import VectorSearchService
 from backend.domain.entities import SearchResult
 from backend.domain.value_objects import Embedding
 
-class SnowflakeVectorSearch(VectorSearchService):
-    """Snowflake implementation of vector search."""
+class Modern StackVectorSearch(VectorSearchService):
+    """Modern Stack implementation of vector search."""
 
     def __init__(self, connection_pool):
         self._pool = connection_pool
@@ -265,7 +265,7 @@ class SnowflakeVectorSearch(VectorSearchService):
         limit: int = 10,
         threshold: float = 0.7
     ) -> List[SearchResult]:
-        """Search using Snowflake's VECTOR_COSINE_SIMILARITY."""
+        """Search using Modern Stack's VECTOR_COSINE_SIMILARITY."""
         async with self._pool.get_connection() as conn:
             query = f"""
             SELECT
@@ -344,9 +344,9 @@ def _get_sentiment_label(sentiment):
 ```python
 # backend/infrastructure/container.py
 from dependency_injector import containers, providers
-from backend.infrastructure.ai import SnowflakeCortexClient
-from backend.infrastructure.persistence import SnowflakeConnectionPool
-from backend.infrastructure.search import SnowflakeVectorSearch
+from backend.infrastructure.ai import Modern StackCortexClient
+from backend.infrastructure.persistence import Modern StackConnectionPool
+from backend.infrastructure.search import Modern StackVectorSearch
 from backend.application.use_cases import AnalyzeTextUseCase
 
 class Container(containers.DeclarativeContainer):
@@ -357,19 +357,19 @@ class Container(containers.DeclarativeContainer):
 
     # Infrastructure - Connection Pool
     connection_pool = providers.Singleton(
-        SnowflakeConnectionPool,
-        config=config.snowflake
+        Modern StackConnectionPool,
+        config=config.modern_stack
     )
 
     # Infrastructure - AI Service
     ai_service = providers.Singleton(
-        SnowflakeCortexClient,
+        Modern StackCortexClient,
         connection_pool=connection_pool
     )
 
     # Infrastructure - Vector Search
     vector_search = providers.Singleton(
-        SnowflakeVectorSearch,
+        Modern StackVectorSearch,
         connection_pool=connection_pool
     )
 
@@ -384,8 +384,8 @@ class Container(containers.DeclarativeContainer):
 ## Benefits of This Refactoring
 
 ### 1. **Separation of Concerns**
-- Connection management isolated in `SnowflakeConnectionPool`
-- AI operations in `SnowflakeCortexClient`
+- Connection management isolated in `Modern StackConnectionPool`
+- AI operations in `Modern StackCortexClient`
 - Business logic in use cases
 - Each class has a single, clear responsibility
 
@@ -403,7 +403,7 @@ async def test_analyze_text_use_case():
 ```
 
 ### 3. **Flexibility**
-- Easy to swap Snowflake Cortex for OpenAI or another AI service
+- Easy to swap Lambda GPU for OpenAI or another AI service
 - Can add caching, logging, or monitoring without changing business logic
 - Database can be changed without affecting domain logic
 

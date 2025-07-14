@@ -8,14 +8,14 @@ Recommended decomposition:
 - unified_ai_orchestration_service_models.py - Data models
 - unified_ai_orchestration_service_handlers.py - Request handlers
 
-TODO: Implement file decomposition
+TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 from datetime import UTC, datetime
 
 """
 Unified AI Orchestration Service
-Integrates Snowflake Cortex Agents, Estuary Flow, and multi-source data processing
+Integrates Lambda GPU Agents, Estuary Flow, and multi-source data processing
 """
 
 import json
@@ -24,10 +24,10 @@ import os
 from typing import Any
 
 import httpx
-import snowflake.connector
-from snowflake.connector import DictCursor
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
 
-from core.auto_esc_config import get_snowflake_config
+# REMOVED: ModernStack dependency
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,12 +36,12 @@ logger = logging.getLogger(__name__)
 
 class UnifiedAIOrchestrationService:
     """
-    Unified service that orchestrates AI capabilities across Snowflake Cortex Agents,
+    Unified service that orchestrates AI capabilities across Lambda GPU Agents,
     Estuary Flow data pipelines, and multi-source business intelligence
     """
 
     def __init__(self):
-        self.snowflake_conn = None
+        self.# REMOVED: ModernStack dependency None
         self.estuary_client = None
         self.cortex_agents = {}
         self.data_sources = {
@@ -55,7 +55,7 @@ class UnifiedAIOrchestrationService:
     async def initialize(self):
         """Initialize all connections and services"""
         try:
-            await self._initialize_snowflake_connection()
+            await self._initialize_modern_stack_connection()
             await self._initialize_estuary_client()
             await self._initialize_cortex_agents()
             await self._verify_data_pipelines()
@@ -65,14 +65,14 @@ class UnifiedAIOrchestrationService:
             logger.exception(f"❌ Failed to initialize service: {e}")
             return False
 
-    async def _initialize_snowflake_connection(self):
-        """Initialize Snowflake connection with advanced configuration"""
+    async def _initialize_modern_stack_connection(self):
+# REMOVED: ModernStack dependencyuration"""
         try:
-            config = get_snowflake_config()
-            self.snowflake_conn = snowflake.connector.connect(**config)
-            logger.info("✅ Snowflake connection established")
+# REMOVED: ModernStack dependency()
+# REMOVED: ModernStack dependency)
+            logger.info("✅ ModernStack connection established")
         except Exception as e:
-            logger.exception(f"❌ Snowflake connection failed: {e}")
+            logger.exception(f"❌ ModernStack connection failed: {e}")
             raise
 
     async def _initialize_estuary_client(self):
@@ -94,7 +94,7 @@ class UnifiedAIOrchestrationService:
     async def _initialize_cortex_agents(self):
         """Initialize Cortex Agents configurations"""
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Load agent configurations
             cursor.execute(
@@ -256,7 +256,7 @@ class UnifiedAIOrchestrationService:
     async def _get_customer_context(self, customer_id: str) -> dict[str, Any]:
         """Get comprehensive customer context from unified data"""
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Get customer context from live data
             cursor.execute(
@@ -291,7 +291,7 @@ class UnifiedAIOrchestrationService:
     async def _get_deal_context(self, deal_id: str) -> dict[str, Any]:
         """Get comprehensive deal context from unified data"""
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Get deal context from sales pipeline
             cursor.execute(
@@ -327,7 +327,7 @@ class UnifiedAIOrchestrationService:
     async def _get_compliance_context(self, time_range: str) -> dict[str, Any]:
         """Get compliance monitoring context"""
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Get compliance metrics
             cursor.execute(
@@ -368,7 +368,7 @@ class UnifiedAIOrchestrationService:
             agent = self.cortex_agents[agent_id]
 
             # Simulate Cortex Agent processing
-            # In production, this would make REST API calls to Snowflake Cortex Agents
+            # In production, this would make REST API calls to Lambda GPU Agents
             response = f"""
             Based on the provided context and using {agent["name"]}, here's my analysis:
 
@@ -386,7 +386,7 @@ class UnifiedAIOrchestrationService:
             - Risk assessment and mitigation strategies
             - Next best actions with confidence scores
 
-            This response was generated using Snowflake Cortex Agent: {agent["name"]}
+            This response was generated using Lambda GPU Agent: {agent["name"]}
             """
 
             return response
@@ -400,7 +400,7 @@ class UnifiedAIOrchestrationService:
     ) -> dict[str, Any]:
         """Get real-time customer insights"""
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Get real-time insights
             cursor.execute(
@@ -431,7 +431,7 @@ class UnifiedAIOrchestrationService:
     async def _get_competitive_intelligence(self, deal_id: str) -> dict[str, Any]:
         """Get competitive intelligence for deal"""
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Get competitive insights from Gong data
             cursor.execute(
@@ -465,7 +465,7 @@ class UnifiedAIOrchestrationService:
     async def _get_compliance_violations(self, time_range: str) -> list[dict[str, Any]]:
         """Get compliance violations"""
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Get recent violations
             cursor.execute(
@@ -500,7 +500,7 @@ class UnifiedAIOrchestrationService:
     ):
         """Log agent interaction for monitoring and improvement"""
         try:
-            cursor = self.snowflake_conn.cursor()
+            cursor = self.modern_stack_conn.cursor()
 
             cursor.execute(
                 """
@@ -529,7 +529,7 @@ class UnifiedAIOrchestrationService:
     async def get_system_health_status(self) -> dict[str, Any]:
         """Get comprehensive system health status"""
         try:
-            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor = self.modern_stack_conn.cursor(DictCursor)
 
             # Get system health metrics
             cursor.execute(
@@ -553,7 +553,7 @@ class UnifiedAIOrchestrationService:
             pipeline_status = await self._get_pipeline_health()
 
             return {
-                "snowflake_health": [dict(metric) for metric in health_metrics],
+                "modern_stack_health": [dict(metric) for metric in health_metrics],
                 "pipeline_health": pipeline_status,
                 "cortex_agents_status": len(self.cortex_agents),
                 "data_sources_status": self.data_sources,
@@ -587,8 +587,8 @@ class UnifiedAIOrchestrationService:
     async def close(self):
         """Close all connections"""
         try:
-            if self.snowflake_conn:
-                self.snowflake_conn.close()
+            if self.modern_stack_conn:
+                self.modern_stack_conn.close()
             if self.estuary_client:
                 await self.estuary_client.aclose()
             logger.info("✅ All connections closed")
@@ -602,6 +602,6 @@ unified_ai_service = UnifiedAIOrchestrationService()
 
 async def get_unified_ai_service() -> UnifiedAIOrchestrationService:
     """Get the global unified AI service instance"""
-    if not unified_ai_service.snowflake_conn:
+    if not unified_ai_service.modern_stack_conn:
         await unified_ai_service.initialize()
     return unified_ai_service

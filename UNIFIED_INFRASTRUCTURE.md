@@ -8,7 +8,7 @@ The **Unified Infrastructure** represents the single, authoritative approach for
 
 ### 1. **Unified Chat** (`backend/services/unified_chat_service.py`)
 - Single chat interface for all AI interactions
-- Integrates all data sources (Snowflake, AI Memory, Knowledge Base)
+- Integrates all data sources (Modern Stack, AI Memory, Knowledge Base)
 - Natural language query processing
 
 ### 2. **Unified Dashboard** (`frontend/src/components/dashboard/UnifiedDashboard.tsx`)

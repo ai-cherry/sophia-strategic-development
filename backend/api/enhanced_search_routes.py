@@ -17,13 +17,13 @@ from backend.services.enhanced_search_service import (
     SearchRequest,
     SearchTier,
 )
-from backend.services.unified_chat_service import UnifiedChatService
+from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
 # Initialize services
 enhanced_search_service = EnhancedSearchService()
-unified_chat_service = UnifiedChatService()
+unified_chat_service = SophiaUnifiedOrchestrator()
 
 # Create router
 router = APIRouter(prefix="/api/v1/search", tags=["enhanced_search"])

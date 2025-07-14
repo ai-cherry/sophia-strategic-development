@@ -3,12 +3,12 @@
 
 servers:
   # Official MCP Servers
-  - name: snowflake-official
-    type: snowflake
+  - name: modern_stack-official
+    type: modern_stack
     tier: PRIMARY
     port: 9130
     capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]
-    pat_secret: SNOWFLAKE_MCP_PAT_PROD
+    pat_secret: modern_stack_MCP_PAT_PROD
     health_endpoint: /health
     config:
       warehouse: SOPHIA_AI_WH

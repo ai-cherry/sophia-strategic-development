@@ -50,14 +50,14 @@
         "upsertKey": "topic",
         "options": {}
       },
-      "name": "Store Gaps in Snowflake",
-      "type": "n8n-nodes-base.snowflake",
+      "name": "Store Gaps in ModernStack",
+      "type": "n8n-nodes-base.modern_stack",
       "typeVersion": 1,
       "position": [900, 300],
       "credentials": {
-        "snowflake": {
-          "id": "sophia-snowflake-prod",
-          "name": "Sophia Snowflake Prod"
+        "modern_stack": {
+          "id": "sophia-modern_stack-prod",
+          "name": "Sophia ModernStack Prod"
         }
       }
     },
@@ -100,14 +100,14 @@
       "main": [
         [
           {
-            "node": "Store Gaps in Snowflake",
+            "node": "Store Gaps in ModernStack",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Store Gaps in Snowflake": {
+    "Store Gaps in ModernStack": {
       "main": [
         [
           {

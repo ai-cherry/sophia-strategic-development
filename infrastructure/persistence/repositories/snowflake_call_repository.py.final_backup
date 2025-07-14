@@ -1,0 +1,379 @@
+"""
+modern_stack Call Repository Implementation
+
+This module provides a modern_stack-based implementation of the CallRepository interface.
+"""
+
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+import json
+from datetime import datetime
+
+from core.application.ports.repositories.call_repository import CallRepository
+from domain.entities.call import Call
+from domain.value_objects.call_participant import (
+    CallParticipant,
+    ParticipantRole,
+)
+from domain.value_objects.sentiment import Sentiment
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+
+
+class modern_stackCallRepository(CallRepository):
+    """
+    modern_stack implementation of the CallRepository interface.
+
+    This adapter implements the CallRepository port using modern_stack
+    as the persistence mechanism.
+    """
+
+    def __init__(self, memory_service_v3: modern_stackCortexService):
+        """
+        Initialize the repository with a modern_stack service.
+
+        Args:
+            memory_service_v3: The modern_stack service for database operations
+        """
+        self.modern_stack = memory_service_v3
+        self.table_name = "ENRICHED_GONG_CALLS"
+
+    async def get_by_id(self, call_id: str) -> Call | None:
+        """
+        Retrieve a call by its ID.
+
+        Args:
+            call_id: The unique identifier of the call
+
+        Returns:
+            Optional[Call]: The call if found, None otherwise
+        """
+        query = f"""
+        SELECT * FROM {self.table_name}
+        WHERE CALL_ID = %s
+        """
+
+        result = await self.modern_stack.execute_query(query, (call_id,))
+
+        if result and len(result) > 0:
+            return self._map_row_to_call(result[0])
+
+        return None
+
+    async def get_by_external_id(self, external_id: str) -> Call | None:
+        """
+        Retrieve a call by its external system ID.
+
+        Args:
+            external_id: The external system identifier
+
+        Returns:
+            Optional[Call]: The call if found, None otherwise
+        """
+        query = f"""
+        SELECT * FROM {self.table_name}
+        WHERE GONG_CALL_ID = %s
+        """
+
+        result = await self.modern_stack.execute_query(query, (external_id,))
+
+        if result and len(result) > 0:
+            return self._map_row_to_call(result[0])
+
+        return None
+
+    async def get_recent_calls(self, limit: int = 10, offset: int = 0) -> list[Call]:
+        """
+        Get recent calls ordered by scheduled date.
+
+        Args:
+            limit: Maximum number of calls to return
+            offset: Number of calls to skip for pagination
+
+        Returns:
+            List[Call]: List of recent calls
+        """
+        query = f"""
+        SELECT * FROM {self.table_name}
+        ORDER BY SCHEDULED_AT DESC
+        LIMIT %s OFFSET %s
+        """
+
+        result = await self.modern_stack.execute_query(query, (limit, offset))
+
+        return [self._map_row_to_call(row) for row in result]
+
+    async def get_calls_by_date_range(
+        self, start_date: datetime, end_date: datetime
+    ) -> list[Call]:
+        """
+        Get calls within a specific date range.
+
+        Args:
+            start_date: Start of the date range
+            end_date: End of the date range
+
+        Returns:
+            List[Call]: List of calls in the date range
+        """
+        query = f"""
+        SELECT * FROM {self.table_name}
+        WHERE SCHEDULED_AT BETWEEN %s AND %s
+        ORDER BY SCHEDULED_AT
+        """
+
+        result = await self.modern_stack.execute_query(
+            query, (start_date.isoformat(), end_date.isoformat())
+        )
+
+        return [self._map_row_to_call(row) for row in result]
+
+    async def get_calls_requiring_followup(self) -> list[Call]:
+        """
+        Get all calls that require followup based on business rules.
+
+        Returns:
+            List[Call]: List of calls requiring followup
+        """
+        query = f"""
+        SELECT * FROM {self.table_name}
+        WHERE AI_SENTIMENT < -0.3  -- Negative sentiment threshold
+           OR ARRAY_SIZE(AI_RISKS) > 0  -- Has identified risks
+        ORDER BY SCHEDULED_AT DESC
+        """
+
+        result = await self.modern_stack.execute_query(query)
+
+        return [self._map_row_to_call(row) for row in result]
+
+    async def save(self, call: Call) -> Call:
+        """
+        Persist a call.
+
+        Args:
+            call: The call to save
+
+        Returns:
+            Call: The saved call with any updates
+        """
+        # Prepare data for insertion
+        participants_json = json.dumps(
+            [
+                {
+                    "email": p.email,
+                    "name": p.name,
+                    "role": p.role.value,
+                    "is_decision_maker": p.is_decision_maker,
+                }
+                for p in call.participants
+            ]
+        )
+
+        query = f"""
+        INSERT INTO {self.table_name} (
+            CALL_ID, GONG_CALL_ID, TITLE, SCHEDULED_AT,
+            DURATION_SECONDS, PARTICIPANTS, TRANSCRIPT,
+            AI_SENTIMENT, TALK_RATIO, NEXT_STEPS, AI_TOPICS
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        await self.modern_stack.execute_query(
+            query,
+            (
+                call.id,
+                call.external_id,
+                call.title,
+                call.scheduled_at.isoformat(),
+                call.duration_seconds,
+                participants_json,
+                call.transcript,
+                call.sentiment.score if call.sentiment else None,
+                call.talk_ratio,
+                json.dumps(call.next_steps) if call.next_steps else "[]",
+                json.dumps(call.topics) if call.topics else "[]",
+            ),
+        )
+
+        return call
+
+    async def update(self, call: Call) -> Call:
+        """
+        Update an existing call.
+
+        Args:
+            call: The call with updated data
+
+        Returns:
+            Call: The updated call
+        """
+        participants_json = json.dumps(
+            [
+                {
+                    "email": p.email,
+                    "name": p.name,
+                    "role": p.role.value,
+                    "is_decision_maker": p.is_decision_maker,
+                }
+                for p in call.participants
+            ]
+        )
+
+        query = f"""
+        UPDATE {self.table_name}
+        SET TITLE = %s,
+            SCHEDULED_AT = %s,
+            DURATION_SECONDS = %s,
+            PARTICIPANTS = %s,
+            TRANSCRIPT = %s,
+            AI_SENTIMENT = %s,
+            TALK_RATIO = %s,
+            NEXT_STEPS = %s,
+            AI_TOPICS = %s,
+            UPDATED_AT = CURRENT_TIMESTAMP()
+        WHERE CALL_ID = %s
+        """
+
+        await self.modern_stack.execute_query(
+            query,
+            (
+                call.title,
+                call.scheduled_at.isoformat(),
+                call.duration_seconds,
+                participants_json,
+                call.transcript,
+                call.sentiment.score if call.sentiment else None,
+                call.talk_ratio,
+                json.dumps(call.next_steps) if call.next_steps else "[]",
+                json.dumps(call.topics) if call.topics else "[]",
+                call.id,
+            ),
+        )
+
+        return call
+
+    async def delete(self, call_id: str) -> bool:
+        """
+        Delete a call by ID.
+
+        Args:
+            call_id: The ID of the call to delete
+
+        Returns:
+            bool: True if deleted, False if not found
+        """
+        query = f"""
+        DELETE FROM {self.table_name}
+        WHERE CALL_ID = %s
+        """
+
+        result = await self.modern_stack.execute_query(query, (call_id,))
+
+        # Check if any rows were affected
+        return result is not None
+
+    async def search_by_participant_email(self, email: str) -> list[Call]:
+        """
+        Search for calls by participant email.
+
+        Args:
+            email: The email address to search for
+
+        Returns:
+            List[Call]: List of calls with the participant
+        """
+        query = f"""
+        SELECT * FROM {self.table_name}
+        WHERE ARRAY_CONTAINS(
+            %s::VARIANT,
+            TRANSFORM(PARSE_JSON(PARTICIPANTS), x -> x:email)
+        )
+        ORDER BY SCHEDULED_AT DESC
+        """
+
+        result = await self.modern_stack.execute_query(query, (email,))
+
+        return [self._map_row_to_call(row) for row in result]
+
+    async def get_high_value_calls(self) -> list[Call]:
+        """
+        Get all high-value calls based on business rules.
+
+        Returns:
+            List[Call]: List of high-value calls
+        """
+        query = f"""
+        SELECT * FROM {self.table_name}
+        WHERE DURATION_SECONDS > 1800  -- Calls > 30 minutes
+          AND EXISTS (
+              SELECT 1 FROM TABLE(FLATTEN(PARSE_JSON(PARTICIPANTS))) p
+              WHERE p.value:is_decision_maker = true
+          )
+        ORDER BY SCHEDULED_AT DESC
+        """
+
+        result = await self.modern_stack.execute_query(query)
+
+        return [self._map_row_to_call(row) for row in result]
+
+    async def get_by_deal(self, deal_id: str) -> list[Call]:
+        """
+        Retrieve calls associated with a specific deal.
+
+        Args:
+            deal_id: The ID of the deal
+
+        Returns:
+            List[Call]: List of calls associated with the deal
+        """
+        query = f"""
+        SELECT * FROM {self.table_name}
+        WHERE DEAL_ID = %s
+        ORDER BY SCHEDULED_AT DESC
+        """
+
+        result = await self.modern_stack.execute_query(query, (deal_id,))
+
+        return [self._map_row_to_call(row) for row in result]
+
+    def _map_row_to_call(self, row: dict) -> Call:
+        """
+        Map a database row to a Call entity.
+
+        Args:
+            row: Database row as a dictionary
+
+        Returns:
+            Call: The mapped Call entity
+        """
+        # Parse participants
+        participants_data = json.loads(row.get("PARTICIPANTS", "[]"))
+        participants = [
+            CallParticipant(
+                email=p["email"],
+                name=p["name"],
+                role=ParticipantRole(p["role"]),
+                is_decision_maker=p.get("is_decision_maker", False),
+            )
+            for p in participants_data
+        ]
+
+        # Parse sentiment
+        sentiment = None
+        if row.get("AI_SENTIMENT") is not None:
+            sentiment = Sentiment(score=float(row["AI_SENTIMENT"]))
+
+        # Parse lists
+        next_steps = json.loads(row.get("NEXT_STEPS", "[]"))
+        topics = json.loads(row.get("AI_TOPICS", "[]"))
+
+        return Call(
+            id=row["CALL_ID"],
+            external_id=row["GONG_CALL_ID"],
+            title=row["TITLE"],
+            scheduled_at=datetime.fromisoformat(row["SCHEDULED_AT"]),
+            duration_seconds=row["DURATION_SECONDS"],
+            participants=participants,
+            transcript=row.get("TRANSCRIPT"),
+            sentiment=sentiment,
+            talk_ratio=row.get("TALK_RATIO"),
+            next_steps=next_steps if next_steps else None,
+            topics=topics if topics else None,
+        )

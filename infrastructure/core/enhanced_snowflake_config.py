@@ -4,13 +4,13 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-import snowflake.connector
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
 from core.config_manager import get_config_value
 
 # SQL injection fixes applied - using parameterized queries
 """
-Enhanced Snowflake Configuration for Comprehensive Schema Integration
+# REMOVED: ModernStack dependencyuration for Comprehensive Schema Integration
 Supports all 6 schemas: UNIVERSAL_CHAT, AI_MEMORY, APOLLO_IO, PROJECT_MANAGEMENT, GONG_INTEGRATION, HUBSPOT_INTEGRATION
 """
 
@@ -27,24 +27,24 @@ class SchemaType(str, Enum):
 
 
 @dataclass
-class EnhancedSnowflakeConfig:
-    """Enhanced Snowflake configuration supporting all schemas"""
+# REMOVED: ModernStack dependency:
+# REMOVED: ModernStack dependencyuration supporting all schemas"""
 
     # Production credentials from schema breakdown
     account: str = "ZNB04675.us-east-1"
     user: str = "SCOOBYJAVA15"
-    password: str = get_config_value("snowflake_password")
+    password: str = get_config_value("postgres_password")
     role: str = "ACCOUNTADMIN"
     database: str = "SOPHIA_AI"
     warehouse: str = "SOPHIA_AI_WH"
     default_schema: str = "UNIVERSAL_CHAT"
 
 
-class EnhancedSnowflakeManager:
-    """Enhanced Snowflake manager with comprehensive schema support"""
+class EnhancedModernStackManager:
+    """Enhanced ModernStack manager with comprehensive schema support"""
 
-    def __init__(self, config: EnhancedSnowflakeConfig | None = None):
-        self.config = config or EnhancedSnowflakeConfig()
+# REMOVED: ModernStack dependency | None = None):
+# REMOVED: ModernStack dependency()
         self.connection = None
 
         # Schema-specific table mappings for enhanced operations
@@ -98,9 +98,9 @@ class EnhancedSnowflakeManager:
         }
 
     async def connect(self):
-        """Connect to Snowflake with comprehensive error handling"""
+        """Connect to ModernStack with comprehensive error handling"""
         try:
-            self.connection = snowflake.connector.connect(
+            self.connection = self.modern_stack_connection(
                 account=self.config.account,
                 user=self.config.user,
                 password=self.config.password,
@@ -110,11 +110,11 @@ class EnhancedSnowflakeManager:
                 schema=self.config.default_schema,
             )
 
-            logger.info("✅ Connected to enhanced Snowflake deployment with 6 schemas")
+            logger.info("✅ Connected to enhanced ModernStack deployment with 6 schemas")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Snowflake: {e}")
+            logger.error(f"❌ Failed to connect to ModernStack: {e}")
             raise
 
     def get_table_name(self, schema: SchemaType, table_key: str) -> str:
@@ -135,10 +135,10 @@ class EnhancedSnowflakeManager:
         try:
             if not self.connection:
                 raise ConnectionError(
-                    "Not connected to Snowflake. Call connect() first."
+                    "Not connected to ModernStack. Call connect() first."
                 )
 
-            cursor = self.connection.cursor(snowflake.connector.DictCursor)
+            cursor = self.connection.cursor(modern_stack.connector.DictCursor)
 
             # Switch schema if specified
             if schema:
@@ -474,11 +474,11 @@ class EnhancedSnowflakeManager:
         return health_status
 
     async def disconnect(self):
-        """Clean disconnect from Snowflake"""
+        """Clean disconnect from ModernStack"""
         if self.connection:
             self.connection.close()
-            logger.info("Disconnected from enhanced Snowflake deployment")
+            logger.info("Disconnected from enhanced ModernStack deployment")
 
 
 # Global instance for application use
-enhanced_snowflake_manager = EnhancedSnowflakeManager()
+enhanced_# REMOVED: ModernStack dependency EnhancedModernStackManager()

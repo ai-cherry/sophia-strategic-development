@@ -7,6 +7,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
+from core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -69,14 +70,6 @@ class SecurityConfig:
             rotation_days=90,
         ),
         # Database Credentials
-        "snowflake_password": SecretConfig(
-            key="snowflake_password",
-            secret_type=SecretType.DATABASE_PASSWORD,
-            required=True,
-            description="Snowflake database password/PAT",
-            rotation_enabled=True,
-            rotation_days=30,
-        ),
         "redis_password": SecretConfig(
             key="redis_password",
             secret_type=SecretType.DATABASE_PASSWORD,
@@ -254,13 +247,6 @@ class SecurityConfig:
 
     # Non-secret configuration values
     NON_SECRET_CONFIG: dict[str, str] = {
-        # Snowflake Connection Details
-        "snowflake_account": "ZNB04675.us-east-1",
-        "snowflake_user": "SCOOBYJAVA15",
-        "snowflake_role": "ACCOUNTADMIN",
-        "snowflake_warehouse": "SOPHIA_AI_WH",
-        "snowflake_database": "SOPHIA_AI",
-        "snowflake_schema": "PROCESSED_AI",
         # Redis Configuration
         "redis_host": "localhost",
         "redis_port": "6379",
@@ -332,8 +318,6 @@ class SecurityConfig:
     @classmethod
     def validate_environment_secrets(cls) -> dict[str, bool]:
         """Validate that all required secrets are available"""
-        from core.auto_esc_config import get_config_value
-
         validation_results = {}
         for key, config in cls.SECRETS_REGISTRY.items():
             if config.required:

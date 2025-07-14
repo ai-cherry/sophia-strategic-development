@@ -1,6 +1,0 @@
--- Placeholder for business vocabulary definitions
--- This file will define business-specific terms and their mappings
--- to the semantic layer views.
--- Example:
--- CREATE OR REPLACE TAG SOPHIA_SEMANTIC.BUSINESS_TERM
--- ALLOWED_VALUES 'MRR', 'ARR', 'Customer Churn';

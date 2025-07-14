@@ -20,7 +20,7 @@ from api.unified_health_routes import router as unified_health_router
 from backend.services.unified_chat_service import (
     AccessLevel,
     ChatContext,
-    UnifiedChatService,
+    SophiaUnifiedOrchestrator,
 )
 from backend.services.unified_chat_service import (
     ChatRequest as InternalChatRequest,
@@ -73,7 +73,7 @@ class ChatResponse(BaseModel):
 
 
 # Initialize the unified chat service
-chat_service = UnifiedChatService()
+chat_service = SophiaUnifiedOrchestrator()
 
 
 # Health check
@@ -110,7 +110,7 @@ async def chat_endpoint(request: ChatRequest):
             # This mock currently doesn't support streaming from the internal service
             # A full implementation would require the internal service to yield tokens
             async def stream_response():
-                # Placeholder for actual streaming from UnifiedChatService
+                # Placeholder for actual streaming from SophiaUnifiedOrchestrator
                 # For now, it will return the full response as a single chunk
                 full_response_obj = await chat_service.process_chat(internal_request)
                 yield f"data: {full_response_obj.response}\n\n"

@@ -19,6 +19,8 @@ spec:
         component: mcp-server
         server: asana
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
       containers:
       - name: mcp-asana
         image: scoobyjava15/sophia-mcp-asana:latest

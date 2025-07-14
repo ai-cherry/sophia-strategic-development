@@ -1,3 +1,4 @@
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import shlex
 from datetime import UTC, datetime
 
@@ -16,7 +17,7 @@ Recommended decomposition:
 - deployment_tracker_models.py - Data models
 - deployment_tracker_handlers.py - Request handlers
 
-TODO: Implement file decomposition
+TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import json
@@ -26,7 +27,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -111,12 +112,12 @@ class EnhancedDeploymentTracker:
     """Enhanced deployment tracking with monitoring and rollback capabilities."""
 
     def __init__(self):
-        self.snowflake_service = SnowflakeCortexService()
+        self.memory_service_v3 = UnifiedMemoryServiceV2()
         self.deployment_history: list[DeploymentEvent] = []
         self.active_deployments: dict[str, DeploymentEvent] = {}
 
     async def initialize_tracking_schema(self) -> bool:
-        """Initialize deployment tracking schema in Snowflake."""
+        """Initialize deployment tracking schema in ModernStack."""
         try:
             schema_sql = """
             -- Deployment Tracking Schema
@@ -186,7 +187,7 @@ class EnhancedDeploymentTracker:
             );
             """
 
-            await self.snowflake_service.execute_query(schema_sql)
+            await self.memory_service_v3.execute_query(schema_sql)
             logger.info("✅ Deployment tracking schema initialized successfully")
             return True
 
@@ -231,7 +232,7 @@ class EnhancedDeploymentTracker:
         # Store in active deployments
         self.active_deployments[deployment_id] = deployment_event
 
-        # Store in Snowflake
+        # Store in ModernStack
         await self._store_deployment_event(deployment_event)
 
         # Send notification
@@ -268,7 +269,7 @@ class EnhancedDeploymentTracker:
             self.deployment_history.append(deployment)
             del self.active_deployments[deployment_id]
 
-        # Update in Snowflake
+        # Update in ModernStack
         await self._store_deployment_event(deployment)
 
         # Send notification
@@ -323,7 +324,7 @@ class EnhancedDeploymentTracker:
         query += " ORDER BY component, environment"
 
         try:
-            results = await self.snowflake_service.execute_query(query)
+            results = await self.memory_service_v3.execute_query(query)
 
             health_status = []
             for row in results:
@@ -472,7 +473,7 @@ class EnhancedDeploymentTracker:
         }
 
     async def _store_deployment_event(self, event: DeploymentEvent) -> bool:
-        """Store deployment event in Snowflake."""
+        """Store deployment event in ModernStack."""
 
         try:
             query = """
@@ -531,7 +532,7 @@ class EnhancedDeploymentTracker:
                 json.dumps(event.metadata or {}),
             ]
 
-            await self.snowflake_service.execute_query(query, params)
+            await self.memory_service_v3.execute_query(query, params)
             return True
 
         except Exception as e:
@@ -712,7 +713,7 @@ class EnhancedDeploymentTracker:
             WHERE component = %s AND environment = %s
             """
 
-            results = await self.snowflake_service.execute_query(
+            results = await self.memory_service_v3.execute_query(
                 query, [component.value, environment.value]
             )
 
@@ -741,7 +742,7 @@ class EnhancedDeploymentTracker:
             LIMIT 1
             """
 
-            results = await self.snowflake_service.execute_query(
+            results = await self.memory_service_v3.execute_query(
                 query, [component.value, environment.value]
             )
 
@@ -772,7 +773,7 @@ class EnhancedDeploymentTracker:
               AND timestamp >= DATEADD(DAY, -7, CURRENT_TIMESTAMP())
             """
 
-            results = await self.snowflake_service.execute_query(
+            results = await self.memory_service_v3.execute_query(
                 query, [component.value, environment.value]
             )
 

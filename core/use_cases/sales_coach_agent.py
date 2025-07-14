@@ -1,10 +1,11 @@
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 """
-Enhanced Sales Coach Agent with Snowflake Cortex Integration
+Enhanced Sales Coach Agent with Lambda GPU Integration
 
 This agent provides AI-powered sales coaching based on Gong call data analyzed
-through Snowflake Cortex, combined with HubSpot deal context for comprehensive insights.
+through Lambda GPU, combined with HubSpot deal context for comprehensive insights.
 """
 
 """
@@ -17,7 +18,7 @@ Recommended decomposition:
 - sales_coach_agent_models.py - Data models
 - sales_coach_agent_handlers.py - Request handlers
 
-TODO: Implement file decomposition
+TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import logging
@@ -30,9 +31,9 @@ from core.agents.base_agent import BaseAgent
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
-from shared.utils.snowflake_gong_connector import SnowflakeGongConnector
-from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from shared.utils.modern_stack_gong_connector import ModernStackGongConnector
+from shared.utils.modern_stack_hubspot_connector import ModernStackHubSpotConnector
 
 logger = logging.getLogger(__name__)
 
@@ -108,10 +109,10 @@ class CoachingRecommendation:
 
 class SalesCoachAgent(BaseAgent):
     """
-    Enhanced Sales Coach Agent with Snowflake Cortex integration
+    Enhanced Sales Coach Agent with Lambda GPU integration
 
     Provides AI-powered sales coaching based on:
-    - Gong call analysis via Snowflake Cortex
+    - Gong call analysis via Lambda GPU
     - HubSpot deal context for strategic insights
     - Historical pattern analysis
     - Personalized coaching recommendations
@@ -120,31 +121,31 @@ class SalesCoachAgent(BaseAgent):
     def __init__(self):
         super().__init__()
         self.name = "sales_coach"
-        self.description = "AI-powered sales coaching with Snowflake Cortex insights"
+        self.description = "AI-powered sales coaching with Lambda GPU insights"
 
-        # Snowflake integrations
-        self.cortex_service: SnowflakeCortexService | None = None
-        self.gong_connector: SnowflakeGongConnector | None = None
-        self.hubspot_connector: SnowflakeHubSpotConnector | None = None
+        # ModernStack integrations
+        self.cortex_service: ModernStackCortexService | None = None
+        self.gong_connector: ModernStackGongConnector | None = None
+        self.hubspot_connector: ModernStackHubSpotConnector | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
 
         self.initialized = False
 
     async def initialize(self) -> None:
-        """Initialize Snowflake Cortex services and AI Memory"""
+        """Initialize Lambda GPU services and AI Memory"""
         if self.initialized:
             return
 
         try:
-            self.cortex_service = SnowflakeCortexService()
-            self.gong_connector = SnowflakeGongConnector()
-            self.hubspot_connector = SnowflakeHubSpotConnector()
+            self.cortex_service = UnifiedMemoryServiceV2()
+            self.gong_connector = ModernStackGongConnector()
+            self.hubspot_connector = ModernStackHubSpotConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
 
             await self.ai_memory.initialize()
 
             self.initialized = True
-            logger.info("✅ Sales Coach Agent initialized with Snowflake Cortex")
+            logger.info("✅ Sales Coach Agent initialized with Lambda GPU")
 
         except Exception as e:
             logger.error(f"Failed to initialize Sales Coach Agent: {e}")
@@ -152,7 +153,7 @@ class SalesCoachAgent(BaseAgent):
 
     async def analyze_call_with_cortex(self, call_id: str) -> CallAnalysisResult | None:
         """
-        Perform comprehensive call analysis using Snowflake Cortex
+        Perform comprehensive call analysis using Lambda GPU
 
         Args:
             call_id: Gong call ID to analyze
@@ -164,7 +165,7 @@ class SalesCoachAgent(BaseAgent):
             await self.initialize()
 
         try:
-            # Get call data from Snowflake
+            # Get call data from ModernStack
             async with self.gong_connector as connector:
                 call_data = await connector.get_call_analysis_data(
                     call_id=call_id, include_full_transcript=True
@@ -198,7 +199,7 @@ class SalesCoachAgent(BaseAgent):
                 5. Next steps and follow-up recommendations
                 """
 
-                cortex_summary = await cortex.complete_text_with_cortex(
+                cortex_summary = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=summary_prompt, max_tokens=400
                 )
 
@@ -235,7 +236,7 @@ class SalesCoachAgent(BaseAgent):
                         ]
                     )
 
-                    topics_result = await cortex.complete_text_with_cortex(
+                    topics_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                         prompt=f"{topic_prompt}\n\nTranscript: {transcript_text[:2000]}",
                         max_tokens=100,
                     )
@@ -548,7 +549,7 @@ class SalesCoachAgent(BaseAgent):
 
             # Analyze patterns using Cortex
             async with self.cortex_service as cortex:
-                performance_summary = await cortex.complete_text_with_cortex(
+                performance_summary = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=f"""
                     Analyze this sales rep's performance and provide coaching insights:
 

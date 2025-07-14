@@ -7,6 +7,7 @@ Extends the existing EnhancedIngestionService with event-driven orchestration,
 building on Phase 2 polyglot MCP ecosystem for enterprise-grade performance.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import json
 import logging
@@ -193,9 +194,9 @@ class EventDrivenIngestionService(EnhancedIngestionService):
     Implements enterprise-grade event orchestration while maintaining backwards compatibility
     """
 
-    def __init__(self, snowflake_config: dict[str, str] | None = None):
+    def __init__(self, # REMOVED: ModernStack dependency None):
         # Initialize parent class
-        super().__init__(snowflake_config or {})
+# REMOVED: ModernStack dependency or {})
 
         # Event-driven components
         self.event_bus = IngestionEventBus()

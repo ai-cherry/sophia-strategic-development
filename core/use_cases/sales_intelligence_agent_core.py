@@ -25,9 +25,9 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
 from infrastructure.services.foundational_knowledge_service import (
     FoundationalKnowledgeService,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
-from shared.utils.snowflake_gong_connector import SnowflakeGongConnector
-from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from shared.utils.modern_stack_gong_connector import ModernStackGongConnector
+from shared.utils.modern_stack_hubspot_connector import ModernStackHubSpotConnector
 
 from .sales_intelligence_agent_handlers import (
     CompetitorAnalysisHandler,
@@ -66,9 +66,9 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
         self.agent_role = AgentRole.ANALYZER  # Primary role in workflows
 
         # Service integrations
-        self.cortex_service: SnowflakeCortexService | None = None
-        self.gong_connector: SnowflakeGongConnector | None = None
-        self.hubspot_connector: SnowflakeHubSpotConnector | None = None
+        self.cortex_service: ModernStackCortexService | None = None
+        self.gong_connector: ModernStackGongConnector | None = None
+        self.hubspot_connector: ModernStackHubSpotConnector | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.knowledge_service: FoundationalKnowledgeService | None = None
         # # self.sales_coach: SalesCoachAgent | None = None  # Temporarily disabled
@@ -88,9 +88,9 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
 
         try:
             # Initialize services
-            self.cortex_service = SnowflakeCortexService()
-            self.gong_connector = SnowflakeGongConnector()
-            self.hubspot_connector = SnowflakeHubSpotConnector()
+            self.cortex_service = UnifiedMemoryServiceV2()
+            self.gong_connector = ModernStackGongConnector()
+            self.hubspot_connector = ModernStackHubSpotConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             self.knowledge_service = FoundationalKnowledgeService()
             # # self.sales_coach = SalesCoachAgent()  # Temporarily disabled
@@ -271,7 +271,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             data_sources=[
                 "hubspot_crm",
                 "gong_calls",
-                "snowflake_data_warehouse",
+                "modern_stack_data_warehouse",
                 "ai_memory",
                 "foundational_knowledge",
             ],
@@ -285,7 +285,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             integration_points=[
                 "multi_agent_workflows",
                 "llm_service",
-                "snowflake_cortex",
+                "modern_stack_cortex",
                 "ai_memory_storage",
             ],
             performance_metrics={

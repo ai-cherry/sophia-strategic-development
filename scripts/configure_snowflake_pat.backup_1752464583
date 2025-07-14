@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""
+Configure modern_stack PAT for Sophia AI
+Sets up the modern_stack Programmatic Access Token in the environment
+"""
+
+import os
+import sys
+from pathlib import Path
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from backend.core.auto_esc_config import set_config_value, get_config_value
+
+
+def configure_modern_stack_pat():
+    """Configure modern_stack PAT token for authentication"""
+
+    # PAT token provided by user
+    pat_token = "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A"
+
+    # Set in environment immediately
+    os.environ["modern_stack_PAT"] = pat_token
+    os.environ["modern_stack_ACCOUNT"] = "UHDECNO-CVB64222"
+    os.environ["modern_stack_USER"] = "SCOOBYJAVA15"
+    os.environ["modern_stack_WAREHOUSE"] = "SOPHIA_AI_COMPUTE_WH"
+    os.environ["modern_stack_DATABASE"] = "AI_MEMORY"
+    os.environ["modern_stack_SCHEMA"] = "VECTORS"
+    os.environ["modern_stack_ROLE"] = "ACCOUNTADMIN"
+
+    # Also set through config system
+    set_config_value("modern_stack_pat", pat_token)
+    set_config_value("modern_stack_account", "UHDECNO-CVB64222")
+    set_config_value("modern_stack_user", "SCOOBYJAVA15")
+    set_config_value("modern_stack_warehouse", "SOPHIA_AI_COMPUTE_WH")
+    set_config_value("modern_stack_database", "AI_MEMORY")
+    set_config_value("modern_stack_schema", "VECTORS")
+    set_config_value("modern_stack_role", "ACCOUNTADMIN")
+
+    print("✅ modern_stack PAT configured successfully!")
+    print(f"   Account: {get_config_value('modern_stack_account')}")
+    print(f"   User: {get_config_value('modern_stack_user')}")
+    print(f"   Database: {get_config_value('modern_stack_database')}")
+    print(f"   PAT Token: {pat_token[:20]}...{pat_token[-20:]}")
+
+    # Update local.env file
+    env_file = project_root / "local.env"
+    env_lines = []
+
+    # Read existing lines
+    if env_file.exists():
+        with open(env_file, "r") as f:
+            env_lines = f.readlines()
+
+    # Update or add modern_stack variables
+    modern_stack_vars = {
+        "modern_stack_PAT": pat_token,
+        "modern_stack_ACCOUNT": "UHDECNO-CVB64222",
+        "modern_stack_USER": "SCOOBYJAVA15",
+        "modern_stack_WAREHOUSE": "SOPHIA_AI_COMPUTE_WH",
+        "modern_stack_DATABASE": "AI_MEMORY",
+        "modern_stack_SCHEMA": "VECTORS",
+        "modern_stack_ROLE": "ACCOUNTADMIN",
+    }
+
+    # Update existing or add new
+    updated_vars = set()
+    new_lines = []
+
+    for line in env_lines:
+        stripped = line.strip()
+        if "=" in stripped:
+            key = stripped.split("=")[0]
+            if key in modern_stack_vars:
+                new_lines.append(f"{key}={modern_stack_vars[key]}\n")
+                updated_vars.add(key)
+            else:
+                new_lines.append(line)
+        else:
+            new_lines.append(line)
+
+    # Add any missing variables
+    for key, value in modern_stack_vars.items():
+        if key not in updated_vars:
+            new_lines.append(f"{key}={value}\n")
+
+    # Write back
+    with open(env_file, "w") as f:
+        f.writelines(new_lines)
+
+    print("\n✅ Updated local.env with modern_stack credentials")
+    print("\n🚀 Next: Restart backend to use new credentials")
+
+
+if __name__ == "__main__":
+    configure_modern_stack_pat()

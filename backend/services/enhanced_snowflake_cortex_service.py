@@ -1,6 +1,6 @@
 """
-Enhanced Snowflake Cortex Service
-Deep integration with Snowflake AI Cortex functions for advanced search and analysis
+Enhanced Lambda GPU Service
+Deep integration with ModernStack AI Cortex functions for advanced search and analysis
 """
 
 import json
@@ -8,13 +8,13 @@ import logging
 from datetime import datetime
 from typing import Any, Union
 
-from backend.services.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.modern_stack_cortex_service import ModernStackCortexService
 
 logger = logging.getLogger(__name__)
 
 
-class EnhancedSnowflakeCortexService(SnowflakeCortexService):
-    """Enhanced Snowflake Cortex service with advanced AI functions"""
+class EnhancedModernStackCortexService(ModernStackCortexService):
+    """Enhanced Lambda GPU service with advanced AI functions"""
 
     def __init__(self):
         super().__init__()
@@ -34,7 +34,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             "balanced": "llama3.1-70b",
             "powerful": "llama3.1-405b",
             "code": "codellama-70b",
-            "embedding": "snowflake-arctic-embed-l",
+            "embedding": "modern_stack-arctic-embed-l",
         }
 
     async def enhanced_search_with_cortex(
@@ -45,7 +45,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         use_ai_classify: bool = True,
         max_results: int = 10,
     ) -> dict[str, Any]:
-        """Enhanced search using Snowflake Cortex AI functions"""
+        """Enhanced search using Lambda GPU AI functions"""
 
         try:
             # Build search query with AI functions
@@ -287,12 +287,18 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             )
             model = self.model_mappings.get(ai_model, "llama3.1-70b")
 
+            # Build filter conditions with parameters
+            filter_clause = ""
+            filter_params = {}
+            if filters:
+                filter_clause, filter_params = self._build_filter_conditions(filters)
+
             # Build aggregation query
             aggregation_query = f"""
             WITH data_subset AS (
                 SELECT * FROM {data_source}
                 WHERE 1=1
-                {self._build_filter_conditions(filters) if filters else ""}
+                {filter_clause}
             )
             SELECT
                 AI_AGG(
@@ -306,7 +312,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             FROM data_subset
             """
 
-            results = await self.execute_query(aggregation_query)
+            results = await self.execute_query(aggregation_query, filter_params)
 
             if results:
                 return {
@@ -337,26 +343,44 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                 "error": str(e),
             }
 
-    def _build_filter_conditions(self, filters: dict[str, Any]) -> str:
-        """Build SQL filter conditions from filter dictionary"""
+    def _build_filter_conditions(
+        self, filters: dict[str, Any]
+    ) -> tuple[str, dict[str, Any]]:
+        """Build SQL filter conditions from filter dictionary with parameterized queries"""
 
         conditions = []
+        params = {}
+        param_counter = 0
 
         for key, value in filters.items():
+            param_name = f"filter_{param_counter}"
+            param_counter += 1
+
             if isinstance(value, str):
-                conditions.append(f"AND {key} = '{value}'")
+                conditions.append(f"AND {key} = %({param_name})s")
+                params[param_name] = value
             elif isinstance(value, (int, float)):
-                conditions.append(f"AND {key} = {value}")
+                conditions.append(f"AND {key} = %({param_name})s")
+                params[param_name] = value
             elif isinstance(value, list):
-                value_str = "', '".join(str(v) for v in value)
-                conditions.append(f"AND {key} IN ('{value_str}')")
+                # Create multiple parameters for IN clause
+                in_params = []
+                for i, v in enumerate(value):
+                    in_param_name = f"{param_name}_{i}"
+                    in_params.append(f"%({in_param_name})s")
+                    params[in_param_name] = v
+                conditions.append(f"AND {key} IN ({', '.join(in_params)})")
             elif isinstance(value, dict):
                 if "start" in value and "end" in value:
+                    start_param = f"{param_name}_start"
+                    end_param = f"{param_name}_end"
                     conditions.append(
-                        f"AND {key} BETWEEN '{value['start']}' AND '{value['end']}'"
+                        f"AND {key} BETWEEN %({start_param})s AND %({end_param})s"
                     )
+                    params[start_param] = value["start"]
+                    params[end_param] = value["end"]
 
-        return " ".join(conditions)
+        return " ".join(conditions), params
 
     async def semantic_similarity_search(
         self,
@@ -583,7 +607,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         """Hybrid search fusion combining internal and external results"""
 
         try:
-            # Internal search using Snowflake Cortex
+            # Internal search using Lambda GPU
             internal_results = await self.enhanced_search_with_cortex(
                 query=query, max_results=20
             )
@@ -713,7 +737,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         return combined_results
 
     async def get_cortex_health_status(self) -> dict[str, Any]:
-        """Get health status of Snowflake Cortex functions"""
+        """Get health status of Lambda GPU functions"""
 
         try:
             # Test each AI function

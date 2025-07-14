@@ -11,14 +11,12 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "OPENROUTER_API_KEY": "openrouter_api_key",
     "MEM0_API_KEY": "mem0_api_key",
     # Data Infrastructure
-    "SNOWFLAKE_ACCOUNT": "snowflake_account",
-    "SNOWFLAKE_USER": "snowflake_user",
-    "SNOWFLAKE_PASSWORD": "snowflake_password",
-    "SNOWFLAKE_WAREHOUSE": "snowflake_warehouse",
-    "SNOWFLAKE_DATABASE": "snowflake_database",
-    "SNOWFLAKE_ROLE": "snowflake_role",
-    "PINECONE_API_KEY": "pinecone_api_key",
-    "PINECONE_ENVIRONMENT": "pinecone_environment",
+    "modern_stack_ACCOUNT": "postgres_host",
+    "modern_stack_USER": "modern_stack_user",
+    "modern_stack_PASSWORD": "postgres_password",
+    "modern_stack_WAREHOUSE": "postgres_database",
+    "modern_stack_DATABASE": "postgres_database",
+    "modern_stack_ROLE": "modern_stack_role",
     # Business Intelligence
     "GONG_ACCESS_KEY": "gong_access_key",
     "GONG_ACCESS_KEY_SECRET": "gong_access_key_secret",
@@ -28,8 +26,7 @@ GITHUB_TO_INTERNAL_MAPPING = {
     # Lambda Labs Infrastructure (Clean Configuration)
     "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
     # Infrastructure
-    "DOCKER_TOKEN": "docker_token",
-    "DOCKER_TOKEN": "docker_hub_access_token",
+    "DOCKER_HUB_ACCESS_TOKEN": "docker_hub_access_token",
     "PULUMI_ACCESS_TOKEN": "pulumi_access_token",
     # Communications
     "SLACK_BOT_TOKEN": "slack_bot_token",
@@ -69,17 +66,17 @@ LAMBDA_LABS_CONFIG = {
 
 # Service dependencies
 SERVICE_DEPENDENCIES = {
-    "lambda_labs": ["snowflake", "redis"],
-    "snowflake": ["estuary"],
-    "gong": ["snowflake", "ai_memory"],
-    "slack": ["snowflake", "ai_memory"],
-    "ai_memory": ["snowflake", "pinecone"],
+    "lambda_labs": ["modern_stack", "redis"],
+    "modern_stack": ["estuary"],
+    "gong": ["modern_stack", "ai_memory"],
+    "slack": ["modern_stack", "ai_memory"],
+    "ai_memory": ["modern_stack"],
 }
 
 # Health check endpoints
 HEALTH_CHECK_ENDPOINTS = {
     "lambda_labs": "/v1/models",
-    "snowflake": "/health",
+    "modern_stack": "/health",
     "gong": "/v2/calls",
     "slack": "/api/test",
     "linear": "/graphql",

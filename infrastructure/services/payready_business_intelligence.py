@@ -15,7 +15,7 @@ Recommended decomposition:
 - payready_business_intelligence_models.py - Data models
 - payready_business_intelligence_handlers.py - Request handlers
 
-TODO: Implement file decomposition
+TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import logging
@@ -428,7 +428,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
     async def _get_aggregate_roi_metrics(self) -> dict[str, Any]:
         """Get aggregate ROI metrics across all Pay Ready clients"""
-        # This would query actual data from Snowflake via MCP
+        # This would query actual data from ModernStack via MCP
         return {
             "average_collection_improvement": "18.5%",
             "average_labor_cost_reduction": "42%",

@@ -11,7 +11,7 @@ const iconMap = {
 
 const KPICard = ({ title, value, change, icon }) => {
     const Icon = iconMap[icon] || DollarSign;
-    const isPositive = change.startsWith('+');
+    const isPositive = change && change.startsWith('+');
 
     return (
         <Card>

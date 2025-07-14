@@ -15,7 +15,7 @@ class AIService(ABC):
     Interface for AI operations.
 
     This abstract class defines the contract that any AI service
-    implementation must follow (e.g., Snowflake Cortex, OpenAI, etc.).
+    implementation must follow (e.g., Lambda GPU, OpenAI, etc.).
     """
 
     @abstractmethod

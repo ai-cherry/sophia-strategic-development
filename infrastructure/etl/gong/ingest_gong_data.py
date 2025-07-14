@@ -1,9 +1,9 @@
 # SQL injection fixes applied - using parameterized queries
 """
-Gong Data Ingestion Script for Snowflake
+Gong Data Ingestion Script for ModernStack
 
-This script fetches call data from the Gong API and loads it into Snowflake's
-GONG_CALLS_RAW VARIANT table for further processing by Snowflake Cortex AI.
+This script fetches call data from the Gong API and loads it into ModernStack's
+GONG_CALLS_RAW VARIANT table for further processing by Lambda GPU AI.
 
 Features:
 - Incremental data loading with state management
@@ -29,7 +29,7 @@ Recommended decomposition:
 - ingest_gong_data_models.py - Data models
 - ingest_gong_data_handlers.py - Request handlers
 
-TODO: Implement file decomposition
+TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ from enum import Enum
 from typing import Any
 
 import aiohttp
-import snowflake.connector
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 import structlog
 from pydantic import BaseModel, Field
 
@@ -223,35 +223,35 @@ class GongAPIClient:
             return {"call_id": call_id, "transcript": None, "error": str(e)}
 
 
-class SnowflakeGongLoader:
-    """Loads Gong data into Snowflake tables"""
+class ModernStackGongLoader:
+    """Loads Gong data into ModernStack tables"""
 
     def __init__(self):
         self.connection = None
-        self.database = config.get("snowflake_database", "SOPHIA_AI")
-        self.schema = config.get("snowflake_schema", "GONG_DATA")
-        self.warehouse = config.get("snowflake_warehouse", "SOPHIA_AI_WH")
+        self.database = config.get("postgres_database", "SOPHIA_AI")
+        self.schema = config.get("postgres_schema", "GONG_DATA")
+        self.warehouse = config.get("postgres_database", "SOPHIA_AI_WH")
 
     async def initialize(self) -> None:
-        """Initialize Snowflake connection"""
+        """Initialize ModernStack connection"""
         try:
-            self.connection = snowflake.connector.connect(
-                user=config.get("snowflake_user"),
-                password=config.get("snowflake_password"),
-                account=config.get("snowflake_account"),
+            self.connection = self.modern_stack_connection(
+                user=config.get("modern_stack_user"),
+                password=config.get("postgres_password"),
+                account=config.get("postgres_host"),
                 warehouse=self.warehouse,
                 database=self.database,
                 schema=self.schema,
-                role=config.get("snowflake_role", "ACCOUNTADMIN"),
+                role=config.get("modern_stack_role", "ACCOUNTADMIN"),
             )
 
             # Ensure schema exists
             await self._ensure_schema_exists()
 
-            logger.info("✅ Snowflake Gong loader initialized successfully")
+            logger.info("✅ ModernStack Gong loader initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Snowflake connection: {e}")
+            logger.error(f"Failed to initialize ModernStack connection: {e}")
             raise
 
     async def _ensure_schema_exists(self):
@@ -315,7 +315,7 @@ class SnowflakeGongLoader:
             cursor.execute("COMMIT")
 
             logger.info(
-                f"Loaded {len(insert_data)} raw calls into Snowflake",
+                f"Loaded {len(insert_data)} raw calls into ModernStack",
                 correlation_id=correlation_id,
             )
 
@@ -385,7 +385,7 @@ class SnowflakeGongLoader:
                 cursor.execute("COMMIT")
 
                 logger.info(
-                    f"Loaded {len(insert_data)} transcripts into Snowflake",
+                    f"Loaded {len(insert_data)} transcripts into ModernStack",
                     correlation_id=correlation_id,
                 )
             else:
@@ -451,7 +451,7 @@ class SnowflakeGongLoader:
             cursor.close()
 
     async def get_last_sync_state(self) -> IngestionState | None:
-        """Get the last sync state from Snowflake"""
+        """Get the last sync state from ModernStack"""
         cursor = self.connection.cursor()
         try:
             # Create state table if not exists
@@ -511,7 +511,7 @@ class SnowflakeGongLoader:
             cursor.close()
 
     async def save_sync_state(self, state: IngestionState):
-        """Save sync state to Snowflake"""
+        """Save sync state to ModernStack"""
         cursor = self.connection.cursor()
         try:
             # Begin transaction for atomicity
@@ -540,7 +540,7 @@ class SnowflakeGongLoader:
 
             # Commit transaction
             cursor.execute("COMMIT")
-            logger.debug("Saved sync state to Snowflake")
+            logger.debug("Saved sync state to ModernStack")
 
         except Exception as e:
             # Rollback transaction on error
@@ -557,10 +557,10 @@ class SnowflakeGongLoader:
             cursor.close()
 
     async def close(self):
-        """Close Snowflake connection"""
+        """Close ModernStack connection"""
         if self.connection:
             self.connection.close()
-            logger.info("Snowflake Gong loader connection closed")
+            logger.info("ModernStack Gong loader connection closed")
 
 
 class GongDataIngestionOrchestrator:
@@ -569,7 +569,7 @@ class GongDataIngestionOrchestrator:
     def __init__(self, sync_mode: SyncMode = SyncMode.INCREMENTAL):
         self.sync_mode = sync_mode
         self.gong_client = GongAPIClient()
-        self.snowflake_loader = SnowflakeGongLoader()
+        self.# REMOVED: ModernStack dependency ModernStackGongLoader()
         self.correlation_id = str(uuid.uuid4())
 
     async def run_ingestion(
@@ -608,11 +608,11 @@ class GongDataIngestionOrchestrator:
             )
 
             # Initialize connections
-            await self.snowflake_loader.initialize()
+            await self.modern_stack_loader.initialize()
 
             # Determine date range
             if not from_date:
-                state = await self.snowflake_loader.get_last_sync_state()
+                state = await self.modern_stack_loader.get_last_sync_state()
                 from_date = state.last_sync_timestamp
 
             if not to_date:
@@ -641,7 +641,7 @@ class GongDataIngestionOrchestrator:
                 sync_mode=self.sync_mode,
                 correlation_id=self.correlation_id,
             )
-            await self.snowflake_loader.save_sync_state(new_state)
+            await self.modern_stack_loader.save_sync_state(new_state)
 
             results["success"] = True
             results["end_time"] = datetime.now().isoformat()
@@ -665,7 +665,7 @@ class GongDataIngestionOrchestrator:
             )
 
         finally:
-            await self.snowflake_loader.close()
+            await self.modern_stack_loader.close()
 
         return results
 
@@ -685,8 +685,8 @@ class GongDataIngestionOrchestrator:
                     if not calls:
                         break
 
-                    # Load batch into Snowflake
-                    loaded_count = await self.snowflake_loader.load_raw_calls(calls)
+                    # Load batch into ModernStack
+                    loaded_count = await self.modern_stack_loader.load_raw_calls(calls)
                     total_calls += loaded_count
 
                     # Check for more data
@@ -710,7 +710,7 @@ class GongDataIngestionOrchestrator:
     async def _ingest_transcripts(self, from_date: datetime, to_date: datetime) -> int:
         """Ingest transcripts for calls in date range"""
         # Get call IDs from raw calls table
-        cursor = self.snowflake_loader.connection.cursor()
+        cursor = self.modern_stack_loader.connection.cursor()
         try:
             cursor.execute(
                 """
@@ -744,7 +744,7 @@ class GongDataIngestionOrchestrator:
 
                     # Process in batches of 50
                     if len(transcripts_data) >= 50:
-                        await self.snowflake_loader.load_call_transcripts(
+                        await self.modern_stack_loader.load_call_transcripts(
                             transcripts_data
                         )
                         transcripts_data = []
@@ -755,7 +755,7 @@ class GongDataIngestionOrchestrator:
 
         # Process remaining transcripts
         if transcripts_data:
-            await self.snowflake_loader.load_call_transcripts(transcripts_data)
+            await self.modern_stack_loader.load_call_transcripts(transcripts_data)
 
         return len(call_ids)
 
@@ -765,7 +765,7 @@ async def main():
     """Main CLI entry point"""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Gong Data Ingestion for Snowflake")
+    parser = argparse.ArgumentParser(description="Gong Data Ingestion for ModernStack")
     parser.add_argument(
         "--sync-mode",
         choices=["full", "incremental", "backfill"],
@@ -809,7 +809,7 @@ async def main():
 
         try:
             result = await db_manager.execute_batch(
-                ConnectionType.SNOWFLAKE,
+                ConnectionType.POSTGRESQL,
                 operations,
                 transaction=True
             )

@@ -19,6 +19,8 @@ spec:
         component: mcp-server
         server: linear
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
       containers:
       - name: mcp-linear
         image: scoobyjava15/sophia-mcp-linear:latest

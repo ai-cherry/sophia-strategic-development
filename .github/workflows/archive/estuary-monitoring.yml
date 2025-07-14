@@ -160,7 +160,7 @@ jobs
             \`\`\`
             ### Recommended Actions
             1. Check Estuary Flow connector status
-            2. Verify Snowflake connectivity
+            2. Verify modern_stack connectivity
             3. Review data quality issues
             4. Check system resources and performance
             ### Monitoring Report
@@ -212,9 +212,9 @@ jobs
           python -c "
           import asyncio
           from datetime import datetime, timedelta
-          from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+          from backend.utils.modern_stack_cortex_service import modern_stackCortexService
           async def check_freshness()
-              cortex = SnowflakeCortexService()
+              cortex = modern_stackCortexService()
               await cortex.initialize()
               # Check raw data freshness
               raw_freshness_query = '''

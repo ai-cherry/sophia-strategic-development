@@ -1,4 +1,4 @@
-# Snowflake Cortex MCP Deep-Dive Integration Blueprint
+# Lambda GPU MCP Deep-Dive Integration Blueprint
 
 **Version**: 1.0.0
 **Status**: Implementation Ready
@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-This document provides the complete engineering blueprint for integrating Snowflake Cortex AI capabilities through a dual-mode adapter supporting both direct connections and MCP (Model Context Protocol) server communication. The integration enables seamless AI operations with automatic fallback, comprehensive monitoring, and enterprise-grade security.
+This document provides the complete engineering blueprint for integrating Lambda GPU AI capabilities through a dual-mode adapter supporting both direct connections and MCP (Model Context Protocol) server communication. The integration enables seamless AI operations with automatic fallback, comprehensive monitoring, and enterprise-grade security.
 
 ## Table of Contents
 
@@ -38,8 +38,8 @@ graph TB
         MM[MCP Mode]
     end
 
-    subgraph "Snowflake"
-        SC[Snowflake Cortex]
+    subgraph "Modern Stack"
+        SC[Lambda GPU]
         MS[MCP Server]
     end
 
@@ -58,7 +58,7 @@ graph TB
 
 ### 1.1 Core Implementation
 
-The CortexAdapter provides seamless switching between direct Snowflake connections and MCP server communication with automatic fallback capabilities.
+The CortexAdapter provides seamless switching between direct Modern Stack connections and MCP server communication with automatic fallback capabilities.
 
 #### Key Components:
 - **ExecutionMode Enum**: Controls routing between DIRECT and MCP modes
@@ -69,7 +69,7 @@ The CortexAdapter provides seamless switching between direct Snowflake connectio
 ### 1.2 Implementation Details
 
 ```python
-# File: backend/core/services/snowflake_cortex_adapter.py
+# File: backend/core/services/modern_stack_cortex_adapter.py
 from enum import Enum
 from dataclasses import dataclass, field
 from typing import Optional, Union
@@ -91,7 +91,7 @@ class RetryConfig:
 @dataclass
 class CortexTask:
     type: str  # "complete", "search", "analyst"
-    model: str = "snowflake-arctic"
+    model: str = "modern_stack-arctic"
     temperature: float = 0.7
     max_tokens: int = 2048
 
@@ -115,8 +115,8 @@ class CortexResult:
 ### 1.3 Connection Pool Management
 
 ```python
-# File: backend/core/services/snowflake_pool.py
-class SnowflakePoolManager:
+# File: backend/core/services/modern_stack_pool.py
+class Modern StackPoolManager:
     """Manages connection pools for both direct and MCP modes"""
 
     def __init__(self, config: PoolConfig):
@@ -124,7 +124,7 @@ class SnowflakePoolManager:
         self.mcp_pool = asyncio.Queue(maxsize=config.mcp_pool_size)
         self.metrics = PoolMetrics()
 
-    async def acquire(self, mode: ExecutionMode) -> Union[SnowflakeConnection, MCPSession]:
+    async def acquire(self, mode: ExecutionMode) -> Union[Modern StackConnection, MCPSession]:
         """Acquire connection with wait time tracking"""
         start_time = time.time()
         pool = self.direct_pool if mode == ExecutionMode.DIRECT else self.mcp_pool
@@ -151,8 +151,8 @@ The MCP Registry provides centralized management of all MCP servers with tier-ba
 # File: config/mcp/registry.yaml
 version: "2.0"
 servers:
-  - id: snowflake-cortex-primary
-    host: https://mcp-snowflake.${CLUSTER_FQDN}
+  - id: modern_stack-cortex-primary
+    host: https://mcp-modern_stack.${CLUSTER_FQDN}
     tier: PRIMARY
     auth: PAT
     capabilities:
@@ -169,8 +169,8 @@ servers:
     metricsEndpoint: /metrics
     timeout_ms: 5000
 
-  - id: snowflake-cortex-secondary
-    host: https://mcp-snowflake-dr.${CLUSTER_FQDN}
+  - id: modern_stack-cortex-secondary
+    host: https://mcp-modern_stack-dr.${CLUSTER_FQDN}
     tier: SECONDARY
     auth: PAT
     capabilities:
@@ -185,7 +185,7 @@ servers:
 ```python
 # File: backend/services/mcp_orchestration_service.py
 class MCPOrchestrationService:
-    """Enhanced orchestration with Snowflake Cortex support"""
+    """Enhanced orchestration with Lambda GPU support"""
 
     async def route_cortex_request(
         self,
@@ -268,24 +268,24 @@ class DynamicGraphBuilder:
 
         # Conditional Cortex integration
         if self._requires_cortex_analysis(initial_state):
-            cortex_node = SnowflakeCortexNode(
+            cortex_node = Modern StackCortexNode(
                 adapter=self.cortex_adapter,
                 streaming_callback=self.streaming_callback
             )
-            graph.add_node("snowflake_cortex", cortex_node)
+            graph.add_node("modern_stack_cortex", cortex_node)
 
             # Dynamic routing based on intent
             graph.add_conditional_edges(
                 "intent_classifier",
                 self._route_to_cortex,
                 {
-                    "needs_analysis": "snowflake_cortex",
+                    "needs_analysis": "modern_stack_cortex",
                     "direct_response": "response_generator"
                 }
             )
 
             # Cortex output routing
-            graph.add_edge("snowflake_cortex", "response_generator")
+            graph.add_edge("modern_stack_cortex", "response_generator")
 
         return graph.compile()
 ```
@@ -342,7 +342,7 @@ class SemanticCache(Protocol):
 class PoolAutoscaler:
     """Intelligent pool size management"""
 
-    def __init__(self, pool_manager: SnowflakePoolManager):
+    def __init__(self, pool_manager: Modern StackPoolManager):
         self.pool_manager = pool_manager
         self.metrics_window = deque(maxlen=10)
         self.scaling_decisions = []
@@ -390,14 +390,14 @@ cortex_latency_seconds = Histogram(
 )
 
 # Pool metrics
-snowflake_pool_size = Gauge(
-    'snowflake_pool_size',
+modern_stack_pool_size = Gauge(
+    'modern_stack_pool_size',
     'Current pool size',
     ['mode']
 )
 
-snowflake_pool_in_use = Gauge(
-    'snowflake_pool_in_use',
+modern_stack_pool_in_use = Gauge(
+    'modern_stack_pool_in_use',
     'Connections currently in use',
     ['mode']
 )
@@ -412,7 +412,7 @@ mcp_server_health_score = Gauge(
 # Cost tracking
 cortex_credits_used = Counter(
     'cortex_credits_used',
-    'Snowflake credits consumed',
+    'Modern Stack credits consumed',
     ['task', 'model']
 )
 ```
@@ -422,7 +422,7 @@ cortex_credits_used = Counter(
 ```json
 {
   "dashboard": {
-    "title": "Snowflake Cortex MCP Integration",
+    "title": "Lambda GPU MCP Integration",
     "panels": [
       {
         "title": "Request Rate by Mode",
@@ -441,7 +441,7 @@ cortex_credits_used = Counter(
       {
         "title": "Pool Utilization",
         "targets": [{
-          "expr": "snowflake_pool_in_use / snowflake_pool_size",
+          "expr": "modern_stack_pool_in_use / modern_stack_pool_size",
           "legendFormat": "{{mode}} pool"
         }]
       },
@@ -462,7 +462,7 @@ cortex_credits_used = Counter(
 
 ```python
 # File: backend/security/pat_manager.py
-class SnowflakePATManager:
+class Modern StackPATManager:
     """Secure PAT lifecycle management"""
 
     def __init__(self, esc_client: PulumiESCClient):
@@ -472,9 +472,9 @@ class SnowflakePATManager:
 
     async def get_current_pat(self, environment: str) -> str:
         """Retrieve current PAT with validation"""
-        pat_key = f"snowflake_pat_{environment.lower()}"
+        pat_key = f"modern_stack_pat_{environment.lower()}"
         pat = await self.esc_client.get_secret(
-            f"values.sophia.infrastructure.snowflake.{pat_key}"
+            f"values.sophia.infrastructure.modern_stack.{pat_key}"
         )
 
         if not pat:
@@ -508,8 +508,8 @@ class SnowflakePATManager:
 
 ```python
 # File: backend/security/audit_middleware.py
-class SnowflakeAuditMiddleware:
-    """Comprehensive audit trail for Snowflake operations"""
+class Modern StackAuditMiddleware:
+    """Comprehensive audit trail for Modern Stack operations"""
 
     async def __call__(self, request: Request, call_next):
         # Generate trace ID
@@ -525,7 +525,7 @@ class SnowflakeAuditMiddleware:
             "user_id": getattr(request.state, "user_id", "anonymous"),
             "endpoint": request.url.path,
             "method": request.method,
-            "snowflake_operation": self._extract_operation(request)
+            "modern_stack_operation": self._extract_operation(request)
         }
 
         # Execute request
@@ -535,7 +535,7 @@ class SnowflakeAuditMiddleware:
         audit_entry.update({
             "status_code": response.status_code,
             "duration_ms": (time.time() - start_time) * 1000,
-            "credits_used": response.headers.get("X-Snowflake-Credits", "0")
+            "credits_used": response.headers.get("X-Modern Stack-Credits", "0")
         })
 
         await self.audit_logger.log(audit_entry)
@@ -551,7 +551,7 @@ class SnowflakeAuditMiddleware:
 ### 7.1 Unit Test Suite
 
 ```python
-# File: backend/tests/services/test_snowflake_cortex_adapter.py
+# File: backend/tests/services/test_modern_stack_cortex_adapter.py
 import pytest
 from unittest.mock import AsyncMock, patch
 from httpx import AsyncClient, Response
@@ -565,7 +565,7 @@ class TestCortexAdapter:
     def adapter(self):
         return CortexAdapter(
             execution_mode=ExecutionMode.AUTO,
-            mcp_client=AsyncMock(spec=SnowflakeMCPClient)
+            mcp_client=AsyncMock(spec=Modern StackMCPClient)
         )
 
     @pytest.mark.parametrize("task_type,mode", [
@@ -586,8 +586,8 @@ class TestCortexAdapter:
 
         # Mock appropriate response
         if mode == ExecutionMode.DIRECT:
-            adapter._snowflake_conn = AsyncMock()
-            adapter._snowflake_conn.execute.return_value = {
+            adapter._modern_stack_conn = AsyncMock()
+            adapter._modern_stack_conn.execute.return_value = {
                 "response": "Test response",
                 "usage": {"tokens": 100}
             }
@@ -612,8 +612,8 @@ class TestCortexAdapter:
         adapter.mcp_client.execute_cortex.side_effect = ConnectionError("MCP unavailable")
 
         # Configure direct mode to succeed
-        adapter._snowflake_conn = AsyncMock()
-        adapter._snowflake_conn.execute.return_value = {
+        adapter._modern_stack_conn = AsyncMock()
+        adapter._modern_stack_conn.execute.return_value = {
             "response": "Fallback response"
         }
 
@@ -634,7 +634,7 @@ class TestCortexAdapter:
                 mode="direct",
                 task="complete",
                 status="fallback",
-                model="snowflake-arctic"
+                model="modern_stack-arctic"
             )
 ```
 
@@ -643,9 +643,9 @@ class TestCortexAdapter:
 ```python
 # File: backend/tests/integration/test_cortex_e2e.py
 @pytest.mark.e2e
-@pytest.mark.snowflake
+@pytest.mark.modern_stack
 class TestCortexE2E:
-    """End-to-end tests with real Snowflake connection"""
+    """End-to-end tests with real Modern Stack connection"""
 
     async def test_call_transcript_analysis(self, test_db, cortex_adapter):
         """Test analyzing call transcripts"""
@@ -692,7 +692,7 @@ class TestCortexE2E:
 from locust import HttpUser, task, between
 import json
 
-class SnowflakeMCPUser(HttpUser):
+class Modern StackMCPUser(HttpUser):
     wait_time = between(1, 3)
 
     @task(weight=3)
@@ -750,41 +750,41 @@ on:
     branches: [main]
 
 env:
-  SNOWFLAKE_PAT: ${{ secrets.SNOWFLAKE_PAT_PROD }}
+  modern_stack_PAT: ${{ secrets.modern_stack_PAT_PROD }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate Snowflake PAT
+      - name: Validate Modern Stack PAT
         run: |
-          if [ -z "$SNOWFLAKE_PAT" ]; then
-            echo "::error::SNOWFLAKE_PAT_PROD secret not configured"
+          if [ -z "$modern_stack_PAT" ]; then
+            echo "::error::modern_stack_PAT_PROD secret not configured"
             exit 1
           fi
 
       - name: Build with PAT
         run: |
           docker build \
-            --build-arg SNOWFLAKE_PAT="${SNOWFLAKE_PAT}" \
+            --build-arg modern_stack_PAT="${modern_stack_PAT}" \
             --target production \
             -t sophia-ai:${{ github.sha }} .
 
-      - name: Run Snowflake MCP Smoke Tests
+      - name: Run Modern Stack MCP Smoke Tests
         run: |
           docker run --rm \
-            -e SNOWFLAKE_PAT="${SNOWFLAKE_PAT}" \
+            -e modern_stack_PAT="${modern_stack_PAT}" \
             sophia-ai:${{ github.sha }} \
-            python backend/scripts/smoke_test_snowflake_mcp.py
+            python backend/scripts/smoke_test_modern_stack_mcp.py
 ```
 
 ### 8.2 Rollout Runbook
 
 ```markdown
-# File: docs/runbooks/SNOWFLAKE_MCP_ROLLOUT.md
+# File: docs/runbooks/modern_stack_MCP_ROLLOUT.md
 
 ## Pre-Deployment Checklist
-- [ ] SNOWFLAKE_PAT_PROD secret configured in GitHub
+- [ ] modern_stack_PAT_PROD secret configured in GitHub
 - [ ] Pulumi ESC sync completed
 - [ ] MCP server endpoints verified
 - [ ] Load test baseline captured
@@ -793,8 +793,8 @@ jobs:
 
 1. **Feature Branch Testing**
    ```bash
-   git checkout -b feat/snowflake-mcp-integration
-   pytest -m "unit and snowflake"
+   git checkout -b feat/modern_stack-mcp-integration
+   pytest -m "unit and modern_stack"
    ```
 
 2. **Preview Environment**
@@ -805,7 +805,7 @@ jobs:
 
 3. **E2E Validation**
    ```bash
-   pytest -m "e2e and snowflake" --env=preview
+   pytest -m "e2e and modern_stack" --env=preview
    ```
 
 4. **Staging Deployment**
@@ -816,10 +816,10 @@ jobs:
 5. **Production Deployment**
    - Create release tag
    - Merge to main
-   - Monitor Grafana dashboard "Snowflake Cortex MCP"
+   - Monitor Grafana dashboard "Lambda GPU MCP"
 
 ## Rollback Procedure
-1. Set environment variable: `MCP_SNOWFLAKE_ENABLED=false`
+1. Set environment variable: `MCP_modern_stack_ENABLED=false`
 2. Restart services: `kubectl rollout restart deployment/sophia-backend`
 3. Verify fallback to DIRECT mode in metrics
 ```
@@ -878,11 +878,11 @@ class CortexCircuitBreaker:
 
 ### BACKLOG-01: Redis MCP Semantic Cache
 - Implement Redis-based semantic similarity cache
-- Integration with Snowflake embeddings
+- Integration with Modern Stack embeddings
 - Cache warming strategies
 
 ### BACKLOG-02: Estuary Flow Streaming
-- Real-time data ingestion from Snowflake
+- Real-time data ingestion from Modern Stack
 - Change data capture integration
 - Stream processing with Cortex
 
@@ -893,11 +893,11 @@ class CortexCircuitBreaker:
 
 ### BACKLOG-04: Multi-Region Strategy
 - Lambda Labs multi-region deployment
-- Snowflake region affinity
+- Modern Stack region affinity
 - Latency-based routing
 
 ## Conclusion
 
-This comprehensive integration blueprint provides a production-ready implementation of Snowflake Cortex capabilities within the Sophia AI platform. The dual-mode architecture ensures reliability, the monitoring stack provides observability, and the security measures maintain compliance. The phased rollout approach minimizes risk while the extensive testing strategy ensures quality.
+This comprehensive integration blueprint provides a production-ready implementation of Lambda GPU capabilities within the Sophia AI platform. The dual-mode architecture ensures reliability, the monitoring stack provides observability, and the security measures maintain compliance. The phased rollout approach minimizes risk while the extensive testing strategy ensures quality.
 
 The implementation follows Sophia AI's quality-first principles, reuses existing infrastructure where possible, and provides clear extension points for future enhancements.

@@ -112,7 +112,7 @@ cd frontend && npm run dev
 - **HubSpot**: CRM data and customer intelligence
 - **Slack**: Team communication and notifications
 - **Linear**: Project management and tracking
-- **Snowflake**: Data warehouse and analytics
+- **Modern Stack**: Data warehouse and analytics
 
 ### 🏗️ Architecture
 - **MCP-Driven**: Model Context Protocol for all integrations
@@ -123,7 +123,7 @@ cd frontend && npm run dev
 
 ### 🤖 **Revolutionary AI Agent Capabilities**
 - **Infrastructure Agent**: Deploy via Pulumi, manage Docker containers, control Vercel deployments
-- **Data Agent**: Execute Snowflake queries, manage database schemas, control Estuary Flow pipelines
+- **Data Agent**: Execute Modern Stack queries, manage database schemas, control Estuary Flow pipelines
 - **Integration Agent**: Create Linear tickets, send Slack messages, update HubSpot records
 - **🛡️ Enterprise Security**: Zero Trust authentication, risk-based confirmations, complete audit trails
 
@@ -187,7 +187,7 @@ await auth_manager.execute_operation(
 # Create database schema
 await auth_manager.execute_operation(
     agent_type="data_agent",
-    service="snowflake",
+    service="modern_stack",
     operation="schema_creation",
     params={"schema": "AI_AGENT_TEST"}
 )
@@ -205,13 +205,13 @@ await auth_manager.execute_operation(
 ```bash
 # Infrastructure operations
 "Deploy the updated infrastructure to production"
-"Scale up the Snowflake warehouse for analytics"
+"Scale up the compute cluster for analytics"
 "Create a new Docker service for the MCP gateway"
 
 # Data operations
 "Create a new schema for AI agent testing"
 "Run the quarterly revenue analysis query"
-"Set up a data flow from HubSpot to Snowflake"
+"Set up a data flow from HubSpot to Modern Stack"
 
 # Business tool integration
 "Create a Linear ticket for the authentication bug"
@@ -292,9 +292,8 @@ The Sophia AI platform now uses a unified naming convention and deployment strat
 
 ### Cloud-First Architecture
 - **Docker Hub Registry**: All images pushed to `scoobyjava15/*`
-- **Docker Swarm**: Current orchestration (simple, effective)
-- **K3s**: Next migration target (lightweight Kubernetes)
-- **Kubernetes**: Future enterprise scale
+- **K3s**: Lightweight Kubernetes orchestration on Lambda Labs
+- **Kubernetes**: Target orchestration platform
 
 ### Unified Scripts
 - `unified_deployment.sh` - Main deployment script
@@ -310,3 +309,41 @@ The Sophia AI platform now uses a unified naming convention and deployment strat
 - `UNIFIED_SECRET_MANAGEMENT_STRATEGY.md` - Secret management
 - `UNIFIED_DEPLOYMENT_STRATEGY.md` - Deployment patterns
 - `UNIFIED_DEPLOYMENT_AUDIT_RESOLUTION.md` - Audit resolution
+
+### Current Status (July 2025)
+
+✅ **Production MCP Servers** (All 16 Migrated to Official SDK):
+
+## 🛡️ Technical Debt Prevention - "Clean by Design"
+
+**NEW**: Sophia AI now features a comprehensive **"Clean by Design"** framework that automatically prevents technical debt accumulation.
+
+### 🚨 Zero Technical Debt Policy
+Based on our recent cleanup of **290 dead code items** (279 files, 11 directories, 3MB), we've implemented automated prevention:
+
+- **Zero tolerance** for archive directories (`archive/`, `backup/`, `_archived/`)
+- **Automated cleanup** of one-time scripts after 30 days
+- **Pre-commit blocking** of technical debt patterns
+- **Documentation lifecycle** management with auto-archiving
+
+### 🤖 Automated Tools
+```bash
+# Daily cleanup (runs automatically)
+python scripts/utils/daily_cleanup.py
+
+# Pre-commit validation (blocks bad commits)
+python scripts/utils/pre_push_debt_check.py
+
+# View complete strategy
+cat docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md
+```
+
+### 🎯 Success Metrics
+- **One-time scripts**: <10 at any time (auto-managed)
+- **Archive directories**: 0 (zero tolerance)
+- **Backup files**: 0 (zero tolerance)
+- **Stale documentation**: <5 files >90 days old
+
+**Result**: Zero major cleanups needed - prevention eliminates technical debt before it accumulates.
+
+---

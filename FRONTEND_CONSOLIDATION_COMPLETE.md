@@ -78,7 +78,7 @@ Successfully consolidated the `knowledge-admin` app into the main Sophia AI fron
 
 3. **Backend Integration**
    - Implement the API endpoints in the backend
-   - Connect to Snowflake for data persistence
+   - Connect to Modern Stack for data persistence
 
 4. **Feature Development**
    - Implement the placeholder pages

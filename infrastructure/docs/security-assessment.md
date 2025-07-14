@@ -53,7 +53,7 @@ export class SecureSecretManager {
             docker_token: getConfigValue("docker_personal_access_token"),
 
             // Data infrastructure secrets
-            snowflake_password: getConfigValue("snowflake_password"),
+            modern_stack_password: getConfigValue("modern_stack_password"),
             estuary_access_token: getConfigValue("estuary_access_token"),
 
             // Business intelligence secrets
@@ -202,8 +202,8 @@ export class LambdaLabsDataProtection {
 
     static createEncryptionConfig() {
         return {
-            // Snowflake encryption
-            snowflake: {
+            // Modern Stack encryption
+            modern_stack: {
                 encryption: "AES-256",
                 keyRotation: "90d",
                 columnLevelEncryption: true,

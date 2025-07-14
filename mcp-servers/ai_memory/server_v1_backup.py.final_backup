@@ -1,0 +1,432 @@
+"""
+Sophia AI Memory MCP Server
+Unified implementation for Lambda Labs Kubernetes deployment
+"""
+
+import json
+
+# Add parent directory to path
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, Optional
+from uuid import uuid4
+
+import numpy as np
+from pydantic import BaseModel, Field
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+from base.unified_standardized_base import (
+    ServerConfig,
+    ToolDefinition,
+    ToolParameter,
+    UnifiedStandardizedMCPServer,
+)
+
+
+class MemoryRecord(BaseModel):
+    """Memory record model"""
+
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    content: str
+    category: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    embedding: Optional[list[float]] = None
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    score: float = 1.0
+
+
+class AIMemoryServer(UnifiedStandardizedMCPServer):
+    """AI Memory MCP Server with unified architecture"""
+
+    def __init__(self):
+        config = ServerConfig(
+            name="ai-memory",
+            version="2.1.0",
+            port=9000,
+            capabilities=["MEMORY", "EMBEDDING", "SEARCH", "ANALYTICS"],
+            tier="PRIMARY",
+        )
+        super().__init__(config)
+
+        # Memory storage
+        self.memories: dict[str, MemoryRecord] = {}
+        self.memory_index: dict[str, list[str]] = {}  # category -> memory_ids
+
+    def get_tool_definitions(self) -> list[ToolDefinition]:
+        """Define AI Memory tools"""
+        return [
+            ToolDefinition(
+                name="store_memory",
+                description="Store a new memory with category and metadata",
+                parameters=[
+                    ToolParameter(
+                        name="content",
+                        type="string",
+                        description="Memory content to store",
+                        required=True,
+                    ),
+                    ToolParameter(
+                        name="category",
+                        type="string",
+                        description="Memory category",
+                        required=True,
+                    ),
+                    ToolParameter(
+                        name="metadata",
+                        type="object",
+                        description="Additional metadata",
+                        required=False,
+                    ),
+                ],
+            ),
+            ToolDefinition(
+                name="search_memories",
+                description="Search memories by query or category",
+                parameters=[
+                    ToolParameter(
+                        name="query",
+                        type="string",
+                        description="Search query",
+                        required=False,
+                    ),
+                    ToolParameter(
+                        name="category",
+                        type="string",
+                        description="Filter by category",
+                        required=False,
+                    ),
+                    ToolParameter(
+                        name="limit",
+                        type="integer",
+                        description="Maximum results",
+                        required=False,
+                        default=10,
+                    ),
+                ],
+            ),
+            ToolDefinition(
+                name="get_memory",
+                description="Get a specific memory by ID",
+                parameters=[
+                    ToolParameter(
+                        name="memory_id",
+                        type="string",
+                        description="Memory ID",
+                        required=True,
+                    )
+                ],
+            ),
+            ToolDefinition(
+                name="update_memory",
+                description="Update an existing memory",
+                parameters=[
+                    ToolParameter(
+                        name="memory_id",
+                        type="string",
+                        description="Memory ID",
+                        required=True,
+                    ),
+                    ToolParameter(
+                        name="content",
+                        type="string",
+                        description="Updated content",
+                        required=False,
+                    ),
+                    ToolParameter(
+                        name="metadata",
+                        type="object",
+                        description="Updated metadata",
+                        required=False,
+                    ),
+                ],
+            ),
+            ToolDefinition(
+                name="delete_memory",
+                description="Delete a memory",
+                parameters=[
+                    ToolParameter(
+                        name="memory_id",
+                        type="string",
+                        description="Memory ID to delete",
+                        required=True,
+                    )
+                ],
+            ),
+            ToolDefinition(
+                name="get_memory_stats",
+                description="Get memory statistics",
+                parameters=[],
+            ),
+        ]
+
+    async def execute_tool(
+        self, tool_name: str, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Execute memory operations"""
+
+        if tool_name == "store_memory":
+            return await self.store_memory(parameters)
+        elif tool_name == "search_memories":
+            return await self.search_memories(parameters)
+        elif tool_name == "get_memory":
+            return await self.get_memory(parameters)
+        elif tool_name == "update_memory":
+            return await self.update_memory(parameters)
+        elif tool_name == "delete_memory":
+            return await self.delete_memory(parameters)
+        elif tool_name == "get_memory_stats":
+            return await self.get_memory_stats()
+        else:
+            raise ValueError(f"Unknown tool: {tool_name}")
+
+    async def store_memory(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Store a new memory"""
+        try:
+            # Create memory record
+            memory = MemoryRecord(
+                content=params["content"],
+                category=params["category"],
+                metadata=params.get("metadata", {}),
+            )
+
+            # Generate embedding (placeholder - would use real embedding model)
+            memory.embedding = np.random.rand(768).tolist()
+
+            # Store memory
+            self.memories[memory.id] = memory
+
+            # Update index
+            if memory.category not in self.memory_index:
+                self.memory_index[memory.category] = []
+            self.memory_index[memory.category].append(memory.id)
+
+            self.logger.info(f"Stored memory {memory.id} in category {memory.category}")
+            self.metrics["operations_total"].labels(
+                operation="store", status="success"
+            ).inc()
+
+            return {
+                "success": True,
+                "memory_id": memory.id,
+                "timestamp": memory.timestamp.isoformat(),
+            }
+
+        except Exception as e:
+            self.logger.error(f"Error storing memory: {e}")
+            self.metrics["operations_total"].labels(
+                operation="store", status="error"
+            ).inc()
+            return {"success": False, "error": str(e)}
+
+    async def search_memories(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Search memories"""
+        try:
+            query = params.get("query", "")
+            category = params.get("category")
+            limit = params.get("limit", 10)
+
+            # Get candidate memories
+            candidates = []
+            if category:
+                memory_ids = self.memory_index.get(category, [])
+                candidates = [
+                    self.memories[mid] for mid in memory_ids if mid in self.memories
+                ]
+            else:
+                candidates = list(self.memories.values())
+
+            # Simple text search (would use vector search in production)
+            if query:
+                results = []
+                for memory in candidates:
+                    if query.lower() in memory.content.lower():
+                        results.append(memory)
+            else:
+                results = candidates
+
+            # Sort by timestamp and limit
+            results.sort(key=lambda m: m.timestamp, reverse=True)
+            results = results[:limit]
+
+            self.metrics["operations_total"].labels(
+                operation="search", status="success"
+            ).inc()
+
+            return {
+                "success": True,
+                "memories": [
+                    {
+                        "id": m.id,
+                        "content": m.content,
+                        "category": m.category,
+                        "metadata": m.metadata,
+                        "timestamp": m.timestamp.isoformat(),
+                        "score": m.score,
+                    }
+                    for m in results
+                ],
+                "total": len(results),
+            }
+
+        except Exception as e:
+            self.logger.error(f"Error searching memories: {e}")
+            self.metrics["operations_total"].labels(
+                operation="search", status="error"
+            ).inc()
+            return {"success": False, "error": str(e)}
+
+    async def get_memory(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Get specific memory"""
+        try:
+            memory_id = params["memory_id"]
+            memory = self.memories.get(memory_id)
+
+            if not memory:
+                return {"success": False, "error": "Memory not found"}
+
+            self.metrics["operations_total"].labels(
+                operation="get", status="success"
+            ).inc()
+
+            return {
+                "success": True,
+                "memory": {
+                    "id": memory.id,
+                    "content": memory.content,
+                    "category": memory.category,
+                    "metadata": memory.metadata,
+                    "timestamp": memory.timestamp.isoformat(),
+                    "score": memory.score,
+                },
+            }
+
+        except Exception as e:
+            self.logger.error(f"Error getting memory: {e}")
+            self.metrics["operations_total"].labels(
+                operation="get", status="error"
+            ).inc()
+            return {"success": False, "error": str(e)}
+
+    async def update_memory(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Update memory"""
+        try:
+            memory_id = params["memory_id"]
+            memory = self.memories.get(memory_id)
+
+            if not memory:
+                return {"success": False, "error": "Memory not found"}
+
+            # Update fields
+            if "content" in params:
+                memory.content = params["content"]
+                # Regenerate embedding
+                memory.embedding = np.random.rand(768).tolist()
+
+            if "metadata" in params:
+                memory.metadata.update(params["metadata"])
+
+            memory.timestamp = datetime.now(UTC)
+
+            self.metrics["operations_total"].labels(
+                operation="update", status="success"
+            ).inc()
+
+            return {"success": True, "memory_id": memory.id, "updated": True}
+
+        except Exception as e:
+            self.logger.error(f"Error updating memory: {e}")
+            self.metrics["operations_total"].labels(
+                operation="update", status="error"
+            ).inc()
+            return {"success": False, "error": str(e)}
+
+    async def delete_memory(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Delete memory"""
+        try:
+            memory_id = params["memory_id"]
+            memory = self.memories.get(memory_id)
+
+            if not memory:
+                return {"success": False, "error": "Memory not found"}
+
+            # Remove from index
+            if memory.category in self.memory_index:
+                self.memory_index[memory.category] = [
+                    mid
+                    for mid in self.memory_index[memory.category]
+                    if mid != memory_id
+                ]
+
+            # Delete memory
+            del self.memories[memory_id]
+
+            self.metrics["operations_total"].labels(
+                operation="delete", status="success"
+            ).inc()
+
+            return {"success": True, "deleted": True, "memory_id": memory_id}
+
+        except Exception as e:
+            self.logger.error(f"Error deleting memory: {e}")
+            self.metrics["operations_total"].labels(
+                operation="delete", status="error"
+            ).inc()
+            return {"success": False, "error": str(e)}
+
+    async def get_memory_stats(self) -> dict[str, Any]:
+        """Get memory statistics"""
+        try:
+            stats = {
+                "total_memories": len(self.memories),
+                "categories": {},
+                "memory_size_bytes": 0,
+            }
+
+            # Category stats
+            for category, memory_ids in self.memory_index.items():
+                stats["categories"][category] = len(memory_ids)
+
+            # Calculate approximate memory size
+            for memory in self.memories.values():
+                stats["memory_size_bytes"] += len(
+                    json.dumps(memory.model_dump()).encode()
+                )
+
+            self.metrics["operations_total"].labels(
+                operation="stats", status="success"
+            ).inc()
+
+            return {"success": True, "stats": stats}
+
+        except Exception as e:
+            self.logger.error(f"Error getting stats: {e}")
+            self.metrics["operations_total"].labels(
+                operation="stats", status="error"
+            ).inc()
+            return {"success": False, "error": str(e)}
+
+    async def on_startup(self):
+        """Initialize AI Memory server"""
+        self.logger.info("AI Memory server starting...")
+
+        # Load any persisted memories (from database/file)
+        # In production, this would load from modern_stack or Redis
+
+        self.logger.info(f"AI Memory server ready with {len(self.memories)} memories")
+
+    async def on_shutdown(self):
+        """Cleanup AI Memory server"""
+        self.logger.info("AI Memory server shutting down...")
+
+        # Persist memories to storage
+        # In production, this would save to modern_stack or Redis
+
+        self.logger.info("AI Memory server stopped")
+
+
+# Create and run server
+if __name__ == "__main__":
+    server = AIMemoryServer()
+    server.run()

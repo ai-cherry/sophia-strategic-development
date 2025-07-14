@@ -1,7 +1,7 @@
 """
-Snowflake Client for Gong Webhook Data Storage.
+ModernStack Client for Gong Webhook Data Storage.
 
-Handles all Snowflake operations for storing raw and enhanced webhook data.
+Handles all ModernStack operations for storing raw and enhanced webhook data.
 """
 
 from __future__ import annotations
@@ -11,14 +11,14 @@ import json
 from typing import Any
 
 import structlog
-from snowflake.connector import DictCursor
-from snowflake.connector.pool import SnowflakePool
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3.pool import ModernStackPool
 
 logger = structlog.get_logger()
 
 
-class SnowflakeWebhookClient:
-    """Client for Snowflake webhook data operations."""
+class ModernStackWebhookClient:
+    """Client for ModernStack webhook data operations."""
 
     def __init__(
         self,
@@ -36,10 +36,10 @@ class SnowflakeWebhookClient:
         self.warehouse = warehouse
         self.database = database
         self.schema = schema
-        self.logger = logger.bind(component="snowflake_webhook_client")
+        self.logger = logger.bind(component="modern_stack_webhook_client")
 
         # Create connection pool
-        self.pool = SnowflakePool(
+        self.pool = ModernStackPool(
             name="gong_webhook_pool",
             size=pool_size,
             account=account,
@@ -155,7 +155,7 @@ class SnowflakeWebhookClient:
             )
 
             conn.commit()
-            self.logger.info("Snowflake tables initialized successfully")
+            self.logger.info("ModernStack tables initialized successfully")
 
     async def store_raw_webhook(self, webhook_data: dict[str, Any]) -> str:
         """Store raw webhook data for immediate response."""

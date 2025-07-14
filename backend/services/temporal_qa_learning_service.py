@@ -7,20 +7,22 @@ Integrates with existing unified chat and knowledge base infrastructure
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
+from backend.core.date_time_manager import date_manager
+
 logger = logging.getLogger(__name__)
 
-# Try to import Snowflake Cortex service, fallback if not available
+# Try to import Lambda GPU service, fallback if not available
 try:
-    from backend.services.snowflake_cortex_service import SnowflakeCortexService
+    from backend.services.modern_stack_cortex_service import ModernStackCortexService
 
     CORTEX_AVAILABLE = True
 except ImportError:
     CORTEX_AVAILABLE = False
-    logger.warning("Snowflake Cortex service not available, using fallback analysis")
+    logger.warning("Lambda GPU service not available, using fallback analysis")
 
 
 class TemporalLearningType(Enum):
@@ -83,15 +85,15 @@ class TemporalQALearningService:
     def __init__(self):
         if CORTEX_AVAILABLE:
             try:
-                self.cortex_service = SnowflakeCortexService()
+                self.cortex_service = UnifiedMemoryServiceV2()
             except Exception as e:
-                logger.warning(f"Failed to initialize Snowflake Cortex service: {e}")
+                logger.warning(f"Failed to initialize Lambda GPU service: {e}")
                 self.cortex_service = None
         else:
             self.cortex_service = None
 
         # Current system temporal baseline
-        self.system_date = "July 9, 2025"
+        self.system_date = date_manager.get_current_date_str()
         self.system_timezone = "UTC"
 
         # Learning storage
@@ -136,13 +138,13 @@ class TemporalQALearningService:
 
             # Create learning interaction record
             interaction = TemporalLearningInteraction(
-                id=f"temporal_qa_{int(datetime.now().timestamp())}",
+                id=f"temporal_qa_{int(date_manager.now().timestamp())}",
                 user_question=user_message,
                 user_correction="",  # Will be filled if user provides correction
                 system_response=response_data["response"],
                 learning_type=learning_type,
                 confidence=LearningConfidence.MEDIUM,
-                timestamp=datetime.now(UTC),
+                timestamp=date_manager.now(),
                 context=context,
             )
 
@@ -202,7 +204,7 @@ class TemporalQALearningService:
         if not is_temporal:
             return {"is_temporal": False, "confidence": 0.0}
 
-        # Use Snowflake Cortex for deeper analysis if available
+        # Use Lambda GPU for deeper analysis if available
         if self.cortex_service:
             try:
                 analysis_prompt = f"""
@@ -425,7 +427,7 @@ class TemporalQALearningService:
             # Update existing knowledge
             knowledge = self.temporal_knowledge[concept_key]
             knowledge.usage_count += 1
-            knowledge.last_updated = datetime.now(UTC)
+            knowledge.last_updated = date_manager.now()
             knowledge.source_interactions.append(interaction.id)
 
             # Update confidence based on reinforcement
@@ -442,7 +444,7 @@ class TemporalQALearningService:
                 examples=[interaction.user_question],
                 confidence=LearningConfidence.LOW,
                 source_interactions=[interaction.id],
-                last_updated=datetime.now(UTC),
+                last_updated=date_manager.now(),
                 usage_count=1,
             )
 
@@ -537,9 +539,11 @@ class TemporalQALearningService:
             "recent_activity": [
                 {
                     "id": i.id,
-                    "question": i.user_question[:100] + "..."
-                    if len(i.user_question) > 100
-                    else i.user_question,
+                    "question": (
+                        i.user_question[:100] + "..."
+                        if len(i.user_question) > 100
+                        else i.user_question
+                    ),
                     "learning_type": i.learning_type.value,
                     "confidence": i.confidence.value,
                     "timestamp": i.timestamp.isoformat(),
@@ -571,7 +575,7 @@ class TemporalQALearningService:
         recent_knowledge = {
             concept: knowledge
             for concept, knowledge in self.temporal_knowledge.items()
-            if (datetime.now(UTC) - knowledge.last_updated).total_seconds()
+            if (date_manager.now() - knowledge.last_updated).total_seconds()
             < 300  # Last 5 minutes
         }
 

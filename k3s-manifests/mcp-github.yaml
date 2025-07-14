@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mcp-github
+    service-tier: primary
+    tier: mcp
+    version: v1.0.0
+  name: mcp-github
+  namespace: sophia-mcp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mcp-github
+  template:
+    metadata:
+      labels:
+        app: mcp-github
+        service-tier: primary
+        tier: mcp
+    spec:
+      containers:
+      - env:
+        - name: ENVIRONMENT
+          value: prod
+        - name: PULUMI_ORG
+          value: scoobyjava-org
+        - name: K3S_DEPLOYMENT
+          value: 'true'
+        - name: ENVIRONMENT
+          value: ${ENVIRONMENT:-prod}
+        - name: PULUMI_ORG
+          value: ${PULUMI_ORG:-scoobyjava-org}
+        - name: PORT
+          value: '9006'
+        - name: REDIS_URL
+          value: redis://redis:6379
+        envFrom:
+        - secretRef:
+            name: mcp-github-secrets
+        image: ${DOCKER_REGISTRY}/sophia-github-v2:${IMAGE_TAG}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: mcp
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: github
+        ports:
+        - containerPort: 9003
+          name: mcp
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: mcp
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: '1'
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mcp-github
+  name: mcp-github
+  namespace: sophia-mcp
+spec:
+  ports:
+  - name: mcp
+    port: 9003
+    protocol: TCP
+    targetPort: mcp
+  selector:
+    app: mcp-github
+  type: ClusterIP
+---
+apiVersion: v1
+data:
+  server-config.json: "{\n  \"name\": \"github\",\n  \"version\": \"1.0.0\",\n  \"\
+    port\": 9003,\n  \"tier\": \"PRIMARY\",\n  \"description\": \"MCP github server\"\
+    \n}"
+kind: ConfigMap
+metadata:
+  name: mcp-github-config
+  namespace: sophia-mcp
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mcp-github-hpa
+  namespace: sophia-mcp
+spec:
+  maxReplicas: 10
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 70
+        type: Utilization
+    type: Resource
+  - resource:
+      name: memory
+      target:
+        averageUtilization: 80
+        type: Utilization
+    type: Resource
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mcp-github

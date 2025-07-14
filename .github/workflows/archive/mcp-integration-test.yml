@@ -30,7 +30,7 @@ jobs
     strategy
       matrix
         python-version: [3.11, 3.12]
-        server: [ai_memory, notion, slack, snowflake, codacy, asana, linear]
+        server: [ai_memory, notion, slack, modern_stack, codacy, asana, linear]
 
     steps
     - name: Checkout repository
@@ -156,9 +156,9 @@ jobs
         # Test environment secrets from Pulumi ESC
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY_TEST }}
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN_TEST }}
-        SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT_TEST }}
-        SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER_TEST }}
-        SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD_TEST }}
+        modern_stack_ACCOUNT: ${{ secrets.modern_stack_ACCOUNT_TEST }}
+        modern_stack_USER: ${{ secrets.modern_stack_USER_TEST }}
+        modern_stack_PASSWORD: ${{ secrets.modern_stack_PASSWORD_TEST }}
       run: |
         uv run python scripts/run_integration_tests.py
       timeout-minutes: 15

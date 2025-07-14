@@ -5,6 +5,7 @@ Revolutionary serverless AI infrastructure using Lambda Labs Inference API
 with intelligent model routing, cost optimization, and enterprise-grade monitoring.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import json
 import logging
@@ -19,13 +20,14 @@ import backoff
 from openai import AsyncOpenAI
 
 from backend.core.auto_esc_config import get_config_value
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
 
 class ModelTier(Enum):
     """Model performance tiers"""
+
     TIER1_PREMIUM = "tier1"
     TIER2_SPECIALIZED = "tier2"
     TIER3_BUDGET = "tier3"
@@ -33,6 +35,7 @@ class ModelTier(Enum):
 
 class RoutingStrategy(Enum):
     """Routing strategy options"""
+
     PERFORMANCE_FIRST = "performance_first"
     COST_FIRST = "cost_first"
     BALANCED = "balanced"
@@ -41,6 +44,7 @@ class RoutingStrategy(Enum):
 @dataclass
 class ModelConfig:
     """Configuration for a Lambda Labs model"""
+
     name: str
     context_window: int
     price_input: float
@@ -53,6 +57,7 @@ class ModelConfig:
 @dataclass
 class RequestMetrics:
     """Metrics for a single request"""
+
     model_used: str
     input_tokens: int
     output_tokens: int
@@ -66,6 +71,7 @@ class RequestMetrics:
 @dataclass
 class UsageStats:
     """Usage statistics tracking"""
+
     total_requests: int = 0
     successful_requests: int = 0
     failed_requests: int = 0
@@ -81,7 +87,7 @@ class UsageStats:
 class LambdaLabsServerlessService:
     """
     Revolutionary Lambda Labs Serverless AI Service
-    
+
     Features:
     - Intelligent model routing based on context and cost
     - Real-time cost monitoring and budget enforcement
@@ -95,7 +101,9 @@ class LambdaLabsServerlessService:
         # API Configuration
         self.cloud_api_key = get_config_value("LAMBDA_CLOUD_API_KEY")
         self.inference_api_key = get_config_value("LAMBDA_API_KEY")
-        self.inference_endpoint = get_config_value("LAMBDA_INFERENCE_ENDPOINT", "https://api.lambdalabs.com/v1")
+        self.inference_endpoint = get_config_value(
+            "LAMBDA_INFERENCE_ENDPOINT", "https://api.lambdalabs.com/v1"
+        )
 
         # Validate credentials
         if not self.inference_api_key:
@@ -103,8 +111,7 @@ class LambdaLabsServerlessService:
 
         # Initialize OpenAI-compatible client
         self.client = AsyncOpenAI(
-            api_key=self.inference_api_key,
-            base_url=self.inference_endpoint
+            api_key=self.inference_api_key, base_url=self.inference_endpoint
         )
 
         # Model configurations (July 2025 Top 5 Endpoints)
@@ -114,18 +121,26 @@ class LambdaLabsServerlessService:
                 context_window=1000000,
                 price_input=0.18,
                 price_output=0.60,
-                use_cases=["long-document-rag", "multi-step-agents", "executive-analysis"],
+                use_cases=[
+                    "long-document-rag",
+                    "multi-step-agents",
+                    "executive-analysis",
+                ],
                 priority=1,
-                tier=ModelTier.TIER1_PREMIUM
+                tier=ModelTier.TIER1_PREMIUM,
             ),
             "llama-4-scout-17b-16e-instruct": ModelConfig(
                 name="llama-4-scout-17b-16e-instruct",
                 context_window=1000000,
                 price_input=0.08,
                 price_output=0.30,
-                use_cases=["high-volume-chat", "customer-support", "business-intelligence"],
+                use_cases=[
+                    "high-volume-chat",
+                    "customer-support",
+                    "business-intelligence",
+                ],
                 priority=2,
-                tier=ModelTier.TIER1_PREMIUM
+                tier=ModelTier.TIER1_PREMIUM,
             ),
             "deepseek-v3-0324": ModelConfig(
                 name="deepseek-v3-0324",
@@ -134,7 +149,7 @@ class LambdaLabsServerlessService:
                 price_output=0.88,
                 use_cases=["coding-copilots", "data-analysis", "math-reasoning"],
                 priority=3,
-                tier=ModelTier.TIER2_SPECIALIZED
+                tier=ModelTier.TIER2_SPECIALIZED,
             ),
             "llama-3.1-405b-instruct": ModelConfig(
                 name="llama-3.1-405b-instruct",
@@ -143,7 +158,7 @@ class LambdaLabsServerlessService:
                 price_output=0.80,
                 use_cases=["premium-content", "creative-tasks", "complex-reasoning"],
                 priority=4,
-                tier=ModelTier.TIER2_SPECIALIZED
+                tier=ModelTier.TIER2_SPECIALIZED,
             ),
             "qwen-3-32b": ModelConfig(
                 name="qwen-3-32b",
@@ -152,12 +167,14 @@ class LambdaLabsServerlessService:
                 price_output=0.30,
                 use_cases=["code-review", "pr-comments", "documentation"],
                 priority=5,
-                tier=ModelTier.TIER3_BUDGET
-            )
+                tier=ModelTier.TIER3_BUDGET,
+            ),
         }
 
         # Configuration
-        self.routing_strategy = RoutingStrategy(get_config_value("LAMBDA_ROUTING_STRATEGY", "performance_first"))
+        self.routing_strategy = RoutingStrategy(
+            get_config_value("LAMBDA_ROUTING_STRATEGY", "performance_first")
+        )
         self.daily_budget = float(get_config_value("LAMBDA_DAILY_BUDGET", "100.0"))
         self.monthly_budget = float(get_config_value("LAMBDA_MONTHLY_BUDGET", "2500.0"))
 
@@ -173,15 +190,19 @@ class LambdaLabsServerlessService:
         self.fallback_chain = [
             "llama-4-scout-17b-16e-instruct",
             "deepseek-v3-0324",
-            "qwen-3-32b"
+            "qwen-3-32b",
         ]
 
-        # Integration with Snowflake Cortex
-        self.snowflake_cortex = SnowflakeCortexService()
+        # Integration with Lambda GPU
+        self.# REMOVED: ModernStack dependency UnifiedMemoryServiceV2()
 
-        logger.info("🚀 Lambda Labs Serverless Service initialized with 5 premium models")
+        logger.info(
+            "🚀 Lambda Labs Serverless Service initialized with 5 premium models"
+        )
 
-    def _calculate_cost(self, model_name: str, input_tokens: int, output_tokens: int) -> float:
+    def _calculate_cost(
+        self, model_name: str, input_tokens: int, output_tokens: int
+    ) -> float:
         """Calculate cost for a request"""
         model = self.models.get(model_name)
         if not model:
@@ -197,16 +218,16 @@ class LambdaLabsServerlessService:
         # Rough estimation: 1 token ≈ 4 characters
         return len(text) // 4
 
-    def _select_model(self,
-                     messages: list[dict[str, str]],
-                     context_hints: list[str] | None = None) -> str:
+    def _select_model(
+        self, messages: list[dict[str, str]], context_hints: list[str] | None = None
+    ) -> str:
         """
         Intelligent model selection based on context and routing strategy
-        
+
         Args:
             messages: Chat messages
             context_hints: Additional context hints for routing
-            
+
         Returns:
             Selected model name
         """
@@ -217,11 +238,20 @@ class LambdaLabsServerlessService:
 
         # Add content-based hints
         text_lower = full_text.lower()
-        if any(keyword in text_lower for keyword in ["code", "programming", "debug", "review"]):
+        if any(
+            keyword in text_lower
+            for keyword in ["code", "programming", "debug", "review"]
+        ):
             context_hints.append("code_tasks")
-        elif any(keyword in text_lower for keyword in ["creative", "story", "marketing", "content"]):
+        elif any(
+            keyword in text_lower
+            for keyword in ["creative", "story", "marketing", "content"]
+        ):
             context_hints.append("creative_tasks")
-        elif any(keyword in text_lower for keyword in ["analysis", "report", "dashboard", "metrics"]):
+        elif any(
+            keyword in text_lower
+            for keyword in ["analysis", "report", "dashboard", "metrics"]
+        ):
             context_hints.append("business_intelligence")
 
         # Check budget constraints
@@ -229,7 +259,9 @@ class LambdaLabsServerlessService:
         budget_remaining = self.daily_budget - current_daily_cost
 
         if budget_remaining < 5.0:  # Less than $5 remaining
-            logger.warning(f"Budget constraint: ${budget_remaining:.2f} remaining, using budget model")
+            logger.warning(
+                f"Budget constraint: ${budget_remaining:.2f} remaining, using budget model"
+            )
             return "qwen-3-32b"
 
         # Context-based routing
@@ -244,7 +276,9 @@ class LambdaLabsServerlessService:
 
         # Strategy-based routing
         if self.routing_strategy == RoutingStrategy.PERFORMANCE_FIRST:
-            return "llama-4-scout-17b-16e-instruct"  # Best balance of performance and cost
+            return (
+                "llama-4-scout-17b-16e-instruct"  # Best balance of performance and cost
+            )
         elif self.routing_strategy == RoutingStrategy.COST_FIRST:
             return "qwen-3-32b"
         else:  # BALANCED
@@ -254,7 +288,8 @@ class LambdaLabsServerlessService:
         """Get today's total cost"""
         today = datetime.now().date()
         return sum(
-            metric.cost for metric in self.request_history
+            metric.cost
+            for metric in self.request_history
             if metric.timestamp.date() == today
         )
 
@@ -262,7 +297,8 @@ class LambdaLabsServerlessService:
         """Get current hour's cost"""
         current_hour = datetime.now().replace(minute=0, second=0, microsecond=0)
         return sum(
-            metric.cost for metric in self.request_history
+            metric.cost
+            for metric in self.request_history
             if metric.timestamp >= current_hour
         )
 
@@ -272,7 +308,9 @@ class LambdaLabsServerlessService:
         hourly_cost = self._get_hourly_cost()
 
         if daily_cost >= self.daily_budget:
-            logger.error(f"Daily budget exceeded: ${daily_cost:.2f} >= ${self.daily_budget:.2f}")
+            logger.error(
+                f"Daily budget exceeded: ${daily_cost:.2f} >= ${self.daily_budget:.2f}"
+            )
             return False
 
         if hourly_cost >= 10.0:  # $10/hour limit
@@ -305,36 +343,35 @@ class LambdaLabsServerlessService:
         backoff.expo,
         (aiohttp.ClientError, asyncio.TimeoutError),
         max_tries=3,
-        max_time=30
+        max_time=30,
     )
-    async def _make_request(self,
-                           messages: list[dict[str, str]],
-                           model: str,
-                           **kwargs) -> Any:
+    async def _make_request(
+        self, messages: list[dict[str, str]], model: str, **kwargs
+    ) -> Any:
         """Make request to Lambda Labs API with retry logic"""
         try:
             response = await self.client.chat.completions.create(
-                model=model,
-                messages=messages,
-                **kwargs
+                model=model, messages=messages, **kwargs
             )
             return response
         except Exception as e:
             logger.error(f"Request failed for model {model}: {e}")
             raise
 
-    async def chat_completion(self,
-                            messages: list[dict[str, str]],
-                            context_hints: list[str] | None = None,
-                            **kwargs) -> dict[str, Any]:
+    async def chat_completion(
+        self,
+        messages: list[dict[str, str]],
+        context_hints: list[str] | None = None,
+        **kwargs,
+    ) -> dict[str, Any]:
         """
         Generate chat completion using Lambda Labs Serverless API
-        
+
         Args:
             messages: Chat messages
             context_hints: Context hints for model selection
             **kwargs: Additional parameters for the API
-            
+
         Returns:
             Chat completion response with metadata
         """
@@ -356,7 +393,7 @@ class LambdaLabsServerlessService:
                 "model_used": selected_model,
                 "cached": True,
                 "cost": 0.0,
-                "response_time": time.time() - start_time
+                "response_time": time.time() - start_time,
             }
 
         # Try primary model with fallback
@@ -383,7 +420,7 @@ class LambdaLabsServerlessService:
                     cost=cost,
                     response_time=response_time,
                     timestamp=datetime.now(),
-                    success=True
+                    success=True,
                 )
                 self.request_history.append(metrics)
                 self._update_usage_stats(metrics)
@@ -391,7 +428,9 @@ class LambdaLabsServerlessService:
                 # Cache response
                 self._cache_response(cache_key, response)
 
-                logger.info(f"✅ Request successful: {model_name}, cost: ${cost:.4f}, time: {response_time:.2f}s")
+                logger.info(
+                    f"✅ Request successful: {model_name}, cost: ${cost:.4f}, time: {response_time:.2f}s"
+                )
 
                 return {
                     "response": response,
@@ -400,7 +439,7 @@ class LambdaLabsServerlessService:
                     "cost": cost,
                     "response_time": response_time,
                     "input_tokens": input_tokens,
-                    "output_tokens": output_tokens
+                    "output_tokens": output_tokens,
                 }
 
             except Exception as e:
@@ -417,7 +456,7 @@ class LambdaLabsServerlessService:
             response_time=time.time() - start_time,
             timestamp=datetime.now(),
             success=False,
-            error_message=str(last_error)
+            error_message=str(last_error),
         )
         self.request_history.append(error_metrics)
         self._update_usage_stats(error_metrics)
@@ -456,7 +495,9 @@ class LambdaLabsServerlessService:
         # Update average response time
         if self.usage_stats.total_requests > 0:
             total_time = sum(m.response_time for m in self.request_history)
-            self.usage_stats.average_response_time = total_time / self.usage_stats.total_requests
+            self.usage_stats.average_response_time = (
+                total_time / self.usage_stats.total_requests
+            )
 
     async def get_usage_stats(self) -> dict[str, Any]:
         """Get comprehensive usage statistics"""
@@ -466,7 +507,8 @@ class LambdaLabsServerlessService:
             "failed_requests": self.usage_stats.failed_requests,
             "success_rate": (
                 self.usage_stats.successful_requests / self.usage_stats.total_requests
-                if self.usage_stats.total_requests > 0 else 0
+                if self.usage_stats.total_requests > 0
+                else 0
             ),
             "total_cost": self.usage_stats.total_cost,
             "daily_cost": self._get_daily_cost(),
@@ -485,22 +527,22 @@ class LambdaLabsServerlessService:
                     "cost": m.cost,
                     "response_time": m.response_time,
                     "success": m.success,
-                    "timestamp": m.timestamp.isoformat()
+                    "timestamp": m.timestamp.isoformat(),
                 }
                 for m in self.request_history[-10:]  # Last 10 requests
-            ]
+            ],
         }
 
-    async def get_model_recommendations(self,
-                                      task_type: str,
-                                      context_size: int = 0) -> list[str]:
+    async def get_model_recommendations(
+        self, task_type: str, context_size: int = 0
+    ) -> list[str]:
         """
         Get model recommendations for a specific task type
-        
+
         Args:
             task_type: Type of task (e.g., "code", "creative", "analysis")
             context_size: Estimated context size in tokens
-            
+
         Returns:
             List of recommended model names
         """
@@ -508,7 +550,8 @@ class LambdaLabsServerlessService:
 
         # Filter by context window
         suitable_models = [
-            model for model in self.models.values()
+            model
+            for model in self.models.values()
             if model.context_window >= context_size
         ]
 
@@ -516,15 +559,20 @@ class LambdaLabsServerlessService:
         task_keywords = {
             "code": ["coding-copilots", "code-review", "data-analysis"],
             "creative": ["creative-tasks", "premium-content"],
-            "analysis": ["business-intelligence", "data-analysis", "executive-analysis"],
+            "analysis": [
+                "business-intelligence",
+                "data-analysis",
+                "executive-analysis",
+            ],
             "chat": ["high-volume-chat", "customer-support"],
-            "long_document": ["long-document-rag", "multi-step-agents"]
+            "long_document": ["long-document-rag", "multi-step-agents"],
         }
 
         keywords = task_keywords.get(task_type, [])
         if keywords:
             suitable_models = [
-                model for model in suitable_models
+                model
+                for model in suitable_models
                 if any(keyword in model.use_cases for keyword in keywords)
             ]
 
@@ -540,10 +588,7 @@ class LambdaLabsServerlessService:
             test_messages = [{"role": "user", "content": "Hello"}]
             start_time = time.time()
 
-            response = await self.chat_completion(
-                messages=test_messages,
-                max_tokens=10
-            )
+            response = await self.chat_completion(messages=test_messages, max_tokens=10)
 
             response_time = time.time() - start_time
 
@@ -557,8 +602,9 @@ class LambdaLabsServerlessService:
                 "cache_size": len(self.response_cache),
                 "last_request_time": (
                     self.request_history[-1].timestamp.isoformat()
-                    if self.request_history else None
-                )
+                    if self.request_history
+                    else None
+                ),
             }
 
         except Exception as e:
@@ -567,7 +613,7 @@ class LambdaLabsServerlessService:
                 "error": str(e),
                 "api_accessible": False,
                 "models_available": 0,
-                "budget_status": "unknown"
+                "budget_status": "unknown",
             }
 
     async def optimize_costs(self) -> dict[str, Any]:
@@ -578,21 +624,33 @@ class LambdaLabsServerlessService:
         # Analyze model performance vs cost
         model_stats = {}
         for model_name in self.models.keys():
-            model_requests = [m for m in self.request_history if m.model_used == model_name and m.success]
+            model_requests = [
+                m
+                for m in self.request_history
+                if m.model_used == model_name and m.success
+            ]
 
             if model_requests:
                 avg_cost = sum(m.cost for m in model_requests) / len(model_requests)
-                avg_response_time = sum(m.response_time for m in model_requests) / len(model_requests)
+                avg_response_time = sum(m.response_time for m in model_requests) / len(
+                    model_requests
+                )
 
                 model_stats[model_name] = {
                     "requests": len(model_requests),
                     "avg_cost": avg_cost,
                     "avg_response_time": avg_response_time,
-                    "efficiency_score": avg_response_time / avg_cost if avg_cost > 0 else 0
+                    "efficiency_score": (
+                        avg_response_time / avg_cost if avg_cost > 0 else 0
+                    ),
                 }
 
         # Find most efficient model
-        best_model = min(model_stats.items(), key=lambda x: x[1]["efficiency_score"])[0] if model_stats else None
+        best_model = (
+            min(model_stats.items(), key=lambda x: x[1]["efficiency_score"])[0]
+            if model_stats
+            else None
+        )
 
         # Calculate potential savings
         current_daily_cost = self._get_daily_cost()
@@ -600,10 +658,16 @@ class LambdaLabsServerlessService:
 
         if best_model and current_daily_cost > 0:
             best_model_cost = model_stats[best_model]["avg_cost"]
-            current_avg_cost = current_daily_cost / self.usage_stats.successful_requests if self.usage_stats.successful_requests > 0 else 0
+            current_avg_cost = (
+                current_daily_cost / self.usage_stats.successful_requests
+                if self.usage_stats.successful_requests > 0
+                else 0
+            )
 
             if current_avg_cost > best_model_cost:
-                potential_savings = (current_avg_cost - best_model_cost) * self.usage_stats.successful_requests
+                potential_savings = (
+                    current_avg_cost - best_model_cost
+                ) * self.usage_stats.successful_requests
 
         return {
             "current_daily_cost": current_daily_cost,
@@ -615,8 +679,8 @@ class LambdaLabsServerlessService:
                 "Use Scout model for most business intelligence tasks",
                 "Use Qwen for simple code reviews",
                 "Cache responses for repeated queries",
-                "Batch similar requests when possible"
-            ]
+                "Batch similar requests when possible",
+            ],
         }
 
     async def close(self) -> None:
@@ -638,15 +702,14 @@ async def get_lambda_service() -> LambdaLabsServerlessService:
 
 
 # Natural language interface functions
-async def ask_lambda(question: str,
-                    context_hints: list[str] | None = None) -> str:
+async def ask_lambda(question: str, context_hints: list[str] | None = None) -> str:
     """
     Simple natural language interface to Lambda Labs
-    
+
     Args:
         question: Question to ask
         context_hints: Optional context hints for model selection
-        
+
     Returns:
         AI response as string
     """
@@ -659,15 +722,16 @@ async def ask_lambda(question: str,
     return result["response"].choices[0].message.content
 
 
-async def analyze_with_lambda(data: str,
-                             analysis_type: str = "general") -> dict[str, Any]:
+async def analyze_with_lambda(
+    data: str, analysis_type: str = "general"
+) -> dict[str, Any]:
     """
     Analyze data using Lambda Labs with appropriate model selection
-    
+
     Args:
         data: Data to analyze
         analysis_type: Type of analysis (code, creative, business, etc.)
-        
+
     Returns:
         Analysis results with metadata
     """
@@ -675,19 +739,18 @@ async def analyze_with_lambda(data: str,
 
     # Get model recommendations
     recommendations = await service.get_model_recommendations(
-        task_type=analysis_type,
-        context_size=service._estimate_tokens(data)
+        task_type=analysis_type, context_size=service._estimate_tokens(data)
     )
 
     messages = [
-        {"role": "system", "content": f"You are an expert analyst performing {analysis_type} analysis."},
-        {"role": "user", "content": f"Please analyze the following data:\n\n{data}"}
+        {
+            "role": "system",
+            "content": f"You are an expert analyst performing {analysis_type} analysis.",
+        },
+        {"role": "user", "content": f"Please analyze the following data:\n\n{data}"},
     ]
 
-    result = await service.chat_completion(
-        messages,
-        context_hints=[analysis_type]
-    )
+    result = await service.chat_completion(messages, context_hints=[analysis_type])
 
     return {
         "analysis": result["response"].choices[0].message.content,
@@ -697,6 +760,6 @@ async def analyze_with_lambda(data: str,
         "metadata": {
             "response_time": result["response_time"],
             "input_tokens": result["input_tokens"],
-            "output_tokens": result["output_tokens"]
-        }
+            "output_tokens": result["output_tokens"],
+        },
     }

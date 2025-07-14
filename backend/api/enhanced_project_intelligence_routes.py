@@ -17,7 +17,7 @@ from backend.services.gong_multi_purpose_intelligence import (
     GongMultiPurposeIntelligence,
 )
 from backend.services.project_management_service import ProjectManagementService
-from backend.services.unified_chat_service import UnifiedChatService
+from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,9 @@ router = APIRouter(prefix="/api/v1/project-intelligence", tags=["project-intelli
 @router.get("/gong-insights")
 async def get_gong_project_insights(
     timeframe_days: int = Query(default=7, description="Number of days to analyze"),
-    category: str | None = Query(default=None, description="Specific category to filter")
+    category: str | None = Query(
+        default=None, description="Specific category to filter"
+    ),
 ):
     """Get project intelligence insights from Gong conversations"""
 
@@ -36,17 +38,23 @@ async def get_gong_project_insights(
 
         if category:
             # Get specific category insights
-            all_insights = await gong_intelligence.extract_multi_purpose_insights(timeframe_days)
+            all_insights = await gong_intelligence.extract_multi_purpose_insights(
+                timeframe_days
+            )
             insights = all_insights.get(category, [])
         else:
             # Get project management specific insights
-            project_insights = await gong_intelligence.get_project_management_intelligence(timeframe_days)
+            project_insights = (
+                await gong_intelligence.get_project_management_intelligence(
+                    timeframe_days
+                )
+            )
             insights = {
                 "project_references": project_insights.project_references,
                 "timeline_discussions": project_insights.timeline_discussions,
                 "risk_indicators": project_insights.risk_indicators,
                 "technical_decisions": project_insights.technical_decisions,
-                "blockers_identified": project_insights.blockers_identified
+                "blockers_identified": project_insights.blockers_identified,
             }
 
         return {
@@ -55,7 +63,11 @@ async def get_gong_project_insights(
             "category": category or "project_management",
             "insights": insights,
             "current_date": "July 9, 2025",
-            "total_insights": len(insights) if isinstance(insights, list) else sum(len(v) for v in insights.values())
+            "total_insights": (
+                len(insights)
+                if isinstance(insights, list)
+                else sum(len(v) for v in insights.values())
+            ),
         }
 
     except Exception as e:
@@ -74,7 +86,9 @@ async def get_unified_project_status():
 
         # Get conversation intelligence
         gong_intelligence = GongMultiPurposeIntelligence()
-        conversation_insights = await gong_intelligence.get_project_management_intelligence(14)
+        conversation_insights = (
+            await gong_intelligence.get_project_management_intelligence(14)
+        )
 
         # Combine and correlate data
         unified_status = {
@@ -84,14 +98,18 @@ async def get_unified_project_status():
                 "risks_identified": len(conversation_insights.risk_indicators),
                 "technical_decisions": len(conversation_insights.technical_decisions),
                 "timeline_discussions": len(conversation_insights.timeline_discussions),
-                "recent_risks": conversation_insights.risk_indicators[:5],  # Top 5 recent risks
-                "recent_decisions": conversation_insights.technical_decisions[:3]  # Top 3 recent decisions
+                "recent_risks": conversation_insights.risk_indicators[
+                    :5
+                ],  # Top 5 recent risks
+                "recent_decisions": conversation_insights.technical_decisions[
+                    :3
+                ],  # Top 3 recent decisions
             },
             "correlation_analysis": await _correlate_formal_and_conversation_data(
                 formal_data, conversation_insights
             ),
             "current_date": "July 9, 2025",
-            "last_updated": datetime.now().isoformat()
+            "last_updated": datetime.now().isoformat(),
         }
 
         return unified_status
@@ -111,24 +129,30 @@ async def process_natural_language_query(request: dict[str, Any]):
             raise HTTPException(status_code=400, detail="Query is required")
 
         # Route query to appropriate service
-        if any(keyword in query.lower() for keyword in ["conversation", "call", "discussion", "meeting"]):
+        if any(
+            keyword in query.lower()
+            for keyword in ["conversation", "call", "discussion", "meeting"]
+        ):
             # Gong conversation intelligence
             gong_intelligence = GongMultiPurposeIntelligence()
             result = await gong_intelligence.get_natural_language_insights(query)
         else:
             # Unified chat service for general project queries
-            chat_service = UnifiedChatService()
-            result = await chat_service.process_enhanced_query(query, {
-                "context_type": "project_intelligence",
-                "current_date": "July 9, 2025"
-            })
+            chat_service = SophiaUnifiedOrchestrator()
+            result = await chat_service.process_enhanced_query(
+                query,
+                {
+                    "context_type": "project_intelligence",
+                    "current_date": "July 9, 2025",
+                },
+            )
 
         return {
             "success": True,
             "query": query,
             "response": result,
             "current_date": "July 9, 2025",
-            "processing_time": datetime.now().isoformat()
+            "processing_time": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -145,29 +169,43 @@ async def get_project_risk_dashboard():
         project_service = ProjectManagementService()
 
         # Get risks from conversations
-        conversation_insights = await gong_intelligence.get_project_management_intelligence(30)
+        conversation_insights = (
+            await gong_intelligence.get_project_management_intelligence(30)
+        )
         conversation_risks = conversation_insights.risk_indicators
 
         # Get formal project health data
         formal_projects = await project_service.get_unified_summary()
         formal_risks = [
-            project for project in formal_projects.get("active_projects", [])
-            if project.get("status") == "At Risk" or project.get("health_score", 100) < 70
+            project
+            for project in formal_projects.get("active_projects", [])
+            if project.get("status") == "At Risk"
+            or project.get("health_score", 100) < 70
         ]
 
         # Categorize and prioritize risks
         risk_dashboard = {
             "conversation_risks": {
                 "total": len(conversation_risks),
-                "critical": [r for r in conversation_risks if r.get("severity") == "critical"],
+                "critical": [
+                    r for r in conversation_risks if r.get("severity") == "critical"
+                ],
                 "high": [r for r in conversation_risks if r.get("severity") == "high"],
-                "medium": [r for r in conversation_risks if r.get("severity") == "medium"],
-                "recent": sorted(conversation_risks, key=lambda x: x.get("call_date", ""), reverse=True)[:10]
+                "medium": [
+                    r for r in conversation_risks if r.get("severity") == "medium"
+                ],
+                "recent": sorted(
+                    conversation_risks,
+                    key=lambda x: x.get("call_date", ""),
+                    reverse=True,
+                )[:10],
             },
             "formal_project_risks": {
                 "total": len(formal_risks),
                 "at_risk_projects": formal_risks,
-                "health_distribution": _calculate_health_distribution(formal_projects.get("active_projects", []))
+                "health_distribution": _calculate_health_distribution(
+                    formal_projects.get("active_projects", [])
+                ),
             },
             "risk_correlation": await _correlate_conversation_and_formal_risks(
                 conversation_risks, formal_risks
@@ -176,7 +214,7 @@ async def get_project_risk_dashboard():
                 conversation_risks, formal_risks
             ),
             "current_date": "July 9, 2025",
-            "last_updated": datetime.now().isoformat()
+            "last_updated": datetime.now().isoformat(),
         }
 
         return risk_dashboard
@@ -199,25 +237,41 @@ async def get_team_intelligence_from_conversations():
 
         # Analyze team communication patterns
         team_intelligence = {
-            "communication_effectiveness": await _analyze_communication_patterns(team_insights),
-            "meeting_effectiveness": await _analyze_meeting_effectiveness(team_insights),
+            "communication_effectiveness": await _analyze_communication_patterns(
+                team_insights
+            ),
+            "meeting_effectiveness": await _analyze_meeting_effectiveness(
+                team_insights
+            ),
             "coaching_opportunities": [
-                insight for insight in team_insights
-                if "coaching" in insight.insight.lower() or "improvement" in insight.insight.lower()
+                insight
+                for insight in team_insights
+                if "coaching" in insight.insight.lower()
+                or "improvement" in insight.insight.lower()
             ],
-            "collaboration_patterns": await _analyze_collaboration_patterns(team_insights),
+            "collaboration_patterns": await _analyze_collaboration_patterns(
+                team_insights
+            ),
             "process_improvements": [
-                insight for insight in team_insights
-                if "process" in insight.insight.lower() or "workflow" in insight.insight.lower()
+                insight
+                for insight in team_insights
+                if "process" in insight.insight.lower()
+                or "workflow" in insight.insight.lower()
             ],
             "insights_summary": {
                 "total_insights": len(team_insights),
-                "high_priority": [i for i in team_insights if i.urgency_level == "urgent"],
-                "positive_feedback": [i for i in team_insights if i.sentiment_score > 0.5],
-                "areas_of_concern": [i for i in team_insights if i.sentiment_score < -0.3]
+                "high_priority": [
+                    i for i in team_insights if i.urgency_level == "urgent"
+                ],
+                "positive_feedback": [
+                    i for i in team_insights if i.sentiment_score > 0.5
+                ],
+                "areas_of_concern": [
+                    i for i in team_insights if i.sentiment_score < -0.3
+                ],
             },
             "current_date": "July 9, 2025",
-            "analysis_period": "Last 14 days"
+            "analysis_period": "Last 14 days",
         }
 
         return team_intelligence
@@ -229,19 +283,24 @@ async def get_team_intelligence_from_conversations():
 
 # Helper functions
 
-async def _correlate_formal_and_conversation_data(formal_data: dict[str, Any], conversation_insights) -> dict[str, Any]:
+
+async def _correlate_formal_and_conversation_data(
+    formal_data: dict[str, Any], conversation_insights
+) -> dict[str, Any]:
     """Correlate formal project data with conversation insights"""
 
     correlations = {
         "project_mentions": [],
         "risk_alignment": [],
         "timeline_discrepancies": [],
-        "confidence_score": 0.0
+        "confidence_score": 0.0,
     }
 
     try:
         # Extract project names from formal data
-        formal_projects = [p.get("name", "") for p in formal_data.get("active_projects", [])]
+        formal_projects = [
+            p.get("name", "") for p in formal_data.get("active_projects", [])
+        ]
 
         # Check for project mentions in conversations
         for project_ref in conversation_insights.project_references:
@@ -249,16 +308,22 @@ async def _correlate_formal_and_conversation_data(formal_data: dict[str, Any], c
             matching_projects = [p for p in formal_projects if p.lower() in content]
 
             if matching_projects:
-                correlations["project_mentions"].append({
-                    "formal_project": matching_projects[0],
-                    "conversation_reference": project_ref,
-                    "alignment": "mentioned"
-                })
+                correlations["project_mentions"].append(
+                    {
+                        "formal_project": matching_projects[0],
+                        "conversation_reference": project_ref,
+                        "alignment": "mentioned",
+                    }
+                )
 
         # Calculate confidence score
         total_formal_projects = len(formal_projects)
         mentioned_projects = len(correlations["project_mentions"])
-        correlations["confidence_score"] = mentioned_projects / total_formal_projects if total_formal_projects > 0 else 0
+        correlations["confidence_score"] = (
+            mentioned_projects / total_formal_projects
+            if total_formal_projects > 0
+            else 0
+        )
 
     except Exception as e:
         logger.error(f"Error correlating data: {e}")
@@ -266,14 +331,16 @@ async def _correlate_formal_and_conversation_data(formal_data: dict[str, Any], c
     return correlations
 
 
-async def _correlate_conversation_and_formal_risks(conversation_risks: list[dict], formal_risks: list[dict]) -> dict[str, Any]:
+async def _correlate_conversation_and_formal_risks(
+    conversation_risks: list[dict], formal_risks: list[dict]
+) -> dict[str, Any]:
     """Correlate risks identified in conversations with formal project risks"""
 
     correlation = {
         "aligned_risks": [],
         "conversation_only_risks": [],
         "formal_only_risks": [],
-        "risk_coverage": 0.0
+        "risk_coverage": 0.0,
     }
 
     try:
@@ -282,21 +349,27 @@ async def _correlate_conversation_and_formal_risks(conversation_risks: list[dict
 
         for conv_risk in conversation_risks:
             risk_content = conv_risk.get("content", "").lower()
-            matching_formal = [name for name in formal_project_names if name in risk_content]
+            matching_formal = [
+                name for name in formal_project_names if name in risk_content
+            ]
 
             if matching_formal:
-                correlation["aligned_risks"].append({
-                    "conversation_risk": conv_risk,
-                    "formal_project": matching_formal[0],
-                    "alignment_type": "project_name_match"
-                })
+                correlation["aligned_risks"].append(
+                    {
+                        "conversation_risk": conv_risk,
+                        "formal_project": matching_formal[0],
+                        "alignment_type": "project_name_match",
+                    }
+                )
             else:
                 correlation["conversation_only_risks"].append(conv_risk)
 
         # Calculate risk coverage
         total_risks = len(conversation_risks) + len(formal_risks)
         aligned_risks = len(correlation["aligned_risks"])
-        correlation["risk_coverage"] = aligned_risks / total_risks if total_risks > 0 else 0
+        correlation["risk_coverage"] = (
+            aligned_risks / total_risks if total_risks > 0 else 0
+        )
 
     except Exception as e:
         logger.error(f"Error correlating risks: {e}")
@@ -304,14 +377,18 @@ async def _correlate_conversation_and_formal_risks(conversation_risks: list[dict
     return correlation
 
 
-async def _generate_risk_recommendations(conversation_risks: list[dict], formal_risks: list[dict]) -> list[str]:
+async def _generate_risk_recommendations(
+    conversation_risks: list[dict], formal_risks: list[dict]
+) -> list[str]:
     """Generate actionable risk recommendations"""
 
     recommendations = []
 
     try:
         # High-severity conversation risks
-        critical_conv_risks = [r for r in conversation_risks if r.get("severity") == "critical"]
+        critical_conv_risks = [
+            r for r in conversation_risks if r.get("severity") == "critical"
+        ]
         if critical_conv_risks:
             recommendations.append(
                 f"Address {len(critical_conv_risks)} critical risks identified in recent conversations"
@@ -329,7 +406,9 @@ async def _generate_risk_recommendations(conversation_risks: list[dict], formal_
                 "Consider updating formal project risk tracking based on conversation insights"
             )
 
-        recommendations.append("Schedule risk review meeting to align conversation and formal risk data")
+        recommendations.append(
+            "Schedule risk review meeting to align conversation and formal risk data"
+        )
 
     except Exception as e:
         logger.error(f"Error generating recommendations: {e}")
@@ -361,7 +440,7 @@ async def _analyze_communication_patterns(team_insights: list) -> dict[str, Any]
         "meeting_frequency": 0,
         "communication_quality": "good",
         "participation_levels": "balanced",
-        "key_themes": []
+        "key_themes": [],
     }
 
     # Simple analysis based on available insights
@@ -369,7 +448,9 @@ async def _analyze_communication_patterns(team_insights: list) -> dict[str, Any]
 
     # Analyze sentiment for communication quality
     if team_insights:
-        avg_sentiment = sum(i.sentiment_score for i in team_insights) / len(team_insights)
+        avg_sentiment = sum(i.sentiment_score for i in team_insights) / len(
+            team_insights
+        )
         if avg_sentiment > 0.3:
             patterns["communication_quality"] = "excellent"
         elif avg_sentiment > 0:
@@ -387,21 +468,26 @@ async def _analyze_meeting_effectiveness(team_insights: list) -> dict[str, Any]:
         "total_meetings_analyzed": len(team_insights),
         "effective_meetings": 0,
         "improvement_opportunities": [],
-        "average_sentiment": 0.0
+        "average_sentiment": 0.0,
     }
 
     if team_insights:
         # Calculate effectiveness based on sentiment and urgency
         effective_count = sum(
-            1 for insight in team_insights
+            1
+            for insight in team_insights
             if insight.sentiment_score > 0 and insight.urgency_level != "urgent"
         )
         effectiveness["effective_meetings"] = effective_count
-        effectiveness["average_sentiment"] = sum(i.sentiment_score for i in team_insights) / len(team_insights)
+        effectiveness["average_sentiment"] = sum(
+            i.sentiment_score for i in team_insights
+        ) / len(team_insights)
 
         # Identify improvement opportunities
         low_sentiment_insights = [i for i in team_insights if i.sentiment_score < 0]
-        effectiveness["improvement_opportunities"] = [i.insight for i in low_sentiment_insights[:3]]
+        effectiveness["improvement_opportunities"] = [
+            i.insight for i in low_sentiment_insights[:3]
+        ]
 
     return effectiveness
 
@@ -413,7 +499,7 @@ async def _analyze_collaboration_patterns(team_insights: list) -> dict[str, Any]
         "cross_team_interactions": 0,
         "collaboration_quality": "good",
         "common_participants": [],
-        "collaboration_themes": []
+        "collaboration_themes": [],
     }
 
     if team_insights:
@@ -424,6 +510,7 @@ async def _analyze_collaboration_patterns(team_insights: list) -> dict[str, Any]
 
         # Find common participants
         from collections import Counter
+
         participant_counts = Counter(all_participants)
         collaboration["common_participants"] = [
             {"name": name, "frequency": count}
@@ -432,7 +519,9 @@ async def _analyze_collaboration_patterns(team_insights: list) -> dict[str, Any]
 
         # Assess collaboration quality based on participant diversity and sentiment
         unique_participants = len(set(all_participants))
-        avg_sentiment = sum(i.sentiment_score for i in team_insights) / len(team_insights)
+        avg_sentiment = sum(i.sentiment_score for i in team_insights) / len(
+            team_insights
+        )
 
         if unique_participants > 10 and avg_sentiment > 0.2:
             collaboration["collaboration_quality"] = "excellent"

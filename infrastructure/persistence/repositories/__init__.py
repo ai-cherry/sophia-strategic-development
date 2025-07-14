@@ -5,6 +5,6 @@ This module contains concrete implementations of the repository interfaces
 defined in the application layer.
 """
 
-from .snowflake_call_repository import SnowflakeCallRepository
+from .modern_stack_call_repository import ModernStackCallRepository
 
-__all__ = ["SnowflakeCallRepository"]
+__all__ = ["ModernStackCallRepository"]

@@ -1,5 +1,6 @@
 """Configuration utilities for the Sophia AI backend."""
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 from typing import Any
@@ -13,7 +14,7 @@ class Config(BaseModel):
     """Typed configuration loaded from Pulumi ESC."""
 
     openai_api_key: str | None = None
-    snowflake_account: str | None = None
+    # REMOVED: ModernStack dependency None
 
     @classmethod
     def from_esc(cls) -> Config:

@@ -4,7 +4,7 @@
 
 **Recommendation Date:** 2025-07-01
 **Priority Level:** CRITICAL - Immediate action required
-**Scope:** Snowflake alignment, MCP architecture, and data pipeline modernization
+**Scope:** Modern Stack alignment, MCP architecture, and data pipeline modernization
 **Timeline:** 2-4 weeks for complete implementation
 
 ---
@@ -32,30 +32,30 @@
 
 **Current Security Risk:**
 ```python
-# backend/core/absolute_snowflake_override.py - IMMEDIATE REMOVAL REQUIRED
-os.environ["SNOWFLAKE_ACCOUNT"] = "ZNB04675"
-os.environ["SNOWFLAKE_USER"] = "SCOOBYJAVA15"
-os.environ["SNOWFLAKE_ROLE"] = "ACCOUNTADMIN"
+# backend/core/absolute_modern_stack_override.py - IMMEDIATE REMOVAL REQUIRED
+os.environ["modern_stack_ACCOUNT"] = "ZNB04675"
+os.environ["modern_stack_USER"] = "SCOOBYJAVA15"
+os.environ["modern_stack_ROLE"] = "ACCOUNTADMIN"
 ```
 
 **Recommended Implementation:**
 ```python
-# backend/core/secure_snowflake_config.py
+# backend/core/secure_modern_stack_config.py
 from backend.core.auto_esc_config import get_config_value
 
-class SecureSnowflakeConfig:
+class SecureModern StackConfig:
     def __init__(self):
-        self.account = get_config_value("snowflake_account")
+        self.account = get_config_value("modern_stack_account")
         self.user = "PROGRAMMATIC_SERVICE_USER"  # From knowledge base
         self.password = get_config_value("sophia_ai_token")  # Secure token
-        self.role = get_config_value("snowflake_role", "SYSADMIN")
-        self.warehouse = get_config_value("snowflake_warehouse", "COMPUTE_WH")
-        self.database = get_config_value("snowflake_database", "SOPHIA_AI")
+        self.role = get_config_value("modern_stack_role", "SYSADMIN")
+        self.warehouse = get_config_value("modern_stack_warehouse", "COMPUTE_WH")
+        self.database = get_config_value("modern_stack_database", "SOPHIA_AI")
 ```
 
 **Action Items:**
-1. ✅ **Delete** `backend/core/absolute_snowflake_override.py`
-2. ✅ **Create** `backend/core/secure_snowflake_config.py`
+1. ✅ **Delete** `backend/core/absolute_modern_stack_override.py`
+2. ✅ **Create** `backend/core/secure_modern_stack_config.py`
 3. ✅ **Update** all imports to use secure configuration
 4. ✅ **Verify** ESC environment variables are properly configured
 
@@ -65,7 +65,7 @@ class SecureSnowflakeConfig:
 ```yaml
 # Pulumi ESC: scoobyjava-org/default/sophia-ai-production
 values:
-  snowflake:
+  modern_stack:
     account: "ZNB04675"
     user: "PROGRAMMATIC_SERVICE_USER"
     password: "eyJraWQiOiIxNzAwMTAwMDk2OSIsImFsZyI6IkVTMjU2In0..."
@@ -78,35 +78,35 @@ values:
 
 ## 🏗️ HIGH PRIORITY: MCP Server Modernization (1-2 Weeks)
 
-### 1. Snowflake Cortex MCP Server Enhancement
+### 1. Lambda GPU MCP Server Enhancement
 
 **Current State:** Placeholder implementation returning mock data
-**Required:** Production-ready Snowflake Cortex integration
+**Required:** Production-ready Lambda GPU integration
 
 **Implementation Plan:**
 ```python
-# mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py
-import snowflake.connector
-from snowflake.cortex import complete, sentiment, translate, embed_text
+# mcp-servers/modern_stack_cortex/production_modern_stack_cortex_mcp_server.py
+import modern_stack.connector
+from modern_stack.cortex import complete, sentiment, translate, embed_text
 
-class ProductionSnowflakeCortexMCP:
+class ProductionModern StackCortexMCP:
     def __init__(self):
         self.connection = self._create_secure_connection()
 
     def _create_secure_connection(self):
-        return snowflake.connector.connect(
-            account=get_config_value("snowflake_account"),
+        return modern_stack.connector.connect(
+            account=get_config_value("modern_stack_account"),
             user="PROGRAMMATIC_SERVICE_USER",
             password=get_config_value("sophia_ai_token"),
-            warehouse=get_config_value("snowflake_warehouse"),
-            database=get_config_value("snowflake_database")
+            warehouse=get_config_value("modern_stack_warehouse"),
+            database=get_config_value("modern_stack_database")
         )
 
     @app.tool()
     async def cortex_complete(self, prompt: str, model: str = "mistral-7b") -> dict:
-        """Real Snowflake Cortex COMPLETE function"""
+        """Real Lambda GPU COMPLETE function"""
         cursor = self.connection.cursor()
-        query = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{prompt}')"
+        query = f"SELECT modern_stack.CORTEX.COMPLETE('{model}', '{prompt}')"
         result = cursor.execute(query).fetchone()
         return {
             "status": "success",
@@ -117,9 +117,9 @@ class ProductionSnowflakeCortexMCP:
 
     @app.tool()
     async def cortex_embed_text(self, text: str) -> dict:
-        """Generate embeddings using Snowflake Cortex"""
+        """Generate embeddings using Lambda GPU"""
         cursor = self.connection.cursor()
-        query = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', '{text}')"
+        query = f"SELECT modern_stack.CORTEX.EMBED_TEXT_768('e5-base-v2', '{text}')"
         result = cursor.execute(query).fetchone()
         return {
             "status": "success",
@@ -133,13 +133,13 @@ class ProductionSnowflakeCortexMCP:
 ### 2. MCP Server Consolidation Strategy
 
 **Current Architecture Issues:**
-- 4 separate Snowflake MCP servers
+- 4 separate Modern Stack MCP servers
 - Overlapping functionality
 - Inconsistent implementations
 
 **Recommended Unified Architecture:**
 ```
-snowflake_unified_mcp_server/
+modern_stack_unified_mcp_server/
 ├── __init__.py
 ├── core/
 │   ├── connection_manager.py
@@ -154,7 +154,7 @@ snowflake_unified_mcp_server/
 │   ├── test_cortex_integration.py
 │   ├── test_data_ingestion.py
 │   └── test_security.py
-└── unified_snowflake_mcp_server.py
+└── unified_modern_stack_mcp_server.py
 ```
 
 **Benefits:**
@@ -169,8 +169,8 @@ snowflake_unified_mcp_server/
 
 ### 1. Implement Recommended Data Pipeline
 
-**Current State:** Direct Snowflake access with inconsistent patterns
-**Target Architecture:** estuary → PostgreSQL → Redis → Vector DBs → Snowflake
+**Current State:** Direct Modern Stack access with inconsistent patterns
+**Target Architecture:** estuary → PostgreSQL → Redis → Vector DBs → Modern Stack
 
 **Implementation Phases:**
 
@@ -254,7 +254,7 @@ class RedisManager:
         )
 
     def cache_query_result(self, query_hash: str, result: Any, ttl: int = 3600):
-        """Cache Snowflake query results"""
+        """Cache Modern Stack query results"""
         self.client.setex(f"query:{query_hash}", ttl, json.dumps(result))
 
     def get_cached_result(self, query_hash: str) -> Optional[Any]:
@@ -314,17 +314,17 @@ class SchemaManager:
 **Recommended:** Connection pooling for improved performance
 
 ```python
-# backend/services/snowflake/connection_pool.py
-from snowflake.connector.pooling import SnowflakeConnectionPool
+# backend/services/modern_stack/connection_pool.py
+from modern_stack.connector.pooling import Modern StackConnectionPool
 
-class SnowflakeConnectionManager:
+class Modern StackConnectionManager:
     def __init__(self):
-        self.pool = SnowflakeConnectionPool(
-            account=get_config_value("snowflake_account"),
+        self.pool = Modern StackConnectionPool(
+            account=get_config_value("modern_stack_account"),
             user="PROGRAMMATIC_SERVICE_USER",
             password=get_config_value("sophia_ai_token"),
-            warehouse=get_config_value("snowflake_warehouse"),
-            database=get_config_value("snowflake_database"),
+            warehouse=get_config_value("modern_stack_warehouse"),
+            database=get_config_value("modern_stack_database"),
             pool_size=10,
             max_pool_size=20
         )
@@ -371,14 +371,14 @@ class QueryOptimizer:
 ### 1. Advanced Monitoring and Observability
 
 ```python
-# backend/monitoring/snowflake_monitor.py
+# backend/monitoring/modern_stack_monitor.py
 from prometheus_client import Counter, Histogram, Gauge
 
-class SnowflakeMonitor:
+class Modern StackMonitor:
     def __init__(self):
-        self.query_counter = Counter('snowflake_queries_total', 'Total queries')
-        self.query_duration = Histogram('snowflake_query_duration_seconds', 'Query duration')
-        self.active_connections = Gauge('snowflake_active_connections', 'Active connections')
+        self.query_counter = Counter('modern_stack_queries_total', 'Total queries')
+        self.query_duration = Histogram('modern_stack_query_duration_seconds', 'Query duration')
+        self.active_connections = Gauge('modern_stack_active_connections', 'Active connections')
 
     def record_query(self, query_type: str, duration: float):
         self.query_counter.labels(type=query_type).inc()
@@ -388,25 +388,25 @@ class SnowflakeMonitor:
 ### 2. Automated Testing Framework
 
 ```python
-# tests/integration/test_snowflake_integration.py
+# tests/integration/test_modern_stack_integration.py
 import pytest
-from backend.core.secure_snowflake_config import SecureSnowflakeConfig
+from backend.core.secure_modern_stack_config import SecureModern StackConfig
 
-class TestSnowflakeIntegration:
+class TestModern StackIntegration:
     def test_secure_connection(self):
         """Test secure connection establishment"""
-        config = SecureSnowflakeConfig()
+        config = SecureModern StackConfig()
         assert config.user == "PROGRAMMATIC_SERVICE_USER"
         assert config.password.startswith("eyJraWQi")
 
     def test_cortex_integration(self):
-        """Test Snowflake Cortex functionality"""
+        """Test Lambda GPU functionality"""
         # Implementation for testing Cortex AI functions
         pass
 
     def test_data_pipeline(self):
         """Test end-to-end data pipeline"""
-        # Implementation for testing estuary → PostgreSQL → Snowflake
+        # Implementation for testing estuary → PostgreSQL → Modern Stack
         pass
 ```
 
@@ -421,7 +421,7 @@ class TestSnowflakeIntegration:
 - [ ] Deploy security fixes
 
 ### Week 2: MCP Server Enhancement
-- [ ] Implement production Snowflake Cortex MCP server
+- [ ] Implement production Lambda GPU MCP server
 - [ ] Create unified MCP server architecture
 - [ ] Add comprehensive error handling
 - [ ] Deploy enhanced MCP servers
@@ -451,7 +451,7 @@ class TestSnowflakeIntegration:
 ### Performance Metrics
 - ✅ **90% reduction** in query response time
 - ✅ **95% cache hit rate** for frequently accessed data
-- ✅ **99.9% uptime** for Snowflake connections
+- ✅ **99.9% uptime** for Modern Stack connections
 - ✅ **<100ms latency** for cached queries
 
 ### Functionality Metrics

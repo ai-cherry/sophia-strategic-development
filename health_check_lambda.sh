@@ -48,7 +48,7 @@ if command -v ssh &> /dev/null && ssh -o ConnectTimeout=5 -o BatchMode=yes ubunt
         SERVICE_NAME=""
         case $port in
             9001) SERVICE_NAME="AI Memory" ;;
-            9002) SERVICE_NAME="Snowflake" ;;
+            9002) SERVICE_NAME="modern_stack" ;;
             9005) SERVICE_NAME="Unified Intelligence" ;;
             9103) SERVICE_NAME="Slack" ;;
             9104) SERVICE_NAME="GitHub" ;;

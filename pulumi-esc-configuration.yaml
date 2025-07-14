@@ -25,12 +25,12 @@ values:
       fn::secret: ${github-org-secrets.GONG_ACCESS_KEY}
     gong_client_secret:
       fn::secret: ${github-org-secrets.GONG_CLIENT_SECRET}
-    snowflake_account:
-      fn::secret: ${github-org-secrets.SNOWFLAKE_ACCOUNT}
-    snowflake_username:
-      fn::secret: ${github-org-secrets.SNOWFLAKE_USERNAME}
-    snowflake_password:
-      fn::secret: ${github-org-secrets.SNOWFLAKE_PASSWORD}
+    postgres_host:
+      fn::secret: ${github-org-secrets.modern_stack_ACCOUNT}
+    postgres_username:
+      fn::secret: ${github-org-secrets.modern_stack_USERNAME}
+    postgres_password:
+      fn::secret: ${github-org-secrets.modern_stack_PASSWORD}
     n8n_webhook_secret:
       fn::secret: ${github-org-secrets.N8N_WEBHOOK_SECRET}
     redis_url:
@@ -60,9 +60,9 @@ values:
     VITE_INTERCOM_ACCESS_TOKEN: ${frontend.intercom_access_token}
     GONG_ACCESS_KEY: ${backend.gong_access_key}
     GONG_CLIENT_SECRET: ${backend.gong_client_secret}
-    SNOWFLAKE_ACCOUNT: ${backend.snowflake_account}
-    SNOWFLAKE_USERNAME: ${backend.snowflake_username}
-    SNOWFLAKE_PASSWORD: ${backend.snowflake_password}
+    modern_stack_ACCOUNT: ${backend.postgres_host}
+    modern_stack_USERNAME: ${backend.postgres_username}
+    modern_stack_PASSWORD: ${backend.postgres_password}
     N8N_WEBHOOK_SECRET: ${backend.n8n_webhook_secret}
     REDIS_URL: ${backend.redis_url}
     VERCEL_ANALYTICS_ID: ${monitoring.vercel_analytics_id}

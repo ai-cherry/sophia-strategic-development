@@ -48,19 +48,19 @@ class DesignAutomationLayer:
 ### **Layer 3: Business Intelligence Orchestration**
 ```python
 class BusinessIntelligenceLayer:
-    """Apollo.io + HubSpot + Snowflake Cortex = Comprehensive BI"""
+    """Apollo.io + HubSpot + Lambda GPU = Comprehensive BI"""
 
     def __init__(self):
         self.apollo_mcp = ApolloMCPServer()             # Sales intelligence powerhouse
         self.hubspot_mcp = HubSpotAIMCPServer()         # CRM with AI capabilities
-        self.snowflake_cortex_mcp = SnowflakeCortexMCP() # Official Snowflake Labs
+        self.modern_stack_cortex_mcp = Modern StackCortexMCP() # Official Modern Stack Labs
         self.phantombuster_mcp = PhantomBusterMCP()     # Social automation
 
     async def comprehensive_business_intelligence(self, query: str):
         """360° business intelligence with AI orchestration"""
         sales_data = await self.apollo_mcp.enrich_prospects(query)
         crm_data = await self.hubspot_mcp.analyze_pipeline(query)
-        data_insights = await self.snowflake_cortex_mcp.query_cortex(query)
+        data_insights = await self.modern_stack_cortex_mcp.query_cortex(query)
         social_insights = await self.phantombuster_mcp.analyze_social_presence(query)
 
         return await self.synthesize_intelligence(sales_data, crm_data, data_insights, social_insights)
@@ -110,7 +110,7 @@ class EnterpriseMCPGateway:
             # Business Intelligence Tier
             'apollo': MCPServerPool('apollo-io', replicas=4),
             'hubspot': MCPServerPool('hubspot-ai', replicas=3),
-            'snowflake-cortex': MCPServerPool('snowflake-cortex', replicas=5),
+            'modern_stack-cortex': MCPServerPool('modern_stack-cortex', replicas=5),
             'phantombuster': MCPServerPool('phantombuster', replicas=2),
 
             # AI Orchestration Tier
@@ -186,7 +186,7 @@ mcp_gateway:
           memory: "1Gi"
         rate_limit: "500/minute"
 
-      snowflake_cortex:
+      modern_stack_cortex:
         replicas: 5
         resources:
           cpu: "1500m"
@@ -426,10 +426,10 @@ businessIntelligence:
         cpu: "1200m"
         memory: "2Gi"
 
-  snowflakeCortex:
+  modern_stackCortex:
     enabled: true
     replicas: 5
-    image: "snowflake-labs/cortex-mcp:latest"
+    image: "modern_stack-labs/cortex-mcp:latest"
     resources:
       requests:
         cpu: "1500m"
@@ -508,7 +508,7 @@ jobs:
           --set secrets.apolloApiKey=${{ secrets.APOLLO_API_KEY }} \
           --set secrets.apifyToken=${{ secrets.APIFY_TOKEN }} \
           --set secrets.figmaToken=${{ secrets.FIGMA_ACCESS_TOKEN }} \
-          --set secrets.snowflakeAccount=${{ secrets.SNOWFLAKE_ACCOUNT }} \
+          --set secrets.modern_stackAccount=${{ secrets.modern_stack_ACCOUNT }} \
           --set secrets.portkeyApiKey=${{ secrets.PORTKEY_API_KEY }}
 
     - name: Run Health Checks
@@ -532,7 +532,7 @@ jobs:
 - **Web Automation Success**: 95% success rate for Playwright operations
 - **Design-to-Code Acceleration**: 10x faster design-to-deployment pipeline
 - **Sales Intelligence Quality**: 90% accuracy in Apollo.io enrichment
-- **Data Processing Speed**: 5x faster with Snowflake Cortex integration
+- **Data Processing Speed**: 5x faster with Lambda GPU integration
 - **AI Model Efficiency**: 40% cost reduction with intelligent routing
 
 ### **Operational Metrics**

@@ -1,4 +1,4 @@
--- Snowflake Schemas for Storing Processed Gong Data
+-- modern_stack Schemas for Storing Processed Gong Data
 
 -- Table to store the main details of each Gong call
 CREATE TABLE IF NOT EXISTS gong_calls (

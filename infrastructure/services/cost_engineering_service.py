@@ -28,9 +28,10 @@ Recommended decomposition:
 - cost_engineering_service_models.py - Data models
 - cost_engineering_service_handlers.py - Request handlers
 
-TODO: Implement file decomposition
+TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -43,7 +44,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.security.audit_logger import AuditLogger
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ class ModelConfig:
     avg_latency_ms: float
     quality_score: float  # 0.0 to 1.0
     capabilities: list[str]
-    provider: str = "snowflake_cortex"
+    provider: str = "modern_stack_cortex"
 
 
 @dataclass
@@ -145,7 +146,7 @@ class CostEngineeringService:
     """
 
     def __init__(self):
-        self.cortex_service: SnowflakeCortexService | None = None
+        self.cortex_service: ModernStackCortexService | None = None
         self.cache_manager = EnhancedCacheManager()
         self.audit_logger = AuditLogger()
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
@@ -180,7 +181,7 @@ class CostEngineeringService:
 
         try:
             # Initialize services
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()
 
@@ -203,7 +204,7 @@ class CostEngineeringService:
 
     async def _initialize_model_configs(self) -> None:
         """Initialize model configurations with cost and performance data"""
-        # Snowflake Cortex models (example configurations)
+# REMOVED: ModernStack dependencyurations)
         self.model_configs = {
             "mistral-7b": ModelConfig(
                 model_id="mistral-7b",
@@ -213,7 +214,7 @@ class CostEngineeringService:
                 avg_latency_ms=500,
                 quality_score=0.75,
                 capabilities=["text_generation", "simple_qa", "classification"],
-                provider="snowflake_cortex",
+                provider="modern_stack_cortex",
             ),
             "mixtral-8x7b": ModelConfig(
                 model_id="mixtral-8x7b",
@@ -228,7 +229,7 @@ class CostEngineeringService:
                     "reasoning",
                     "summarization",
                 ],
-                provider="snowflake_cortex",
+                provider="modern_stack_cortex",
             ),
             "llama2-70b-chat": ModelConfig(
                 model_id="llama2-70b-chat",
@@ -242,17 +243,17 @@ class CostEngineeringService:
                     "expert_analysis",
                     "creative_writing",
                 ],
-                provider="snowflake_cortex",
+                provider="modern_stack_cortex",
             ),
-            "snowflake-arctic": ModelConfig(
-                model_id="snowflake-arctic",
+# REMOVED: ModernStack dependency(
+                model_id="modern_stack-arctic",
                 tier=ModelTier.PREMIUM,
                 cost_per_token=0.0015,
                 max_tokens=4096,
                 avg_latency_ms=1500,
                 quality_score=0.95,
                 capabilities=["expert_reasoning", "specialized_analysis", "research"],
-                provider="snowflake_cortex",
+                provider="modern_stack_cortex",
             ),
         }
 
@@ -261,8 +262,8 @@ class CostEngineeringService:
         self.model_routing_rules = {
             TaskComplexity.SIMPLE: ["mistral-7b", "mixtral-8x7b"],
             TaskComplexity.MODERATE: ["mixtral-8x7b", "llama2-70b-chat"],
-            TaskComplexity.COMPLEX: ["llama2-70b-chat", "snowflake-arctic"],
-            TaskComplexity.EXPERT: ["snowflake-arctic", "llama2-70b-chat"],
+            TaskComplexity.COMPLEX: ["llama2-70b-chat", "modern_stack-arctic"],
+            TaskComplexity.EXPERT: ["modern_stack-arctic", "llama2-70b-chat"],
         }
 
     async def process_task(self, task_request: TaskRequest) -> TaskResponse:
@@ -444,7 +445,7 @@ class CostEngineeringService:
                 Return only the complexity level: SIMPLE, MODERATE, COMPLEX, or EXPERT
                 """
 
-                complexity_result = await cortex.complete_text_with_cortex(
+                complexity_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=complexity_prompt,
                     max_tokens=10,
                     model="mistral-7b",  # Use small model for analysis
@@ -626,7 +627,7 @@ class CostEngineeringService:
                 Return only the optimized prompt:
                 """
 
-                optimized = await cortex.complete_text_with_cortex(
+                optimized = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=optimization_prompt,
                     max_tokens=len(prompt) // 2,  # Target 50% reduction
                     model="mistral-7b",  # Use small model for optimization
@@ -652,7 +653,7 @@ class CostEngineeringService:
         """Execute the task using the selected model"""
         try:
             async with self.cortex_service as cortex:
-                response = await cortex.complete_text_with_cortex(
+                response = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=prompt,
                     max_tokens=max_tokens or 500,
                     temperature=temperature,

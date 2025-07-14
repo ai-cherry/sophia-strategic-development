@@ -1,0 +1,281 @@
+# Sophia AI Unified MCP Server Configuration
+# Deployed on Lambda Labs Cloud Server: 104.171.202.117
+
+global:
+  lambda_labs_host: "104.171.202.117"
+  environment: "prod"
+  deployment_method: "kubernetes"
+  registry: "docker.io/scoobyjava15"
+  prometheus_endpoint: "http://104.171.202.117:9090"
+  grafana_endpoint: "http://104.171.202.117:3000"
+  kubernetes_namespace: "sophia-mcp"
+  kubernetes_cluster: "lambda-labs-cloud"
+
+servers:
+  # TIER 1: PRIMARY SERVERS (Mission-critical, 99.9% uptime)
+  - name: ai-memory
+    type: ai_memory
+    tier: PRIMARY
+    port: 9000
+    path: "mcp-servers/ai_memory/server.py"
+    capabilities: [MEMORY, EMBEDDING, SEARCH, ANALYTICS]
+    version: "2.1.0"
+    config:
+      vector_dims: 768
+      max_memories: 10000
+      cache_ttl: 3600
+      pinecone_enabled: false
+      persistence: "modern_stack"
+    resources:
+      memory: "4G"
+      cpu: "2"
+      replicas: 2
+
+  - name: modern_stack-unified
+    type: modern_stack
+    tier: PRIMARY
+    port: 9001
+    path: "mcp-servers/modern_stack_unified/server.py"
+    capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]
+    version: "3.0.1"
+    config:
+      warehouse: SOPHIA_AI_WH
+      database: SOPHIA_AI
+      schema: PROCESSED_AI
+      cortex_enabled: true
+    resources:
+      memory: "4G"
+      cpu: "2"
+      replicas: 2
+
+  - name: gong-v2
+    type: gong
+    tier: PRIMARY
+    port: 9002
+    path: "mcp-servers/gong/server.py"
+    capabilities: [ANALYTICS, CRM, COMMUNICATION]
+    version: "1.6.1"
+    config:
+      sync_interval: 3600
+      batch_size: 100
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 2
+
+  - name: hubspot-unified
+    type: hubspot
+    tier: PRIMARY
+    port: 9003
+    path: "mcp-servers/hubspot_unified/server.py"
+    capabilities: [CRM, ANALYTICS, WORKFLOW]
+    version: "2.3.0"
+    config:
+      api_version: "v3"
+      sync_contacts: true
+      sync_deals: true
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 2
+
+  - name: slack-v2
+    type: slack
+    tier: PRIMARY
+    port: 9004
+    path: "mcp-servers/slack/server.py"
+    capabilities: [COMMUNICATION, SEARCH, WORKFLOW]
+    version: "1.5.0"
+    config:
+      events_api: true
+      socket_mode: true
+      rate_limit: 20
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 2
+
+  # TIER 2: SECONDARY SERVERS (Important, 99% uptime)
+  - name: github-v2
+    type: github
+    tier: SECONDARY
+    port: 9005
+    path: "mcp-servers/github/server.py"
+    capabilities: [CODE_ANALYSIS, WORKFLOW, SEARCH]
+    version: "2.2.0"
+    config:
+      org: "ai-cherry"
+      graphql_enabled: true
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 1
+
+  - name: linear-v2
+    type: linear
+    tier: SECONDARY
+    port: 9006
+    path: "mcp-servers/linear/server.py"
+    capabilities: [WORKFLOW, ANALYTICS, SEARCH]
+    version: "1.4.1"
+    config:
+      sync_interval: 1800
+      graphql_endpoint: "https://api.linear.app/graphql"
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 1
+
+  - name: asana-v2
+    type: asana
+    tier: SECONDARY
+    port: 9007
+    path: "mcp-servers/asana/server.py"
+    capabilities: [WORKFLOW, ANALYTICS, SEARCH]
+    version: "1.2.3"
+    config:
+      workspace_gid: null  # Set via environment
+      sync_tasks: true
+      sync_projects: true
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 1
+
+  - name: notion-v2
+    type: notion
+    tier: SECONDARY
+    port: 9008
+    path: "mcp-servers/notion/server.py"
+    capabilities: [WORKFLOW, SEARCH, MEMORY]
+    version: "1.3.0"
+    config:
+      api_version: "2022-06-28"
+      sync_interval: 1800
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 1
+
+  - name: codacy-production
+    type: codacy
+    tier: SECONDARY
+    port: 3008
+    path: "mcp-servers/codacy/production_codacy_server.py"
+    capabilities: [CODE_ANALYSIS, ANALYTICS]
+    version: "2.0.0"
+    config:
+      security_scanning: true
+      complexity_analysis: true
+      real_time: true
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 1
+
+  # TIER 3: TERTIARY SERVERS (Optional, best effort)
+  - name: figma-context
+    type: figma
+    tier: TERTIARY
+    port: 9009
+    path: "mcp-servers/figma_context/server.py"
+    capabilities: [WORKFLOW, ANALYTICS]
+    version: "1.0.0"
+    config:
+      design_to_code: true
+    resources:
+      memory: "1G"
+      cpu: "0.5"
+      replicas: 1
+
+  - name: lambda-labs-cli
+    type: infrastructure
+    tier: TERTIARY
+    port: 9010
+    path: "mcp-servers/lambda_labs_cli/server.py"
+    capabilities: [INFRASTRUCTURE, ANALYTICS]
+    version: "1.1.0"
+    config:
+      cost_optimization: true
+      instance_management: true
+    resources:
+      memory: "1G"
+      cpu: "0.5"
+      replicas: 1
+
+  - name: ui-ux-agent
+    type: ai_agent
+    tier: TERTIARY
+    port: 9011
+    path: "mcp-servers/ui_ux_agent/server.py"
+    capabilities: [WORKFLOW, CODE_ANALYSIS]
+    version: "1.0.0"
+    config:
+      component_generation: true
+      accessibility_check: true
+    resources:
+      memory: "2G"
+      cpu: "1"
+      replicas: 1
+
+# Central Services Configuration
+central_services:
+  - name: mcp-orchestration
+    port: 8080
+    path: "infrastructure/services/mcp_orchestration_service.py"
+    description: "Central MCP orchestration and routing"
+    
+  - name: registry-v2
+    port: 8081
+    path: "infrastructure/mcp_servers/registry_v2.py"
+    description: "MCP server registry and discovery"
+    
+  - name: health-monitor
+    port: 8082
+    path: "infrastructure/monitoring/mcp_health_monitor.py"
+    description: "Unified health monitoring service"
+
+# Port Allocation Ranges
+port_ranges:
+  core_intelligence: "9000-9099"    # AI Memory, core servers
+  infrastructure: "9200-9299"       # Infrastructure servers
+  gateway: "8000-8099"             # Gateway and orchestration
+  development: "3000-3099"         # Development tools
+  legacy: "9100-9199"              # Legacy servers (to be migrated)
+
+# Deployment Configuration
+deployment:
+  docker:
+    base_image: "python:3.12-slim"
+    network: "sophia-ai-network"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/opt/sophia-ai/data:/data"
+      - "/opt/sophia-ai/logs:/logs"
+    
+  health_check:
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 60s
+
+  rollback:
+    enabled: true
+    max_history: 5
+    auto_rollback_on_failure: true
+
+# Monitoring and Alerting
+monitoring:
+  prometheus:
+    scrape_interval: 15s
+    retention: 30d
+    
+  alerts:
+    slack_channel: "#sophia-ai-alerts"
+    pagerduty_enabled: false
+    email_enabled: true
+    
+  sla_targets:
+    primary_uptime: 0.999
+    secondary_uptime: 0.99
+    tertiary_uptime: 0.95 

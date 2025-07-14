@@ -45,16 +45,16 @@ create_secret "pulumi_access_token" "$(get_secret '.pulumi_access_token')"
 create_secret "openai_api_key" "$(get_secret '.openai_api_key')"
 create_secret "anthropic_api_key" "$(get_secret '.anthropic_api_key')"
 
-# Snowflake secrets
-create_secret "snowflake_account" "$(get_secret '.snowflake_account')"
-create_secret "snowflake_user" "$(get_secret '.snowflake_user')"
-create_secret "snowflake_password" "$(get_secret '.snowflake_password')"
-create_secret "snowflake_database" "$(get_secret '.snowflake_database')"
-create_secret "snowflake_warehouse" "$(get_secret '.snowflake_warehouse')"
-create_secret "snowflake_role" "$(get_secret '.snowflake_role')"
+# modern_stack secrets
+create_secret "modern_stack_account" "$(get_secret '.modern_stack_account')"
+create_secret "modern_stack_user" "$(get_secret '.modern_stack_user')"
+create_secret "modern_stack_password" "$(get_secret '.modern_stack_password')"
+create_secret "modern_stack_database" "$(get_secret '.modern_stack_database')"
+create_secret "modern_stack_warehouse" "$(get_secret '.modern_stack_warehouse')"
+create_secret "modern_stack_role" "$(get_secret '.modern_stack_role')"
 
 # Database secrets
-create_secret "postgres_password" "$(get_secret '.snowflake_password')"  # Use Snowflake password for PostgreSQL
+create_secret "postgres_password" "$(get_secret '.postgres_password')"  # Use dedicated PostgreSQL password from ESC
 create_secret "redis_password" "$(get_secret '.redis_password')"
 create_secret "redis_url" "$(get_secret '.redis_url')"
 

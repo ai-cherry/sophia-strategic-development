@@ -1,0 +1,39 @@
+name: Technical Debt Cleanup Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+
+jobs:
+  cleanup-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-phase2.txt
+    
+    - name: Run cleanup validation
+      run: |
+        python scripts/utils/enhanced_daily_cleanup.py --dry-run
+        python scripts/phase2_cleanup_and_validation.py --mode=validate-only
+    
+    - name: Check for technical debt
+      run: |
+        python scripts/utils/pre_push_debt_check.py
+    
+    - name: Generate cleanup report
+      run: |
+        python scripts/execute_cleanup_plan.py --phase=validation --dry-run

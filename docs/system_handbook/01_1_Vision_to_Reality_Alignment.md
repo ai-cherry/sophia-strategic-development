@@ -20,7 +20,7 @@ This document provides a comprehensive, point-by-point analysis comparing the or
 
 #### **Note 2: Unified Chat Interface**
 -   **Vision:** *"The first page...should be the Unified Chat Search Interface...[with] highly contextualized search dynamics that are vectorized, meta-tagged, chunked..."*
--   **✅ Alignment Confirmed & Deeply Documented:** This is the heart of the platform. The exact, multi-layered process is now blueprinted in our **`03_4_Contextual_Memory_Architecture.md`** deep-dive document. It explicitly details the flow from the UI, through L1 (Redis cache), L2 (AI Memory), L3 (Vector Search), and L4 (Structured Search - Snowflake Cortex), perfectly matching the vision.
+-   **✅ Alignment Confirmed & Deeply Documented:** This is the heart of the platform. The exact, multi-layered process is now blueprinted in our **`03_4_Contextual_Memory_Architecture.md`** deep-dive document. It explicitly details the flow from the UI, through L1 (Redis cache), L2 (AI Memory), L3 (Vector Search), and L4 (Structured Search - Lambda GPU), perfectly matching the vision.
 
 #### **Note 3: Blended Project Management Tab**
 -   **Vision:** *"...a project management...tab...[blending] Linear...Asana...Slack...[and] Notion..."*

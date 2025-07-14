@@ -7,14 +7,14 @@
     "langchain_integrated": 14
   },
   "by_category": {
-    "data_stack": ["snowflake", "estuary", "gong", "slack", "hubspot"],
+    "data_stack": ["modern_stack", "estuary", "gong", "slack", "hubspot"],
     "dev_stack": ["vercel", "lambda_labs", "figma"],
     "ai_stack": ["portkey", "openrouter"],
     "ops_stack": ["linear", "asana"],
     "additional": ["usergems", "apollo"]
   },
   "integration_matrix": {
-    "snowflake": {
+    "modern_stack": {
       "primary": "CLI + Python SDK",
       "secondary": "API",
       "webhooks": "None (inbound only)",
@@ -25,7 +25,7 @@
         "automation": "LangChain MCP agent",
         "real_time": "Not applicable"
       },
-      "justification": "Snowflake's strength is in SQL and bulk operations. CLI provides infrastructure control, Python SDK enables programmatic access, LangChain MCP provides intelligent query generation."
+      "justification": "ModernStack's strength is in SQL and bulk operations. CLI provides infrastructure control, Python SDK enables programmatic access, LangChain MCP provides intelligent query generation."
     },
     "estuary": {
       "primary": "API + SDK",
@@ -214,7 +214,7 @@
       "category": "LangChain Integration",
       "recommendation": "Prioritize LangChain MCP servers for platforms with complex configuration",
       "priority": "Medium",
-      "platforms": ["snowflake", "estuary", "portkey"]
+      "platforms": ["modern_stack", "estuary", "portkey"]
     },
     {
       "category": "Real-time Monitoring",

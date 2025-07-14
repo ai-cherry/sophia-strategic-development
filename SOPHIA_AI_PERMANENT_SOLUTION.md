@@ -27,7 +27,7 @@ export PULUMI_ORG=scoobyjava-org
 ```
 - ✅ auto_esc_config uses fallback mode
 - ✅ Loads 10 environment variables
-- ✅ Snowflake connection proves it works
+- ✅ Modern Stack connection proves it works
 
 ### 3. Secret Loading Scripts
 ```bash
@@ -67,7 +67,7 @@ GitHub Organization Secrets (ai-cherry)
         ↓ (Bypass Pulumi ESC authentication)
 Environment Variables
     ├── 10 variables loaded ✅
-    ├── Snowflake connecting ✅
+    ├── Modern Stack connecting ✅
     └── Fallback mode working ✅
         ↓
 Sophia AI Services
@@ -79,7 +79,7 @@ Sophia AI Services
 ## 💡 WHY THIS SOLUTION WORKS
 
 1. **Your secrets ARE there** - 200 in GitHub organization
-2. **Snowflake proves the pipeline works** - it's connecting successfully
+2. **Modern Stack proves the pipeline works** - it's connecting successfully
 3. **Only Pulumi ESC auth was broken** - we bypassed it
 4. **Import errors were blocking MCP** - we fixed them
 5. **Everything else was already working** - just needed fixes

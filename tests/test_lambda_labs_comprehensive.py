@@ -11,7 +11,7 @@ import pytest
 
 from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
 from backend.services.lambda_labs_service import LambdaLabsService
-from backend.services.unified_chat_service import UnifiedChatService
+from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
 from core.services.natural_language_infrastructure_controller import (
     NaturalLanguageInfrastructureController,
 )
@@ -146,13 +146,13 @@ class TestLambdaLabsChatIntegration:
         assert intent["recommended_model"] == "llama3.1-8b-instruct"
 
 
-class TestUnifiedChatServiceIntegration:
+class TestSophiaUnifiedOrchestratorIntegration:
     """Test unified chat service Lambda Labs integration"""
 
     @pytest.fixture
     def chat_service(self):
         """Create chat service instance"""
-        return UnifiedChatService()
+        return SophiaUnifiedOrchestrator()
 
     @pytest.mark.asyncio
     async def test_lambda_labs_in_service_map(self, chat_service):
@@ -217,11 +217,11 @@ class TestNaturalLanguageController:
             result = await controller.process_command("Analyze Lambda Labs costs")
             assert result["success"] is True
 
-        # Snowflake command
-        with patch.object(controller.snowflake, "complete") as mock_complete:
+        # ModernStack command
+        with patch.object(controller.modern_stack, "complete") as mock_complete:
             mock_complete.return_value = {"content": "Query executed"}
 
-            result = await controller.process_command("Query Snowflake for revenue")
+            result = await controller.process_command("Query ModernStack for revenue")
             assert result["success"] is True
 
     @pytest.mark.asyncio
@@ -230,12 +230,12 @@ class TestNaturalLanguageController:
         with patch.object(controller.lambda_router, "health_check") as mock_lambda:
             mock_lambda.return_value = {"status": "healthy"}
 
-            with patch.object(controller.snowflake, "health_check") as mock_snowflake:
-                mock_snowflake.return_value = {"status": "healthy"}
+            with patch.object(controller.modern_stack, "health_check") as mock_modern_stack:
+                mock_modern_stack.return_value = {"status": "healthy"}
 
                 health = await controller.check_health()
                 assert health["lambda_labs"]["status"] == "healthy"
-                assert health["snowflake"]["status"] == "healthy"
+                assert health["modern_stack"]["status"] == "healthy"
 
 
 class TestCostOptimization:
@@ -275,7 +275,7 @@ class TestEndToEndScenarios:
     @pytest.mark.asyncio
     async def test_ceo_query_flow(self):
         """Test CEO query processing flow"""
-        chat = UnifiedChatService()
+        chat = SophiaUnifiedOrchestrator()
 
         with patch.object(chat, "process_message_with_lambda") as mock_process:
             mock_process.return_value = {
@@ -298,9 +298,9 @@ class TestEndToEndScenarios:
     @pytest.mark.asyncio
     async def test_natural_language_sql_flow(self):
         """Test natural language to SQL flow"""
-        from infrastructure.adapters.snowflake_adapter import SnowflakeAdapter
+        from infrastructure.adapters.modern_stack_adapter import ModernStackAdapter
 
-        adapter = SnowflakeAdapter("snowflake", None)
+        adapter = ModernStackAdapter("modern_stack", None)
 
         with patch.object(adapter, "natural_language_to_sql") as mock_nl_sql:
             mock_nl_sql.return_value = {

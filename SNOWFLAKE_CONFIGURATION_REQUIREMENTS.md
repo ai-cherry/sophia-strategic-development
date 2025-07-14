@@ -1,8 +1,8 @@
-# 🏔️ **SNOWFLAKE CONFIGURATION REQUIREMENTS**
+# 🏔️ **modern_stack CONFIGURATION REQUIREMENTS**
 ## Sophia AI Platform - Detailed Infrastructure Specifications
 
 ### **🎯 OVERVIEW**
-This document provides comprehensive Snowflake configuration requirements for the Sophia AI platform implementation, including database structure, security settings, and optimization parameters.
+This document provides comprehensive Modern Stack configuration requirements for the Sophia AI platform implementation, including database structure, security settings, and optimization parameters.
 
 ---
 
@@ -441,10 +441,10 @@ RESUME RECLUSTER;
 USE WAREHOUSE SOPHIA_AI_CORTEX_WH;
 
 -- Test Cortex Availability
-SELECT SNOWFLAKE.CORTEX.COMPLETE('llama2-7b-chat', 'Hello, how are you?');
+SELECT modern_stack.CORTEX.COMPLETE('llama2-7b-chat', 'Hello, how are you?');
 
 -- Verify Embedding Models
-SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', 'Test embedding generation');
+SELECT modern_stack.CORTEX.EMBED_TEXT_768('e5-base-v2', 'Test embedding generation');
 ```
 
 ### **2. Cortex-Powered Procedures**
@@ -458,9 +458,9 @@ $$
 BEGIN
     UPDATE KNOWLEDGE_BASE.KNOWLEDGE_ITEMS
     SET
-        CORTEX_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', CONTENT),
-        CORTEX_SUMMARY = SNOWFLAKE.CORTEX.SUMMARIZE(CONTENT),
-        CORTEX_SENTIMENT = SNOWFLAKE.CORTEX.SENTIMENT(CONTENT),
+        CORTEX_EMBEDDING = modern_stack.CORTEX.EMBED_TEXT_768('e5-base-v2', CONTENT),
+        CORTEX_SUMMARY = modern_stack.CORTEX.SUMMARIZE(CONTENT),
+        CORTEX_SENTIMENT = modern_stack.CORTEX.SENTIMENT(CONTENT),
         UPDATED_AT = CURRENT_TIMESTAMP()
     WHERE KNOWLEDGE_ID = :KNOWLEDGE_ID;
 
@@ -477,7 +477,7 @@ $$
 BEGIN
     UPDATE AI_MEMORY.MEMORY_RECORDS
     SET
-        CORTEX_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', CONTENT),
+        CORTEX_EMBEDDING = modern_stack.CORTEX.EMBED_TEXT_768('e5-base-v2', CONTENT),
         QUALITY_SCORE = CASE
             WHEN LENGTH(CONTENT) > 100 AND IMPORTANCE_SCORE > 0.7 THEN 0.9
             WHEN LENGTH(CONTENT) > 50 THEN 0.7
@@ -499,11 +499,11 @@ $$
 BEGIN
     UPDATE SALES_INTELLIGENCE.COACHING_INSIGHTS
     SET
-        CORTEX_SENTIMENT = SNOWFLAKE.CORTEX.SENTIMENT(COALESCE(REP_RESPONSE, RECOMMENDATION)),
-        CORTEX_TOPICS = SNOWFLAKE.CORTEX.EXTRACT_TOPICS(COALESCE(REP_RESPONSE, RECOMMENDATION)),
-        CORTEX_SUMMARY = SNOWFLAKE.CORTEX.SUMMARIZE(SITUATION || ' ' || INSIGHT || ' ' || RECOMMENDATION),
+        CORTEX_SENTIMENT = modern_stack.CORTEX.SENTIMENT(COALESCE(REP_RESPONSE, RECOMMENDATION)),
+        CORTEX_TOPICS = modern_stack.CORTEX.EXTRACT_TOPICS(COALESCE(REP_RESPONSE, RECOMMENDATION)),
+        CORTEX_SUMMARY = modern_stack.CORTEX.SUMMARIZE(SITUATION || ' ' || INSIGHT || ' ' || RECOMMENDATION),
         EFFECTIVENESS_SCORE = CASE
-            WHEN REP_RESPONSE IS NOT NULL AND SNOWFLAKE.CORTEX.SENTIMENT(REP_RESPONSE):sentiment = 'positive' THEN 0.9
+            WHEN REP_RESPONSE IS NOT NULL AND modern_stack.CORTEX.SENTIMENT(REP_RESPONSE):sentiment = 'positive' THEN 0.9
             WHEN REP_RESPONSE IS NOT NULL THEN 0.7
             ELSE 0.5
         END
@@ -713,7 +713,7 @@ $$;
 
 ### **✅ Pre-Deployment Requirements**
 1. **Account Setup**
-   - [ ] Snowflake account with Enterprise edition
+   - [ ] Modern Stack account with Enterprise edition
    - [ ] Cortex AI enabled in account
    - [ ] Appropriate regional deployment (US, EU, etc.)
 
@@ -782,7 +782,7 @@ $$;
 ```sql
 -- Test Cortex availability
 SELECT CURRENT_WAREHOUSE(), CURRENT_ACCOUNT();
-SELECT SNOWFLAKE.CORTEX.COMPLETE('llama2-7b-chat', 'test');
+SELECT modern_stack.CORTEX.COMPLETE('llama2-7b-chat', 'test');
 
 -- If Cortex unavailable, check account features
 SHOW FEATURES;
@@ -791,7 +791,7 @@ SHOW FEATURES;
 #### **Performance Issues**
 ```sql
 -- Check warehouse utilization
-SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY
+SELECT * FROM modern_stack.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY
 WHERE WAREHOUSE_NAME IN ('SOPHIA_AI_CORTEX_WH', 'SOPHIA_AI_KB_WH')
 AND START_TIME >= CURRENT_DATE - 7;
 
@@ -802,7 +802,7 @@ ALTER WAREHOUSE SOPHIA_AI_CORTEX_WH SET WAREHOUSE_SIZE = 'X-LARGE';
 #### **Memory Issues**
 ```sql
 -- Monitor memory usage
-SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+SELECT * FROM modern_stack.ACCOUNT_USAGE.QUERY_HISTORY
 WHERE QUERY_TEXT ILIKE '%CORTEX%'
 AND EXECUTION_STATUS = 'FAILED'
 ORDER BY START_TIME DESC;
@@ -815,7 +815,7 @@ SELECT
     CURRENT_TIMESTAMP() as CHECK_TIME,
     COUNT(*) as ACTIVE_SESSIONS,
     SUM(CASE WHEN WAREHOUSE_NAME LIKE 'SOPHIA_AI%' THEN 1 ELSE 0 END) as SOPHIA_SESSIONS
-FROM SNOWFLAKE.ACCOUNT_USAGE.SESSIONS
+FROM modern_stack.ACCOUNT_USAGE.SESSIONS
 WHERE END_TIME IS NULL;
 
 -- Daily usage summary
@@ -824,7 +824,7 @@ SELECT
     WAREHOUSE_NAME,
     SUM(CREDITS_USED) as DAILY_CREDITS,
     COUNT(*) as QUERY_COUNT
-FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY
+FROM modern_stack.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY
 WHERE WAREHOUSE_NAME LIKE 'SOPHIA_AI%'
 AND START_TIME >= CURRENT_DATE - 30
 GROUP BY DATE(START_TIME), WAREHOUSE_NAME
@@ -837,9 +837,9 @@ ORDER BY USAGE_DATE DESC, WAREHOUSE_NAME;
 
 ### **API Configuration**
 ```yaml
-# Snowflake Connection Parameters
-snowflake:
-  account: "your-account.snowflakecomputing.com"
+# Modern Stack Connection Parameters
+modern_stack:
+  account: "your-account.modern_stackcomputing.com"
   user: "SOPHIA_AI_SERVICE"
   role: "SOPHIA_AI_DEVELOPER"
   warehouse: "SOPHIA_AI_CORTEX_WH"
@@ -861,4 +861,4 @@ performance:
   connection_pool_size: 10
 ```
 
-This comprehensive configuration provides the complete Snowflake infrastructure needed for the Sophia AI platform implementation. All components are designed for enterprise-scale operation with proper security, performance optimization, and monitoring capabilities.
+This comprehensive configuration provides the complete Modern Stack infrastructure needed for the Sophia AI platform implementation. All components are designed for enterprise-scale operation with proper security, performance optimization, and monitoring capabilities.

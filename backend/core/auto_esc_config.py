@@ -3,41 +3,44 @@ Enhanced Auto ESC Config with ALL GitHub Secrets Mapped
 This loads ALL secrets from Pulumi ESC using the correct GitHub secret names
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 import os
 import subprocess
 from functools import lru_cache
-from typing import Any
+from typing import Any, Dict, Optional, Union
 
 logger = logging.getLogger(__name__)
 
 # Configuration cache
-_config_cache: dict[str, Any] = {}
-_esc_cache: dict[str, Any] | None = None
+_config_cache: Dict[str, Any] = {}
+_esc_cache: Optional[Dict[str, Any]] = None
 
 # Environment configuration
 ENVIRONMENT = os.getenv("ENVIRONMENT", "prod")
 PULUMI_ORG = os.getenv("PULUMI_ORG", "scoobyjava-org")
 PULUMI_STACK = f"{PULUMI_ORG}/default/sophia-ai-production"
 
+
 @lru_cache(maxsize=1)
-def get_pulumi_config() -> dict[str, Any]:
+def get_pulumi_config() -> Dict[str, Any]:
     """Get all configuration from Pulumi ESC"""
     try:
         # Try to get the config using pulumi env get
         result = subprocess.run(
             ["pulumi", "env", "get", PULUMI_STACK],
-            check=False, capture_output=True,
+            check=False,
+            capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if result.returncode == 0:
             # Parse the output - it might be YAML or key-value pairs
             config = {}
-            for line in result.stdout.strip().split('\n'):
-                if ':' in line and not line.startswith('#'):
-                    key, value = line.split(':', 1)
+            for line in result.stdout.strip().split("\n"):
+                if ":" in line and not line.startswith("#"):
+                    key, value = line.split(":", 1)
                     config[key.strip()] = value.strip()
 
             logger.info(f"✅ Loaded Pulumi ESC config from {PULUMI_STACK}")
@@ -50,7 +53,8 @@ def get_pulumi_config() -> dict[str, Any]:
         logger.error(f"❌ Error loading Pulumi ESC config: {e}")
         return {}
 
-def get_config_value(key: str, default: str | None = None) -> str | None:
+
+def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
     """Get a configuration value from Pulumi ESC or environment variables"""
     # Try environment variable first
     env_value = os.getenv(key.upper())
@@ -65,6 +69,7 @@ def get_config_value(key: str, default: str | None = None) -> str | None:
     # Return default
     return default
 
+
 def _get_security_config():
     """Get SecurityConfig class (imported lazily to avoid circular imports)"""
     try:
@@ -76,7 +81,8 @@ def _get_security_config():
         logger.warning("SecurityConfig not available, using fallback mappings")
         return None
 
-def _load_esc_environment() -> dict[str, Any]:
+
+def _load_esc_environment() -> Dict[str, Any]:
     """
     Load configuration from Pulumi ESC environment
 
@@ -138,6 +144,7 @@ def _load_esc_environment() -> dict[str, Any]:
     _esc_cache = {}
     return _esc_cache
 
+
 def set_config_value(key: str, value: Any) -> None:
     """
     Set configuration value in cache
@@ -148,30 +155,60 @@ def set_config_value(key: str, value: Any) -> None:
     """
     _config_cache[key] = value
 
-def get_snowflake_config() -> dict[str, Any]:
+
+# REMOVED: ModernStack dependency() -> Dict[str, Any]:
     """
-    Get Snowflake configuration from Pulumi ESC - PERMANENT FIX
+# REMOVED: ModernStack dependencyuration from Pulumi ESC - PERMANENT FIX
 
     Returns:
-        Snowflake configuration dictionary with CORRECT account
+# REMOVED: ModernStack dependencyuration dictionary with CORRECT account
     """
+    # Check environment variables first (for immediate use)
+# REMOVED: ModernStack dependency_value(
+        "postgres_host", "UHDECNO-CVB64222"
+    )
+# REMOVED: ModernStack dependency_value(
+        "modern_stack_user", "SCOOBYJAVA15"
+    )
+
+    # Try PAT token first, then regular password
+    pat_token = os.getenv("modern_stack_PAT")
+    password = (
+        pat_token
+        if pat_token
+# REMOVED: ModernStack dependency_value("postgres_password"))
+    )
+
     return {
-        "account": get_config_value(
-            "snowflake_account", "ZNB04675.us-east-1.us-east-1"
-        ),  # PERMANENT FIX: Correct account
-        "user": get_config_value("snowflake_user", "SCOOBYJAVA15"),
-        "password": get_config_value("snowflake_password"),  # Will load PAT from ESC
-        "role": get_config_value("snowflake_role", "ACCOUNTADMIN"),
-        "warehouse": get_config_value(
-            "snowflake_warehouse", "SOPHIA_AI_WH"
-        ),  # PERMANENT FIX: Correct warehouse
-        "database": get_config_value(
-            "snowflake_database", "SOPHIA_AI"
-        ),  # PERMANENT FIX: Correct database
-        "schema": get_config_value("snowflake_schema", "PROCESSED_AI"),
+        "account": account,
+        "user": user,
+        "password": password,  # Will use PAT or password from ESC/env
+        "role": get_config_value("modern_stack_role", "ACCOUNTADMIN"),
+        "warehouse": get_config_value("postgres_database", "SOPHIA_AI_COMPUTE_WH"),
+        "database": get_config_value("postgres_database", "AI_MEMORY"),
+        "schema": get_config_value("postgres_schema", "VECTORS"),
     }
 
-def get_estuary_config() -> dict[str, Any]:
+
+def get_postgres_config() -> Dict[str, Any]:
+    """
+    Get PostgreSQL configuration
+
+    Returns:
+        PostgreSQL configuration dictionary
+    """
+    return {
+        "host": get_config_value("postgres_host", "postgres"),
+        "port": int(get_config_value("postgres_port", "5432")),
+        "database": get_config_value("postgres_database", "sophia_ai"),
+        "user": get_config_value("postgres_user", "postgres"),
+        "password": get_config_value(
+            "postgres_password"
+        ),  # Separate password from ModernStack
+    }
+
+
+def get_estuary_config() -> Dict[str, Any]:
     """
     Get Estuary configuration
 
@@ -184,7 +221,8 @@ def get_estuary_config() -> dict[str, Any]:
         "endpoint": get_config_value("estuary_endpoint", "https://api.estuary.dev"),
     }
 
-def get_integration_config() -> dict[str, Any]:
+
+def get_integration_config() -> Dict[str, Any]:
     """
     Get integration configuration for external services
 
@@ -216,6 +254,7 @@ def get_integration_config() -> dict[str, Any]:
         },
     }
 
+
 def initialize_default_config():
     """Initialize default configuration values"""
 
@@ -226,20 +265,20 @@ def initialize_default_config():
     _load_esc_environment()
 
     # Set fallback defaults only if not available from ESC
-    if not get_config_value("snowflake_account"):
+    if not get_config_value("postgres_host"):
         set_config_value(
-            "snowflake_account", "ZNB04675.us-east-1.us-east-1"
+            "postgres_host", "ZNB04675.us-east-1.us-east-1"
         )  # Fixed: Use correct account
-    if not get_config_value("snowflake_user"):
-        set_config_value("snowflake_user", "SCOOBYJAVA15")
-    if not get_config_value("snowflake_role"):
-        set_config_value("snowflake_role", "ACCOUNTADMIN")
-    if not get_config_value("snowflake_warehouse"):
-        set_config_value("snowflake_warehouse", "AI_SOPHIA_AI_WH")
-    if not get_config_value("snowflake_database"):
-        set_config_value("snowflake_database", "SOPHIA_AI_ADVANCED")
-    if not get_config_value("snowflake_schema"):
-        set_config_value("snowflake_schema", "PROCESSED_AI")
+    if not get_config_value("modern_stack_user"):
+        set_config_value("modern_stack_user", "SCOOBYJAVA15")
+    if not get_config_value("modern_stack_role"):
+        set_config_value("modern_stack_role", "ACCOUNTADMIN")
+    if not get_config_value("postgres_database"):
+        set_config_value("postgres_database", "AI_SOPHIA_AI_WH")
+    if not get_config_value("postgres_database"):
+        set_config_value("postgres_database", "SOPHIA_AI_ADVANCED")
+    if not get_config_value("postgres_schema"):
+        set_config_value("postgres_schema", "PROCESSED_AI")
 
     # Estuary defaults
     if not get_config_value("estuary_tenant"):
@@ -257,49 +296,97 @@ def initialize_default_config():
 
     logger.info("Configuration initialized with Pulumi ESC integration")
 
+
 # Initialize defaults on import
 initialize_default_config()
 
-def get_lambda_labs_config() -> dict[str, Any]:
+
+def get_lambda_labs_config() -> Dict[str, Any]:
     """
     Get Lambda Labs configuration from Pulumi ESC
 
     Returns:
         Lambda Labs configuration dictionary
     """
+    # Primary API key options (in order of preference)
+    api_key = (
+        get_config_value("LAMBDA_API_KEY") or
+        get_config_value("LAMBDA_CLOUD_API_KEY") or
+        get_config_value("lambda_api_key") or
+        "secret_sophia5apikey_a404a99d985d41828d7020f0b9a122a2.PjbWZb0lLubKu1nmyWYLy9Ycl3vyL18o"
+    )
+    
+    # SSH private key (embedded for reliability)
+    ssh_private_key = get_config_value("LAMBDA_PRIVATE_SSH_KEY") or """-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAsctiuxhwWHR6Vw2MCEKFQTo0fDd0cDE4G2S7AexGvQZvTyqy
+Vl/bBqVE8k3ToTO1VzVynbX4UIv4jmtZ+f85uAkCfkW9xIhfrdMGLVIoMs7UN0rS
+iuFdyUD7pf41RDGah35+FfpxQWq+gL0ac9LCFwhE66YyeB2MzG6hrabsKVAAK7Tv
+GSYH2ApULQdSowZP0niIshBEy9Sq3px1Vylyon7RsY3UWwEgcrEpQens4s3aJDMe
+o/du4cUhbtMJf3RqcDrva9aL3ub0n1Xq5o57lju7umtqlfsJXP776Vyg2oobviaf
+LeLg3ZkRHNFgkUz6nWXSZkEyeeM0nSaKIbBoawIDAQABAoIBABvsIbbZeTdjH52R
+Wpcnf08FqZ2Chg5ipHmk4bvFFDz2iD+qKHTpO/g4t3HIaD6uZMHr+nKrU/KucNxJ
+Hsnk2/c7rwEOyeVWN5SQii1O9FI6ali+rv8xsq17P6pLmKj7k1XJN1sTSHsqHP4R
+9NgQ1vuQCGbr5Iw5s9WdYFXp27gG/cwCPcRmtbDwxWypNqBJXCuzryTcj12mXWxx
+KXyR1D2i64kYJvfX4XpdO2fHqCwy9OQe6XXCgfO8EmY16GEBA9OYFz7TWD05g/ag
+e4C3PhO/OJ8wdd6EUA8/DS8ycN8iAxrqJJ4O8ZRKhPWVTIWG++2b9AJlc+vy+lCo
+4PbAWKECgYEA4SZhKQnDAHzt6xuHkVZCxcFGDQPtEhdPc3B23SIFgRtCCss4h5NC
+20WoxjsULv+CWG6rlTxNojUS3dKwS/xZs7RZRVleV6Rd3nWikuRDTZTDXQBsxRfr
+mgrfdnRKhCkqBfvxEsiRz/dewUL4owkZYyr3B8T6NRDXuCNeWKHHlgsCgYEAyifp
+VmQ9aCS3PrZTVo9CwCz7vh0NHjrZ1LQpJzGWld/BKzwmqZeOe3EKlNI0BaYH43sb
+38uTq5A0TnjfD16hqeWhy7oIgAabnKUU894PkMZNt4xjk9iRFKvsJiCZxv4vN5MY
+MraJRj61jH/9BtXnLAhqsnH7tJYN2uAzufjB0yECgYAyalipStFKg672zWRO7ATp
+qTyZX36vZV7aF53WKG8ZGNRx/E19NkFrPi7rrID5gSdby/RJ54Xuw3mlCC+H5Erl
+zYWL3NYeQ+TtEmREBi736U7RvW2duJx+Et809BdXfqw1SNQTg6v66IZkOi3YvAne
+Rdmo+LeaOFpFlk3jBN7fPwKBgAhMLxWus56Ms0DNtwn8g17j+clJ4/nzrHFAm9fR
+/z5TmtgtdeDMKbsDXs3Q+vWoZPZ/XRuIfZ0zJBJ8f5tf5P7WQBfeoO6wVr7NP9jq
+qnTkztfT2Vp+LyZMEDtYZzd1w3ZigUHDoErT1BvaPQaEzSJPjiGY8B3vcs4jGbxu
+a3ZBAoGARVeKJRgiPHQTxguouBYLSpKr5kuF+sYp0TB3XvOPlMPjKMLIryOajRpd
+3ot+NheIx7IOO8nbRBjcdr1CsxvKVrC6K1iEyV1cOwrGo2JednJr5cY92oE3Q3BZ
+Si02dEz1jsNZT5IObnR+EZU3x3tUPVwobDfLiVIhf5iOHg48b/w=
+-----END RSA PRIVATE KEY-----"""
+    
+    # SSH public key
+    ssh_public_key = get_config_value("LAMBDA_SSH_KEY") or "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKAPI0WU9UcB5vVnneP3oExytrPcD0PON5NeQxeNAJOWQSWi/fvkQ97dhAEtjyddmaCti7LFrp3CW+4gtGSiC+2/jOVqERLkmycbC8UZNpyqCiLIwO4MkIuxVNiRkg/ucPuf0DjakJh92xFDIyeDAR55OrpMWqX6O0+OZL0DFXE7jBDaloez+oLytM16CMHtlnx+5Br7O+RoPLEFvBz9RZyqlzs5144pvgHyRSwuvXBcYLKqT24kAPqvxc0SqGYLnNAD1q96BPqMwZONAFPDf3jTFGznmO+I3f+cyiR9Mai7Na9C2/21UJL/9APt7unjQhyQtCF++pwUXxhJX42tId SophiaSSH5"
+    
     return {
-        "api_key": get_config_value("lambda_api_key")
-        or get_config_value("LAMBDA_API_KEY"),
-        "ip_address": get_config_value("lambda_ip_address")
-        or get_config_value("LAMBDA_IP_ADDRESS"),
-        "ssh_private_key": get_config_value("lambda_ssh_private_key")
-        or get_config_value("LAMBDA_SSH_PRIVATE_KEY"),
+        "api_key": api_key,
+        "api_endpoint": "https://cloud.lambda.ai/api/v1/instances",
+        "ssh_private_key": ssh_private_key,
+        "ssh_public_key": ssh_public_key,
+        "ip_address": get_config_value("lambda_ip_address") or get_config_value("LAMBDA_IP_ADDRESS") or "192.222.58.232",
+        "instances": {
+            "master": {"ip": "192.222.58.232", "gpu": "GH200", "role": "master"},
+            "mcp": {"ip": "104.171.202.117", "gpu": "A6000", "role": "worker"},
+            "data": {"ip": "104.171.202.134", "gpu": "A100", "role": "worker"},
+            "prod": {"ip": "104.171.202.103", "gpu": "RTX6000", "role": "worker"}
+        }
     }
 
-def get_docker_hub_config() -> dict[str, Any]:
+
+def get_docker_hub_config() -> Dict[str, Any]:
     """
     Get Docker Hub configuration from Pulumi ESC
-    
+
     PERMANENT FIX: Use DOCKER_TOKEN and DOCKERHUB_USERNAME as the primary keys
     These are the actual secret names in GitHub
-    
+
     Returns:
         Docker Hub configuration dictionary with username and access token
     """
     # Get username - DOCKERHUB_USERNAME is the primary key in GitHub
     username = (
-        get_config_value("DOCKERHUB_USERNAME") or  # PRIMARY
-        get_config_value("docker_username") or
-        get_config_value("docker_hub_username") or
-        "scoobyjava15"  # fallback
+        get_config_value("DOCKERHUB_USERNAME")
+        or get_config_value("docker_username")  # PRIMARY
+        or get_config_value("docker_hub_username")
+        or "scoobyjava15"  # fallback
     )
 
     # Get token - DOCKER_TOKEN is the primary key in GitHub
     access_token = (
-        get_config_value("DOCKER_TOKEN") or  # PRIMARY
-        get_config_value("docker_token") or
-        get_config_value("docker_hub_access_token") or
-        get_config_value("docker_token")
+        get_config_value("DOCKER_TOKEN")
+        or get_config_value("docker_token")  # PRIMARY
+        or get_config_value("docker_hub_access_token")
+        or get_config_value("docker_token")
     )
 
     # Log what we found for debugging
@@ -313,6 +400,7 @@ def get_docker_hub_config() -> dict[str, Any]:
         "access_token": access_token,
         "registry": "docker.io",
     }
+
 
 # Backward compatibility - create a config object that mimics the old interface
 class ConfigObject:
@@ -361,11 +449,12 @@ class ConfigObject:
     def apollo_api_base_url(self):
         return get_config_value("apollo_api_base_url", "https://api.apollo.io")
 
+
 # Create backward compatibility config object
 config = ConfigObject()
 
-# Enhanced Snowflake connection optimization
-SNOWFLAKE_OPTIMIZATION_CONFIG = {
+# Enhanced ModernStack connection optimization
+# REMOVED: ModernStack dependency {
     "connection_pool_size": 10,
     "connection_timeout": 30,
     "query_timeout": 300,
@@ -375,9 +464,10 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
     "warehouse_auto_resume": True,
 }
 
-def get_snowflake_pat(environment: str | None = None) -> str:
+
+def get_# REMOVED: ModernStack dependency None) -> str:
     """
-    Get Snowflake PAT (Programmatic Access Token) for MCP authentication
+    Get ModernStack PAT (Programmatic Access Token) for MCP authentication
 
     Args:
         environment: Environment name (prod, staging). Defaults to current environment.
@@ -395,31 +485,32 @@ def get_snowflake_pat(environment: str | None = None) -> str:
     environment_str: str = str(environment)
 
     # Try environment-specific PAT first
-    pat_key = f"snowflake_pat_{environment_str.lower()}"
+    pat_key = f"modern_stack_pat_{environment_str.lower()}"
     pat = get_config_value(pat_key)
 
     if not pat:
         # Try generic PAT
-        pat = get_config_value("snowflake_pat")
+        pat = get_config_value("modern_stack_pat")
 
     if not pat:
         # Try with MCP prefix
-        pat = get_config_value("snowflake_mcp_pat")
+        pat = get_config_value("modern_stack_mcp_pat")
 
     if not pat:
         raise ValueError(
-            f"Snowflake PAT not configured for environment: {environment_str}"
+# REMOVED: ModernStack dependencyured for environment: {environment_str}"
         )
 
     # Validate PAT format (basic check)
     if not pat.startswith("pat_") and len(pat) < 20:
-        logger.warning("Snowflake PAT format may be invalid")
+        logger.warning("ModernStack PAT format may be invalid")
 
     return pat
 
-def get_snowflake_mcp_config() -> dict[str, Any]:
+
+# REMOVED: ModernStack dependency() -> Dict[str, Any]:
     """
-    Get Snowflake MCP server configuration
+# REMOVED: ModernStack dependencyuration
 
     Returns:
         MCP configuration dictionary
@@ -428,25 +519,26 @@ def get_snowflake_mcp_config() -> dict[str, Any]:
 
     return {
         "url": get_config_value(
-            "snowflake_mcp_url", "https://mcp-snowflake.sophia-ai.com"
+            "modern_stack_mcp_url", "https://mcp-modern_stack.sophia-ai.com"
         ),
-        "pat": get_snowflake_pat(environment),
-        "timeout": int(get_config_value("snowflake_mcp_timeout", "120")),
-        "max_retries": int(get_config_value("snowflake_mcp_max_retries", "3")),
-        "pool_size": int(get_config_value("snowflake_mcp_pool_size", "20")),
+        "pat": get_modern_stack_pat(environment),
+        "timeout": int(get_config_value("modern_stack_mcp_timeout", "120")),
+        "max_retries": int(get_config_value("modern_stack_mcp_max_retries", "3")),
+        "pool_size": int(get_config_value("modern_stack_mcp_pool_size", "20")),
     }
+
 
 # Add PAT rotation check function
 def check_pat_rotation_needed() -> bool:
     """
-    Check if Snowflake PAT needs rotation
+    Check if ModernStack PAT needs rotation
 
     Returns:
         True if rotation needed
     """
     # This is a placeholder - in production, would check PAT metadata
-    # from Snowflake or a secure metadata store
-    pat_created_date = get_config_value("snowflake_pat_created_date")
+    # from ModernStack or a secure metadata store
+    pat_created_date = get_config_value("modern_stack_pat_created_date")
 
     if not pat_created_date:
         logger.warning("PAT creation date not tracked")
@@ -465,46 +557,49 @@ def check_pat_rotation_needed() -> bool:
         logger.error(f"Error checking PAT rotation: {e}")
         return False
 
+
 # Update the esc_key_mappings in get_config_value to include PAT mappings
 # (This is already included in the existing mappings)
 
-def validate_snowflake_pat() -> bool:
+
+def validate_modern_stack_pat() -> bool:
     """
-    Validate Snowflake PAT token format
+    Validate ModernStack PAT token format
 
     Returns:
         True if PAT token appears valid
     """
-    pat = get_config_value("snowflake_password")
+    pat = get_config_value("postgres_password")
     if not pat:
-        logger.warning("No Snowflake password/PAT configured")
+# REMOVED: ModernStack dependencyured")
         return False
 
     # PAT tokens are JWT tokens that typically start with 'eyJ'
     if pat.startswith("eyJ") and len(pat) > 100:
-        logger.info("Snowflake PAT token format validated")
+        logger.info("ModernStack PAT token format validated")
         return True
 
-    logger.warning("Snowflake password may not be a valid PAT token")
+    logger.warning("ModernStack password may not be a valid PAT token")
     return False
 
-def get_snowflake_config_enhanced() -> dict[str, Any]:
+
+# REMOVED: ModernStack dependency_enhanced() -> Dict[str, Any]:
     """
-    Get enhanced Snowflake configuration with PAT support
+# REMOVED: ModernStack dependencyuration with PAT support
 
     Returns:
-        Enhanced Snowflake configuration dictionary
+# REMOVED: ModernStack dependencyuration dictionary
     """
-    base_config = get_snowflake_config()
+# REMOVED: ModernStack dependency()
 
     # Add PAT-specific configuration
     enhanced_config = {
         **base_config,
-        "authenticator": "snowflake",  # For PAT authentication
+        "authenticator": "modern_stack",  # For PAT authentication
         "session_parameters": {
             "QUERY_TAG": "sophia_ai_unified",
         },
-        "pat_validated": validate_snowflake_pat(),
+        "pat_validated": validate_modern_stack_pat(),
     }
 
     # Use validated account format
@@ -512,15 +607,16 @@ def get_snowflake_config_enhanced() -> dict[str, Any]:
 
     return enhanced_config
 
+
 # Enhanced configuration constants
-SNOWFLAKE_PAT_CONFIG = {
+# REMOVED: ModernStack dependency {
     "account": "UHDECNO-CVB64222",
     "user": "SCOOBYJAVA15",
     "role": "ACCOUNTADMIN",
     "warehouse": "COMPUTE_WH",
     "database": "SOPHIA_AI_PROD",
     "schema": "PUBLIC",
-    "authenticator": "snowflake",
+    "authenticator": "modern_stack",
 }
 
 AI_OPTIMIZATION_CONFIG = {
@@ -536,10 +632,11 @@ AI_OPTIMIZATION_CONFIG = {
     "data_local_preference": True,
 }
 
-def get_lambda_labs_serverless_config() -> dict[str, Any]:
+
+def get_lambda_labs_serverless_config() -> Dict[str, Any]:
     """
     Get Lambda Labs Serverless configuration from Pulumi ESC
-    
+
     Returns:
         Lambda Labs Serverless configuration dictionary
     """
@@ -547,65 +644,85 @@ def get_lambda_labs_serverless_config() -> dict[str, Any]:
         # API Configuration
         "cloud_api_key": get_config_value("LAMBDA_CLOUD_API_KEY"),
         "inference_api_key": get_config_value("LAMBDA_API_KEY"),
-        "inference_endpoint": get_config_value("LAMBDA_INFERENCE_ENDPOINT", "https://api.lambdalabs.com/v1"),
-
+        "inference_endpoint": get_config_value(
+            "LAMBDA_INFERENCE_ENDPOINT", "https://api.lambdalabs.com/v1"
+        ),
         # Cost Management
         "daily_budget": float(get_config_value("LAMBDA_DAILY_BUDGET", "100.0")),
         "monthly_budget": float(get_config_value("LAMBDA_MONTHLY_BUDGET", "2500.0")),
-
         # Performance Settings
-        "response_time_target": int(get_config_value("LAMBDA_RESPONSE_TIME_TARGET", "2000")),
-        "availability_target": float(get_config_value("LAMBDA_AVAILABILITY_TARGET", "99.9")),
-
+        "response_time_target": int(
+            get_config_value("LAMBDA_RESPONSE_TIME_TARGET", "2000")
+        ),
+        "availability_target": float(
+            get_config_value("LAMBDA_AVAILABILITY_TARGET", "99.9")
+        ),
         # Security Settings
         "max_input_tokens": int(get_config_value("LAMBDA_MAX_INPUT_TOKENS", "1000000")),
-        "max_output_tokens": int(get_config_value("LAMBDA_MAX_OUTPUT_TOKENS", "100000")),
-
+        "max_output_tokens": int(
+            get_config_value("LAMBDA_MAX_OUTPUT_TOKENS", "100000")
+        ),
         # Routing Configuration
-        "routing_strategy": get_config_value("LAMBDA_ROUTING_STRATEGY", "performance_first"),
-        "enable_hybrid_ai": get_config_value("ENABLE_HYBRID_AI", "true").lower() == "true",
-        "enable_cost_optimization": get_config_value("ENABLE_COST_OPTIMIZATION", "true").lower() == "true",
-
+        "routing_strategy": get_config_value(
+            "LAMBDA_ROUTING_STRATEGY", "performance_first"
+        ),
+        "enable_hybrid_ai": get_config_value("ENABLE_HYBRID_AI", "true").lower()
+        == "true",
+        "enable_cost_optimization": get_config_value(
+            "ENABLE_COST_OPTIMIZATION", "true"
+        ).lower()
+        == "true",
         # Model Configuration
-        "default_model": get_config_value("LAMBDA_DEFAULT_MODEL", "llama-4-scout-17b-16e-instruct"),
+        "default_model": get_config_value(
+            "LAMBDA_DEFAULT_MODEL", "llama-4-scout-17b-16e-instruct"
+        ),
         "fallback_models": [
             "llama-4-scout-17b-16e-instruct",
             "deepseek-v3-0324",
-            "qwen-3-32b"
-        ]
+            "qwen-3-32b",
+        ],
     }
 
-def get_ai_orchestration_config() -> dict[str, Any]:
+
+def get_ai_orchestration_config() -> Dict[str, Any]:
     """
     Get AI orchestration configuration for unified chat service
-    
+
     Returns:
         AI orchestration configuration dictionary
     """
     return {
         "default_provider": get_config_value("DEFAULT_AI_PROVIDER", "lambda_labs"),
-        "enable_hybrid_mode": get_config_value("ENABLE_HYBRID_AI", "true").lower() == "true",
-        "enable_cost_optimization": get_config_value("ENABLE_COST_OPTIMIZATION", "true").lower() == "true",
-        "enable_performance_tracking": get_config_value("ENABLE_PERFORMANCE_TRACKING", "true").lower() == "true",
-
+        "enable_hybrid_mode": get_config_value("ENABLE_HYBRID_AI", "true").lower()
+        == "true",
+        "enable_cost_optimization": get_config_value(
+            "ENABLE_COST_OPTIMIZATION", "true"
+        ).lower()
+        == "true",
+        "enable_performance_tracking": get_config_value(
+            "ENABLE_PERFORMANCE_TRACKING", "true"
+        ).lower()
+        == "true",
         # Provider priorities
         "provider_priorities": {
             "lambda_labs": 1,
-            "snowflake_cortex": 2,
+            "modern_stack_cortex": 2,
             "portkey": 3,
-            "openrouter": 4
+            "openrouter": 4,
         },
-
         # Routing thresholds
         "cost_threshold": float(get_config_value("AI_COST_THRESHOLD", "0.50")),
-        "response_time_threshold": float(get_config_value("AI_RESPONSE_TIME_THRESHOLD", "5.0")),
-        "quality_threshold": float(get_config_value("AI_QUALITY_THRESHOLD", "0.8"))
+        "response_time_threshold": float(
+            get_config_value("AI_RESPONSE_TIME_THRESHOLD", "5.0")
+        ),
+        "quality_threshold": float(get_config_value("AI_QUALITY_THRESHOLD", "0.8")),
     }
+
 
 def validate_lambda_labs_config() -> bool:
     """
     Validate Lambda Labs configuration
-    
+
     Returns:
         True if configuration is valid
     """

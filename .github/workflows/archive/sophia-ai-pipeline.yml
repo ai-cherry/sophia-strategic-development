@@ -8,9 +8,9 @@ on:
 
 env:
   PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-  SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-  SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-  SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+  modern_stack_ACCOUNT: ${{ secrets.modern_stack_ACCOUNT }}
+  modern_stack_USER: ${{ secrets.modern_stack_USER }}
+  modern_stack_PASSWORD: ${{ secrets.modern_stack_PASSWORD }}
 
 jobs:
   quality:
@@ -53,9 +53,9 @@ jobs:
         run: |
           python scripts/deploy_to_lambda.py
 
-      - name: Update Snowflake
+      - name: Update modern_stack
         run: |
-          python scripts/update_snowflake_schemas.py
+          python scripts/update_modern_stack_schemas.py
 
       - name: Sync MCP Servers
         run: |

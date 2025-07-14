@@ -1,36 +1,57 @@
 # SQL injection fixes applied - using parameterized queries
 """
-Snowflake Cortex Service - Core Module
+Lambda GPU Service - Core Module
 Contains the main service class with connection management and basic operations
 """
 
 from __future__ import annotations
 
 import logging
+from typing import Any
 
-from core.config_manager import get_config_value
+try:
+    from core.config_manager import get_config_value  # type: ignore
+except ImportError:  # pragma: no cover – allows type checking outside full repo
+    # Fallback stub for static analysis or limited environments
+    def get_config_value(key: str, default: str | None = None) -> str:  # type: ignore[override]
+        return default or ""
+
 
 logger = logging.getLogger(__name__)
 
 
-class SnowflakeCortexService:
+class ModernStackCortexService:
     """
-    Core service for accessing Snowflake Cortex AI capabilities
+    Core service for accessing Lambda GPU AI capabilities
 
-    This class provides the foundation for Snowflake's native AI functions
+    This class provides the foundation for ModernStack's native AI functions
     for text processing, embeddings, and vector search directly within
     the data warehouse.
     """
 
     def __init__(self):
-        # Remove individual connection - use optimized connection manager
-        from core.optimized_connection_manager import connection_manager
+        # Import lazily to avoid heavy dependencies during module import
+        try:
+            from core.optimized_connection_manager import (
+                connection_manager as shared_connection_manager,  # type: ignore
+            )
+        except ImportError:  # pragma: no cover
+            # Fallback dummy connection manager for environments where full infra is absent
+            class _DummyConnectionManager:  # – simple stub
+                async def initialize(self) -> None:  # type: ignore
+                    pass
 
-        self.connection_manager = connection_manager
+                async def execute_query(self, *_args: Any, **_kwargs: Any) -> Any:  # type: ignore
+                    return None
 
-        self.database = get_config_value("snowflake_database", "SOPHIA_AI")
-        self.schema = get_config_value("snowflake_schema", "AI_PROCESSING")
-        self.warehouse = get_config_value("snowflake_warehouse", "SOPHIA_AI_WH")
+            shared_connection_manager = _DummyConnectionManager()  # type: ignore
+
+        # Shared async connection manager instance
+        self.connection_manager: Any = shared_connection_manager  # type: ignore[attr-defined]
+
+        self.database = get_config_value("postgres_database", "SOPHIA_AI")
+        self.schema = get_config_value("postgres_schema", "AI_PROCESSING")
+        self.warehouse = get_config_value("postgres_database", "SOPHIA_AI_WH")
         self.initialized = False
 
         # Vector storage tables
@@ -52,7 +73,7 @@ class SnowflakeCortexService:
         pass
 
     async def initialize(self) -> None:
-        """Initialize Snowflake connection for Cortex AI processing"""
+        """Initialize ModernStack connection for Cortex AI processing"""
         if self.initialized:
             return
 
@@ -74,11 +95,11 @@ class SnowflakeCortexService:
 
             self.initialized = True
             logger.info(
-                "✅ Snowflake Cortex service initialized successfully with optimized connection manager"
+                "✅ Lambda GPU service initialized successfully with optimized connection manager"
             )
 
         except Exception as e:
-            logger.error(f"Failed to initialize Snowflake Cortex service: {e}")
+            logger.error(f"Failed to initialize Lambda GPU service: {e}")
             raise
 
     async def _create_vector_tables(self):
@@ -104,10 +125,10 @@ class SnowflakeCortexService:
                 logger.error(f"Error creating vector table {table_name}: {e}")
 
     async def close(self):
-        """Close Snowflake connection"""
+        """Close ModernStack connection"""
         # Connection is managed by connection manager
         self.initialized = False
-        logger.info("Snowflake Cortex service closed")
+        logger.info("Lambda GPU service closed")
 
     async def get_connection(self):
         """Get the current connection (for backward compatibility)"""
@@ -115,8 +136,13 @@ class SnowflakeCortexService:
             await self.initialize()
         return self.connection_manager
 
-    async def execute_query(self, query: str, params: tuple | None = None):
-        """Execute a query using the connection manager"""
+    async def execute_query(self, query: str, params: tuple | None = None) -> Any:
+        """Execute a query using the connection manager.
+
+        Returns whatever the underlying connection manager returns (often
+        `AsyncCursor` or iterable of rows).  We use `Any` for broader
+        compatibility across different DB back-ends.
+        """
         if not self.initialized:
             await self.initialize()
         return await self.connection_manager.execute_query(query, params)

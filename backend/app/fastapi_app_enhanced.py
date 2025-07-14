@@ -17,7 +17,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 # Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 # Import Lambda Labs Serverless components
 from backend.api.lambda_labs_serverless_routes import router as lambda_serverless_router
@@ -30,12 +32,11 @@ from backend.services.lambda_labs_cost_monitor import (
     start_cost_monitoring,
 )
 from backend.services.lambda_labs_serverless_service import get_lambda_service
-from backend.services.unified_chat_service_enhanced import get_enhanced_chat_service
+from backend.services.enhanced_chat_service_v4 import get_enhanced_chat_service
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """
     Application lifespan manager for Lambda Labs Serverless
-    
+
     Handles startup and shutdown of Lambda Labs services,
     cost monitoring, and background tasks.
     """
@@ -106,11 +107,11 @@ async def lifespan(app: FastAPI):
 
     try:
         # Stop cost monitoring
-        if hasattr(app.state, 'cost_monitor'):
+        if hasattr(app.state, "cost_monitor"):
             await app.state.cost_monitor.stop_monitoring()
 
         # Close Lambda Labs service
-        if hasattr(app.state, 'lambda_service'):
+        if hasattr(app.state, "lambda_service"):
             await app.state.lambda_service.close()
 
         logger.info("✅ Shutdown completed successfully")
@@ -124,7 +125,7 @@ app = FastAPI(
     title="Sophia AI - Lambda Labs Serverless",
     description="Revolutionary AI orchestration with Lambda Labs Serverless inference",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -139,19 +140,20 @@ app.add_middleware(
 # Include Lambda Labs Serverless routes
 app.include_router(lambda_serverless_router)
 
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
     """
     Application health check
-    
+
     Returns comprehensive health status including all Lambda Labs services.
     """
     try:
         health_status = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
-            "services": {}
+            "services": {},
         }
 
         # Check Lambda Labs service
@@ -162,7 +164,7 @@ async def health_check():
         except Exception as e:
             health_status["services"]["lambda_labs"] = {
                 "status": "unhealthy",
-                "error": str(e)
+                "error": str(e),
             }
 
         # Check cost monitor
@@ -171,14 +173,16 @@ async def health_check():
             cost_report = await cost_monitor.get_cost_report()
             health_status["services"]["cost_monitor"] = {
                 "status": "healthy",
-                "monitoring_active": cost_report.get("monitoring_status", {}).get("active", False),
+                "monitoring_active": cost_report.get("monitoring_status", {}).get(
+                    "active", False
+                ),
                 "daily_cost": cost_report.get("current_costs", {}).get("daily_cost", 0),
-                "alerts_count": len(cost_report.get("active_alerts", []))
+                "alerts_count": len(cost_report.get("active_alerts", [])),
             }
         except Exception as e:
             health_status["services"]["cost_monitor"] = {
                 "status": "unhealthy",
-                "error": str(e)
+                "error": str(e),
             }
 
         # Check enhanced chat service
@@ -187,12 +191,12 @@ async def health_check():
             chat_health = await chat_service.health_check()
             health_status["services"]["chat_service"] = {
                 "status": chat_health["overall_status"],
-                "providers": chat_health["services"]
+                "providers": chat_health["services"],
             }
         except Exception as e:
             health_status["services"]["chat_service"] = {
                 "status": "unhealthy",
-                "error": str(e)
+                "error": str(e),
             }
 
         # Determine overall status
@@ -213,7 +217,7 @@ async def health_check():
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -236,7 +240,7 @@ async def root():
                 "Intelligent model routing",
                 "Cost optimization and monitoring",
                 "Hybrid AI orchestration",
-                "Real-time performance tracking"
+                "Real-time performance tracking",
             ],
             "models_available": len(lambda_service.models),
             "routing_strategy": config.get("routing_strategy"),
@@ -247,9 +251,9 @@ async def root():
                 "models": "/api/v1/lambda-labs-serverless/models/list",
                 "usage": "/api/v1/lambda-labs-serverless/usage/stats",
                 "health": "/health",
-                "docs": "/docs"
+                "docs": "/docs",
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -258,7 +262,7 @@ async def root():
             "message": "Sophia AI - Lambda Labs Serverless",
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -267,7 +271,7 @@ async def root():
 async def simple_chat(request: dict):
     """
     Simplified chat endpoint for easy integration
-    
+
     Accepts: {"message": "your question here"}
     Returns: {"response": "AI response", "metadata": {...}}
     """
@@ -286,8 +290,8 @@ async def simple_chat(request: dict):
                 "model_used": result["model_used"],
                 "cost": result["cost"],
                 "response_time": result["response_time"],
-                "cached": result["cached"]
-            }
+                "cached": result["cached"],
+            },
         }
 
     except Exception as e:
@@ -300,7 +304,7 @@ async def simple_chat(request: dict):
 async def simple_analyze(request: dict):
     """
     Simplified analysis endpoint
-    
+
     Accepts: {"data": "data to analyze", "type": "analysis type"}
     Returns: {"analysis": "results", "metadata": {...}}
     """
@@ -317,8 +321,7 @@ async def simple_analyze(request: dict):
         analysis_prompt = f"Analyze the following {analysis_type} data:\n\n{data}"
 
         result = await chat_service.chat_completion(
-            analysis_prompt,
-            {"analysis_type": analysis_type}
+            analysis_prompt, {"analysis_type": analysis_type}
         )
 
         return {
@@ -328,8 +331,8 @@ async def simple_analyze(request: dict):
                 "model_used": result["model_used"],
                 "cost": result["cost"],
                 "response_time": result["response_time"],
-                "analysis_type": analysis_type
-            }
+                "analysis_type": analysis_type,
+            },
         }
 
     except Exception as e:
@@ -362,25 +365,35 @@ async def dashboard():
                 "success_rate": usage_stats.get("success_rate", 0),
                 "daily_cost": usage_stats.get("daily_cost", 0),
                 "budget_remaining": usage_stats.get("budget_remaining", 0),
-                "average_response_time": usage_stats.get("average_response_time", 0)
+                "average_response_time": usage_stats.get("average_response_time", 0),
             },
             "cost_monitoring": {
-                "current_daily_cost": cost_report.get("current_costs", {}).get("daily_cost", 0),
-                "budget_utilization": cost_report.get("budget_status", {}).get("daily_utilization", 0),
+                "current_daily_cost": cost_report.get("current_costs", {}).get(
+                    "daily_cost", 0
+                ),
+                "budget_utilization": cost_report.get("budget_status", {}).get(
+                    "daily_utilization", 0
+                ),
                 "active_alerts": len(cost_report.get("active_alerts", [])),
-                "monitoring_active": cost_report.get("monitoring_status", {}).get("active", False)
+                "monitoring_active": cost_report.get("monitoring_status", {}).get(
+                    "active", False
+                ),
             },
             "performance": {
                 "total_requests": performance_stats.get("total_requests", 0),
-                "average_response_time": performance_stats.get("average_response_time", 0),
+                "average_response_time": performance_stats.get(
+                    "average_response_time", 0
+                ),
                 "cache_hit_rate": performance_stats.get("cache_hit_rate", 0),
-                "provider_distribution": performance_stats.get("provider_distribution", {})
+                "provider_distribution": performance_stats.get(
+                    "provider_distribution", {}
+                ),
             },
             "models": {
                 "available": len(lambda_service.models),
                 "usage_distribution": usage_stats.get("model_usage", {}),
-                "fallback_chain": lambda_service.fallback_chain
-            }
+                "fallback_chain": lambda_service.fallback_chain,
+            },
         }
 
     except Exception as e:
@@ -408,13 +421,10 @@ async def get_configuration():
             "response_time_target": config.get("response_time_target"),
             "availability_target": config.get("availability_target"),
             "max_input_tokens": config.get("max_input_tokens"),
-            "max_output_tokens": config.get("max_output_tokens")
+            "max_output_tokens": config.get("max_output_tokens"),
         }
 
-        return {
-            "configuration": safe_config,
-            "timestamp": datetime.now().isoformat()
-        }
+        return {"configuration": safe_config, "timestamp": datetime.now().isoformat()}
 
     except Exception as e:
         logger.error(f"Configuration endpoint error: {e}")
@@ -430,8 +440,8 @@ async def http_exception_handler(request, exc):
         content={
             "error": exc.detail,
             "status_code": exc.status_code,
-            "timestamp": datetime.now().isoformat()
-        }
+            "timestamp": datetime.now().isoformat(),
+        },
     )
 
 
@@ -443,8 +453,8 @@ async def general_exception_handler(request, exc):
         status_code=500,
         content={
             "error": "Internal server error",
-            "timestamp": datetime.now().isoformat()
-        }
+            "timestamp": datetime.now().isoformat(),
+        },
     )
 
 
@@ -462,5 +472,5 @@ if __name__ == "__main__":
         host=host,
         port=port,
         reload=reload,
-        log_level="info"
+        log_level="info",
     )

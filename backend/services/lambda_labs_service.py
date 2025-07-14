@@ -145,14 +145,14 @@ class LambdaLabsService:
     ) -> str:
         """Convert natural language to optimized SQL using Lambda AI"""
 
-        prompt = f"""Convert this natural language query to optimized Snowflake SQL:
+        prompt = f"""Convert this natural language query to optimized ModernStack SQL:
 
 Query: {query}
 
 Schema Context: {schema_context}
 
 Requirements:
-- Use proper Snowflake syntax and functions
+- Use proper ModernStack syntax and functions
 - Optimize for performance
 - Include appropriate JOINs and WHERE clauses
 - Return only the SQL query
@@ -190,7 +190,9 @@ SQL Query:"""
             line = line.strip()
             if line.upper().startswith(
                 ("SELECT", "WITH", "INSERT", "UPDATE", "DELETE")
-            ) or (sql_lines and line and not line.startswith(("Note:", "Explanation:"))):
+            ) or (
+                sql_lines and line and not line.startswith(("Note:", "Explanation:"))
+            ):
                 sql_lines.append(line)
 
         return "\n".join(sql_lines).strip()

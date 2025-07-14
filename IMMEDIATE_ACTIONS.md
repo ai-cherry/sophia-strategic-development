@@ -23,7 +23,7 @@ from backend.core.auto_esc_config import get_config_value
 
 ### 3. Understand the Data Architecture (5 minutes)
 Accept that we use multiple databases for different purposes:
-- **Snowflake**: Business data, analytics, source of truth
+- **Modern Stack**: Business data, analytics, source of truth
 - **Redis**: Caching, sessions, real-time events
 - **Pinecone**: AI embeddings, vector search
 - **PostgreSQL**: ETL staging from external APIs

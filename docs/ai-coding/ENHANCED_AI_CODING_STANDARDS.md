@@ -88,7 +88,7 @@ except Exception as e:
 
 2. **Architecture Alignment**
    - Phoenix architecture pattern compliance
-   - Snowflake-centric data architecture
+   - Modern Stack-centric data architecture
    - Service decomposition strategy
 
 3. **Performance Requirements**
@@ -112,7 +112,7 @@ Last Modified: [date]
 Business Context:
 - Supports Pay Ready CEO operations
 - Integrates with Phoenix architecture
-- Part of Snowflake-centric data strategy
+- Part of Modern Stack-centric data strategy
 
 Performance Requirements:
 - Response Time: [target milliseconds]
@@ -232,12 +232,12 @@ async def generate_executive_insights(
 ) -> ExecutiveInsights:
     """Generate executive-level business insights."""
     
-    # Use Snowflake Cortex for AI analysis
-    cortex_service = SnowflakeCortexService()
+    # Use Lambda GPU for AI analysis
+    cortex_service = Modern StackCortexService()
     
     # Get AI configuration from Pulumi ESC
     ai_config = {
-        "snowflake_account": get_config_value("snowflake_account"),
+        "modern_stack_account": get_config_value("modern_stack_account"),
         "cortex_model": get_config_value("preferred_cortex_model"),
         "analysis_depth": get_config_value("executive_analysis_depth")
     }
@@ -295,7 +295,7 @@ def assess_file_lifecycle(filename: str, purpose: str) -> str:
 from backend.core.auto_esc_config import (
     get_config_value,
     get_docker_hub_config,
-    get_snowflake_config,
+    get_modern_stack_config,
     get_lambda_labs_config
 )
 

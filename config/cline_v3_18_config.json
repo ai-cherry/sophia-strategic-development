@@ -82,9 +82,9 @@
       },
       {
         "name": "data_processing",
-        "condition": "task_type == 'data' and has_snowflake",
-        "model": "snowflake_cortex",
-        "reason": "Native Snowflake integration"
+        "condition": "task_type == 'data' and has_modern_stack",
+        "model": "modern_stack_cortex",
+        "reason": "Native ModernStack integration"
       }
     ],
     "fallback_model": "claude-3-5-sonnet"

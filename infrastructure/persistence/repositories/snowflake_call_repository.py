@@ -1,9 +1,10 @@
 """
-Snowflake Call Repository Implementation
+ModernStack Call Repository Implementation
 
-This module provides a Snowflake-based implementation of the CallRepository interface.
+This module provides a ModernStack-based implementation of the CallRepository interface.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import json
 from datetime import datetime
 
@@ -14,25 +15,25 @@ from domain.value_objects.call_participant import (
     ParticipantRole,
 )
 from domain.value_objects.sentiment import Sentiment
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 
-class SnowflakeCallRepository(CallRepository):
+class ModernStackCallRepository(CallRepository):
     """
-    Snowflake implementation of the CallRepository interface.
+    ModernStack implementation of the CallRepository interface.
 
-    This adapter implements the CallRepository port using Snowflake
+    This adapter implements the CallRepository port using ModernStack
     as the persistence mechanism.
     """
 
-    def __init__(self, snowflake_service: SnowflakeCortexService):
+    def __init__(self, memory_service_v3: ModernStackCortexService):
         """
-        Initialize the repository with a Snowflake service.
+        Initialize the repository with a ModernStack service.
 
         Args:
-            snowflake_service: The Snowflake service for database operations
+            memory_service_v3: The ModernStack service for database operations
         """
-        self.snowflake = snowflake_service
+        self.modern_stack = memory_service_v3
         self.table_name = "ENRICHED_GONG_CALLS"
 
     async def get_by_id(self, call_id: str) -> Call | None:
@@ -50,7 +51,7 @@ class SnowflakeCallRepository(CallRepository):
         WHERE CALL_ID = %s
         """
 
-        result = await self.snowflake.execute_query(query, (call_id,))
+        result = await self.modern_stack.execute_query(query, (call_id,))
 
         if result and len(result) > 0:
             return self._map_row_to_call(result[0])
@@ -72,7 +73,7 @@ class SnowflakeCallRepository(CallRepository):
         WHERE GONG_CALL_ID = %s
         """
 
-        result = await self.snowflake.execute_query(query, (external_id,))
+        result = await self.modern_stack.execute_query(query, (external_id,))
 
         if result and len(result) > 0:
             return self._map_row_to_call(result[0])
@@ -96,7 +97,7 @@ class SnowflakeCallRepository(CallRepository):
         LIMIT %s OFFSET %s
         """
 
-        result = await self.snowflake.execute_query(query, (limit, offset))
+        result = await self.modern_stack.execute_query(query, (limit, offset))
 
         return [self._map_row_to_call(row) for row in result]
 
@@ -119,7 +120,7 @@ class SnowflakeCallRepository(CallRepository):
         ORDER BY SCHEDULED_AT
         """
 
-        result = await self.snowflake.execute_query(
+        result = await self.modern_stack.execute_query(
             query, (start_date.isoformat(), end_date.isoformat())
         )
 
@@ -139,7 +140,7 @@ class SnowflakeCallRepository(CallRepository):
         ORDER BY SCHEDULED_AT DESC
         """
 
-        result = await self.snowflake.execute_query(query)
+        result = await self.modern_stack.execute_query(query)
 
         return [self._map_row_to_call(row) for row in result]
 
@@ -174,7 +175,7 @@ class SnowflakeCallRepository(CallRepository):
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
-        await self.snowflake.execute_query(
+        await self.modern_stack.execute_query(
             query,
             (
                 call.id,
@@ -230,7 +231,7 @@ class SnowflakeCallRepository(CallRepository):
         WHERE CALL_ID = %s
         """
 
-        await self.snowflake.execute_query(
+        await self.modern_stack.execute_query(
             query,
             (
                 call.title,
@@ -263,7 +264,7 @@ class SnowflakeCallRepository(CallRepository):
         WHERE CALL_ID = %s
         """
 
-        result = await self.snowflake.execute_query(query, (call_id,))
+        result = await self.modern_stack.execute_query(query, (call_id,))
 
         # Check if any rows were affected
         return result is not None
@@ -287,7 +288,7 @@ class SnowflakeCallRepository(CallRepository):
         ORDER BY SCHEDULED_AT DESC
         """
 
-        result = await self.snowflake.execute_query(query, (email,))
+        result = await self.modern_stack.execute_query(query, (email,))
 
         return [self._map_row_to_call(row) for row in result]
 
@@ -308,7 +309,7 @@ class SnowflakeCallRepository(CallRepository):
         ORDER BY SCHEDULED_AT DESC
         """
 
-        result = await self.snowflake.execute_query(query)
+        result = await self.modern_stack.execute_query(query)
 
         return [self._map_row_to_call(row) for row in result]
 
@@ -328,7 +329,7 @@ class SnowflakeCallRepository(CallRepository):
         ORDER BY SCHEDULED_AT DESC
         """
 
-        result = await self.snowflake.execute_query(query, (deal_id,))
+        result = await self.modern_stack.execute_query(query, (deal_id,))
 
         return [self._map_row_to_call(row) for row in result]
 

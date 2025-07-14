@@ -1,0 +1,14 @@
+{
+  "routes": [
+    {
+      "name": "primary",
+      "models": [
+        "gpt-4",
+        "claude-3-sonnet"
+      ],
+      "loadBalancing": "round-robin",
+      "retries": 3,
+      "timeout": 30
+    }
+  ]
+}

@@ -10,14 +10,14 @@
       "priority": "critical",
       "category": "web-automation"
     },
-    "snowflake-cortex": {
+    "modern_stack-cortex": {
       "command": "python",
-      "args": ["mcp-servers/snowflake_cortex/snowflake_cortex_mcp_server.py"],
+      "args": ["mcp-servers/modern_stack_cortex/modern_stack_cortex_mcp_server.py"],
       "env": {
-        "SNOWFLAKE_ACCOUNT": "${SNOWFLAKE_ACCOUNT}",
-        "SNOWFLAKE_USER": "${SNOWFLAKE_USER}",
-        "SNOWFLAKE_PASSWORD": "${SNOWFLAKE_PASSWORD}",
-        "SNOWFLAKE_WAREHOUSE": "SOPHIA_AI_WH"
+        "modern_stack_ACCOUNT": "${modern_stack_ACCOUNT}",
+        "modern_stack_USER": "${modern_stack_USER}",
+        "modern_stack_PASSWORD": "${modern_stack_PASSWORD}",
+        "modern_stack_WAREHOUSE": "SOPHIA_AI_WH"
       },
       "priority": "critical",
       "category": "data-intelligence"

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-Optimized Snowflake Cortex Service - Utility Functions
-Extracted from optimized_snowflake_cortex_service.py for better organization
+Optimized Lambda GPU Service - Utility Functions
+Extracted from optimized_modern_stack_cortex_service.py for better organization
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import hashlib
 import logging
 from typing import Any
 
-from .optimized_snowflake_cortex_service_models import (
+from .optimized_modern_stack_cortex_service_models import (
     CortexOperation,
     CortexPerformanceMetrics,
     CortexResult,
@@ -114,7 +115,7 @@ class CortexUtils:
         for i, text in enumerate(texts):
             escaped_text = CortexUtils.escape_sql_text(text)
             case_statements.append(
-                f"WHEN {i} THEN SNOWFLAKE.CORTEX.SENTIMENT('{escaped_text}')"
+                f"WHEN {i} THEN self.modern_stack.await self.lambda_gpu.analyze_sentiment('{escaped_text}')"
             )
 
         return f"""
@@ -137,7 +138,7 @@ class CortexUtils:
         for i, text in enumerate(texts):
             escaped_text = CortexUtils.escape_sql_text(text)
             case_statements.append(
-                f"WHEN {i} THEN SNOWFLAKE.CORTEX.EMBED_TEXT_768('{model}', '{escaped_text}')"
+                f"WHEN {i} THEN self.modern_stack.await self.lambda_gpu.embed_text('{model}', '{escaped_text}')"
             )
 
         return f"""

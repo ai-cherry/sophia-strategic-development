@@ -1,55 +1,55 @@
 # DEPRECATED – Use CortexGateway (core.infra.cortex_gateway). This module will be removed.
 raise ImportError(
-    "'shared.utils.snowflake_cortex.pool' is deprecated. Use CortexGateway instead."
+    "'shared.utils.modern_stack_cortex.pool' is deprecated. Use CortexGateway instead."
 )
 
-"""Async connection pool for Snowflake."""
+"""Async connection pool for ModernStack."""
 
 import asyncio
 from collections import deque
 from contextlib import asynccontextmanager
 from typing import Any
 
-import snowflake.connector
-from snowflake.connector import SnowflakeConnection
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import ModernStackConnection
 
 from .errors import CortexConnectionError
 
 
 class AsyncConnectionPool:
-    """Async connection pool for Snowflake connections."""
+    """Async connection pool for ModernStack connections."""
 
-    def __init__(self, maxsize: int = 8, minsize: int = 2, **snowflake_kwargs: Any):
+    def __init__(self, maxsize: int = 8, minsize: int = 2, **modern_stack_kwargs: Any):
         """Initialize connection pool.
 
         Args:
             maxsize: Maximum number of connections
             minsize: Minimum number of connections to maintain
-            **snowflake_kwargs: Arguments for snowflake.connector.connect
+            **modern_stack_kwargs: Arguments for self.modern_stack_connection
         """
         self._maxsize = maxsize
         self._minsize = minsize
-        self._kwargs = snowflake_kwargs
-        self._pool: deque[SnowflakeConnection] = deque()
+        self._kwargs = modern_stack_kwargs
+        self._pool: deque[ModernStackConnection] = deque()
         self._lock = asyncio.Lock()
         self._created = 0
         self._closed = False
 
-    async def _create_connection(self) -> SnowflakeConnection:
-        """Create a new Snowflake connection."""
+    async def _create_connection(self) -> ModernStackConnection:
+        """Create a new ModernStack connection."""
         loop = asyncio.get_running_loop()
         try:
             conn = await loop.run_in_executor(
-                None, lambda: snowflake.connector.connect(**self._kwargs)
+                None, lambda: self.modern_stack_connection(**self._kwargs)
             )
             self._created += 1
             return conn
         except Exception as e:
             raise CortexConnectionError(
-                f"Failed to create Snowflake connection: {e}", details={"error": str(e)}
+                f"Failed to create ModernStack connection: {e}", details={"error": str(e)}
             )
 
-    async def acquire(self) -> SnowflakeConnection:
+    async def acquire(self) -> ModernStackConnection:
         """Acquire a connection from the pool."""
         if self._closed:
             raise CortexConnectionError("Connection pool is closed")
@@ -79,7 +79,7 @@ class AsyncConnectionPool:
                 details={"maxsize": self._maxsize, "created": self._created},
             )
 
-    async def release(self, conn: SnowflakeConnection) -> None:
+    async def release(self, conn: ModernStackConnection) -> None:
         """Release a connection back to the pool."""
         if self._closed:
             conn.close()

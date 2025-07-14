@@ -27,7 +27,7 @@ from infrastructure.services.predictive_automation_service import (
     PredictiveAutomationService,
 )
 from infrastructure.services.sophia_ai_orchestrator import SophiaAIOrchestrator
-from infrastructure.services.unified_chat_service import UnifiedChatService
+from infrastructure.services.unified_chat_service import SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +86,7 @@ class UnifiedServiceRegistry:
                     "critical": True,
                 },
                 "chat_service": {
-                    "class": UnifiedChatService,
+                    "class": SophiaUnifiedOrchestrator,
                     "description": "Unified chat interface",
                     "critical": True,
                 },

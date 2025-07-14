@@ -209,7 +209,7 @@
         "server": "sophia-ai-intelligence"
       },
       {
-        "pattern": "data.*|database.*|snowflake.*|query.*|analytics.*",
+        "pattern": "data.*|database.*|modern_stack.*|query.*|analytics.*",
         "server": "sophia-data-intelligence"
       },
       {

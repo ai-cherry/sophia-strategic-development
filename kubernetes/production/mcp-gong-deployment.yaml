@@ -19,6 +19,8 @@ spec:
         component: mcp-server
         server: gong
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
       containers:
       - name: mcp-gong
         image: scoobyjava15/sophia-mcp-gong:latest

@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 # Add backend to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from backend.core.auto_esc_config import get_docker_hub_config
 
@@ -40,10 +40,7 @@ def docker_login():
 
     try:
         result = subprocess.run(
-            cmd,
-            check=False, input=token.encode(),
-            capture_output=True,
-            text=True
+            cmd, check=False, input=token.encode(), capture_output=True, text=True
         )
 
         if result.returncode == 0:
@@ -57,6 +54,7 @@ def docker_login():
         print(f"❌ Error during Docker login: {e}")
         return False
 
+
 def push_images():
     """Push images to Docker Hub"""
     images = [
@@ -67,15 +65,14 @@ def push_images():
     for image in images:
         print(f"\n📤 Pushing {image}...")
         result = subprocess.run(
-            ["docker", "push", image],
-            check=False, capture_output=True,
-            text=True
+            ["docker", "push", image], check=False, capture_output=True, text=True
         )
 
         if result.returncode == 0:
             print(f"✅ Pushed {image}")
         else:
             print(f"❌ Failed to push {image}: {result.stderr}")
+
 
 def main():
     print("🚀 Docker Hub Integration via Pulumi ESC")
@@ -91,14 +88,17 @@ def main():
 
         # Ask if we should push
         response = input("\nPush images to Docker Hub? (y/n): ")
-        if response.lower() == 'y':
+        if response.lower() == "y":
             push_images()
     else:
         print("\n❌ Cannot proceed without Docker login")
         print("\n📝 Next steps:")
-        print("1. Check GitHub Actions: https://github.com/ai-cherry/sophia-main/actions")
+        print(
+            "1. Check GitHub Actions: https://github.com/ai-cherry/sophia-main/actions"
+        )
         print("2. Verify sync_secrets_comprehensive.yml completed")
         print("3. Check Pulumi ESC has the token")
+
 
 if __name__ == "__main__":
     main()

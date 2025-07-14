@@ -3,6 +3,7 @@ Centralized service configuration classes
 Uses auto_esc_config for secure secret management
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from .auto_esc_config import get_config_value
 
 
@@ -25,28 +26,28 @@ class DataServiceConfig:
     """Configuration for data services"""
 
     def __init__(self):
-        self.snowflake_account = get_config_value("snowflake_account")
-        self.snowflake_user = get_config_value("snowflake_user")
-        self.snowflake_password = get_config_value("snowflake_password")
-        self.snowflake_warehouse = get_config_value("snowflake_warehouse")
-        self.snowflake_database = get_config_value("snowflake_database")
-        self.snowflake_role = get_config_value("snowflake_role")
+# REMOVED: ModernStack dependency_value("postgres_host")
+# REMOVED: ModernStack dependency_value("modern_stack_user")
+# REMOVED: ModernStack dependency_value("postgres_password")
+# REMOVED: ModernStack dependency_value("postgres_database")
+# REMOVED: ModernStack dependency_value("postgres_database")
+# REMOVED: ModernStack dependency_value("modern_stack_role")
         self.pinecone_api_key = get_config_value("pinecone_api_key")
 
-    def get_snowflake_url(self) -> str:
-        """Generate Snowflake connection URL"""
+    def get_modern_stack_url(self) -> str:
+        """Generate ModernStack connection URL"""
         if not all(
-            [self.snowflake_account, self.snowflake_user, self.snowflake_password]
+            [self.postgres_host, self.modern_stack_user, self.postgres_password]
         ):
-            raise ValueError("Missing required Snowflake configuration")
-        return f"snowflake://{self.snowflake_user}:{self.snowflake_password}@{self.snowflake_account}"
+# REMOVED: ModernStack dependencyuration")
+        return f"modern_stack://{self.modern_stack_user}:{self.postgres_password}@{self.postgres_host}"
 
     def validate(self) -> bool:
-        """Validate Snowflake configuration"""
+# REMOVED: ModernStack dependencyuration"""
         required = [
-            self.snowflake_account,
-            self.snowflake_user,
-            self.snowflake_password,
+            self.postgres_host,
+            self.modern_stack_user,
+            self.postgres_password,
         ]
         return all(config is not None for config in required)
 

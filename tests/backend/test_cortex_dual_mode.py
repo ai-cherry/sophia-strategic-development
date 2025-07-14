@@ -1,22 +1,23 @@
-"""Tests for dual-mode Snowflake Cortex adapter."""
+"""Tests for dual-mode Lambda GPU adapter."""
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import os
 from unittest.mock import MagicMock, patch
 
 import httpx
 import pytest
 
-from shared.utils.snowflake_cortex import (
+from shared.utils.modern_stack_cortex import (
     CortexAuthenticationError,
     CortexModel,
     MCPMode,
-    SnowflakeCortexService,
+    ModernStackCortexService,
 )
 
 
 @pytest.fixture
-def mock_snowflake_connection():
-    """Mock Snowflake connection."""
+def mock_modern_stack_connection():
+    """Mock ModernStack connection."""
     conn = MagicMock()
     cursor = MagicMock()
 
@@ -39,23 +40,23 @@ def mock_mcp_response():
     )
 
 
-class TestSnowflakeCortexService:
-    """Test SnowflakeCortexService dual-mode functionality."""
+class TestModernStackCortexService:
+    """Test ModernStackCortexService dual-mode functionality."""
 
     @pytest.mark.asyncio
     async def test_auto_mode_prefers_mcp(self):
         """Test that AUTO mode prefers MCP when PAT is available."""
-        with patch.dict(os.environ, {"SNOWFLAKE_MCP_PAT": "test-pat"}):
+        with patch.dict(os.environ, {"modern_stack_MCP_PAT": "test-pat"}):
             with patch(
-                "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
             ) as mock_config:
                 mock_config.side_effect = lambda key, default=None: {
-                    "snowflake_mcp_pat": "test-pat",
-                    "snowflake_user": "test-user",
-                    "snowflake_password": "test-pass",
+                    "modern_stack_mcp_pat": "test-pat",
+                    "modern_stack_user": "test-user",
+                    "postgres_password": "test-pass",
                 }.get(key, default)
 
-                service = SnowflakeCortexService(mode=MCPMode.AUTO)
+                service = ModernStackCortexService(mode=MCPMode.AUTO)
                 assert service.mode == MCPMode.MCP
 
     @pytest.mark.asyncio
@@ -63,40 +64,40 @@ class TestSnowflakeCortexService:
         """Test that AUTO mode falls back to DIRECT when no PAT."""
         with patch.dict(os.environ, {}, clear=True):
             with patch(
-                "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
             ) as mock_config:
                 mock_config.side_effect = lambda key, default=None: {
-                    "snowflake_user": "test-user",
-                    "snowflake_password": "test-pass",
-                    "snowflake_account": "test-account",
+                    "modern_stack_user": "test-user",
+                    "postgres_password": "test-pass",
+                    "postgres_host": "test-account",
                 }.get(key, default)
 
-                service = SnowflakeCortexService(mode=MCPMode.AUTO)
+                service = ModernStackCortexService(mode=MCPMode.AUTO)
                 assert service.mode == MCPMode.DIRECT
 
     @pytest.mark.asyncio
     async def test_no_credentials_raises_error(self):
         """Test that missing credentials raise authentication error."""
         with patch(
-            "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
         ) as mock_config:
             mock_config.return_value = None
 
             with pytest.raises(CortexAuthenticationError):
-                SnowflakeCortexService(mode=MCPMode.AUTO)
+                ModernStackCortexService(mode=MCPMode.AUTO)
 
     @pytest.mark.asyncio
     async def test_mcp_mode_embedding(self):
         """Test embedding generation in MCP mode."""
         with patch(
-            "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "snowflake_mcp_pat": "test-pat",
-                "snowflake_mcp_url": "http://test-mcp:8080",
+                "modern_stack_mcp_pat": "test-pat",
+                "modern_stack_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = SnowflakeCortexService(mode=MCPMode.MCP)
+            service = ModernStackCortexService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -110,28 +111,28 @@ class TestSnowflakeCortexService:
                     assert all(v == 0.1 for v in result)
 
     @pytest.mark.asyncio
-    async def test_direct_mode_embedding(self, mock_snowflake_connection):
+    async def test_direct_mode_embedding(self, mock_modern_stack_connection):
         """Test embedding generation in DIRECT mode."""
         with patch(
-            "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "snowflake_user": "test-user",
-                "snowflake_password": "test-pass",
-                "snowflake_account": "test-account",
-                "snowflake_warehouse": "test-wh",
-                "snowflake_database": "test-db",
-                "snowflake_schema": "test-schema",
+                "modern_stack_user": "test-user",
+                "postgres_password": "test-pass",
+                "postgres_host": "test-account",
+                "postgres_database": "test-wh",
+                "postgres_database": "test-db",
+                "postgres_schema": "test-schema",
             }.get(key, default)
 
-            service = SnowflakeCortexService(mode=MCPMode.DIRECT)
+            service = ModernStackCortexService(mode=MCPMode.DIRECT)
 
             # Mock connection pool
-            with patch("snowflake.connector.connect") as mock_connect:
-                mock_connect.return_value = mock_snowflake_connection
+            with patch("self.modern_stack_connection") as mock_connect:
+                mock_connect.return_value = mock_modern_stack_connection
 
                 # Mock query result
-                mock_snowflake_connection.cursor().fetchall.return_value = [
+                mock_# REMOVED: ModernStack dependency [
                     {"EMBEDDING": "[0.2, 0.2, 0.2]"}
                 ]
 
@@ -143,14 +144,14 @@ class TestSnowflakeCortexService:
     async def test_mcp_mode_completion(self):
         """Test text completion in MCP mode."""
         with patch(
-            "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "snowflake_mcp_pat": "test-pat",
-                "snowflake_mcp_url": "http://test-mcp:8080",
+                "modern_stack_mcp_pat": "test-pat",
+                "modern_stack_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = SnowflakeCortexService(mode=MCPMode.MCP)
+            service = ModernStackCortexService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -165,28 +166,28 @@ class TestSnowflakeCortexService:
                     assert result == "Generated text"
 
     @pytest.mark.asyncio
-    async def test_direct_mode_completion(self, mock_snowflake_connection):
+    async def test_direct_mode_completion(self, mock_modern_stack_connection):
         """Test text completion in DIRECT mode."""
         with patch(
-            "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "snowflake_user": "test-user",
-                "snowflake_password": "test-pass",
-                "snowflake_account": "test-account",
-                "snowflake_warehouse": "test-wh",
-                "snowflake_database": "test-db",
-                "snowflake_schema": "test-schema",
+                "modern_stack_user": "test-user",
+                "postgres_password": "test-pass",
+                "postgres_host": "test-account",
+                "postgres_database": "test-wh",
+                "postgres_database": "test-db",
+                "postgres_schema": "test-schema",
             }.get(key, default)
 
-            service = SnowflakeCortexService(mode=MCPMode.DIRECT)
+            service = ModernStackCortexService(mode=MCPMode.DIRECT)
 
             # Mock connection pool
-            with patch("snowflake.connector.connect") as mock_connect:
-                mock_connect.return_value = mock_snowflake_connection
+            with patch("self.modern_stack_connection") as mock_connect:
+                mock_connect.return_value = mock_modern_stack_connection
 
                 # Mock query result
-                mock_snowflake_connection.cursor().fetchall.return_value = [
+                mock_# REMOVED: ModernStack dependency [
                     {"COMPLETION": "SQL generated text"}
                 ]
 
@@ -200,18 +201,18 @@ class TestSnowflakeCortexService:
     async def test_cache_hit(self):
         """Test that cache returns cached results."""
         with patch(
-            "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "snowflake_mcp_pat": "test-pat",
-                "snowflake_mcp_url": "http://test-mcp:8080",
+                "modern_stack_mcp_pat": "test-pat",
+                "modern_stack_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = SnowflakeCortexService(mode=MCPMode.MCP, enable_cache=True)
+            service = ModernStackCortexService(mode=MCPMode.MCP, enable_cache=True)
 
             # Mock cache
             with patch(
-                "shared.utils.snowflake_cortex.cache.CortexCache.get"
+                "shared.utils.modern_stack_cortex.cache.CortexCache.get"
             ) as mock_get:
                 mock_get.return_value = "Cached result"
 
@@ -223,14 +224,14 @@ class TestSnowflakeCortexService:
     async def test_mcp_search(self):
         """Test Cortex Search (MCP mode only)."""
         with patch(
-            "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "snowflake_mcp_pat": "test-pat",
-                "snowflake_mcp_url": "http://test-mcp:8080",
+                "modern_stack_mcp_pat": "test-pat",
+                "modern_stack_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = SnowflakeCortexService(mode=MCPMode.MCP)
+            service = ModernStackCortexService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -249,14 +250,14 @@ class TestSnowflakeCortexService:
     async def test_service_lifecycle(self):
         """Test service initialization and cleanup."""
         with patch(
-            "shared.utils.snowflake_cortex.service.get_config_value"
+# REMOVED: ModernStack dependency_value"
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "snowflake_mcp_pat": "test-pat",
-                "snowflake_mcp_url": "http://test-mcp:8080",
+                "modern_stack_mcp_pat": "test-pat",
+                "modern_stack_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = SnowflakeCortexService(mode=MCPMode.MCP)
+            service = ModernStackCortexService(mode=MCPMode.MCP)
 
             # Test initialization
             assert not service.is_initialized

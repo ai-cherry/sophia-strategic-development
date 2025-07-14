@@ -1,0 +1,22 @@
+"""
+Sophia AI Backend Package
+Centralized backend services with secure secret management
+"""
+
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from .core.auto_esc_config import (
+    get_config_value,
+    get_integration_config,
+    get_lambda_labs_config,
+# REMOVED: modern_stack dependency,
+)
+
+__version__ = "1.0.0"
+__all__ = [
+    "get_config_value",
+    "get_integration_config",
+    "get_lambda_labs_config",
+# REMOVED: modern_stack dependency",
+]
+
+# This file makes the backend directory a Python package.

@@ -1,0 +1,298 @@
+"""
+modern_stack Cortex Service - Utils Module
+Contains helper functions, utility classes, and performance monitoring
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import logging
+import time
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+
+class CortexUtils:
+    """Utility functions for modern_stack Cortex operations"""
+
+    @staticmethod
+    def escape_sql(value: str) -> str:
+        """Escape SQL special characters"""
+        if not isinstance(value, str):
+            return str(value)
+        return value.replace("'", "''").replace("\\", "\\\\")
+
+    @staticmethod
+    def generate_cache_key(operation: str, inputs: dict[str, Any]) -> str:
+        """Generate cache key for operation and inputs"""
+        # Create deterministic hash from operation and inputs
+        content = f"{operation}:{json.dumps(inputs, sort_keys=True)}"
+        return hashlib.md5(content.encode()).hexdigest()
+
+    @staticmethod
+    def format_query(query: str, params: dict[str, Any] | None = None) -> str:
+        """Format SQL query with parameters"""
+        if not params:
+            return query
+
+        formatted_query = query
+        for key, value in params.items():
+            if isinstance(value, str):
+                value = f"'{CortexUtils.escape_sql(value)}'"
+            formatted_query = formatted_query.replace(f":{key}", str(value))
+
+        return formatted_query
+
+    @staticmethod
+    def validate_table_name(table_name: str) -> bool:
+        """Validate table name format"""
+        if not table_name or not isinstance(table_name, str):
+            return False
+
+        # Basic validation - alphanumeric, underscores, dots for schema.table
+        import re
+
+        pattern = r"^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$"
+        return bool(re.match(pattern, table_name))
+
+    @staticmethod
+    def validate_column_name(column_name: str) -> bool:
+        """Validate column name format"""
+        if not column_name or not isinstance(column_name, str):
+            return False
+
+        # Basic validation - alphanumeric and underscores
+        import re
+
+        pattern = r"^[a-zA-Z_][a-zA-Z0-9_]*$"
+        return bool(re.match(pattern, column_name))
+
+    @staticmethod
+    def chunk_list(items: list, chunk_size: int) -> list[list]:
+        """Split list into chunks of specified size"""
+        chunks = []
+        for i in range(0, len(items), chunk_size):
+            chunks.append(items[i : i + chunk_size])
+        return chunks
+
+    @staticmethod
+    def calculate_similarity_threshold(
+        base_threshold: float, result_count: int
+    ) -> float:
+        """Dynamically adjust similarity threshold based on result count"""
+        if result_count == 0:
+            return max(0.1, base_threshold - 0.2)
+        elif result_count > 50:
+            return min(0.9, base_threshold + 0.1)
+        return base_threshold
+
+
+class QueryBuilder:
+    """Builder for complex modern_stack Cortex queries"""
+
+    def __init__(self):
+        self.query_parts = []
+        self.conditions = []
+        self.parameters = {}
+
+    def select(self, columns: list[str]) -> QueryBuilder:
+        """Add SELECT clause"""
+        self.query_parts.append(f"SELECT {', '.join(columns)}")
+        return self
+
+    def from_table(self, table_name: str) -> QueryBuilder:
+        """Add FROM clause"""
+        if not CortexUtils.validate_table_name(table_name):
+            raise ValueError(f"Invalid table name: {table_name}")
+        self.query_parts.append(f"FROM {table_name}")
+        return self
+
+    def where(self, condition: str) -> QueryBuilder:
+        """Add WHERE condition"""
+        self.conditions.append(condition)
+        return self
+
+    def order_by(self, column: str, direction: str = "ASC") -> QueryBuilder:
+        """Add ORDER BY clause"""
+        if not CortexUtils.validate_column_name(column):
+            raise ValueError(f"Invalid column name: {column}")
+        self.query_parts.append(f"ORDER BY {column} {direction}")
+        return self
+
+    def limit(self, count: int) -> QueryBuilder:
+        """Add LIMIT clause"""
+        self.query_parts.append(f"LIMIT {count}")
+        return self
+
+    def build(self) -> str:
+        """Build the final query"""
+        query = " ".join(self.query_parts)
+
+        if self.conditions:
+            query += f" WHERE {' AND '.join(self.conditions)}"
+
+        return CortexUtils.format_query(query, self.parameters)
+
+
+class ResultFormatter:
+    """Format results from modern_stack Cortex operations"""
+
+    @staticmethod
+    def format_embedding_results(results: list) -> list[dict[str, Any]]:
+        """Format embedding generation results"""
+        formatted = []
+        for row in results:
+            record = {
+                "id": row[0] if len(row) > 0 else None,
+                "text": row[1] if len(row) > 1 else None,
+                "embedding_vector": row[2] if len(row) > 2 else None,
+                "embedding_model": row[3] if len(row) > 3 else None,
+                "embedded_at": row[4] if len(row) > 4 else None,
+            }
+            formatted.append(record)
+        return formatted
+
+    @staticmethod
+    def format_sentiment_results(results: list) -> list[dict[str, Any]]:
+        """Format sentiment analysis results"""
+        formatted = []
+        for row in results:
+            record = {
+                "id": row[0] if len(row) > 0 else None,
+                "text": row[1] if len(row) > 1 else None,
+                "sentiment_score": row[2] if len(row) > 2 else None,
+                "sentiment_label": row[3] if len(row) > 3 else None,
+                "analyzed_at": row[4] if len(row) > 4 else None,
+            }
+            formatted.append(record)
+        return formatted
+
+    @staticmethod
+    def format_search_results(results: list) -> list[dict[str, Any]]:
+        """Format vector search results"""
+        formatted = []
+        for row in results:
+            record = {
+                "id": row[0] if len(row) > 0 else None,
+                "content": row[1] if len(row) > 1 else None,
+                "metadata": row[2] if len(row) > 2 else {},
+                "source_table": row[3] if len(row) > 3 else None,
+                "source_id": row[4] if len(row) > 4 else None,
+                "similarity_score": row[5] if len(row) > 5 else None,
+            }
+            formatted.append(record)
+        return formatted
+
+
+class PerformanceMonitor:
+    """Monitor and track performance metrics for Cortex operations"""
+
+    def __init__(self):
+        self.metrics = {
+            "total_operations": 0,
+            "successful_operations": 0,
+            "failed_operations": 0,
+            "total_processing_time": 0.0,
+            "operation_times": [],
+        }
+
+    def start_operation(self) -> float:
+        """Start timing an operation"""
+        return time.time()
+
+    def end_operation(self, start_time: float, success: bool = True) -> float:
+        """End timing an operation and update metrics"""
+        processing_time = time.time() - start_time
+
+        self.metrics["total_operations"] += 1
+        self.metrics["total_processing_time"] += processing_time
+        self.metrics["operation_times"].append(processing_time)
+
+        if success:
+            self.metrics["successful_operations"] += 1
+        else:
+            self.metrics["failed_operations"] += 1
+
+        return processing_time
+
+    def get_performance_stats(self) -> dict[str, Any]:
+        """Get current performance statistics"""
+        if self.metrics["total_operations"] == 0:
+            return self.metrics.copy()
+
+        stats = self.metrics.copy()
+        stats["average_processing_time"] = (
+            self.metrics["total_processing_time"] / self.metrics["total_operations"]
+        )
+        stats["success_rate"] = (
+            self.metrics["successful_operations"] / self.metrics["total_operations"]
+        )
+
+        if self.metrics["operation_times"]:
+            stats["min_processing_time"] = min(self.metrics["operation_times"])
+            stats["max_processing_time"] = max(self.metrics["operation_times"])
+
+        return stats
+
+    def reset_metrics(self):
+        """Reset all performance metrics"""
+        self.metrics = {
+            "total_operations": 0,
+            "successful_operations": 0,
+            "failed_operations": 0,
+            "total_processing_time": 0.0,
+            "operation_times": [],
+        }
+
+
+class CacheManager:
+    """Simple in-memory cache for Cortex operations"""
+
+    def __init__(self, max_size: int = 1000, ttl_seconds: int = 3600):
+        self.cache = {}
+        self.timestamps = {}
+        self.max_size = max_size
+        self.ttl_seconds = ttl_seconds
+
+    def get(self, key: str) -> Any | None:
+        """Get value from cache"""
+        if key not in self.cache:
+            return None
+
+        # Check TTL
+        if time.time() - self.timestamps[key] > self.ttl_seconds:
+            self.delete(key)
+            return None
+
+        return self.cache[key]
+
+    def set(self, key: str, value: Any):
+        """Set value in cache"""
+        # Evict oldest entries if at max size
+        if len(self.cache) >= self.max_size:
+            oldest_key = min(self.timestamps.keys(), key=lambda k: self.timestamps[k])
+            self.delete(oldest_key)
+
+        self.cache[key] = value
+        self.timestamps[key] = time.time()
+
+    def delete(self, key: str):
+        """Delete value from cache"""
+        self.cache.pop(key, None)
+        self.timestamps.pop(key, None)
+
+    def clear(self):
+        """Clear all cache entries"""
+        self.cache.clear()
+        self.timestamps.clear()
+
+    def get_stats(self) -> dict[str, Any]:
+        """Get cache statistics"""
+        return {
+            "size": len(self.cache),
+            "max_size": self.max_size,
+            "ttl_seconds": self.ttl_seconds,
+            "hit_rate": getattr(self, "_hit_rate", 0.0),
+        }

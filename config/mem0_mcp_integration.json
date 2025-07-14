@@ -9,13 +9,13 @@
         "persistent_store",
         "cross_session_recall",
         "adaptive_learning",
-        "snowflake_sync"
+        "modern_stack_sync"
       ],
       "health_check_endpoint": "/health",
       "environment_variables": [
         "MEM0_API_KEY",
         "MEM0_ENVIRONMENT",
-        "SNOWFLAKE_ACCOUNT",
+        "modern_stack_ACCOUNT",
         "ENVIRONMENT"
       ]
     }
@@ -26,8 +26,8 @@
       "ttl_seconds": 3600,
       "max_size_mb": 512
     },
-    "L2_snowflake_cortex": {
-      "provider": "snowflake",
+    "L2_modern_stack_cortex": {
+      "provider": "modern_stack",
       "embedding_model": "e5-base-v2",
       "vector_dimension": 768
     },

@@ -13,7 +13,7 @@ Recommended decomposition:
 - sophia_infrastructure_agent_models.py - Data models
 - sophia_infrastructure_agent_handlers.py - Request handlers
 
-TODO: Implement file decomposition
+TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import asyncio
@@ -91,7 +91,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                 "docker",
                 "lambda_labs",
                 "github",
-                "snowflake",
+                "modern_stack",
             ],
             performance_target_ms=150,
         )
@@ -137,7 +137,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         self.resource_utilization = {
             "lambda_labs": {"status": "unknown", "instances": []},
             "vercel": {"status": "unknown", "deployments": []},
-            "snowflake": {"status": "unknown", "warehouses": []},
+            "modern_stack": {"status": "unknown", "warehouses": []},
             "github_actions": {"status": "unknown", "workflows": []},
         }
 
@@ -341,7 +341,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
 
 ### Monthly Cost Breakdown:
 - **Compute (Lambda Labs)**: ${cost_analysis.get("compute_cost", 0):.2f}
-- **Storage (Snowflake)**: ${cost_analysis.get("storage_cost", 0):.2f}
+- **Storage (ModernStack)**: ${cost_analysis.get("storage_cost", 0):.2f}
 - **Hosting (Vercel)**: ${cost_analysis.get("hosting_cost", 0):.2f}
 - **Other Services**: ${cost_analysis.get("other_cost", 0):.2f}
 
@@ -440,7 +440,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         return {
             "lambda_labs": {"healthy": True, "status": "All instances running"},
             "vercel": {"healthy": True, "status": "Deployments active"},
-            "snowflake": {"healthy": True, "status": "Warehouses operational"},
+            "modern_stack": {"healthy": True, "status": "Warehouses operational"},
             "github_actions": {"healthy": True, "status": "Workflows functioning"},
             "mcp_servers": {"healthy": True, "status": "All servers responding"},
         }
@@ -489,13 +489,13 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                 },
                 {
                     "category": "Storage",
-                    "description": "Implement Snowflake query optimization",
+                    "description": "Implement ModernStack query optimization",
                     "impact": "High",
                     "effort": "Medium",
                 },
             ],
             "priority_recommendations": [
-                "Implement query caching for Snowflake",
+                "Implement query caching for ModernStack",
                 "Optimize MCP server resource allocation",
                 "Review deployment pipeline efficiency",
             ],
@@ -512,7 +512,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             "total_cost": 471.57,
             "cost_optimizations": [
                 {
-                    "description": "Optimize Snowflake warehouse auto-suspend",
+                    "description": "Optimize ModernStack warehouse auto-suspend",
                     "savings": 45.00,
                 },
                 {"description": "Right-size Lambda Labs instances", "savings": 78.50},

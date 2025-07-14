@@ -87,8 +87,8 @@ const AIMemoryHealthTab: React.FC = () => {
             <Zap className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(healthData.cache_performance.hit_rate * 100).toFixed(1)}%</div>
-            <Progress value={healthData.cache_performance.hit_rate * 100} className="mt-2" />
+            <div className="text-2xl font-bold">{healthData.cache_performance?.hit_rate != null ? (healthData.cache_performance.hit_rate * 100).toFixed(1) : 'N/A'}%</div>
+            <Progress value={healthData.cache_performance?.hit_rate != null ? healthData.cache_performance.hit_rate * 100 : 0} className="mt-2" />
           </CardContent>
         </Card>
 
@@ -99,10 +99,10 @@ const AIMemoryHealthTab: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {((1 - healthData.operation_stats.error_rate) * 100).toFixed(1)}%
+              {healthData.operation_stats?.error_rate != null ? ((1 - healthData.operation_stats.error_rate) * 100).toFixed(1) : 'N/A'}%
             </div>
             <p className="text-xs text-green-600">
-              {healthData.operation_stats.successful_operations} successful ops
+              {healthData.operation_stats?.successful_operations != null ? healthData.operation_stats.successful_operations : 'N/A'} successful ops
             </p>
           </CardContent>
         </Card>
@@ -151,8 +151,8 @@ const AIMemoryHealthTab: React.FC = () => {
                 labels: ['Cache Hits', 'Cache Misses'],
                 datasets: [{
                   data: [
-                    healthData.cache_performance.hit_rate * 100,
-                    (1 - healthData.cache_performance.hit_rate) * 100
+                    healthData.cache_performance?.hit_rate != null ? healthData.cache_performance.hit_rate * 100 : 0,
+                    healthData.cache_performance?.hit_rate != null ? (1 - healthData.cache_performance.hit_rate) * 100 : 0
                   ],
                   backgroundColor: ['#10B981', '#EF4444']
                 }]

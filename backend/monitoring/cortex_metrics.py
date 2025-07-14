@@ -1,9 +1,9 @@
 """
-Snowflake Cortex Metrics
+Lambda GPU Metrics
 Comprehensive Prometheus metrics for monitoring Cortex operations.
 """
 
-
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Info
 
 # Create a registry for Cortex-specific metrics
@@ -37,7 +37,7 @@ cortex_tokens_used = Counter(
 
 cortex_credits_used = Counter(
     "cortex_credits_used",
-    "Snowflake credits consumed by Cortex",
+    "ModernStack credits consumed by Cortex",
     ["task", "model"],
     registry=cortex_registry,
 )
@@ -46,29 +46,29 @@ cortex_credits_used = Counter(
 # Pool Metrics
 # ===================================================================
 
-snowflake_pool_size = Gauge(
-    "snowflake_pool_size",
+# REMOVED: ModernStack dependency Gauge(
+    "modern_stack_pool_size",
     "Current connection pool size",
     ["mode"],
     registry=cortex_registry,
 )
 
-snowflake_pool_in_use = Gauge(
-    "snowflake_pool_in_use",
+# REMOVED: ModernStack dependency Gauge(
+    "modern_stack_pool_in_use",
     "Connections currently in use",
     ["mode"],
     registry=cortex_registry,
 )
 
-snowflake_pool_wait_time_ms = Gauge(
-    "snowflake_pool_wait_time_ms",
+# REMOVED: ModernStack dependency Gauge(
+    "modern_stack_pool_wait_time_ms",
     "Average wait time for connection acquisition in milliseconds",
     ["mode"],
     registry=cortex_registry,
 )
 
-snowflake_pool_timeouts = Counter(
-    "snowflake_pool_timeouts",
+# REMOVED: ModernStack dependency Counter(
+    "modern_stack_pool_timeouts",
     "Number of pool timeout errors",
     ["mode"],
     registry=cortex_registry,
@@ -202,15 +202,15 @@ cortex_model_errors = Counter(
 # PAT Metrics
 # ===================================================================
 
-snowflake_pat_days_until_expiry = Gauge(
-    "snowflake_pat_days_until_expiry",
+# REMOVED: ModernStack dependency Gauge(
+    "modern_stack_pat_days_until_expiry",
     "Days until PAT expiration",
     ["environment"],
     registry=cortex_registry,
 )
 
-snowflake_pat_rotation_alerts = Gauge(
-    "snowflake_pat_rotation_alerts",
+# REMOVED: ModernStack dependency Gauge(
+    "modern_stack_pat_rotation_alerts",
     "Number of PATs needing rotation",
     ["severity"],
     registry=cortex_registry,
@@ -226,7 +226,7 @@ cortex_info = Info("cortex", "Cortex integration information", registry=cortex_r
 cortex_info.info(
     {
         "version": "1.0.0",
-        "integration": "snowflake_cortex_mcp",
+        "integration": "modern_stack_cortex_mcp",
         "adapter_modes": "direct,mcp,auto",
     }
 )
@@ -259,9 +259,9 @@ def record_cortex_call(
 
 def record_pool_metrics(mode: str, size: int, in_use: int, avg_wait_ms: float):
     """Record connection pool metrics"""
-    snowflake_pool_size.labels(mode=mode).set(size)
-    snowflake_pool_in_use.labels(mode=mode).set(in_use)
-    snowflake_pool_wait_time_ms.labels(mode=mode).set(avg_wait_ms)
+    # REMOVED: ModernStack dependencymode).set(size)
+    # REMOVED: ModernStack dependencymode).set(in_use)
+    # REMOVED: ModernStack dependencymode).set(avg_wait_ms)
 
 
 def record_mcp_health(
@@ -318,10 +318,10 @@ __all__ = [
     "record_mcp_health",
     "record_pool_metrics",
     "set_circuit_breaker_state",
-    "snowflake_pat_days_until_expiry",
-    "snowflake_pat_rotation_alerts",
-    "snowflake_pool_in_use",
-    "snowflake_pool_size",
-    "snowflake_pool_timeouts",
-    "snowflake_pool_wait_time_ms",
+    "modern_stack_pat_days_until_expiry",
+    "modern_stack_pat_rotation_alerts",
+    "modern_stack_pool_in_use",
+    "modern_stack_pool_size",
+    "modern_stack_pool_timeouts",
+    "modern_stack_pool_wait_time_ms",
 ]

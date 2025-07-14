@@ -120,8 +120,8 @@
     "layer": "core"
   },
   {
-    "old": "backend/agents/specialized/snowflake_admin_agent.py",
-    "new": "core/use_cases/snowflake_admin_agent.py",
+    "old": "backend/agents/specialized/modern_stack_admin_agent.py",
+    "new": "core/use_cases/modern_stack_admin_agent.py",
     "layer": "core"
   },
   {
@@ -225,8 +225,8 @@
     "layer": "core"
   },
   {
-    "old": "backend/services/snowflake_intelligence_service.py",
-    "new": "core/services/snowflake_intelligence_service.py",
+    "old": "backend/services/modern_stack_intelligence_service.py",
+    "new": "core/services/modern_stack_intelligence_service.py",
     "layer": "core"
   },
   {
@@ -410,8 +410,8 @@
     "layer": "core"
   },
   {
-    "old": "backend/services/enhanced_snowflake_cortex_service.py",
-    "new": "core/services/enhanced_snowflake_cortex_service.py",
+    "old": "backend/services/enhanced_modern_stack_cortex_service.py",
+    "new": "core/services/enhanced_modern_stack_cortex_service.py",
     "layer": "core"
   },
   {
@@ -510,8 +510,8 @@
     "layer": "core"
   },
   {
-    "old": "backend/services/llm_gateway/snowflake_cortex_enhanced.py",
-    "new": "core/services/llm_gateway/snowflake_cortex_enhanced.py",
+    "old": "backend/services/llm_gateway/modern_stack_cortex_enhanced.py",
+    "new": "core/services/llm_gateway/modern_stack_cortex_enhanced.py",
     "layer": "core"
   },
   {
@@ -540,8 +540,8 @@
     "layer": "core"
   },
   {
-    "old": "backend/services/snowflake/connection_pool_manager.py",
-    "new": "core/services/snowflake/connection_pool_manager.py",
+    "old": "backend/services/modern_stack/connection_pool_manager.py",
+    "new": "core/services/modern_stack/connection_pool_manager.py",
     "layer": "core"
   },
   {
@@ -670,8 +670,8 @@
     "layer": "infrastructure"
   },
   {
-    "old": "backend/integrations/gong_snowflake_client.py",
-    "new": "infrastructure/integrations/gong_snowflake_client.py",
+    "old": "backend/integrations/gong_modern_stack_client.py",
+    "new": "infrastructure/integrations/gong_modern_stack_client.py",
     "layer": "infrastructure"
   },
   {
@@ -705,8 +705,8 @@
     "layer": "infrastructure"
   },
   {
-    "old": "backend/mcp_servers/snowflake_admin_mcp_server.py",
-    "new": "infrastructure/mcp_servers/snowflake_admin_mcp_server.py",
+    "old": "backend/mcp_servers/modern_stack_admin_mcp_server.py",
+    "new": "infrastructure/mcp_servers/modern_stack_admin_mcp_server.py",
     "layer": "infrastructure"
   },
   {
@@ -990,8 +990,8 @@
     "layer": "infrastructure"
   },
   {
-    "old": "backend/utils/optimized_snowflake_cortex_service_handlers.py",
-    "new": "shared/utils/optimized_snowflake_cortex_service_handlers.py",
+    "old": "backend/utils/optimized_modern_stack_cortex_service_handlers.py",
+    "new": "shared/utils/optimized_modern_stack_cortex_service_handlers.py",
     "layer": "shared"
   },
   {
@@ -1000,48 +1000,48 @@
     "layer": "shared"
   },
   {
-    "old": "backend/utils/snowflake_cortex_service.py",
-    "new": "shared/utils/snowflake_cortex_service.py",
+    "old": "backend/utils/modern_stack_cortex_service.py",
+    "new": "shared/utils/modern_stack_cortex_service.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/optimized_snowflake_cortex_service_models.py",
-    "new": "shared/utils/optimized_snowflake_cortex_service_models.py",
+    "old": "backend/utils/optimized_modern_stack_cortex_service_models.py",
+    "new": "shared/utils/optimized_modern_stack_cortex_service_models.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/snowflake_cortex_service_utils.py",
-    "new": "shared/utils/snowflake_cortex_service_utils.py",
+    "old": "backend/utils/modern_stack_cortex_service_utils.py",
+    "new": "shared/utils/modern_stack_cortex_service_utils.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/snowflake_cortex_service_core.py",
-    "new": "shared/utils/snowflake_cortex_service_core.py",
+    "old": "backend/utils/modern_stack_cortex_service_core.py",
+    "new": "shared/utils/modern_stack_cortex_service_core.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/optimized_snowflake_cortex_service_core.py",
-    "new": "shared/utils/optimized_snowflake_cortex_service_core.py",
+    "old": "backend/utils/optimized_modern_stack_cortex_service_core.py",
+    "new": "shared/utils/optimized_modern_stack_cortex_service_core.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/optimized_snowflake_cortex_service_utils.py",
-    "new": "shared/utils/optimized_snowflake_cortex_service_utils.py",
+    "old": "backend/utils/optimized_modern_stack_cortex_service_utils.py",
+    "new": "shared/utils/optimized_modern_stack_cortex_service_utils.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/optimized_snowflake_cortex_service.py",
-    "new": "shared/utils/optimized_snowflake_cortex_service.py",
+    "old": "backend/utils/optimized_modern_stack_cortex_service.py",
+    "new": "shared/utils/optimized_modern_stack_cortex_service.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/snowflake_hubspot_connector.py",
-    "new": "shared/utils/snowflake_hubspot_connector.py",
+    "old": "backend/utils/modern_stack_hubspot_connector.py",
+    "new": "shared/utils/modern_stack_hubspot_connector.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/snowflake_cortex_service_models.py",
-    "new": "shared/utils/snowflake_cortex_service_models.py",
+    "old": "backend/utils/modern_stack_cortex_service_models.py",
+    "new": "shared/utils/modern_stack_cortex_service_models.py",
     "layer": "shared"
   },
   {
@@ -1055,18 +1055,18 @@
     "layer": "shared"
   },
   {
-    "old": "backend/utils/enhanced_snowflake_cortex_service.py",
-    "new": "shared/utils/enhanced_snowflake_cortex_service.py",
+    "old": "backend/utils/enhanced_modern_stack_cortex_service.py",
+    "new": "shared/utils/enhanced_modern_stack_cortex_service.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/snowflake_gong_connector.py",
-    "new": "shared/utils/snowflake_gong_connector.py",
+    "old": "backend/utils/modern_stack_gong_connector.py",
+    "new": "shared/utils/modern_stack_gong_connector.py",
     "layer": "shared"
   },
   {
-    "old": "backend/utils/snowflake_cortex_service_handlers.py",
-    "new": "shared/utils/snowflake_cortex_service_handlers.py",
+    "old": "backend/utils/modern_stack_cortex_service_handlers.py",
+    "new": "shared/utils/modern_stack_cortex_service_handlers.py",
     "layer": "shared"
   },
   {

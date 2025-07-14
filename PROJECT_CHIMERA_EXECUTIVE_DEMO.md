@@ -21,7 +21,7 @@ This demonstration showcases how Project Chimera transforms the Sophia AI Unifie
 **Prompt**: *"Give me a comprehensive analysis of our Q4 performance including sales pipeline health, marketing ROI, customer satisfaction trends, and project delivery metrics. Cross-reference with industry benchmarks and provide actionable recommendations."*
 
 **Expected Response**:
-- **Federated Data Access**: Seamlessly pulls from Snowflake analytics, PostgreSQL operations, Redis cache, and external market data
+- **Federated Data Access**: Seamlessly pulls from Modern Stack analytics, PostgreSQL operations, Redis cache, and external market data
 - **AI-Powered Analysis**: Multiple specialized agents (Sales, Marketing, Project Health) work in parallel
 - **Cortex Integration**: Advanced analytics including predictive modeling and trend analysis
 - **Executive Summary**: Clear, actionable insights with confidence scores and data source attribution
@@ -35,7 +35,7 @@ This demonstration showcases how Project Chimera transforms the Sophia AI Unifie
 **Prompt**: *"Based on current sales pipeline trends, forecast Q1 revenue and automatically create Linear tickets for any deals at risk of slipping. Also schedule follow-up meetings with the top 3 at-risk prospects."*
 
 **Expected Response**:
-- **Snowflake Cortex ML**: Executes time-series forecasting model
+- **Lambda GPU ML**: Executes time-series forecasting model
 - **Risk Analysis**: Identifies deals with probability of slipping based on historical patterns
 - **Automated Actions**: Creates Linear tickets with detailed context and priority levels
 - **Calendar Integration**: Schedules meetings through integrated calendar systems
@@ -77,7 +77,7 @@ This demonstration showcases how Project Chimera transforms the Sophia AI Unifie
 **Prompt**: *"Run a Monte Carlo simulation on our revenue projections for the next 6 months, considering current market volatility. Show me best case, worst case, and most likely scenarios with confidence intervals."*
 
 **Expected Response**:
-- **Cortex ML Models**: Sophisticated Monte Carlo simulation using Snowflake's advanced analytics
+- **Cortex ML Models**: Sophisticated Monte Carlo simulation using Modern Stack's advanced analytics
 - **Market Data Integration**: Real-time incorporation of economic indicators and market trends
 - **Scenario Visualization**: Interactive charts showing probability distributions and confidence intervals
 - **Risk Assessment**: Detailed analysis of factors that could impact each scenario
@@ -206,7 +206,7 @@ This demonstration showcases how Project Chimera transforms the Sophia AI Unifie
 ## 🎯 EXPECTED AUDIENCE REACTIONS
 
 ### "This is impossible" → **Show the Architecture**
-*"This is built on proven enterprise technologies - Snowflake Cortex, LangGraph orchestration, and our proprietary federated query layer. Every component is production-ready."*
+*"This is built on proven enterprise technologies - Lambda GPU, LangGraph orchestration, and our proprietary federated query layer. Every component is production-ready."*
 
 ### "How much does this cost?" → **Emphasize ROI**
 *"The cost is a fraction of hiring the equivalent team of analysts, and the productivity gains pay for the system within the first quarter."*

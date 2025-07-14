@@ -12,21 +12,21 @@ from functools import lru_cache
 # Import the chat service
 try:
     from infrastructure.services.unified_chat_service import (
-        SophiaUnifiedChatService,
+        SophiaSophiaUnifiedOrchestrator,
     )
 
     CHAT_SERVICE_AVAILABLE = True
 except ImportError:
     try:
         from infrastructure.services.enhanced_unified_chat_service import (
-            EnhancedUnifiedChatService as SophiaUnifiedChatService,
+            EnhancedSophiaUnifiedOrchestrator as SophiaSophiaUnifiedOrchestrator,
         )
 
         CHAT_SERVICE_AVAILABLE = True
     except ImportError:
         CHAT_SERVICE_AVAILABLE = False
 
-        class SophiaUnifiedChatService:
+        class SophiaSophiaUnifiedOrchestrator:
             """Mock chat service for when import fails"""
 
             def __init__(self):
@@ -34,7 +34,7 @@ except ImportError:
 
 
 # Global instance (singleton pattern)
-_chat_service_instance: SophiaUnifiedChatService | None = None
+_chat_service_instance: SophiaSophiaUnifiedOrchestrator | None = None
 
 
 @lru_cache
@@ -44,7 +44,7 @@ def get_config_service():
     return True
 
 
-async def get_chat_service() -> SophiaUnifiedChatService:
+async def get_chat_service() -> SophiaSophiaUnifiedOrchestrator:
     """
     Get the chat service instance.
 
@@ -56,13 +56,13 @@ async def get_chat_service() -> SophiaUnifiedChatService:
     if _chat_service_instance is None:
         if CHAT_SERVICE_AVAILABLE:
             try:
-                _chat_service_instance = SophiaUnifiedChatService()
+                _chat_service_instance = SophiaSophiaUnifiedOrchestrator()
                 # Add any initialization logic here
             except Exception:
                 # Create a mock instance
-                _chat_service_instance = SophiaUnifiedChatService()
+                _chat_service_instance = SophiaSophiaUnifiedOrchestrator()
         else:
-            _chat_service_instance = SophiaUnifiedChatService()
+            _chat_service_instance = SophiaSophiaUnifiedOrchestrator()
 
     return _chat_service_instance
 

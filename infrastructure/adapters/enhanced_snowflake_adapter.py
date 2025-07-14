@@ -1,9 +1,10 @@
 """
-Enhanced Snowflake Adapter with PAT Authentication and Intelligent Routing
+Enhanced ModernStack Adapter with PAT Authentication and Intelligent Routing
 Integrates with Lambda Labs infrastructure and MCP server ecosystem
 Works behind the CortexGateway for unified access
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
 import json
 import logging
@@ -19,26 +20,26 @@ from infrastructure.core.optimized_connection_manager import OptimizedConnection
 logger = logging.getLogger(__name__)
 
 
-class SnowflakeConfig(BaseSettings):
-    """Snowflake configuration with PAT authentication"""
+# REMOVED: ModernStack dependency(BaseSettings):
+# REMOVED: ModernStack dependencyuration with PAT authentication"""
 
-    account: str = Field(default="UHDECNO-CVB64222", env="SNOWFLAKE_ACCOUNT")
-    user: str = Field(default="SCOOBYJAVA15", env="SNOWFLAKE_USER")
+    account: str = Field(default="UHDECNO-CVB64222", env="modern_stack_ACCOUNT")
+    user: str = Field(default="SCOOBYJAVA15", env="modern_stack_USER")
     password: str = Field(
         default="eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A",
-        env="SNOWFLAKE_PAT_TOKEN",
+        env="modern_stack_PAT_TOKEN",
     )
-    role: str = Field(default="ACCOUNTADMIN", env="SNOWFLAKE_ROLE")
-    database: str = Field(default="SOPHIA_AI_UNIFIED", env="SNOWFLAKE_DATABASE")
-    schema: str = Field(default="PRODUCTION", env="SNOWFLAKE_SCHEMA")
-    warehouse: str = Field(default="AI_COMPUTE_WH", env="SNOWFLAKE_WAREHOUSE")
+    role: str = Field(default="ACCOUNTADMIN", env="modern_stack_ROLE")
+    database: str = Field(default="SOPHIA_AI_UNIFIED", env="modern_stack_DATABASE")
+    schema: str = Field(default="PRODUCTION", env="modern_stack_SCHEMA")
+    warehouse: str = Field(default="AI_COMPUTE_WH", env="modern_stack_WAREHOUSE")
 
     # Redis configuration for caching
     redis_url: str = Field(default="redis://localhost:6379", env="REDIS_URL")
 
     # Credit limits
-    daily_credit_limit: int = Field(default=100, env="SNOWFLAKE_DAILY_CREDIT_LIMIT")
-    query_timeout: int = Field(default=300, env="SNOWFLAKE_QUERY_TIMEOUT")
+    daily_credit_limit: int = Field(default=100, env="modern_stack_DAILY_CREDIT_LIMIT")
+    query_timeout: int = Field(default=300, env="modern_stack_QUERY_TIMEOUT")
 
     class Config:
         env_file = ".env"
@@ -48,7 +49,7 @@ class SnowflakeConfig(BaseSettings):
 class WarehouseOptimizer:
     """Intelligent warehouse selection and optimization"""
 
-    def __init__(self, config: SnowflakeConfig):
+# REMOVED: ModernStack dependency):
         self.config = config
         self.warehouse_mapping = {
             "ai_workloads": "CORTEX_COMPUTE_WH",
@@ -154,14 +155,14 @@ class CreditTracker:
         )
 
 
-class EnhancedSnowflakeAdapter:
+class EnhancedModernStackAdapter:
     """
-    Enhanced Snowflake adapter with intelligent routing and optimization.
+    Enhanced ModernStack adapter with intelligent routing and optimization.
     Designed to work behind CortexGateway for production use.
     """
 
-    def __init__(self, config: SnowflakeConfig | None = None):
-        self.config = config or SnowflakeConfig()
+# REMOVED: ModernStack dependency | None = None):
+# REMOVED: ModernStack dependency()
         self.warehouse_optimizer = WarehouseOptimizer(self.config)
         self.credit_tracker = CreditTracker(self.config.daily_credit_limit)
         self.connection_manager = OptimizedConnectionManager()
@@ -180,7 +181,7 @@ class EnhancedSnowflakeAdapter:
         await self._initialize_redis()
 
         self._initialized = True
-        logger.info("✅ EnhancedSnowflakeAdapter initialized")
+        logger.info("✅ EnhancedModernStackAdapter initialized")
 
     async def _initialize_redis(self):
         """Initialize Redis client for caching"""
@@ -207,7 +208,7 @@ class EnhancedSnowflakeAdapter:
         # Check cache first
         cache_key = None
         if use_cache and self.redis_client and not params:
-            cache_key = f"snowflake:{hash(query)}:{workload_type}"
+            cache_key = f"modern_stack:{hash(query)}:{workload_type}"
             try:
                 cached_result = await self.redis_client.get(cache_key)
                 if cached_result:
@@ -268,15 +269,15 @@ class EnhancedSnowflakeAdapter:
     async def execute_cortex_function(
         self, function_name: str, parameters: dict[str, Any]
     ) -> Any:
-        """Execute Snowflake Cortex AI functions"""
+        """Execute Lambda GPU AI functions"""
 
         cortex_functions = {
-            "COMPLETE": "SELECT SNOWFLAKE.CORTEX.COMPLETE(?, ?) AS RESULT",
-            "SENTIMENT": "SELECT SNOWFLAKE.CORTEX.SENTIMENT(?) AS RESULT",
-            "TRANSLATE": "SELECT SNOWFLAKE.CORTEX.TRANSLATE(?, ?, ?) AS RESULT",
-            "SUMMARIZE": "SELECT SNOWFLAKE.CORTEX.SUMMARIZE(?) AS RESULT",
-            "EXTRACT_ANSWER": "SELECT SNOWFLAKE.CORTEX.EXTRACT_ANSWER(?, ?) AS RESULT",
-            "EMBED_TEXT_768": "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(?, ?) AS RESULT",
+            "COMPLETE": "SELECT self.modern_stack.await self.lambda_gpu.complete(?, ?) AS RESULT",
+            "SENTIMENT": "SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(?) AS RESULT",
+            "TRANSLATE": "SELECT self.modern_stack.await self.lambda_gpu.translate(?, ?, ?) AS RESULT",
+            "SUMMARIZE": "SELECT self.modern_stack.await self.lambda_gpu.summarize(?) AS RESULT",
+            "EXTRACT_ANSWER": "SELECT await self.lambda_gpu.EXTRACT_ANSWER(?, ?) AS RESULT",
+            "EMBED_TEXT_768": "SELECT self.modern_stack.await self.lambda_gpu.embed_text(?, ?) AS RESULT",
         }
 
         if function_name not in cortex_functions:
@@ -359,7 +360,7 @@ class EnhancedSnowflakeAdapter:
                 WHEN SUM(CREDITS_USED) = 0 THEN 'SUSPEND_CANDIDATE'
                 ELSE 'OPTIMIZED'
             END as recommendation
-        FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_LOAD_HISTORY
+        # REMOVED: ModernStack dependency
         WHERE START_TIME >= DATEADD(day, -7, CURRENT_TIMESTAMP())
         GROUP BY WAREHOUSE_NAME
         ORDER BY total_credits DESC;
@@ -443,7 +444,7 @@ class EnhancedSnowflakeAdapter:
         ]
 
     async def health_check(self) -> dict[str, Any]:
-        """Comprehensive health check of Snowflake environment"""
+        """Comprehensive health check of ModernStack environment"""
 
         try:
             # Test basic connectivity
@@ -484,16 +485,16 @@ class EnhancedSnowflakeAdapter:
         """Clean up connections"""
         if self.redis_client:
             await self.redis_client.close()
-        logger.info("🔌 EnhancedSnowflakeAdapter connections closed")
+        logger.info("🔌 EnhancedModernStackAdapter connections closed")
 
 
 # Singleton instance for use by CortexGateway
-_adapter_instance: EnhancedSnowflakeAdapter | None = None
+_adapter_instance: EnhancedModernStackAdapter | None = None
 
 
-def get_adapter() -> EnhancedSnowflakeAdapter:
+def get_adapter() -> EnhancedModernStackAdapter:
     """Get singleton adapter instance"""
     global _adapter_instance
     if _adapter_instance is None:
-        _adapter_instance = EnhancedSnowflakeAdapter()
+        _adapter_instance = EnhancedModernStackAdapter()
     return _adapter_instance

@@ -13,7 +13,7 @@
 ### **Core Principles (Non-Negotiable):**
 1.  **Single Point of Truth**: The `main` branch on GitHub is the single source of truth for what is deployed.
 2.  **Push-to-Deploy**: All deployments to any environment (Production, Staging) are triggered **exclusively** by a `git push` to the relevant branch.
-3.  **No Local Operations**: You MUST NOT run `docker build`, `docker push`, or `docker stack deploy` from your local machine for deployment purposes. Your role is to write the code and the GitHub Actions workflows; the cloud does the rest.
+3.  **No Local Operations**: You MUST NOT run `docker build`, `docker push`, or `kubectl apply` from your local machine for deployment purposes. Your role is to write the code and the GitHub Actions workflows; the cloud does the rest.
 4.  **Automated Secret Management**: All secrets (`DOCKER_HUB_ACCESS_TOKEN`, `LAMBDA_LABS_SSH_KEY`, etc.) are managed in GitHub Organization Secrets and injected into the GitHub Actions workflow at runtime. You MUST NOT handle credentials locally.
 
 ### **The Correct Workflow:**
@@ -79,34 +79,53 @@ Before adding any new tool or framework:
 3. Consider the long-term maintenance cost
 4. Prefer enhancing existing tools over adding new ones
 
-## 🧹 **Code Hygiene Rules (MANDATORY)**
+## 🧹 **ENHANCED CODE HYGIENE RULES (MANDATORY)**
 
-### **One-Time Scripts and Documents:**
-1. **ALWAYS DELETE after use:**
-   - Migration scripts after successful migration
-   - Test scripts after tests pass
-   - Setup scripts after setup complete
-   - Temporary analysis documents
-   - One-time reports
+### **Automated Technical Debt Prevention:**
+Our "Clean by Design" framework prevents the accumulation of technical debt through:
 
-2. **NEVER DELETE:**
-   - Reusable utilities
-   - Documentation in `docs/`
-   - Configuration files
-   - Test suites
-   - Core scripts
+1. **Automated Daily Cleanup**: Removes expired one-time scripts, backup files, and empty archive directories
+2. **Pre-Commit Blocking**: Prevents commits that would introduce technical debt patterns
+3. **Documentation Lifecycle**: Automatic archiving of temporary documentation
+4. **Zero Tolerance Enforcement**: Immediate rejection of forbidden patterns
 
-3. **Before Creating Files:**
-   - Ask: "Will this be used more than once?"
-   - If NO → Plan to delete after use
-   - If YES → Place in appropriate permanent location
+### **One-Time Script Management (Enhanced):**
+```python
+# REQUIRED: All one-time scripts must use this pattern
+"""
+🚨 ONE-TIME SCRIPT - DELETE AFTER USE
+Purpose: [specific purpose]
+Created: [date]
+DELETE AFTER: [date]
+Usage: python scripts/one_time/script_name_DELETE_YYYY_MM_DD.py
 
-4. **Cleanup Pattern:**
-   ```python
-   # At the end of any one-time script:
-   print("✅ Task completed successfully")
-   print("🧹 This script can now be deleted: rm scripts/one_time_script.py")
-   ```
+🧹 CLEANUP: This script will be auto-deleted after expiration date
+"""
+
+# At the end of any one-time script:
+print("✅ Task completed successfully")
+print(f"🧹 This script will auto-delete on: {DELETE_DATE}")
+print("📍 Located in: scripts/one_time/ for automatic cleanup")
+```
+
+### **File Creation Decision Tree:**
+```
+Creating a file? → Ask: "Will this be used more than once?"
+├── NO (One-time use)
+│   ├── Script → scripts/one_time/name_DELETE_YYYY_MM_DD.py
+│   ├── Doc → Mark for auto-archive with retention period
+│   └── Data → /tmp/ or delete immediately after use
+└── YES (Permanent)
+    ├── Utility → scripts/utils/
+    ├── Monitoring → scripts/monitoring/
+    ├── Reference Doc → docs/99-reference/
+    └── Core Logic → appropriate permanent directory
+```
+
+### **Automated Enforcement:**
+- **Daily**: `python scripts/utils/daily_cleanup.py` (runs automatically)
+- **Pre-commit**: `python scripts/utils/pre_push_debt_check.py` (blocks bad commits)
+- **Monitoring**: Technical debt score tracking and alerting
 
 ## 📅 **Timeline and Budget Guidelines (CRITICAL)**
 
@@ -175,9 +194,9 @@ config = get_docker_hub_config()
 from backend.core.auto_esc_config import get_docker_hub_config
 docker = get_docker_hub_config()
 
-# Snowflake
-from backend.core.auto_esc_config import get_snowflake_config
-snowflake = get_snowflake_config()
+# modern_stack
+from backend.core.auto_esc_config import get_modern_stack_config
+modern_stack = get_modern_stack_config()
 
 # Lambda Labs
 from backend.core.auto_esc_config import get_lambda_labs_config
@@ -214,7 +233,7 @@ Services that use CLI-based authentication with secure credential storage:
 
 #### **Tier 2: Enhanced API Authentication**
 Services with enhanced security patterns:
-- **Snowflake**: Secure connection strings with role-based access
+- **modern_stack**: Secure connection strings with role-based access
 - **Lambda Labs**: API key management with instance control
 - **Estuary Flow**: Service account authentication
 
@@ -254,7 +273,7 @@ Can perform data operations:
 # Execute database operations
 await auth_manager.execute_operation(
     agent_type="data_agent",
-    service="snowflake",
+    service="modern_stack",
     operation="query_execution",
     params={"query": "CREATE SCHEMA AI_AGENT_TEST", "warehouse": "SOPHIA_AI_COMPUTE_WH"}
 )
@@ -319,7 +338,7 @@ if confirmation.approved:
 #### **Infrastructure Operations**
 ```bash
 "Deploy the updated infrastructure to production"
-"Scale up the Snowflake warehouse for the analytics job"
+"Scale up the modern_stack warehouse for the analytics job"
 "Create a new Docker service for the MCP gateway"
 "Update the Vercel deployment with latest frontend changes"
 ```
@@ -328,7 +347,7 @@ if confirmation.approved:
 ```bash
 "Create a new schema for the AI agent testing"
 "Run the quarterly revenue analysis query"
-"Set up a new data flow from HubSpot to Snowflake"
+"Set up a new data flow from HubSpot to modern_stack"
 "Backup the production database before the migration"
 ```
 
@@ -398,10 +417,10 @@ Sophia AI leverages 11 strategic external repositories to provide world-class AI
 - **V0.dev Integration** (NEW): AI-powered UI generation with natural language commands
 
 #### **❄️ Data Intelligence**
-- **snowflake_cortex_official**: Official Snowflake AI integration patterns
-- **davidamom_snowflake**: Community Snowflake implementation approaches
-- **dynamike_snowflake**: Performance-optimized Snowflake patterns
-- **isaacwasserman_snowflake**: Specialized Snowflake operations
+- **modern_stack_cortex_official**: Official modern_stack AI integration patterns
+- **davidamom_modern_stack**: Community modern_stack implementation approaches
+- **dynamike_modern_stack**: Performance-optimized modern_stack patterns
+- **isaacwasserman_modern_stack**: Specialized modern_stack operations
 
 #### **🚪 AI Gateway & Optimization**
 - **portkey_admin**: AI gateway optimization, cost reduction strategies
@@ -414,12 +433,12 @@ Sophia AI leverages 11 strategic external repositories to provide world-class AI
 ```bash
 # Repository discovery and pattern analysis
 "What browser automation patterns do we have from Microsoft Playwright?"
-"Show me Snowflake optimization strategies across our repositories"
+"Show me modern_stack optimization strategies across our repositories"
 "Find design-to-code patterns from the Figma integration"
 
 # Implementation with community validation
 "Use Playwright patterns to implement comprehensive E2E testing"
-"Apply Snowflake optimization patterns from our 4 repository collection"
+"Apply modern_stack optimization patterns from our 4 repository collection"
 "Generate components using GLips Figma design-to-code workflows"
 
 # Cross-repository intelligence
@@ -482,6 +501,7 @@ The external repository collection enables:
    # All environment variables MUST be set persistently
    export ENVIRONMENT="prod"
    export PULUMI_ORG="scoobyjava-org"
+   export KUBECONFIG="$HOME/.kube/k3s-lambda-labs"
    # Add to ~/.bashrc, ~/.zshrc, ~/.profile
    ```
 
@@ -489,10 +509,10 @@ The external repository collection enables:
 
 1. **ALL Docker deployments target Lambda Labs (NOT local):**
    ```yaml
-   # Primary deployment: docker-compose.cloud.yml
-   # Target: 146.235.200.1 (Lambda Labs)
+   # Primary deployment: K3s cluster on Lambda Labs
+   # Target: 192.222.58.232 (Lambda Labs)
    # Registry: scoobyjava15 (Docker Hub)
-   # Orchestration: Docker Swarm
+   # Orchestration: K3s Kubernetes
    ```
 
 2. **Container environment configuration:**
@@ -502,20 +522,57 @@ The external repository collection enables:
    # Secrets via Docker Secrets, NOT environment variables
    ```
 
-3. **Docker Compose for production MUST use:**
-   ```yaml
-   # docker-compose.cloud.yml with:
-   - mode: replicated  # Swarm mode
-   - secrets:          # Docker secrets
-   - deploy:           # Swarm deployment config
-   - healthcheck:      # Required for all services
+3. **K3s deployment patterns:**
+   ```bash
+   # All deployments via K3s manifests
+   kubectl apply -f k8s/
+   # Secrets via Pulumi ESC integration
+   # No manual kubectl from local machine
    ```
 
-4. **NEVER use local Docker deployment:**
-   - ❌ No `docker-compose up` locally
-   - ❌ No `.env` files
-   - ✅ Use `docker stack deploy -c docker-compose.cloud.yml sophia-ai`
-   - ✅ All secrets via Pulumi ESC
+4. **PERSISTENT ENVIRONMENT SETUP**
+   ```bash
+   # All environment variables MUST be set persistently
+   export ENVIRONMENT="prod"
+   export PULUMI_ORG="scoobyjava-org"
+   export KUBECONFIG="$HOME/.kube/k3s-lambda-labs"
+   # Add to ~/.bashrc, ~/.zshrc, ~/.profile
+   ```
+
+### **☸️ K3S DEPLOYMENT RULES**
+
+1. **ALL Kubernetes deployments target Lambda Labs K3s cluster:**
+   ```yaml
+   # Primary cluster: k3s.lambda-labs.sophia-ai.com
+   # Control plane: 192.222.58.232:6443
+   # Registry: scoobyjava15 (Docker Hub)
+   # Orchestration: K3s (lightweight Kubernetes)
+   ```
+
+2. **K3s namespace organization:**
+   ```yaml
+   # Production namespace
+   namespace: sophia-ai-prod
+   # MCP servers namespace  
+   namespace: mcp-servers
+   # Monitoring namespace
+   namespace: monitoring
+   ```
+
+3. **Deployment patterns:**
+   ```bash
+   # GitHub Actions deploys via:
+   kubectl apply -k k8s/overlays/production
+   # Kustomize for environment management
+   # Helm charts for complex deployments
+   ```
+
+4. **Secret management:**
+   ```yaml
+   # All secrets via Pulumi ESC
+   # Automatic sync to K3s secrets
+   # No manual secret creation
+   ```
 
 ### **🔧 MCP SERVER ENVIRONMENT RULES**
 
@@ -554,6 +611,271 @@ The external repository collection enables:
        return env in ["prod", "staging", "dev"]
    ```
 
+## 🧠 **UNIFIED MEMORY ARCHITECTURE RULES (CRITICAL - JULY 10, 2025)**
+
+### **🚀 FLEXIBLE MEMORY ARCHITECTURE RULES 🚀**
+
+**THE DATE IS JULY 10, 2025 - REMEMBER THIS!**
+
+1. **SUPPORTED VECTOR DATABASES:**
+   - ✅ **Weaviate** - Primary vector store for AI-native search
+   - ✅ **PostgreSQL pgvector** - Hybrid SQL + vector queries
+   - ✅ **Redis** - Sub-millisecond caching layer
+   - ✅ **modern_stack Cortex** - Legacy support during migration
+   - ✅ **Mem0** - Agent conversational memory
+
+2. **RECOMMENDED STACK:**
+   - ✅ **UnifiedMemoryService** for ALL memory operations
+   - ✅ **Lambda Labs GPU** for embeddings (<50ms latency)
+   - ✅ **Weaviate** for primary vector storage
+   - ✅ **Redis** for hot data caching
+   - ✅ **PostgreSQL pgvector** for hybrid queries
+   - ✅ **Mem0** for conversational context
+
+3. **THE 6-TIER MEMORY ARCHITECTURE:**
+   ```
+   L0: GPU Cache (Lambda Labs) - Hardware acceleration
+   L1: Redis (Hot cache) - <10ms session data
+   L2: Weaviate (Vectors) - <50ms semantic search
+   L3: PostgreSQL pgvector - <100ms hybrid queries
+   L4: Mem0 (Conversations) - Agent memory
+   L5: modern_stack (Legacy) - Migration in progress
+   ```
+
+4. **IMPORT PATTERNS:**
+   ```python
+   # ✅ CORRECT - The flexible way to use memory
+   from backend.services.unified_memory_service import get_unified_memory_service
+   memory = get_unified_memory_service()
+   
+   # ✅ ALSO CORRECT - Direct usage when needed
+   import weaviate
+   from pgvector.asyncpg import register_vector
+   import redis
+   ```
+
+5. **MEMORY OPERATIONS:**
+   ```python
+   # ✅ CORRECT - Unified service (recommended)
+   results = memory.search_knowledge(
+       query="What is the revenue forecast?",
+       limit=10,
+       metadata_filter={"department": "sales"}
+   )
+   
+   # ✅ ALSO CORRECT - Direct Weaviate for performance
+   weaviate_client.query.get("Knowledge").with_near_text(
+       {"concepts": ["revenue forecast"]}
+   ).with_limit(10).do()
+   ```
+
+6. **PERFORMANCE TARGETS:**
+   ```python
+   # Embedding generation: <50ms (Lambda GPU)
+   # Vector search: <100ms (Weaviate)
+   # Cache hit: <10ms (Redis)
+   # Hybrid query: <150ms (PostgreSQL)
+   ```
+
+### **🛡️ MIGRATION SUPPORT**
+
+1. **Dual-Mode Operation:**
+   - Services can use both old (modern_stack) and new (Weaviate) backends
+   - Gradual migration with feature flags
+   - A/B testing for performance validation
+
+2. **Migration Helpers:**
+   ```python
+   # Automatic routing based on configuration
+   if memory.use_new_stack:
+       return await memory.search_weaviate(query)
+   else:
+       return await memory.search_modern_stack(query)
+   ```
+
+### **📋 BEST PRACTICES**
+
+1. **Choose the Right Store:**
+   - Hot data → Redis
+   - Semantic search → Weaviate
+   - Hybrid queries → PostgreSQL pgvector
+   - Conversations → Mem0
+   - Analytics → modern_stack (legacy)
+
+2. **Optimize for Performance:**
+   - Batch embeddings on GPU
+   - Use connection pooling
+   - Cache frequently accessed data
+   - Parallelize searches when possible
+
+### **🚀 PERFORMANCE WINS**
+
+With the new stack:
+- 10x faster embeddings (500ms → 50ms)
+- 5x faster search (500ms → 100ms)  
+- 70% cost reduction ($3.5k → $1k/month)
+- No vendor lock-in
+- Full control over models
+
+Remember: **Lambda Labs + Weaviate = Badass Performance** for Sophia AI!
+
+## 📦 **UV DEPENDENCY GOVERNANCE (MANDATORY)**
+
+### **🎯 CORE PRINCIPLES**
+
+1. **Single Lock File of Truth**: `uv.lock` is canonical
+2. **Group-Based Isolation**: Dependencies in exactly ONE group
+3. **SemVer Pinning**: All direct deps use `==` versions
+4. **Zero Unvetted Wheels**: Only PyPI or approved sources
+5. **No Direct Transitive Fixes**: Use `tool.uv.transitive-overrides`
+
+### **🔧 UV WORKFLOW**
+
+```bash
+# CORRECT - Add dependency to group
+uv add package==1.0.0 --group core
+
+# CORRECT - Sync environment
+uv sync --strict --require-hashes
+
+# CORRECT - Run with UV
+uv run pytest
+
+# WRONG - Never use pip directly
+pip install package  # ❌ FORBIDDEN
+```
+
+### **📋 DEPENDENCY GROUPS**
+
+```toml
+[tool.uv.dependency-groups]
+core = ["fastapi==0.111.0", "redis==5.0.4", "modern_stack-connector-python==3.10.0"]
+mcp-servers = ["anthropic-mcp-python-sdk==1.2.4"]
+ai-enhanced = ["openai==1.30.0", "anthropic==0.25.6", "langchain==0.2.0"]
+automation = ["n8n-python-client==0.2.0", "temporal-sdk==1.5.0"]
+dev = ["pytest==8.2.2", "ruff==0.4.4", "mypy==1.10.0", "black==24.4.0"]
+```
+
+### **🛡️ CONTINUOUS HYGIENE**
+
+1. **Pre-commit Hooks**: `uv sync --check`
+2. **CI/CD Security**: `uv audit` on every PR
+3. **Renovate Bot**: Weekly dependency updates
+4. **Nightly Drift Hunter**: Automated vulnerability scanning
+
+### **📊 SUCCESS METRICS**
+
+- Mean `uv sync` duration: < 35s
+- High/Critical vulns open > 7 days: 0
+- Duplicate direct deps: 0
+- Build reproducibility: ≥ 99.9%
+- License compliance: 100%
+
+## 🚀 **HIGH-PERFORMANCE LLM STRATEGY (MANDATORY)**
+
+### **🏗️ ARCHITECTURE**
+
+```
+Request → Portkey Gateway → Policy Engine → OpenRouter → Best Model
+             ↓                    ↓              ↓
+         Trace/Metrics      Scoring Logic   200+ Models
+```
+
+### **📊 MODEL SCORING POLICY**
+
+| Criterion | Weight | Rule |
+|-----------|--------|------|
+| Freshness | 40% | Release < 90d = 40pts, else 20pts |
+| Latency | 25% | p95 < 800ms = 25pts, else 15pts |
+| Quality | 25% | Benchmark percentile → linear score |
+| Cost | 10% | Only penalize if > $0.01/1k tokens |
+
+### **🎯 ROUTING PATTERNS**
+
+```python
+# PERFORMANCE FIRST
+response = await portkey.invoke_llm(
+    prompt="Quick task",
+    preferences={"prefer_fast": True}  # Boosts latency weight
+)
+
+# QUALITY CRITICAL
+response = await portkey.invoke_llm(
+    prompt="Complex analysis",
+    preferences={"prefer_quality": True}  # Boosts quality weight
+)
+
+# DEFAULT - BALANCED
+response = await portkey.invoke_llm(prompt="Standard request")
+```
+
+### **📈 PERFORMANCE TARGETS**
+
+- **First Token**: < 150ms with streaming
+- **Total Latency**: p95 < 2s
+- **Availability**: > 99.5% with failover
+- **Model Currency**: New models < 72h
+- **Route Score**: > 80/100
+
+### **🚫 FORBIDDEN PATTERNS**
+
+```python
+# ❌ NEVER direct SDK usage
+import openai
+client = openai.Client()  # FORBIDDEN
+
+# ❌ NEVER bypass Portkey
+response = requests.post("https://api.openai.com/...")  # FORBIDDEN
+
+# ✅ ALWAYS use Portkey
+from backend.services.portkey_gateway import invoke_llm
+response = await invoke_llm(prompt)
+```
+
+## 🔄 **N8N WORKFLOW AUTOMATION**
+
+### **📋 WORKFLOW PATTERNS**
+
+```yaml
+# Workflow Structure
+name: Business Process
+triggers:
+  - schedule: "0 9 * * *"
+  - webhook: "/webhook/process"
+  - event: "gong.call_completed"
+nodes:
+  - data: ["modern_stack_query", "api_fetch"]
+  - ai: ["llm_analysis", "embedding_generation"]
+  - action: ["slack_notify", "linear_create_task"]
+  - condition: ["if_threshold", "switch_sentiment"]
+```
+
+### **🎯 PRE-BUILT WORKFLOWS**
+
+1. **Daily Business Intelligence**
+   - Query modern_stack metrics
+   - AI analysis and insights
+   - Executive summary to Slack
+
+2. **Customer Health Monitoring**
+   - Gong sentiment tracking
+   - HubSpot deal analysis
+   - Automated alerts
+
+3. **Code Quality Gates**
+   - GitHub PR triggers
+   - Codacy security scans
+   - AI code review
+
+### **🚀 NATURAL LANGUAGE COMMANDS**
+
+```bash
+"Create a workflow to monitor revenue anomalies"
+"Set up daily customer health reports"
+"Automate PR review process with AI"
+"Build workflow for lead scoring"
+```
+
 ## 🧠 **ENHANCED MCP INTEGRATION WITH CLINE v3.18**
 
 ### **📍 HOW TO USE CLINE v3.18 FEATURES (You're Already Here!)**
@@ -581,7 +903,7 @@ Just type these commands naturally in the Cline chat (where you're typing now):
 
 #### **Business Tool Integration**
 - **Linear**: "Create Linear issue for [task]", "Show my Linear tasks"
-- **Snowflake**: "Query Snowflake for [data]", "Run large query with Gemini"
+- **modern_stack**: "Query modern_stack for [data]", "Run large query with Gemini"
 - **Slack**: "Analyze #[channel]", "Find messages about [topic]"
 - **Gong**: "Summarize recent calls", "Find calls discussing [keyword]"
 
@@ -836,7 +1158,7 @@ frontend/
 external/              # 🆕 Strategic MCP repository collection
 ├── microsoft_playwright/    # Browser automation (13.4k stars)
 ├── glips_figma_context/    # Design-to-code (8.7k stars)
-├── snowflake_cortex_official/ # Official Snowflake AI
+├── modern_stack_cortex_official/ # Official modern_stack AI
 └── [8 additional strategic repos]
 ```
 
@@ -888,13 +1210,12 @@ config/               # Centralized configurations
 - Include confidence scores in AI responses
 
 ## Deployment Considerations
-- **Target**: Lambda Labs infrastructure ONLY (146.235.200.1)
-- **Docker Cloud**: Use docker-compose.cloud.yml with Docker Swarm
-- **Registry**: Push all images to scoobyjava15 Docker Hub
+- **Target**: Lambda Labs K3s cluster (192.222.58.232)
+- **Container Registry**: Push all images to scoobyjava15 Docker Hub
 - **Secrets**: All secrets via Pulumi ESC (NO .env files)
-- **Deployment**: `docker stack deploy -c docker-compose.cloud.yml sophia-ai`
-- **Scaling**: Use Swarm replicas and resource limits
-- **Zero-downtime**: Rolling updates with health checks
+- **Deployment**: `kubectl apply -k k8s/overlays/production`
+- **Scaling**: Horizontal Pod Autoscaler with GPU awareness
+- **Zero-downtime**: Rolling updates with readiness probes
 
 ## Performance Requirements
 - API response times < 200ms for critical paths
@@ -904,7 +1225,7 @@ config/               # Centralized configurations
 
 ## When suggesting code:
 1. **FIRST**: Check AI memory for similar implementations
-2. **EXTERNAL REPOS**: Leverage patterns from 11 strategic external repositories (microsoft_playwright, glips_figma_context, snowflake_cortex_official, etc.)
+2. **EXTERNAL REPOS**: Leverage patterns from 11 strategic external repositories (microsoft_playwright, glips_figma_context, modern_stack_cortex_official, etc.)
 3. Always include proper error handling
 4. Add type hints and docstrings
 5. Consider business context and Pay Ready needs
@@ -941,7 +1262,7 @@ Remember: You're building an enterprise-grade AI orchestrator that will handle c
 - **Model Selection**: Automatic routing based on task complexity and context size
 - **Large Context**: Use Gemini for documents > 100K tokens (up to 1M)
 - **Complex Reasoning**: Claude 4 for architectural design and code generation
-- **Data Processing**: Snowflake Cortex for SQL and data operations
+- **Data Processing**: modern_stack Cortex for SQL and data operations
 - **Cost Optimization**: Automatic routing to free Gemini CLI for large contexts
 
 #### Gemini CLI Integration (NEW)
@@ -1006,7 +1327,7 @@ When using Cursor AI for infrastructure operations, you can use natural language
 - **Query Data**: "Get recent Gong calls" → Uses Gong MCP server with model routing
 - **Deploy Apps**: "Deploy to Vercel" → Uses Vercel MCP server with improved diff
 - **Manage Data**: "Upload to Estuary" → Uses Estuary MCP server with WebFetch
-- **Database Operations**: "Query Snowflake" → Uses Snowflake MCP server with Cortex
+- **Database Operations**: "Query modern_stack" → Uses modern_stack MCP server with Cortex
 - **Store Memory**: "Remember this conversation" → Uses AI Memory MCP server with Claude 4
 - **Recall Context**: "What did we decide about X?" → Uses AI Memory with self-knowledge
 - **Fetch External Data**: "Get latest docs from [url]" → Uses WebFetch tool
@@ -1108,7 +1429,7 @@ ARCHITECTURE_PATTERNS: |
     - TailwindCSS for styling
 
   AI Integration:
-    - Snowflake Cortex for all LLM operations
+    - modern_stack Cortex for all LLM operations
     - Model routing based on task complexity
     - Citation system for transparency
     - Memory system with Mem0
@@ -1149,65 +1470,79 @@ TIMELINE_AND_BUDGET_GUIDELINES: |
     - Focus on "what" and "how", not "when"
     - Technical complexity over time estimates
 
-## 🧹 **MANDATORY FILE CLEANUP POLICY**
+## 🛡️ **AUTOMATED TECHNICAL DEBT PREVENTION SYSTEM**
 
-### **🚨 CRITICAL: DELETE ONE-TIME FILES IMMEDIATELY AFTER USE**
+### **🚀 SYSTEM OVERVIEW**
+Our comprehensive "Clean by Design" framework **automatically prevents** the accumulation of technical debt that led to our recent cleanup of **290 dead code items**.
 
-**ALWAYS DELETE after successful completion:**
-- [ ] Migration scripts (after migration verified)
-- [ ] Setup scripts (after setup completed)
-- [ ] Data analysis scripts (after analysis documented)
-- [ ] Test data generators (after test data created)
-- [ ] Temporary debugging files
-- [ ] One-time configuration scripts
-- [ ] Database seeding scripts (after seeding completed)
-- [ ] Performance testing scripts (after results captured)
+### **🤖 AUTOMATED TOOLS IN PLACE**
+1. **Daily Cleanup Automation**: `scripts/utils/daily_cleanup.py`
+   - Removes expired one-time scripts (30-day lifecycle)
+   - Prevents archive directory creation
+   - Cleans up backup files automatically
+   - Monitors for large files and stale documentation
 
-**NEVER DELETE:**
-- [ ] Reusable utilities in `scripts/utils/`
-- [ ] Documentation in `docs/`
-- [ ] Configuration templates
-- [ ] Automated test suites
-- [ ] Monitoring scripts
-- [ ] Deployment automation
+2. **Pre-Commit Debt Prevention**: `scripts/utils/pre_push_debt_check.py`
+   - Blocks commits with technical debt patterns
+   - Validates one-time script placement
+   - Prevents forbidden documentation patterns
+   - Enforces file naming conventions
 
-### **🔍 Pre-Creation File Assessment**
-Before creating ANY file, AI must ask:
-1. **"Will this be used more than once?"**
-   - If NO → Plan immediate deletion after use
-   - If YES → Place in permanent location with proper naming
+3. **Documentation Lifecycle Management**:
+   - Automatic archiving of temporary documentation
+   - Retention policies for different document types
+   - Stale documentation detection and alerts
 
-2. **"Is this for debugging/testing only?"**
-   - If YES → Add deletion reminder in file header
-   - If NO → Ensure proper documentation
+### **📋 DEVELOPER WORKFLOW INTEGRATION**
+The prevention system is now **fully automated** and integrated into the development workflow:
 
-3. **"Does this duplicate existing functionality?"**
-   - If YES → Use existing file or consolidate
-   - If NO → Proceed with creation
+```bash
+# 1. Daily cleanup runs automatically (GitHub Actions)
+# 2. Pre-commit checks run on every commit attempt
+# 3. Developers just follow the "Clean by Design" principles
 
-### **📋 Mandatory Cleanup Pattern**
+# Manual commands available:
+python scripts/utils/daily_cleanup.py           # Check current status
+python scripts/utils/pre_push_debt_check.py     # Validate before commit
+```
+
+### **🎯 ZERO MAINTENANCE OVERHEAD**
+- **No manual cleanup needed**: All technical debt prevention is automated
+- **No reminder checklists**: System enforces policies automatically  
+- **No human error**: Automated tools prevent debt introduction
+- **No major cleanups**: Prevention eliminates the need for large-scale cleanup operations
+
+### **📊 SUCCESS METRICS**
+Target: **Zero major cleanups** like the 290-item cleanup we just completed
+- One-time scripts: <10 at any time (auto-managed)
+- Archive directories: 0 (zero tolerance, auto-prevented)
+- Backup files: 0 (zero tolerance, auto-removed)
+- Stale documentation: <5 files >90 days (auto-detected)
+
+**See**: `docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md` for complete documentation.
+
+### **📋 Enhanced One-Time Script Pattern (Auto-Managed)**
 ```python
-# REQUIRED: All one-time scripts must include this pattern
+# REQUIRED: All one-time scripts must use this pattern
 """
-🚨 ONE-TIME SCRIPT - DELETE AFTER USE
+🚨 ONE-TIME SCRIPT - AUTO-DELETION ENABLED
 Purpose: [specific purpose]
 Created: [date]
-Usage: python scripts/one_time_migration.py
-Status: PENDING_DELETION after successful execution
+DELETE AFTER: [date]
+Usage: python scripts/one_time/script_name_DELETE_YYYY_MM_DD.py
 
-🧹 CLEANUP REMINDER: This file should be deleted after successful execution
+🤖 AUTOMATION: This script will be auto-deleted by daily cleanup
 """
 
 def main():
     try:
         # Script logic here
         print("✅ Operation completed successfully")
-        print("🧹 CLEANUP REQUIRED: Delete this file now")
-        print(f"   Command: rm {__file__}")
-        print("   Reason: One-time script no longer needed")
+        print("🤖 AUTO-CLEANUP: This script will auto-delete on expiration date")
+        print("📍 Managed by: scripts/utils/daily_cleanup.py")
     except Exception as e:
         print(f"❌ Operation failed: {e}")
-        print("🔄 Fix issues and retry - DO NOT DELETE until successful")
+        print("🔄 Fix issues and retry - script remains until successful")
 
 if __name__ == "__main__":
     main()
@@ -1238,8 +1573,8 @@ secret_value = get_config_value("secret_name")
 docker_config = get_docker_hub_config()
 # Returns: {"username": "scoobyjava15", "access_token": "real_token", "registry": "docker.io"}
 
-# For Snowflake
-snowflake_config = get_snowflake_config()
+# For modern_stack
+modern_stack_config = get_modern_stack_config()
 
 # For Lambda Labs
 lambda_config = get_lambda_labs_config()
@@ -1375,3 +1710,233 @@ Before any code change, AI must:
 **Success Formula**: Technical Excellence + Clean Codebase + Secure Secrets + Zero Waste = Executive-Grade AI Platform
 
 **Remember**: Every file matters, every secret matters, every line of code matters. Keep it clean, keep it secure, keep it excellent.
+
+## 🔧 **K3S CLUSTER CONFIGURATION**
+
+### **Cluster Access (Via GitHub Actions Only)**
+```bash
+# K3s cluster endpoint
+https://192.222.58.232:6443
+
+# Namespaces
+- sophia-ai-prod (main application)
+- mcp-servers (MCP microservices)
+- monitoring (Prometheus/Grafana)
+- ingress (Traefik)
+```
+
+### **Resource Organization**
+```yaml
+# Deployment structure
+k8s/
+├── base/           # Base manifests
+├── overlays/       # Environment-specific
+│   ├── production/
+│   └── staging/
+└── helm/           # Helm charts
+```
+
+### **K3s-Specific Features**
+- Lightweight Kubernetes distribution
+- Built-in Traefik ingress controller
+- Integrated local storage provisioner
+- GPU device plugin for Lambda Labs
+- Automatic TLS with cert-manager
+
+## Memory Architecture Rules (CRITICAL - Updated July 12, 2025)
+
+### ✅ MANDATORY - Use GPU-Accelerated Memory Stack
+- **ALWAYS** use `UnifiedMemoryServiceV2` from `backend.services.unified_memory_service_v2`
+- **ALWAYS** use Weaviate for vector storage (primary)
+- **ALWAYS** use Redis for caching layer
+- **ALWAYS** use PostgreSQL with pgvector for hybrid queries
+- **ALWAYS** use Lambda GPU inference for embeddings
+
+### ❌ FORBIDDEN - Deprecated Systems
+- **NEVER** use `UnifiedMemoryService` (old version)
+- **NEVER** use modern_stack Cortex for new features
+- **NEVER** reference `modern_stack_unified` MCP server
+- **NEVER** use `CORTEX.EMBED_TEXT_768()` - use GPU embeddings instead
+
+### 🚀 Performance Targets
+- Embedding generation: <50ms (GPU accelerated)
+- Vector search: <50ms P95 (Weaviate)
+- Cache hits: >80% (Redis)
+- ETL pipeline: <200ms end-to-end
+
+### 📝 Code Examples
+
+```python
+# CORRECT - Using new memory service
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+
+memory_service = UnifiedMemoryServiceV2()
+await memory_service.initialize()
+
+# Store with GPU embeddings
+memory_id = await memory_service.add_knowledge(
+    content="Important information",
+    source="mcp/source",
+    metadata={"category": "insights"}
+)
+
+# Search with GPU acceleration
+results = await memory_service.search_knowledge(
+    query="find insights",
+    limit=10
+)
+```
+
+```python
+# WRONG - Using old services
+from backend.services.unified_memory_service import UnifiedMemoryService  # NO!
+from modern_stack.cortex import embed_text_768  # FORBIDDEN!
+```
+
+### 🔧 MCP Server Integration
+- All MCP servers MUST use `UnifiedMemoryServiceV2` for memory operations
+- Set environment variables: `WEAVIATE_URL`, `REDIS_URL`, `POSTGRESQL_URL`, `LAMBDA_INFERENCE_URL`
+- Include `GPU_ACCEL` capability for memory-intensive servers
+
+## Infrastructure Rules
+
+### GPU Resources
+- Lambda B200 GPUs for inference (2.3x VRAM advantage)
+- Request GPU resources in K8s manifests: `nvidia.com/gpu: "1"`
+- Use GPU node selectors and tolerations
+
+### Database Connections
+- Weaviate: Use v1.25.4+ for stability
+- Redis: Use hiredis for performance
+- PostgreSQL: Use pgvector 0.3.6+ with IVFFlat indexes
+
+## 🛡️ **TECHNICAL DEBT PREVENTION - "CLEAN BY DESIGN" (MANDATORY)**
+
+**CRITICAL**: Based on our recent cleanup of **290 dead code items** (279 files, 11 directories, 3MB), we now enforce a **Zero Technical Debt Policy** with automated prevention.
+
+### **🚨 ZERO TOLERANCE PATTERNS (IMMEDIATE REJECTION)**
+1. **Archive directories**: `archive/`, `backup/`, `_archived/`, `migration_backup/` ❌
+2. **Backup files**: `*.backup`, `*.bak`, `*.old`, `*.tmp`, `*.temp` ❌
+3. **One-time scripts** outside `scripts/one_time/` ❌
+4. **Completion documentation**: `*_COMPLETE.md`, `*_SUCCESS.md`, `*_FINAL.md` ❌
+5. **Implementation reports**: `*_IMPLEMENTATION_COMPLETE.md` ❌
+
+### **🔧 MANDATORY ONE-TIME SCRIPT MANAGEMENT**
+**BEFORE creating ANY script, ask: "Will this be used more than once?"**
+
+#### **If NO (One-time use):**
+```bash
+# CORRECT - One-time script with deletion date
+scripts/one_time/fix_auth_issue_DELETE_2025_08_15.py
+
+# REQUIRED header:
+"""
+One-time script: Fix authentication issue
+DELETE AFTER: 2025-08-15
+Created: 2025-07-13
+Purpose: Fix specific auth bug in production
+"""
+```
+
+#### **If YES (Permanent utility):**
+```bash
+# CORRECT - Permanent utilities
+scripts/utils/deploy_production.py        # Reusable deployment
+scripts/monitoring/health_check.py        # Ongoing monitoring
+scripts/maintenance/cleanup_logs.py       # Regular maintenance
+```
+
+### **📄 DOCUMENTATION LIFECYCLE MANAGEMENT**
+**All documentation MUST be categorized:**
+
+#### **PERMANENT (No Expiration)**
+- `docs/01-getting-started/` - User guides
+- `docs/03-architecture/` - Core architecture
+- `docs/99-reference/` - Reference documentation
+- `README.md`, `CHANGELOG.md` - Project essentials
+
+#### **TEMPORARY (Auto-Archive/Delete)**
+- `docs/implementation/` - **90 days** → Archive
+- `docs/deployment/` - **60 days** → Archive
+- `docs/migration/` - **30 days after completion** → Delete
+- `*_PLAN.md`, `*_STRATEGY.md` - **60 days** → Archive
+
+### **🤖 AUTOMATED ENFORCEMENT TOOLS**
+
+#### **Daily Cleanup (Automatic)**
+```bash
+# Runs automatically via GitHub Actions
+python scripts/utils/daily_cleanup.py
+
+# Features:
+✅ One-time script expiration (30 days)
+✅ Archive directory prevention
+✅ Backup file removal
+✅ Stale documentation detection
+✅ Large file monitoring (>10MB alerts)
+```
+
+#### **Pre-Commit Prevention (Mandatory)**
+```bash
+# Blocks commits that introduce technical debt
+python scripts/utils/pre_push_debt_check.py
+
+# Automatically blocks:
+❌ One-time scripts outside scripts/one_time/
+❌ Backup files (*.backup, *.bak, *.old)
+❌ Archive directories
+❌ Forbidden documentation patterns
+```
+
+### **📊 PREVENTION METRICS & TARGETS**
+- **One-time scripts**: <10 at any time
+- **Archive directories**: 0 (zero tolerance)
+- **Backup files**: 0 (zero tolerance)
+- **Stale documentation**: <5 files >90 days old
+- **Technical debt score**: <20/100
+
+### **🎯 "CLEAN BY DESIGN" PRINCIPLES**
+
+#### **1. Script Lifecycle Awareness**
+- **Before creating**: Ask "Will this be used more than once?"
+- **If NO**: Use `scripts/one_time/` with deletion date
+- **If YES**: Use appropriate permanent directory
+
+#### **2. Zero Archive Policy**
+- **Never create**: `archive/`, `backup/`, `old/` directories
+- **Use git history**: For accessing old versions
+- **Use branches**: For experimental work
+- **Use tags**: For release snapshots
+
+#### **3. Documentation Lifecycle**
+- **Implementation docs**: Include completion criteria
+- **Plans/strategies**: Set review dates
+- **Migration docs**: Delete after completion
+- **Reference docs**: Keep permanently updated
+
+#### **4. File Naming Conventions**
+```bash
+# ✅ GOOD
+scripts/utils/deploy_production.py           # Permanent utility
+scripts/one_time/fix_auth_DELETE_2025_08_15.py  # One-time with date
+docs/99-reference/api_documentation.md      # Permanent reference
+
+# ❌ BAD
+deploy_auth_fix.py                          # Unclear lifecycle
+docs/implementation_complete.md             # Completion doc
+backup_config.json                         # Backup file
+```
+
+### **🚀 QUICK PREVENTION COMMANDS**
+```bash
+# Check current debt status
+python scripts/utils/daily_cleanup.py
+
+# Validate before commit
+python scripts/utils/pre_push_debt_check.py
+
+# View prevention strategy
+cat docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md
+```
+
+**Remember**: *Prevention is 100x easier than cleanup!* We just removed 290 items - let's never do that again! 🧹✨

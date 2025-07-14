@@ -3,7 +3,7 @@ from core.config_manager import get_config_value
 
 # SQL injection fixes applied - using parameterized queries
 """
-Comprehensive Snowflake Configuration for Sophia AI
+# REMOVED: ModernStack dependencyuration for Sophia AI
 Maps to the complete schema breakdown with enhanced support for all features
 """
 
@@ -14,11 +14,11 @@ from enum import Enum
 from typing import Any
 from uuid import uuid4
 
-# Import snowflake connector to fix undefined name error
+# Import modern_stack connector to fix undefined name error
 try:
-    import snowflake.connector
+    # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 except ImportError:
-    snowflake = None
+    modern_stack = None
 
 logger = logging.getLogger(__name__)
 
@@ -76,22 +76,22 @@ class TableType(str, Enum):
 
 
 @dataclass
-class SnowflakeConfig:
-    """Comprehensive Snowflake configuration"""
+# REMOVED: ModernStack dependency:
+# REMOVED: ModernStack dependencyuration"""
 
     account: str = "ZNB04675.us-east-1"
     user: str = "SCOOBYJAVA15"
-    password: str = get_config_value("snowflake_password")
+    password: str = get_config_value("postgres_password")
     role: str = "ACCOUNTADMIN"
     database: str = "SOPHIA_AI"
     warehouse: str = "SOPHIA_AI_WH"
     default_schema: str = "UNIVERSAL_CHAT"
 
 
-class ComprehensiveSnowflakeManager:
-    """Enhanced Snowflake manager supporting all schemas and advanced features"""
+class ComprehensiveModernStackManager:
+    """Enhanced ModernStack manager supporting all schemas and advanced features"""
 
-    def __init__(self, config: SnowflakeConfig):
+# REMOVED: ModernStack dependency):
         self.config = config
         self.connection = None
 
@@ -177,7 +177,7 @@ class ComprehensiveSnowflakeManager:
         }
 
     async def connect(self):
-        """Connect to Snowflake with comprehensive error handling"""
+        """Connect to ModernStack with comprehensive error handling"""
         try:
             self.connection = None  # TODO: Replace with repository injection
             # repository.get_connection(
@@ -190,11 +190,11 @@ class ComprehensiveSnowflakeManager:
             #     schema=self.config.default_schema,
             # )
 
-            logger.info("✅ Connected to comprehensive Snowflake deployment")
+            logger.info("✅ Connected to comprehensive ModernStack deployment")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Snowflake: {e}")
+            logger.error(f"❌ Failed to connect to ModernStack: {e}")
             raise
 
     def get_table_name(self, schema: SchemaType, table: TableType) -> str:
@@ -217,7 +217,7 @@ class ComprehensiveSnowflakeManager:
     ) -> list[dict[str, Any]]:
         """Execute query with schema context"""
         try:
-            cursor = self.connection.cursor(snowflake.connector.DictCursor)
+            cursor = self.connection.cursor(modern_stack.connector.DictCursor)
 
             # Switch schema if specified
             if schema:
@@ -291,7 +291,7 @@ class ComprehensiveSnowflakeManager:
         embedding_vector: list[float],
         chunk_text: str,
         chunk_index: int = 0,
-        embedding_model: str = "snowflake-arctic-embed-m",
+        embedding_model: str = "modern_stack-arctic-embed-m",
     ) -> bool:
         """Insert knowledge embedding for semantic search"""
 
@@ -558,7 +558,7 @@ class ComprehensiveSnowflakeManager:
         # Analyze query performance
         perf_query = """
         SELECT QUERY_TEXT, EXECUTION_TIME, ROWS_PRODUCED
-        FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+        # REMOVED: ModernStack dependency
         WHERE START_TIME >= DATEADD(hour, -1, CURRENT_TIMESTAMP())
         AND DATABASE_NAME = ?
         ORDER BY EXECUTION_TIME DESC
@@ -581,11 +581,11 @@ class ComprehensiveSnowflakeManager:
         return {"optimizations": optimizations}
 
     async def disconnect(self):
-        """Clean disconnect from Snowflake"""
+        """Clean disconnect from ModernStack"""
         if self.connection:
             self.connection.close()
-            logger.info("Disconnected from Snowflake")
+            logger.info("Disconnected from ModernStack")
 
 
 # Global instance for easy access
-snowflake_manager = ComprehensiveSnowflakeManager(SnowflakeConfig())
+# REMOVED: ModernStack dependency())

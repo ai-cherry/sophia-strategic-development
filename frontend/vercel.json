@@ -1,36 +1,8 @@
 {
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/dashboard/ceo",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/dashboard/(.*)",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/chat",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/test",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    }
-  ]
+  "name": "sophia-intel-ai",
+  "alias": ["sophia-intel.ai", "www.sophia-intel.ai"],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://api.sophia-intel.ai",
+    "NEXT_PUBLIC_APP_URL": "https://sophia-intel.ai"
+  }
 }

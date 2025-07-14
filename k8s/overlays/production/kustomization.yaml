@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: sophia-ai-prod
+
+resources:
+- ../../base
+
+patchesStrategicMerge:
+- deployment-patch.yaml
+
+configMapGenerator:
+- name: sophia-config
+  literals:
+  - ENVIRONMENT=prod
+  - ENABLE_PERSONALITY=true
+  - ENABLE_EXTERNAL_KNOWLEDGE=true
+  - ENABLE_GPU_ACCELERATION=true
+  - DEFAULT_PERSONALITY=ExpertSnark
+
+images:
+- name: sophia-backend
+  newName: scoobyjava15/sophia-backend
+  newTag: latest
+- name: sophia-mcp-base
+  newName: scoobyjava15/sophia-mcp-base
+  newTag: latest
+
+replicas:
+- name: sophia-backend
+  count: 3
+- name: sophia-mcp-gateway
+  count: 2 

@@ -14,9 +14,10 @@ Recommended decomposition:
 - linear_project_health_agent_models.py - Data models
 - linear_project_health_agent_handlers.py - Request handlers
 
-TODO: Implement file decomposition
+TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import json
 import logging
 from dataclasses import dataclass, field
@@ -28,7 +29,7 @@ from core.agents.base_agent import BaseAgent
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +139,7 @@ class LinearProjectHealthAgent(BaseAgent):
         )
 
         # Service integrations
-        self.cortex_service: SnowflakeCortexService | None = None
+        self.cortex_service: ModernStackCortexService | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
 
         # Health assessment thresholds
@@ -158,7 +159,7 @@ class LinearProjectHealthAgent(BaseAgent):
             return
 
         try:
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             self.ai_memory = EnhancedAiMemoryMCPServer()
 
             await self.ai_memory.initialize()
@@ -586,7 +587,7 @@ class LinearProjectHealthAgent(BaseAgent):
                 Return findings as JSON with risk_type, severity, and description.
                 """
 
-                risk_analysis = await cortex.complete_text_with_cortex(
+                risk_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=risk_prompt, max_tokens=500
                 )
 
@@ -717,7 +718,7 @@ class LinearProjectHealthAgent(BaseAgent):
                 Provide actionable insights for project management.
                 """
 
-                ai_insights = await cortex.complete_text_with_cortex(
+                ai_insights = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=insight_prompt, max_tokens=200
                 )
 

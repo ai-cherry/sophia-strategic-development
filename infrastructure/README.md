@@ -7,7 +7,7 @@ This directory contains the Infrastructure as Code (IaC) implementation for the 
 The Sophia AI platform uses Pulumi to manage infrastructure resources across multiple environments (development, staging, production). This includes:
 
 - **Lambda Labs**: GPU instances and Kubernetes clusters for core AI services.
-- **Snowflake**: Core configurations for data warehousing.
+- **Modern Stack**: Core configurations for data warehousing.
 - **Portkey**: API key management for AI gateway.
 
 **Note on SSH Key Management:** SSH keys for Lambda Labs currently require manual configuration due to Pulumi CLI limitations with multi-line secrets. This is a known area for future automation.
@@ -45,7 +45,7 @@ pulumi up
 
 ## Project Structure
 
-- `infrastructure/index.py`: Python Pulumi program for Lambda Labs and Snowflake configurations.
+- `infrastructure/index.py`: Python Pulumi program for Lambda Labs and Modern Stack configurations.
 - `infrastructure/pulumi/clean-architecture-stack.ts`: TypeScript Pulumi program for Kubernetes deployments on Lambda Labs.
 - `Pulumi.yaml`: Pulumi project configuration.
 - `requirements.txt`: Python dependencies.

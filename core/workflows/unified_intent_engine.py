@@ -3,6 +3,7 @@ Unified Intent Engine for Sophia AI
 Provides centralized intent understanding with learning capabilities
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import json
@@ -14,7 +15,7 @@ from typing import Any
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +66,7 @@ class UnifiedIntentEngine:
     """
 
     def __init__(self):
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = UnifiedMemoryServiceV2()
         self.memory_service = EnhancedAiMemoryMCPServer()
         self.intent_patterns: dict[str, list[dict]] = {}
         self.capability_mapping: dict[IntentCategory, list[AgentCapability]] = {
@@ -147,7 +148,7 @@ class UnifiedIntentEngine:
 
         try:
             async with self.cortex_service as cortex:
-                intent_result = await cortex.complete_text_with_cortex(
+                intent_result = await # REMOVED: ModernStack dependency_text_with_cortex(
                     prompt=analysis_prompt, max_tokens=500
                 )
 
@@ -229,7 +230,7 @@ class UnifiedIntentEngine:
         }
 
         # Simple pattern matching for demo
-        # In production, use Snowflake Cortex or spaCy
+        # In production, use Lambda GPU or spaCy
         import re
 
         # Company names (simple capitalized words for demo)
@@ -246,7 +247,7 @@ class UnifiedIntentEngine:
             "react",
             "docker",
             "kubernetes",
-            "snowflake",
+            "modern_stack",
             "langchain",
         ]
         message_lower = message.lower()

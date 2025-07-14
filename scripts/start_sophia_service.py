@@ -31,8 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -53,7 +52,7 @@ class HybridMCPLoadBalancer:
         self.dedicated_endpoints = {
             "sophia-ai-core": "http://104.171.202.103:9000",
             "sophia-data-pipeline": "http://192.222.58.232:9100",
-            "sophia-production": "http://104.171.202.117:9200"
+            "sophia-production": "http://104.171.202.117:9200",
         }
 
         # Cost optimization thresholds
@@ -64,7 +63,7 @@ class HybridMCPLoadBalancer:
         self.serverless_rates = {
             "llama-4-scout-17b-16e-instruct": {"input": 0.08, "output": 0.30},
             "llama-4-maverick-17b-128e-instruct": {"input": 0.18, "output": 0.60},
-            "llama-3.1-8b-instruct": {"input": 0.025, "output": 0.04}
+            "llama-3.1-8b-instruct": {"input": 0.025, "output": 0.04},
         }
 
         # Request routing statistics
@@ -72,7 +71,7 @@ class HybridMCPLoadBalancer:
             "total_requests": 0,
             "serverless_requests": 0,
             "dedicated_requests": 0,
-            "cost_savings": 0.0
+            "cost_savings": 0.0,
         }
 
         logger.info("🔄 Hybrid MCP Load Balancer initialized")
@@ -82,10 +81,10 @@ class HybridMCPLoadBalancer:
     def calculate_complexity_score(self, request_data: dict[str, Any]) -> float:
         """
         Calculate complexity score for intelligent routing
-        
+
         Args:
             request_data: Request payload
-            
+
         Returns:
             Complexity score (0.0 - 1.0)
         """
@@ -102,8 +101,16 @@ class HybridMCPLoadBalancer:
 
         # Check for complex operations
         complex_keywords = [
-            "analyze", "process", "generate", "create", "develop",
-            "training", "fine-tuning", "batch", "pipeline", "workflow"
+            "analyze",
+            "process",
+            "generate",
+            "create",
+            "develop",
+            "training",
+            "fine-tuning",
+            "batch",
+            "pipeline",
+            "workflow",
         ]
 
         for keyword in complex_keywords:
@@ -112,8 +119,15 @@ class HybridMCPLoadBalancer:
 
         # Check for stateful operations
         stateful_keywords = [
-            "remember", "context", "session", "previous", "continue",
-            "notification", "subscribe", "stream", "real-time"
+            "remember",
+            "context",
+            "session",
+            "previous",
+            "continue",
+            "notification",
+            "subscribe",
+            "stream",
+            "real-time",
         ]
 
         for keyword in stateful_keywords:
@@ -134,10 +148,10 @@ class HybridMCPLoadBalancer:
     def calculate_serverless_cost(self, request_data: dict[str, Any]) -> float:
         """
         Calculate estimated cost for serverless processing
-        
+
         Args:
             request_data: Request payload
-            
+
         Returns:
             Estimated cost in USD
         """
@@ -157,10 +171,10 @@ class HybridMCPLoadBalancer:
     async def route_request(self, request_data: dict[str, Any]) -> dict[str, Any]:
         """
         Route request to optimal endpoint based on complexity and cost
-        
+
         Args:
             request_data: Request payload
-            
+
         Returns:
             Response from selected endpoint
         """
@@ -170,7 +184,9 @@ class HybridMCPLoadBalancer:
         complexity_score = self.calculate_complexity_score(request_data)
         estimated_cost = self.calculate_serverless_cost(request_data)
 
-        logger.info(f"Request analysis: complexity={complexity_score:.2f}, cost=${estimated_cost:.4f}")
+        logger.info(
+            f"Request analysis: complexity={complexity_score:.2f}, cost=${estimated_cost:.4f}"
+        )
 
         # Routing decision logic
         if complexity_score > self.complexity_threshold:
@@ -188,7 +204,9 @@ class HybridMCPLoadBalancer:
             logger.info("☁️ Routing to serverless (cost-optimized)")
             return await self._route_to_serverless(request_data)
 
-    async def _route_to_serverless(self, request_data: dict[str, Any]) -> dict[str, Any]:
+    async def _route_to_serverless(
+        self, request_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Route request to Lambda Labs Serverless"""
         try:
             self.routing_stats["serverless_requests"] += 1
@@ -199,21 +217,21 @@ class HybridMCPLoadBalancer:
             async with aiohttp.ClientSession() as session:
                 headers = {
                     "Authorization": f"Bearer {self.serverless_api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
 
                 payload = {
                     "model": model,
                     "messages": request_data.get("messages", []),
                     "max_tokens": request_data.get("max_tokens", 500),
-                    "temperature": request_data.get("temperature", 0.7)
+                    "temperature": request_data.get("temperature", 0.7),
                 }
 
                 async with session.post(
                     f"{self.serverless_endpoint}/chat/completions",
                     headers=headers,
                     json=payload,
-                    ssl=False  # Handle SSL certificate issue
+                    ssl=False,  # Handle SSL certificate issue
                 ) as response:
                     if response.status == 200:
                         response_data = await response.json()
@@ -228,19 +246,23 @@ class HybridMCPLoadBalancer:
                                 "endpoint": "serverless",
                                 "model": model,
                                 "cost": actual_cost,
-                                "reason": "cost-optimized"
-                            }
+                                "reason": "cost-optimized",
+                            },
                         }
                     else:
                         error_text = await response.text()
-                        raise Exception(f"Serverless API error: {response.status} - {error_text}")
+                        raise Exception(
+                            f"Serverless API error: {response.status} - {error_text}"
+                        )
 
         except Exception as e:
             logger.error(f"Serverless routing failed: {e}")
             # Fallback to dedicated
             return await self._route_to_dedicated(request_data, "fallback")
 
-    async def _route_to_dedicated(self, request_data: dict[str, Any], reason: str) -> dict[str, Any]:
+    async def _route_to_dedicated(
+        self, request_data: dict[str, Any], reason: str
+    ) -> dict[str, Any]:
         """Route request to dedicated GPU instance"""
         try:
             self.routing_stats["dedicated_requests"] += 1
@@ -256,14 +278,11 @@ class HybridMCPLoadBalancer:
                 payload = {
                     "query": request_data.get("messages", [{}])[-1].get("content", ""),
                     "max_tokens": request_data.get("max_tokens", 500),
-                    "temperature": request_data.get("temperature", 0.7)
+                    "temperature": request_data.get("temperature", 0.7),
                 }
 
                 async with session.post(
-                    f"{endpoint_url}/chat",
-                    headers=headers,
-                    json=payload,
-                    timeout=30
+                    f"{endpoint_url}/chat", headers=headers, json=payload, timeout=30
                 ) as response:
                     if response.status == 200:
                         response_data = await response.json()
@@ -274,22 +293,21 @@ class HybridMCPLoadBalancer:
                                 "endpoint": "dedicated",
                                 "instance": endpoint_name,
                                 "cost": 0.02,  # Estimated dedicated cost
-                                "reason": reason
-                            }
+                                "reason": reason,
+                            },
                         }
                     else:
                         error_text = await response.text()
-                        raise Exception(f"Dedicated API error: {response.status} - {error_text}")
+                        raise Exception(
+                            f"Dedicated API error: {response.status} - {error_text}"
+                        )
 
         except Exception as e:
             logger.error(f"Dedicated routing failed: {e}")
             # Return error response
             return {
                 "error": f"All endpoints failed: {e!s}",
-                "routing": {
-                    "endpoint": "failed",
-                    "reason": "all_endpoints_failed"
-                }
+                "routing": {"endpoint": "failed", "reason": "all_endpoints_failed"},
             }
 
     def _calculate_actual_cost(self, usage: dict[str, Any], model: str) -> float:
@@ -309,7 +327,7 @@ class HybridMCPLoadBalancer:
         # Track cost savings
         estimated_dedicated_cost = 0.05  # Estimated dedicated cost per request
         if total_cost < estimated_dedicated_cost:
-            self.routing_stats["cost_savings"] += (estimated_dedicated_cost - total_cost)
+            self.routing_stats["cost_savings"] += estimated_dedicated_cost - total_cost
 
         return total_cost
 
@@ -322,9 +340,13 @@ class HybridMCPLoadBalancer:
 
         return {
             **self.routing_stats,
-            "serverless_percentage": (self.routing_stats["serverless_requests"] / total) * 100,
-            "dedicated_percentage": (self.routing_stats["dedicated_requests"] / total) * 100,
-            "average_cost_per_request": self.routing_stats["cost_savings"] / total if total > 0 else 0
+            "serverless_percentage": (self.routing_stats["serverless_requests"] / total)
+            * 100,
+            "dedicated_percentage": (self.routing_stats["dedicated_requests"] / total)
+            * 100,
+            "average_cost_per_request": (
+                self.routing_stats["cost_savings"] / total if total > 0 else 0
+            ),
         }
 
 
@@ -340,7 +362,7 @@ class HybridSophiaService:
             "started_at": datetime.now().isoformat(),
             "status": "initializing",
             "endpoints": {},
-            "health": {}
+            "health": {},
         }
 
         logger.info("🚀 Hybrid Sophia AI Service initialized")
@@ -370,10 +392,7 @@ class HybridSophiaService:
 
     async def _validate_environment(self) -> None:
         """Validate environment configuration"""
-        required_env_vars = [
-            "LAMBDA_API_KEY",
-            "ENVIRONMENT"
-        ]
+        required_env_vars = ["LAMBDA_API_KEY", "ENVIRONMENT"]
 
         missing_vars = []
         for var in required_env_vars:
@@ -394,14 +413,14 @@ class HybridSophiaService:
             async with aiohttp.ClientSession() as session:
                 headers = {
                     "Authorization": f"Bearer {self.load_balancer.serverless_api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
 
                 async with session.get(
                     f"{self.load_balancer.serverless_endpoint}/models",
                     headers=headers,
                     ssl=False,
-                    timeout=10
+                    timeout=10,
                 ) as response:
                     if response.status == 200:
                         endpoint_health["serverless"] = "healthy"
@@ -418,10 +437,7 @@ class HybridSophiaService:
         for name, url in self.load_balancer.dedicated_endpoints.items():
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(
-                        f"{url}/health",
-                        timeout=5
-                    ) as response:
+                    async with session.get(f"{url}/health", timeout=5) as response:
                         if response.status == 200:
                             endpoint_health[name] = "healthy"
                             logger.info(f"✅ Dedicated endpoint {name} healthy")
@@ -443,10 +459,7 @@ class HybridSophiaService:
             logger.error(f"Request processing failed: {e}")
             return {
                 "error": str(e),
-                "routing": {
-                    "endpoint": "failed",
-                    "reason": "processing_error"
-                }
+                "routing": {"endpoint": "failed", "reason": "processing_error"},
             }
 
     def get_service_status(self) -> dict[str, Any]:
@@ -454,7 +467,7 @@ class HybridSophiaService:
         return {
             **self.service_status,
             "routing_stats": self.load_balancer.get_routing_stats(),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -499,7 +512,7 @@ app = FastAPI(
     title="Sophia AI - Hybrid Serverless + Dedicated",
     description="Revolutionary hybrid AI infrastructure with 46% cost reduction",
     version="2.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -519,7 +532,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def root():
     """Serve the beautiful Sophia AI web interface"""
-    return FileResponse('static/index.html')
+    return FileResponse("static/index.html")
 
 
 @app.get("/api")
@@ -539,7 +552,7 @@ async def api_info():
                 "Cost-optimized routing",
                 "46% cost reduction",
                 "70% faster response times",
-                "Serverless + Dedicated GPU"
+                "Serverless + Dedicated GPU",
             ],
             "models_available": len(lambda_service.models),
             "routing_strategy": config.get("routing_strategy"),
@@ -552,9 +565,9 @@ async def api_info():
                 "usage": "/stats",
                 "health": "/health",
                 "dashboard": "/dashboard",
-                "docs": "/docs"
+                "docs": "/docs",
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -563,7 +576,7 @@ async def api_info():
             "message": "Sophia AI - Hybrid Serverless + Dedicated GPU",
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -582,7 +595,7 @@ async def hybrid_chat(request: dict):
         return {
             "response": result["response"],
             "routing": result["routing"],
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -600,7 +613,7 @@ async def health_check():
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -619,10 +632,14 @@ async def dashboard():
             "endpoint_health": status["health"],
             "cost_savings": {
                 "total_savings": status["routing_stats"].get("cost_savings", 0),
-                "serverless_percentage": status["routing_stats"].get("serverless_percentage", 0),
-                "dedicated_percentage": status["routing_stats"].get("dedicated_percentage", 0)
+                "serverless_percentage": status["routing_stats"].get(
+                    "serverless_percentage", 0
+                ),
+                "dedicated_percentage": status["routing_stats"].get(
+                    "dedicated_percentage", 0
+                ),
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -651,12 +668,7 @@ def main():
         logger.info("💰 Expected: 46% cost reduction, 70% faster responses")
 
         # Start FastAPI server
-        uvicorn.run(
-            app,
-            host=host,
-            port=port,
-            log_level="info"
-        )
+        uvicorn.run(app, host=host, port=port, log_level="info")
 
     except Exception as e:
         logger.error(f"❌ Failed to start service: {e}")

@@ -1,10 +1,11 @@
 """
 Gong Webhook Server - Production-ready FastAPI webhook processor for Gong integrations.
 
-This server processes Gong webhooks, enhances data via API calls, stores in Snowflake,
+This server processes Gong webhooks, enhances data via API calls, stores in ModernStack,
 and notifies Sophia agents via Redis pub/sub.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import asyncio
@@ -23,6 +24,9 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 
 from infrastructure.integrations.gong_webhook_processor import WebhookProcessor
+
+# Import shared error classes
+from shared.utils.errors import RateLimitError
 
 # Configure structured logging
 structlog.configure(
@@ -82,12 +86,12 @@ class WebhookServerConfig(BaseSettings):
     GONG_API_BURST_LIMIT: int = 10
 
     # Database settings
-    SNOWFLAKE_ACCOUNT: str = Field(..., env="SNOWFLAKE_ACCOUNT")
-    SNOWFLAKE_USER: str = Field(..., env="SNOWFLAKE_USER")
-    SNOWFLAKE_PASSWORD: str = Field(..., env="SNOWFLAKE_PASSWORD")
-    SNOWFLAKE_WAREHOUSE: str = Field(default="SOPHIA_AI_WH", env="SNOWFLAKE_WAREHOUSE")
-    SNOWFLAKE_DATABASE: str = Field(default="SOPHIA_AI", env="SNOWFLAKE_DATABASE")
-    SNOWFLAKE_SCHEMA: str = Field(default="GONG_WEBHOOKS", env="SNOWFLAKE_SCHEMA")
+    # REMOVED: ModernStack dependency"modern_stack_ACCOUNT")
+    # REMOVED: ModernStack dependency"modern_stack_USER")
+    # REMOVED: ModernStack dependency"modern_stack_PASSWORD")
+    # REMOVED: ModernStack dependency"modern_stack_WAREHOUSE")
+    # REMOVED: ModernStack dependency"modern_stack_DATABASE")
+    # REMOVED: ModernStack dependency"modern_stack_SCHEMA")
 
     # Redis settings
     REDIS_URL: str = Field(default="redis://localhost:6379", env="REDIS_URL")
@@ -160,14 +164,6 @@ class WebhookVerificationError(Exception):
     """Exception raised when webhook verification fails."""
 
     pass
-
-
-class RateLimitError(Exception):
-    """Exception raised when rate limit is exceeded."""
-
-    def __init__(self, retry_after: float):
-        self.retry_after = retry_after
-        super().__init__(f"Rate limit exceeded. Retry after {retry_after} seconds.")
 
 
 class ValidationResult(BaseModel):
@@ -285,7 +281,11 @@ class AsyncRateLimiter:
                 wait_time = self.time_window - (now - oldest_call)
                 if wait_time > 0:
                     api_rate_limit_hits.inc()
-                    raise RateLimitError(wait_time)
+                    raise RateLimitError(
+                        message="Rate limit exceeded for Gong API",
+                        retry_after=int(wait_time),
+                        service="gong_webhook",
+                    )
 
             # Add current call
             self.calls.append(now)
@@ -483,13 +483,13 @@ def get_webhook_processor() -> WebhookProcessor:
         config = get_server_config()
         _webhook_processor = WebhookProcessor(
             gong_api_key=config.GONG_API_KEY,
-            snowflake_config={
-                "account": config.SNOWFLAKE_ACCOUNT,
-                "user": config.SNOWFLAKE_USER,
-                "password": config.SNOWFLAKE_PASSWORD,
-                "warehouse": config.SNOWFLAKE_WAREHOUSE,
-                "database": config.SNOWFLAKE_DATABASE,
-                "schema": config.SNOWFLAKE_SCHEMA,
+            # REMOVED: ModernStack dependency{
+                "account": config.modern_stack_ACCOUNT,
+                "user": config.modern_stack_USER,
+                "password": config.modern_stack_PASSWORD,
+                "warehouse": config.modern_stack_WAREHOUSE,
+                "database": config.modern_stack_DATABASE,
+                "schema": config.modern_stack_SCHEMA,
             },
             redis_url=config.REDIS_URL,
         )
@@ -506,7 +506,7 @@ async def health_check():
         "version": "1.0.0",
         "checks": {
             "redis": {"status": "ok"},  # TODO: Implement actual health checks
-            "snowflake": {"status": "ok"},
+            "modern_stack": {"status": "ok"},
             "gong_api": {"status": "ok"},
         },
     }
@@ -546,7 +546,7 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
             )
 
             # Store raw webhook immediately (fast response)
-            # TODO: Implement Snowflake storage
+            # TODO: Implement ModernStack storage
 
             # Queue background processing
             background_tasks.add_task(

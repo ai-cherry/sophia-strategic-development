@@ -1,25 +1,25 @@
-# Snowflake Cortex MCP Integration - Deployment Summary
+# Lambda GPU MCP Integration - Deployment Summary
 
 ## 🎯 Overview
 
-This document summarizes the comprehensive Snowflake Cortex MCP integration that has been implemented for Sophia AI, providing dual-mode execution (direct and MCP), automatic fallback, enterprise-grade security, and comprehensive monitoring.
+This document summarizes the comprehensive Lambda GPU MCP integration that has been implemented for Sophia AI, providing dual-mode execution (direct and MCP), automatic fallback, enterprise-grade security, and comprehensive monitoring.
 
 ## 📦 Components Implemented
 
-### 1. Core Adapter (`backend/core/services/snowflake_cortex_adapter.py`)
-- **Dual-mode execution**: Supports both direct Snowflake connections and MCP server communication
+### 1. Core Adapter (`backend/core/services/modern_stack_cortex_adapter.py`)
+- **Dual-mode execution**: Supports both direct Modern Stack connections and MCP server communication
 - **Automatic fallback**: Transparent failover from MCP to direct mode
 - **Circuit breaker**: Prevents cascading failures with intelligent circuit breaking
 - **Retry logic**: Exponential backoff for transient failures
 - **Performance tracking**: Comprehensive latency and usage metrics
 
-### 2. MCP Client (`backend/integrations/snowflake_mcp_client.py`)
+### 2. MCP Client (`backend/integrations/modern_stack_mcp_client.py`)
 - **PAT authentication**: Secure token-based authentication
 - **HTTP/2 support**: High-performance communication with connection pooling
 - **Streaming responses**: Support for Server-Sent Events
 - **Health checking**: Built-in health and capability discovery
 
-### 3. Connection Pool Manager (`backend/core/services/snowflake_pool.py`)
+### 3. Connection Pool Manager (`backend/core/services/modern_stack_pool.py`)
 - **Dual pools**: Separate pools for direct and MCP connections
 - **Auto-scaling**: Dynamic pool size adjustment based on load
 - **Health monitoring**: Automatic connection recycling
@@ -38,7 +38,7 @@ This document summarizes the comprehensive Snowflake Cortex MCP integration that
 - **Circuit breaker state**: Real-time circuit status
 
 ### 6. MCP Registry (`config/mcp/registry.yaml`)
-- **Server definitions**: Primary and secondary Snowflake Cortex servers
+- **Server definitions**: Primary and secondary Lambda GPU servers
 - **Capability mapping**: Detailed capability specifications
 - **Tier-based routing**: Intelligent server selection
 - **Health endpoints**: Standardized health checking
@@ -48,8 +48,8 @@ This document summarizes the comprehensive Snowflake Cortex MCP integration that
 ### Auto ESC Config Enhancement
 ```python
 # Added to backend/core/auto_esc_config.py
-- get_snowflake_pat(environment)
-- get_snowflake_mcp_config()
+- get_modern_stack_pat(environment)
+- get_modern_stack_mcp_config()
 - check_pat_rotation_needed()
 ```
 
@@ -65,8 +65,8 @@ This document summarizes the comprehensive Snowflake Cortex MCP integration that
 ### 1. Add Secrets to GitHub Organization
 ```bash
 # Required secrets in https://github.com/organizations/ai-cherry/settings/secrets/actions
-SNOWFLAKE_PAT_PROD    # Production PAT
-SNOWFLAKE_PAT_STG     # Staging PAT (optional)
+modern_stack_PAT_PROD    # Production PAT
+modern_stack_PAT_STG     # Staging PAT (optional)
 ```
 
 ### 2. Sync Secrets to Pulumi ESC
@@ -92,12 +92,12 @@ python scripts/validate_cortex_integration.py
 ### Key Metrics Exposed
 - `cortex_calls_total`: Total API calls by mode, task, and status
 - `cortex_latency_seconds`: Call latency distribution
-- `snowflake_pool_size`: Connection pool sizes
-- `cortex_credits_used`: Snowflake credit consumption
+- `modern_stack_pool_size`: Connection pool sizes
+- `cortex_credits_used`: Modern Stack credit consumption
 - `mcp_server_health_score`: MCP server health status
 
 ### Grafana Dashboard
-- Import `config/grafana/dashboards/snowflake_cortex_mcp.json`
+- Import `config/grafana/dashboards/modern_stack_cortex_mcp.json`
 - Monitors request rates, latency, pool utilization, and failover rates
 
 ## 🔐 Security Considerations
@@ -118,12 +118,12 @@ python scripts/validate_cortex_integration.py
 
 ### Unit Tests
 ```bash
-pytest backend/tests/services/test_snowflake_cortex_adapter.py -v
+pytest backend/tests/services/test_modern_stack_cortex_adapter.py -v
 ```
 
 ### Integration Tests
 ```bash
-pytest -m "integration and snowflake" --env=staging
+pytest -m "integration and modern_stack" --env=staging
 ```
 
 ### Load Tests
@@ -144,8 +144,8 @@ locust -f backend/tests/load/locustfile_sf_mcp.py --host=https://api.sophia-ai.c
 ### Quick Disable
 ```bash
 # Set environment variable to disable MCP mode
-export MCP_SNOWFLAKE_ENABLED=false
-kubectl set env deployment/sophia-backend MCP_SNOWFLAKE_ENABLED=false
+export MCP_modern_stack_ENABLED=false
+kubectl set env deployment/sophia-backend MCP_modern_stack_ENABLED=false
 ```
 
 ### Full Rollback

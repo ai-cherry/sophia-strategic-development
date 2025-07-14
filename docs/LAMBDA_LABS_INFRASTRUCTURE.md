@@ -56,7 +56,7 @@ ssh_key_path = config['ssh_key_path']
 - **Type**: GH200 (96GB GPU Memory)
 - **Region**: us-east-3
 - **Cost**: $1.49/hour
-- **Purpose**: Core AI Services & Snowflake Cortex
+- **Purpose**: Core AI Services & Lambda GPU
 - **Services**: AI Memory MCP (9001), FastAPI Backend (8000)
 - **SSH**: `ssh -i ~/.ssh/sophia_lambda_key ubuntu@192.222.58.232`
 
@@ -84,7 +84,7 @@ ssh_key_path = config['ssh_key_path']
 - **Region**: us-south-1
 - **Cost**: $1.29/hour
 - **Purpose**: Data Processing & ETL Operations
-- **Services**: Snowflake Connections, ETL Pipelines, Data Ingestion
+- **Services**: Modern Stack Connections, ETL Pipelines, Data Ingestion
 - **SSH**: `ssh -i ~/.ssh/sophia_lambda_key ubuntu@104.171.202.134`
 
 ### 5. sophia-development

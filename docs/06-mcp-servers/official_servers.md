@@ -12,12 +12,12 @@ The MCP server configuration is maintained in `config/mcp/mcp_servers.yaml`:
 
 ```yaml
 servers:
-  - name: snowflake-official
-    type: snowflake
+  - name: modern_stack-official
+    type: modern_stack
     tier: PRIMARY
     port: 9130
     capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]
-    pat_secret: SNOWFLAKE_MCP_PAT_PROD
+    pat_secret: modern_stack_MCP_PAT_PROD
     health_endpoint: /health
     config:
       warehouse: SOPHIA_AI_WH
@@ -31,7 +31,7 @@ MCP servers are organized into three tiers based on criticality:
 
 | Tier | Description | SLA | Examples |
 |------|-------------|-----|----------|
-| PRIMARY | Mission-critical servers | 99.9% uptime | Snowflake, Redis, AI Memory |
+| PRIMARY | Mission-critical servers | 99.9% uptime | Modern Stack, Redis, AI Memory |
 | SECONDARY | Important but not critical | 99% uptime | GitHub, Linear, Codacy |
 | TERTIARY | Optional enhancements | Best effort | n8n, Notion, v0dev |
 
@@ -54,9 +54,9 @@ capabilities:
 
 ## Official MCP Servers
 
-### 1. Snowflake MCP Server
+### 1. Modern Stack MCP Server
 
-**Repository**: snowflake-labs/snowflake-mcp
+**Repository**: modern_stack-labs/modern_stack-mcp
 **Tier**: PRIMARY
 **Port**: 9130
 
@@ -72,7 +72,7 @@ config:
   warehouse: SOPHIA_AI_WH
   database: SOPHIA_AI
   schema: PROCESSED_AI
-  pat_secret: SNOWFLAKE_MCP_PAT_PROD
+  pat_secret: modern_stack_MCP_PAT_PROD
 ```
 
 ### 2. Redis MCP Server
@@ -154,10 +154,10 @@ config:
 from infrastructure.mcp_servers.registry_v2 import get_registry
 
 registry = get_registry()
-snowflake_server = registry.get_server("snowflake-official")
+modern_stack_server = registry.get_server("modern_stack-official")
 
 # Use server directly
-client = MCPClient(snowflake_server.url, snowflake_server.pat_token)
+client = MCPClient(modern_stack_server.url, modern_stack_server.pat_token)
 ```
 
 ### 2. Capability-Based Discovery
@@ -216,7 +216,7 @@ health_status = await registry.check_all_health()
 
 Official MCP servers use Programmatic Access Tokens (PAT):
 
-1. **Snowflake PAT**: For Cortex operations
+1. **Modern Stack PAT**: For Cortex operations
 2. **Pulumi PAT**: For infrastructure operations
 3. **Estuary PAT**: For data pipeline management
 
@@ -226,7 +226,7 @@ PATs are stored in GitHub Organization Secrets and synced to Pulumi ESC:
 
 ```yaml
 # GitHub Secret → Pulumi ESC Mapping
-SNOWFLAKE_MCP_PAT_PROD → snowflake_mcp_pat
+modern_stack_MCP_PAT_PROD → modern_stack_mcp_pat
 PULUMI_MCP_PAT_PROD → pulumi_mcp_pat
 ESTUARY_MCP_PAT_PROD → estuary_mcp_pat
 ```
@@ -284,12 +284,12 @@ mcp_registry_errors_total{operation="...", error_type="..."}
 # Old (v1)
 from infrastructure.mcp_servers.mcp_registry import MCPRegistry
 registry = MCPRegistry()
-server = registry.get_server_config("snowflake")
+server = registry.get_server_config("modern_stack")
 
 # New (v2)
 from infrastructure.mcp_servers.registry_v2 import get_registry
 registry = get_registry()
-server = registry.get_server("snowflake-official")
+server = registry.get_server("modern_stack-official")
 ```
 
 ### Configuration Migration
@@ -336,7 +336,7 @@ curl http://localhost:9090/api/mcp/registry/status
 curl -X POST http://localhost:9090/api/mcp/registry/health-check
 
 # View server details
-curl http://localhost:9090/api/mcp/servers/snowflake-official
+curl http://localhost:9090/api/mcp/servers/modern_stack-official
 ```
 
 ## Future Enhancements

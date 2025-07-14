@@ -10,34 +10,35 @@ import subprocess
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class ProjectMCPManager:
     def __init__(self):
         self.servers = {
             "asana": {
                 "path": "mcp-servers/asana/asana_mcp_server.py",
                 "port": 9004,
-                "priority": 1
+                "priority": 1,
             },
             "linear": {
                 "path": "mcp-servers/linear/linear_mcp_server.py",
                 "port": 9006,
-                "priority": 1
+                "priority": 1,
             },
             "notion": {
                 "path": "mcp-servers/notion/enhanced_notion_mcp_server.py",
                 "port": 9005,
-                "priority": 1
+                "priority": 1,
             },
             "slack_unified": {
                 "path": "mcp-servers/slack_unified/simple_slack_integration_server.py",
                 "port": 9008,
-                "priority": 2
+                "priority": 2,
             },
             "ai_memory": {
                 "path": "mcp-servers/ai_memory/enhanced_ai_memory_mcp_server.py",
                 "port": 9000,
-                "priority": 3
-            }
+                "priority": 3,
+            },
         }
         self.processes = {}
 
@@ -49,27 +50,22 @@ class ProjectMCPManager:
                 logger.error(f"❌ {name} server file not found: {config['path']}")
                 return False
 
-            cmd = [
-                "python3",
-                config["path"]
-            ]
+            cmd = ["python3", config["path"]]
 
             # Set environment variables
             env = os.environ.copy()
-            env.update({
-                "PORT": str(config["port"]),
-                "ENVIRONMENT": "prod",
-                "PULUMI_ORG": "scoobyjava-org"
-            })
+            env.update(
+                {
+                    "PORT": str(config["port"]),
+                    "ENVIRONMENT": "prod",
+                    "PULUMI_ORG": "scoobyjava-org",
+                }
+            )
 
             logger.info(f"🚀 Starting {name} on port {config['port']}")
 
             process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env
             )
 
             # Wait for startup
@@ -96,10 +92,7 @@ class ProjectMCPManager:
     async def start_all(self):
         """Start all servers in priority order"""
         # Sort by priority
-        sorted_servers = sorted(
-            self.servers.items(),
-            key=lambda x: x[1]["priority"]
-        )
+        sorted_servers = sorted(self.servers.items(), key=lambda x: x[1]["priority"])
 
         started_count = 0
         total_count = len(self.servers)
@@ -130,7 +123,10 @@ class ProjectMCPManager:
                             data = await response.json()
                             results[name] = {"status": "healthy", "data": data}
                         else:
-                            results[name] = {"status": "unhealthy", "error": f"HTTP {response.status}"}
+                            results[name] = {
+                                "status": "unhealthy",
+                                "error": f"HTTP {response.status}",
+                            }
                 except Exception as e:
                     results[name] = {"status": "offline", "error": str(e)[:50]}
 
@@ -160,6 +156,7 @@ class ProjectMCPManager:
         self.processes.clear()
         logger.info("✅ All servers stopped")
 
+
 async def main():
     manager = ProjectMCPManager()
 
@@ -175,7 +172,9 @@ async def main():
             health = await manager.health_check()
 
             healthy_count = sum(1 for r in health.values() if r["status"] == "healthy")
-            logger.info(f"📊 Health Check: {healthy_count}/{len(health)} servers healthy")
+            logger.info(
+                f"📊 Health Check: {healthy_count}/{len(health)} servers healthy"
+            )
 
             for name, result in health.items():
                 status_emoji = "✅" if result["status"] == "healthy" else "❌"
@@ -187,7 +186,9 @@ async def main():
                         logger.info(f"   Port: {data['port']}")
 
             if healthy_count > 0:
-                logger.info("\n🎉 MCP servers are running! Press Ctrl+C to stop all servers.")
+                logger.info(
+                    "\n🎉 MCP servers are running! Press Ctrl+C to stop all servers."
+                )
 
                 # Keep running until interrupted
                 try:
@@ -196,10 +197,14 @@ async def main():
 
                         # Quick health check every 30 seconds
                         health = await manager.health_check()
-                        healthy_now = sum(1 for r in health.values() if r["status"] == "healthy")
+                        healthy_now = sum(
+                            1 for r in health.values() if r["status"] == "healthy"
+                        )
 
                         if healthy_now != healthy_count:
-                            logger.info(f"📊 Health status changed: {healthy_now}/{len(health)} servers healthy")
+                            logger.info(
+                                f"📊 Health status changed: {healthy_now}/{len(health)} servers healthy"
+                            )
                             healthy_count = healthy_now
 
                 except KeyboardInterrupt:
@@ -215,6 +220,7 @@ async def main():
         logger.error(f"❌ Unexpected error: {e}")
     finally:
         manager.stop_all()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

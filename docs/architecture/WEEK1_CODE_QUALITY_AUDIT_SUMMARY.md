@@ -34,7 +34,7 @@ Import errors: 16
 
 ### Most Imported Modules:
 1. `backend.core.auto_esc_config` - 62 imports
-2. `backend.utils.snowflake_cortex_service` - 33 imports
+2. `backend.utils.modern_stack_cortex_service` - 33 imports
 3. `backend.mcp_servers.types` - 25 imports
 
 ### Orphaned Scripts (`orphaned_scripts_report.json`)

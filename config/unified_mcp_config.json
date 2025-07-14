@@ -1,73 +1,166 @@
 {
-  "version": "5.0-unified",
-  "description": "Unified MCP Configuration with Lambda Labs Integration",
-  "last_updated": "2025-01-03T20:00:00.000Z",
+  "version": "6.0-gpu",
+  "description": "GPU-Accelerated MCP Configuration with Weaviate/Redis/PostgreSQL",
+  "last_updated": "2025-07-12T16:00:00.000Z",
   "lambda_labs": {
-    "host": "165.1.69.44",
+    "host": "192.222.58.232",
+    "gpu_inference_endpoint": "http://lambda-inference-service:8080",
     "docker_swarm": true,
     "health_check_interval": 30
+  },
+  "memory_stack": {
+    "weaviate": {
+      "endpoint": "${WEAVIATE_URL}",
+      "default": "http://weaviate-service:8080"
+    },
+    "redis": {
+      "endpoint": "${REDIS_URL}",
+      "default": "redis://redis-service:6379"
+    },
+    "postgresql": {
+      "endpoint": "${POSTGRESQL_URL}",
+      "default": "postgresql://postgresql-service:5432/sophia_vectors"
+    },
+    "lambda_inference": {
+      "endpoint": "${LAMBDA_INFERENCE_URL}",
+      "default": "http://lambda-inference-service:8080"
+    }
   },
   "mcpServers": {
     "ai_memory": {
       "command": "python3",
       "args": [
-        "mcp-servers/ai_memory/enhanced_ai_memory_server.py"
+        "mcp-servers/ai_memory/server.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "LAMBDA_LABS_HOST": "192.222.58.232",
+        "WEAVIATE_URL": "${WEAVIATE_URL}",
+        "REDIS_URL": "${REDIS_URL}",
+        "POSTGRESQL_URL": "${POSTGRESQL_URL}",
+        "LAMBDA_INFERENCE_URL": "${LAMBDA_INFERENCE_URL}"
       },
-      "port": 9001,
+      "port": 9000,
       "cwd": ".",
       "capabilities": [
         "memory_storage",
         "memory_recall",
-        "semantic_search"
+        "semantic_search",
+        "gpu_embeddings",
+        "hybrid_search"
+      ],
+      "health_endpoint": "/health",
+      "performance": {
+        "max_concurrent_requests": 20,
+        "request_timeout_seconds": 30,
+        "cache_ttl_seconds": 300,
+        "enable_request_batching": true,
+        "gpu_acceleration": true
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 10000,
+        "health_check_interval": 30,
+        "log_level": "INFO",
+        "latency_target_ms": 50
+      }
+    },
+    "gong": {
+      "command": "python3",
+      "args": [
+        "mcp-servers/gong/server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9101",
+        "LAMBDA_LABS_HOST": "192.222.58.232",
+        "WEAVIATE_URL": "${WEAVIATE_URL}",
+        "REDIS_URL": "${REDIS_URL}",
+        "LAMBDA_INFERENCE_URL": "${LAMBDA_INFERENCE_URL}"
+      },
+      "port": 9101,
+      "cwd": ".",
+      "capabilities": [
+        "call_analytics",
+        "transcript_storage",
+        "insight_generation",
+        "memory_integration"
       ],
       "health_endpoint": "/health",
       "performance": {
         "max_concurrent_requests": 10,
         "request_timeout_seconds": 30,
-        "cache_ttl_seconds": 300,
-        "enable_request_batching": true
-      },
-      "monitoring": {
-        "enable_metrics": true,
-        "metrics_port": 10001,
-        "health_check_interval": 30,
-        "log_level": "INFO"
+        "gpu_acceleration": true
       }
     },
-    "snowflake_admin": {
+    "hubspot_unified": {
       "command": "python3",
       "args": [
-        "backend/mcp_servers/snowflake_admin_mcp_server.py"
+        "mcp-servers/hubspot_unified/server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9103",
+        "LAMBDA_LABS_HOST": "192.222.58.232",
+        "WEAVIATE_URL": "${WEAVIATE_URL}",
+        "REDIS_URL": "${REDIS_URL}",
+        "LAMBDA_INFERENCE_URL": "${LAMBDA_INFERENCE_URL}"
+      },
+      "port": 9103,
+      "cwd": ".",
+      "capabilities": [
+        "crm_integration",
+        "contact_management",
+        "deal_tracking",
+        "memory_integration"
+      ],
+      "health_endpoint": "/health"
+    },
+    "slack": {
+      "command": "python3",
+      "args": [
+        "mcp-servers/slack/server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9008",
+        "LAMBDA_LABS_HOST": "192.222.58.232",
+        "WEAVIATE_URL": "${WEAVIATE_URL}",
+        "REDIS_URL": "${REDIS_URL}",
+        "LAMBDA_INFERENCE_URL": "${LAMBDA_INFERENCE_URL}"
+      },
+      "port": 9008,
+      "cwd": ".",
+      "capabilities": [
+        "message_search",
+        "channel_management",
+        "real_time_updates",
+        "memory_integration"
+      ],
+      "health_endpoint": "/health"
+    },
+    "modern_stack_admin": {
+      "command": "python3",
+      "args": [
+        "backend/mcp_servers/modern_stack_admin_mcp_server.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
         "PORT": "9020",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
       "port": 9020,
       "health_endpoint": "/health",
       "capabilities": [
         "schema_sync",
         "query_execution",
-        "performance_optimization"
+        "legacy_support"
       ],
       "performance": {
-        "max_concurrent_requests": 10,
-        "request_timeout_seconds": 30,
-        "cache_ttl_seconds": 300,
-        "enable_request_batching": true
-      },
-      "monitoring": {
-        "enable_metrics": true,
-        "metrics_port": 10020,
-        "health_check_interval": 30,
-        "log_level": "INFO"
+        "max_concurrent_requests": 5,
+        "request_timeout_seconds": 60
       }
     },
     "codacy": {
@@ -78,7 +171,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "3008",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
       "port": 3008,
       "cwd": ".",
@@ -108,10 +201,10 @@
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "PORT": "9004",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "PORT": "9006",
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
-      "port": 9004,
+      "port": 9006,
       "cwd": ".",
       "capabilities": [
         "project_management",
@@ -127,10 +220,10 @@
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "PORT": "9103",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "PORT": "9007",
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
-      "port": 9103,
+      "port": 9007,
       "cwd": ".",
       "capabilities": [
         "repository_management",
@@ -146,10 +239,10 @@
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "PORT": "9100",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "PORT": "9004",
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
-      "port": 9100,
+      "port": 9004,
       "cwd": ".",
       "capabilities": [
         "task_management",
@@ -166,7 +259,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9005",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
       "port": 9005,
       "cwd": ".",
@@ -185,7 +278,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9002",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
       "port": 9002,
       "cwd": ".",
@@ -216,7 +309,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9013",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
       "port": 9013,
       "cwd": ".",
@@ -246,10 +339,10 @@
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "PORT": "9040",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "PORT": "9020",
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
-      "port": 9040,
+      "port": 9020,
       "cwd": ".",
       "capabilities": [
         "instance_management",
@@ -270,70 +363,95 @@
         "log_level": "INFO"
       }
     },
-    "snowflake_cortex": {
+    "modern_stack_cortex": {
       "command": "python3",
       "args": [
-        "mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py"
+        "mcp-servers/modern_stack_cortex/production_modern_stack_cortex_mcp_server.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "PORT": "9030",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
+        "PORT": "9201",
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
-      "port": 9030,
+      "port": 9201,
       "cwd": ".",
       "capabilities": [
         "cortex_ai",
-        "embeddings",
-        "sentiment_analysis"
+        "legacy_embeddings",
+        "migration_support"
       ],
       "health_endpoint": "/health",
       "performance": {
-        "max_concurrent_requests": 10,
-        "request_timeout_seconds": 30,
-        "cache_ttl_seconds": 300,
-        "enable_request_batching": true
-      },
-      "monitoring": {
-        "enable_metrics": true,
-        "metrics_port": 10030,
-        "health_check_interval": 30,
-        "log_level": "INFO"
+        "max_concurrent_requests": 5,
+        "request_timeout_seconds": 60
       }
     },
-    "lambda_labs_serverless": {
+    "figma": {
       "command": "python3",
       "args": [
-        "mcp-servers/lambda_labs_serverless/server.py"
+        "mcp-servers/figma/server.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "PORT": "9025",
-        "LAMBDA_LABS_API_KEY": "${LAMBDA_LABS_API_KEY}"
+        "PORT": "9001",
+        "LAMBDA_LABS_HOST": "192.222.58.232"
       },
-      "port": 9025,
+      "port": 9001,
       "cwd": ".",
       "capabilities": [
-        "serverless_inference",
-        "cost_monitoring"
+        "design_analysis",
+        "component_extraction",
+        "style_management"
       ],
-      "health_endpoint": "/health",
-      "performance": {
-        "max_concurrent_requests": 20,
-        "request_timeout_seconds": 30
+      "health_endpoint": "/health"
+    },
+    "postgres": {
+      "command": "python3",
+      "args": [
+        "mcp-servers/postgres/server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9009",
+        "LAMBDA_LABS_HOST": "192.222.58.232",
+        "POSTGRESQL_URL": "${POSTGRESQL_URL}"
       },
-      "monitoring": {
-        "enable_metrics": true,
-        "metrics_port": 10025,
-        "health_check_interval": 30,
-        "log_level": "INFO"
-      }
+      "port": 9009,
+      "cwd": ".",
+      "capabilities": [
+        "sql_queries",
+        "schema_management",
+        "vector_operations"
+      ],
+      "health_endpoint": "/health"
+    },
+    "openrouter_search": {
+      "command": "python3",
+      "args": [
+        "mcp-servers/openrouter_search/server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9014",
+        "LAMBDA_LABS_HOST": "192.222.58.232"
+      },
+      "port": 9014,
+      "cwd": ".",
+      "capabilities": [
+        "model_search",
+        "pricing_info",
+        "availability_check"
+      ],
+      "health_endpoint": "/health"
     }
   },
   "orchestration": {
     "startup_order": [
-      "snowflake_admin",
       "ai_memory",
+      "postgres",
+      "gong",
+      "hubspot_unified",
+      "slack",
       "codacy",
       "linear",
       "github",
@@ -342,15 +460,46 @@
       "ui_ux_agent",
       "portkey_admin",
       "lambda_labs_cli",
-      "snowflake_cortex"
+      "figma",
+      "openrouter_search",
+      "modern_stack_admin",
+      "modern_stack_cortex"
     ],
     "health_check_timeout": 30,
     "retry_attempts": 3,
-    "retry_delay": 5
+    "retry_delay": 5,
+    "gpu_priority_servers": [
+      "ai_memory",
+      "gong"
+    ]
+  },
+  "capabilities_map": {
+    "data_analysis": ["ai_memory", "postgres", "gong"],
+    "memory_operations": ["ai_memory"],
+    "embeddings": ["ai_memory"],
+    "crm": ["gong", "hubspot_unified"],
+    "project_management": ["linear", "asana", "notion"],
+    "code_analysis": ["codacy", "github"],
+    "communication": ["slack"],
+    "infrastructure": ["lambda_labs_cli"],
+    "ai_routing": ["portkey_admin"],
+    "design": ["figma", "ui_ux_agent"]
   },
   "monitoring": {
-    "prometheus_endpoint": "http://165.1.69.44:9090",
-    "grafana_endpoint": "http://165.1.69.44:3000",
-    "alert_webhook": "https://hooks.slack.com/services/sophia-ai-alerts"
+    "prometheus_endpoint": "http://192.222.58.232:9090",
+    "grafana_endpoint": "http://192.222.58.232:3000",
+    "alert_webhook": "https://hooks.slack.com/services/sophia-ai-alerts",
+    "latency_alerts": {
+      "ai_memory": 50,
+      "gong": 150,
+      "default": 200
+    }
+  },
+  "migration": {
+    "status": "completed",
+    "from": "modern_stack_unified",
+    "to": "gpu_accelerated_stack",
+    "deprecated_servers": ["modern_stack_unified"],
+    "legacy_support": ["modern_stack_admin", "modern_stack_cortex"]
   }
 }

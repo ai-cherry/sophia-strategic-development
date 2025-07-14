@@ -1,4 +1,4 @@
-"""MCP client wrapper for Snowflake Cortex operations."""
+"""MCP client wrapper for Lambda GPU operations."""
 
 import os
 from typing import Any
@@ -9,8 +9,8 @@ from .enums import CortexModel
 from .errors import CortexAuthenticationError, MCPServerError
 
 
-class SnowflakeMCPClient:
-    """Client for interacting with Snowflake MCP server."""
+class ModernStackMCPClient:
+    """Client for interacting with ModernStack MCP server."""
 
     def __init__(
         self,
@@ -26,14 +26,14 @@ class SnowflakeMCPClient:
             timeout: Request timeout in seconds
         """
         self._base_url = base_url or os.getenv(
-            "SNOWFLAKE_MCP_URL", "http://snowflake-mcp:9130"
+            "modern_stack_MCP_URL", "http://modern_stack-mcp:9130"
         )
-        self._token = pat_token or os.getenv("SNOWFLAKE_MCP_PAT")
+        self._token = pat_token or os.getenv("modern_stack_MCP_PAT")
 
         if not self._token:
             raise CortexAuthenticationError(
                 "No PAT token provided for MCP authentication",
-                details={"env_var": "SNOWFLAKE_MCP_PAT"},
+                details={"env_var": "modern_stack_MCP_PAT"},
             )
 
         self._client = httpx.AsyncClient(

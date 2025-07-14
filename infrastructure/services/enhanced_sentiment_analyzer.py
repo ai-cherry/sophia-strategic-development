@@ -4,6 +4,7 @@ Enhanced Sentiment Analyzer for Sophia AI
 Implements advanced multi-channel sentiment analysis with nuanced emotion detection
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -171,7 +172,7 @@ class EnhancedSentimentAnalyzer:
         Perform comprehensive sentiment analysis
         """
         try:
-            # Basic sentiment analysis (placeholder for Snowflake Cortex integration)
+            # Basic sentiment analysis (placeholder for Lambda GPU integration)
             primary_sentiment = await self._analyze_primary_sentiment(text, channel)
 
             # Emotion categorization
@@ -221,8 +222,8 @@ class EnhancedSentimentAnalyzer:
         self, text: str, channel: SentimentChannel
     ) -> float:
         """Analyze primary sentiment score"""
-        # Placeholder for Snowflake Cortex integration
-        # In real implementation, this would call SNOWFLAKE.CORTEX.SENTIMENT()
+        # Placeholder for Lambda GPU integration
+        # In real implementation, this would call self.modern_stack.await self.lambda_gpu.analyze_sentiment()
 
         base_sentiment = 0.0
 
@@ -278,8 +279,8 @@ class EnhancedSentimentAnalyzer:
         self, text: str, channel: SentimentChannel
     ) -> list[EmotionCategory]:
         """Categorize emotions in the text"""
-        # Placeholder for Snowflake Cortex CLASSIFY function
-        # In real implementation, this would call SNOWFLAKE.CORTEX.CLASSIFY()
+        # Placeholder for Lambda GPU CLASSIFY function
+        # In real implementation, this would call await self.lambda_gpu.CLASSIFY()
 
         emotions = []
         text_lower = text.lower()

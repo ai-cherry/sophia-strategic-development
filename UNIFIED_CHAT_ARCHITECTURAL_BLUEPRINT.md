@@ -15,7 +15,7 @@
 ### Data Integration Assessment
 - **PostgreSQL**: Operational data and system configuration
 - **Redis**: Caching and session management
-- **Snowflake**: Business intelligence and analytics data
+- **Modern Stack**: Business intelligence and analytics data
 - **Vector Stores**: Knowledge and embedding storage
 
 ### AI Service Architecture
@@ -36,7 +36,7 @@
 **Enhancement**: Dynamic workflow generation based on query characteristics
 **Impact**: Adaptive problem-solving capabilities
 
-### 3. Enhanced Snowflake Cortex Integration
+### 3. Enhanced Lambda GPU Integration
 **Current State**: Basic data warehouse access
 **Enhancement**: Natural language to advanced analytics
 **Impact**: Executive-grade business intelligence
@@ -61,7 +61,7 @@
 
 ### Phase 2: Intelligence (Weeks 5-8)
 - [ ] Implement dynamic LangGraph orchestration
-- [ ] Enhance Snowflake Cortex integration
+- [ ] Enhance Lambda GPU integration
 - [ ] Optimize Portkey routing and caching
 - [ ] Develop advanced agent coordination
 
@@ -89,7 +89,7 @@
 
 ### Federated Query Layer
 - **Architecture**: Microservice-based with intelligent routing
-- **Data Sources**: PostgreSQL, Redis, Snowflake, Vector Stores, External APIs
+- **Data Sources**: PostgreSQL, Redis, Modern Stack, Vector Stores, External APIs
 - **Query Planning**: Natural language to optimized execution plans
 - **Caching**: Multi-level caching with intelligent invalidation
 

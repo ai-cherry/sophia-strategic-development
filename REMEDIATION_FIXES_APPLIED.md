@@ -19,7 +19,7 @@
 - Fixed /Users/lynnmusil/sophia-main/gong-webhook-service/main.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/dead_code_backup_20250707_142739/configure_dns.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/scripts/estuary_integration_manager.py: 0 replacements
-- Fixed /Users/lynnmusil/sophia-main/scripts/snowflake_config_manager.py: 0 replacements
+- Fixed /Users/lynnmusil/sophia-main/scripts/modern_stack_config_manager.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/scripts/apply_remediation_fixes.py: 24 replacements
 - Fixed /Users/lynnmusil/sophia-main/scripts/performance_validation.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/scripts/validate_foundational_knowledge.py: 0 replacements
@@ -80,9 +80,9 @@
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/torch/testing/_internal/common_device_type.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/torch/testing/_internal/common_utils.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/torch/testing/_internal/distributed/distributed_test.py: 0 replacements
-- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/snowflake/connector/ocsp_snowflake.py: 0 replacements
-- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/snowflake/connector/auth/webbrowser.py: 0 replacements
-- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/snowflake/connector/auth/_http_server.py: 0 replacements
+- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/modern_stack/connector/ocsp_modern_stack.py: 0 replacements
+- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/modern_stack/connector/auth/webbrowser.py: 0 replacements
+- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/modern_stack/connector/auth/_http_server.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/numpy/_core/tests/test_mem_policy.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/transformers/utils/logging.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/transformers/utils/hub.py: 0 replacements
@@ -106,7 +106,7 @@
 - Fixed /Users/lynnmusil/sophia-main/external/anthropic-mcp-python-sdk/examples/clients/simple-auth-client/mcp_simple_auth_client/main.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/mcp-servers/linear/linear_mcp_server.py: 1 replacements
 - Fixed /Users/lynnmusil/sophia-main/mcp-servers/asana/asana_mcp_server.py: 0 replacements
-- Fixed /Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/snowflake_cortex_mcp_server.py: 2 replacements
+- Fixed /Users/lynnmusil/sophia-main/mcp-servers/modern_stack_cortex/modern_stack_cortex_mcp_server.py: 2 replacements
 - Fixed /Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/.venv/lib/python3.11/site-packages/torch/__init__.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/.venv/lib/python3.11/site-packages/torch/_appdirs.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/.venv/lib/python3.11/site-packages/torch/serialization.py: 0 replacements
@@ -153,16 +153,16 @@
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/etl/gong_api_extractor_clean.py: 2 replacements
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/n8n_bridge/main.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/integrations/estuary_flow_manager.py: 2 replacements
-- Fixed /Users/lynnmusil/sophia-main/infrastructure/adapters/snowflake_adapter.py: 0 replacements
+- Fixed /Users/lynnmusil/sophia-main/infrastructure/adapters/modern_stack_adapter.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/adapters/estuary_adapter.py: 1 replacements
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/monitoring/deployment_tracker.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/mcp_servers/gong_v2/config.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/mcp_servers/ai_memory_v2/config.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/mcp_servers/notion_simple/server.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/infrastructure/mcp_servers/base/unified_mcp_base.py: 0 replacements
-- Fixed /Users/lynnmusil/sophia-main/external_backup_20250707_134903/davidamom_snowflake/server.py: 5 replacements
-- Fixed /Users/lynnmusil/sophia-main/external_backup_20250707_134903/dynamike_snowflake/snowflake_mcp_server/main.py: 3 replacements
-- Fixed /Users/lynnmusil/sophia-main/external_backup_20250707_134903/dynamike_snowflake/snowflake_mcp_server/utils/snowflake_conn.py: 0 replacements
+- Fixed /Users/lynnmusil/sophia-main/external_backup_20250707_134903/davidamom_modern_stack/server.py: 5 replacements
+- Fixed /Users/lynnmusil/sophia-main/external_backup_20250707_134903/dynamike_modern_stack/modern_stack_mcp_server/main.py: 3 replacements
+- Fixed /Users/lynnmusil/sophia-main/external_backup_20250707_134903/dynamike_modern_stack/modern_stack_mcp_server/utils/modern_stack_conn.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/external_backup_20250707_134903/anthropic-mcp-python-sdk/examples/clients/simple-auth-client/mcp_simple_auth_client/main.py: 0 replacements
 
 

@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alerts
+  namespace: sophia-ai-prod
+data:
+  alerts.yaml: |
+    groups:
+    - name: sophia-ai-memory-alerts
+      interval: 30s
+      rules:
+      # Weaviate Performance Alerts
+      - alert: WeaviateHighQueryLatency
+        expr: histogram_quantile(0.95, sum(rate(weaviate_query_duration_seconds_bucket[5m])) by (le)) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: weaviate
+        annotations:
+          summary: "Weaviate P95 query latency exceeds 50ms"
+          description: "Weaviate queries are taking {{ $value | humanizeDuration }} at P95 (target: <50ms)"
+          
+      - alert: WeaviateCriticalLatency
+        expr: histogram_quantile(0.99, sum(rate(weaviate_query_duration_seconds_bucket[5m])) by (le)) > 0.2
+        for: 2m
+        labels:
+          severity: critical
+          component: weaviate
+        annotations:
+          summary: "Weaviate P99 query latency exceeds 200ms"
+          description: "Weaviate experiencing severe latency: {{ $value | humanizeDuration }} at P99"
+      
+      # ETL Pipeline Alerts
+      - alert: ETLPipelineHighLatency
+        expr: etl_pipeline_duration_seconds{quantile="0.95"} > 0.15
+        for: 5m
+        labels:
+          severity: warning
+          component: etl
+        annotations:
+          summary: "ETL pipeline latency exceeds 150ms target"
+          description: "ETL processing at {{ $value | humanizeDuration }} (target: <150ms)"
+      
+      - alert: ETLThroughputLow
+        expr: rate(etl_records_processed_total[5m]) < 100
+        for: 10m
+        labels:
+          severity: warning
+          component: etl
+        annotations:
+          summary: "ETL throughput below 100 records/sec"
+          description: "Current throughput: {{ $value }} records/sec"
+      
+      # GPU/Lambda Alerts
+      - alert: GPUMemoryHigh
+        expr: (gpu_memory_allocated_gb / gpu_memory_total_gb) > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          component: gpu
+        annotations:
+          summary: "GPU memory usage critically high"
+          description: "GPU memory at {{ $value | humanizePercentage }} - risk of OOM"
+      
+      - alert: LambdaInferenceDown
+        expr: up{job="lambda-inference"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: inference
+        annotations:
+          summary: "Lambda inference service is down"
+          description: "GPU inference service unavailable - embeddings will fallback to Portkey"
+      
+      - alert: LambdaInferenceHighLatency
+        expr: histogram_quantile(0.95, rate(lambda_inference_request_duration_seconds_bucket[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: inference
+        annotations:
+          summary: "Lambda inference latency exceeds 50ms"
+          description: "Embedding generation at {{ $value | humanizeDuration }} (target: <50ms)"
+      
+      # Redis Cache Alerts
+      - alert: RedisCacheHitRateLow
+        expr: (rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m]))) < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis cache hit rate below 80%"
+          description: "Cache hit rate: {{ $value | humanizePercentage }} - consider cache warming"
+      
+      - alert: RedisMemoryHigh
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis memory usage critically high"
+          description: "Redis memory at {{ $value | humanizePercentage }} of max"
+      
+      # PostgreSQL pgvector Alerts
+      - alert: PostgreSQLConnectionsHigh
+        expr: (pg_stat_database_numbackends / pg_settings_max_connections) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: postgresql
+        annotations:
+          summary: "PostgreSQL connection pool nearly exhausted"
+          description: "Using {{ $value | humanizePercentage }} of max connections"
+      
+      - alert: PgvectorIndexingSlowL
+        expr: rate(pgvector_index_build_duration_seconds_sum[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: pgvector
+        annotations:
+          summary: "pgvector index builds taking too long"
+          description: "Index builds averaging {{ $value }}s - consider index tuning"
+      
+      # End-to-End Alerts
+      - alert: KnowledgeSearchSlow
+        expr: histogram_quantile(0.95, rate(knowledge_search_duration_seconds_bucket[5m])) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "Knowledge search API exceeding 200ms target"
+          description: "Search latency at {{ $value | humanizeDuration }} P95"
+      
+      - alert: MemoryStackUnhealthy
+        expr: (up{job=~"weaviate|redis|postgresql|lambda-inference"} == 0) > 0
+        for: 2m
+        labels:
+          severity: critical
+          component: stack
+        annotations:
+          summary: "Memory stack component down"
+          description: "One or more memory stack components are unavailable"
+    
+    # n8n Workflow Monitoring
+    - name: n8n-workflow-alerts
+      interval: 30s
+      rules:
+      - alert: N8nWorkflowFailureRate
+        expr: (rate(n8n_workflow_failures_total[5m]) / rate(n8n_workflow_executions_total[5m])) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+          component: n8n
+        annotations:
+          summary: "n8n workflow failure rate above 5%"
+          description: "Workflow failure rate: {{ $value | humanizePercentage }}"
+      
+      - alert: N8nWorkflowQueueBacklog
+        expr: n8n_workflow_queue_size > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: n8n
+        annotations:
+          summary: "n8n workflow queue backlog growing"
+          description: "{{ $value }} workflows queued for processing" 

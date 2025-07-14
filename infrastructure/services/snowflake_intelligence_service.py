@@ -1,5 +1,6 @@
-# File: backend/services/snowflake_intelligence_service.py
+# File: backend/services/modern_stack_intelligence_service.py
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import json
 import logging
 from dataclasses import dataclass
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class IntelligenceQuery:
-    """Structure for Snowflake Intelligence queries"""
+    """Structure for ModernStack Intelligence queries"""
 
     query_text: str
     user_context: dict[str, Any]
@@ -25,7 +26,7 @@ class IntelligenceQuery:
 
 @dataclass
 class IntelligenceResponse:
-    """Structure for Snowflake Intelligence responses"""
+    """Structure for ModernStack Intelligence responses"""
 
     answer: str
     sources_used: list[str]
@@ -35,9 +36,9 @@ class IntelligenceResponse:
     follow_up_suggestions: list[str]
 
 
-class SnowflakeIntelligenceService:
+class ModernStackIntelligenceService:
     """
-    Snowflake Intelligence integration service.
+    ModernStack Intelligence integration service.
     Provides natural language query capabilities with cross-source reasoning.
     """
 
@@ -49,7 +50,7 @@ class SnowflakeIntelligenceService:
     async def process_natural_language_query(
         self, query: IntelligenceQuery
     ) -> IntelligenceResponse:
-        """Process natural language query using Snowflake Intelligence"""
+        """Process natural language query using ModernStack Intelligence"""
         try:
             query_analysis = await self._analyze_query_intent(query.query_text)
             structured_data = await self._retrieve_structured_data(
@@ -91,7 +92,7 @@ class SnowflakeIntelligenceService:
             )
 
     async def _analyze_query_intent(self, query_text: str) -> dict[str, Any]:
-        """Analyze query intent using Snowflake Cortex"""
+        """Analyze query intent using Lambda GPU"""
         analysis_prompt = f"""
         Analyze this business intelligence query and determine:
         1. Primary intent (metrics, trends, comparisons, insights, etc.)
@@ -106,7 +107,7 @@ class SnowflakeIntelligenceService:
         """
 
         cortex_query = (
-            "SELECT SNOWFLAKE.CORTEX.COMPLETE('mixtral-8x7b', %s) as analysis"
+            "SELECT self.modern_stack.await self.lambda_gpu.complete('mixtral-8x7b', %s) as analysis"
         )
 
         try:
@@ -177,7 +178,7 @@ class SnowflakeIntelligenceService:
         # Search Slack messages
         slack_search_sql = """
         SELECT message_text, channel_name, timestamp, user_id,
-               VECTOR_COSINE_SIMILARITY(embedding, SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', %s)) as similarity
+               VECTOR_COSINE_SIMILARITY(embedding, self.modern_stack.await self.lambda_gpu.embed_text('e5-base-v2', %s)) as similarity
         FROM SLACK_DATA.MESSAGES_VECTORIZED
         ORDER BY similarity DESC
         LIMIT 10;
@@ -189,7 +190,7 @@ class SnowflakeIntelligenceService:
         # Search Gong transcripts
         gong_search_sql = """
         SELECT transcript_segment, call_id, call_date, participants, sentiment_score,
-               VECTOR_COSINE_SIMILARITY(embedding, SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', %s)) as similarity
+               VECTOR_COSINE_SIMILARITY(embedding, self.modern_stack.await self.lambda_gpu.embed_text('e5-base-v2', %s)) as similarity
         FROM GONG_DATA.CALL_TRANSCRIPTS_VECTORIZED
         ORDER BY similarity DESC
         LIMIT 10;
@@ -203,7 +204,7 @@ class SnowflakeIntelligenceService:
     async def _synthesize_response(
         self, query: str, structured: dict, unstructured: dict, context: dict
     ) -> dict[str, Any]:
-        """Synthesize comprehensive response using Snowflake Cortex"""
+        """Synthesize comprehensive response using Lambda GPU"""
 
         synthesis_context = {
             "query": query,
@@ -235,7 +236,7 @@ class SnowflakeIntelligenceService:
         """
 
         cortex_query = (
-            "SELECT SNOWFLAKE.CORTEX.COMPLETE('mixtral-8x7b', %s) as synthesis"
+            "SELECT self.modern_stack.await self.lambda_gpu.complete('mixtral-8x7b', %s) as synthesis"
         )
 
         try:

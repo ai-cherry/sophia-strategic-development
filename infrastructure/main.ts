@@ -1,21 +1,22 @@
 import * as pulumi from "@pulumi/pulumi";
 import {
-    lambdaLabsInstances,
-    snowflakeDatabase,
-    estuaryFlows,
-    githubRepos,
-    portkeyProject
-} from "./index";
+    weaviateEndpoint,
+    redisEndpoint,
+    postgresqlEndpoint,
+    lambdaInferenceEndpoint,
+    stackInfo
+} from "./pulumi/index";
 
-// Export the infrastructure outputs
-export const lambdaLabsInstanceIPs = lambdaLabsInstances.apply(instances =>
-    instances.map(i => ({ name: i.name, ip: i.publicIp }))
-);
-export const snowflakeDatabaseName = snowflakeDatabase;
-export const estuaryFlowNames = estuaryFlows.apply(flows =>
-    flows.map(f => f.name)
-);
-export const githubRepoNames = githubRepos.apply(repos =>
-    repos.map(r => r.name)
-);
-export const portkeyProjectName = portkeyProject;
+// Export the new infrastructure outputs
+export const weaviateUrl = weaviateEndpoint;
+export const redisUrl = redisEndpoint;
+export const postgresqlUrl = postgresqlEndpoint;
+export const lambdaInferenceUrl = lambdaInferenceEndpoint;
+export const deploymentInfo = stackInfo;
+
+// Log deployment info
+pulumi.log.info("Sophia AI Memory Architecture deployed:");
+pulumi.log.info(`- Weaviate: ${weaviateEndpoint}`);
+pulumi.log.info(`- Redis: ${redisEndpoint}`);
+pulumi.log.info(`- PostgreSQL: ${postgresqlEndpoint}`);
+pulumi.log.info(`- Lambda Inference: ${lambdaInferenceEndpoint}`);

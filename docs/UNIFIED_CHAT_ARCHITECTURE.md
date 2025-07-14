@@ -122,7 +122,7 @@ graph TB
             MEM[Memory Health]
         end
 
-        SF[Snowflake<br/>Data Warehouse]
+        SF[Modern Stack<br/>Data Warehouse]
         AI[AI Memory]
     end
 

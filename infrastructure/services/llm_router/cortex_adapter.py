@@ -1,6 +1,6 @@
 """
-Snowflake Cortex Adapter
-Thin async wrapper for Snowflake Cortex operations
+Lambda GPU Adapter
+Thin async wrapper for Lambda GPU operations
 """
 
 import asyncio
@@ -9,8 +9,8 @@ from collections.abc import AsyncGenerator
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-import snowflake.connector
-from snowflake.connector import DictCursor
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
 
 from backend.core.auto_esc_config import get_config_value
 from shared.utils.custom_logger import logger
@@ -21,7 +21,7 @@ from .metrics import llm_errors_total, llm_tokens_total
 
 class CortexAdapter:
     """
-    Adapter for Snowflake Cortex AI functions
+    Adapter for Lambda GPU AI functions
     Provides async interface for SQL generation and data analysis
     """
 
@@ -29,16 +29,16 @@ class CortexAdapter:
         self.executor = ThreadPoolExecutor(max_workers=5)
         self._connection = None
         self._connection_params = {
-            "user": get_config_value("snowflake_user"),
-            "password": get_config_value("snowflake_password"),
-            "account": get_config_value("snowflake_account"),
-            "warehouse": get_config_value("snowflake_warehouse", "COMPUTE_WH"),
-            "database": get_config_value("snowflake_database", "SOPHIA_AI"),
-            "schema": get_config_value("snowflake_schema", "CORE"),
+            "user": get_config_value("modern_stack_user"),
+            "password": get_config_value("postgres_password"),
+            "account": get_config_value("postgres_host"),
+            "warehouse": get_config_value("postgres_database", "COMPUTE_WH"),
+            "database": get_config_value("postgres_database", "SOPHIA_AI"),
+            "schema": get_config_value("postgres_schema", "CORE"),
         }
 
     async def _ensure_connection(self):
-        """Ensure Snowflake connection is established"""
+        """Ensure ModernStack connection is established"""
         if not self._connection or self._connection.is_closed():
             loop = asyncio.get_event_loop()
             self._connection = await loop.run_in_executor(
@@ -46,11 +46,11 @@ class CortexAdapter:
             )
 
     def _create_connection(self):
-        """Create Snowflake connection (sync)"""
+        """Create ModernStack connection (sync)"""
         try:
-            return snowflake.connector.connect(**self._connection_params)
+            return self.modern_stack_connection(**self._connection_params)
         except Exception as e:
-            logger.error(f"Failed to connect to Snowflake: {e}")
+            logger.error(f"Failed to connect to ModernStack: {e}")
             raise
 
     async def complete(
@@ -62,7 +62,7 @@ class CortexAdapter:
         **kwargs,
     ) -> AsyncGenerator[str, None]:
         """
-        Complete using Snowflake Cortex
+        Complete using Lambda GPU
 
         Args:
             prompt: The prompt to complete
@@ -86,9 +86,9 @@ class CortexAdapter:
                 yield result
 
         except Exception as e:
-            logger.error(f"Snowflake Cortex error: {e}")
+            logger.error(f"Lambda GPU error: {e}")
             llm_errors_total.labels(
-                provider="snowflake", model="cortex", error_type=type(e).__name__
+                provider="modern_stack", model="cortex", error_type=type(e).__name__
             ).inc()
             raise
 
@@ -101,10 +101,10 @@ class CortexAdapter:
         # Build appropriate query based on task
         if task == TaskType.SQL_GENERATION:
             query = """
-            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+            SELECT self.modern_stack.await self.lambda_gpu.complete(
                 'mistral-large',
                 CONCAT(
-                    'You are a SQL expert. Generate optimized Snowflake SQL based on this request. ',
+                    'You are a SQL expert. Generate optimized ModernStack SQL based on this request. ',
                     'Return only the SQL query without explanation: ',
                     %s
                 ),
@@ -113,7 +113,7 @@ class CortexAdapter:
             """
         else:
             query = """
-            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+            SELECT self.modern_stack.await self.lambda_gpu.complete(
                 'mistral-large',
                 %s,
                 {'temperature': %s, 'max_tokens': %s}
@@ -130,23 +130,23 @@ class CortexAdapter:
             output_tokens = len(result["response"].split())
 
             llm_tokens_total.labels(
-                provider="snowflake", model="mistral-large", direction="input"
+                provider="modern_stack", model="mistral-large", direction="input"
             ).inc(input_tokens)
 
             llm_tokens_total.labels(
-                provider="snowflake", model="mistral-large", direction="output"
+                provider="modern_stack", model="mistral-large", direction="output"
             ).inc(output_tokens)
 
             return result["response"]
         else:
-            return "Error: No response from Snowflake Cortex"
+            return "Error: No response from Lambda GPU"
 
     async def _generate_embeddings(self, text: str) -> list[float]:
         """Generate embeddings using Cortex"""
         loop = asyncio.get_event_loop()
 
         query = """
-        SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', %s) as embedding
+        SELECT self.modern_stack.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
         """
 
         result = await loop.run_in_executor(
@@ -159,7 +159,7 @@ class CortexAdapter:
 
             # Track token usage
             llm_tokens_total.labels(
-                provider="snowflake", model="e5-base-v2", direction="input"
+                provider="modern_stack", model="e5-base-v2", direction="input"
             ).inc(len(text.split()))
 
             return embedding_data
@@ -167,7 +167,7 @@ class CortexAdapter:
             return []
 
     def _execute_query(self, query: str, params: tuple) -> dict[str, Any] | None:
-        """Execute Snowflake query (sync)"""
+        """Execute ModernStack query (sync)"""
         cursor = None
         try:
             cursor = self._connection.cursor(DictCursor)
@@ -208,7 +208,7 @@ class CortexAdapter:
         ]
 
     async def health_check(self) -> dict[str, Any]:
-        """Check Snowflake Cortex health"""
+        """Check Lambda GPU health"""
         try:
             await self._ensure_connection()
 
@@ -227,7 +227,7 @@ class CortexAdapter:
             return {"status": "unhealthy", "error": str(e), "connected": False}
 
     async def close(self):
-        """Close Snowflake connection"""
+        """Close ModernStack connection"""
         if self._connection and not self._connection.is_closed():
             self._connection.close()
         self.executor.shutdown(wait=True)

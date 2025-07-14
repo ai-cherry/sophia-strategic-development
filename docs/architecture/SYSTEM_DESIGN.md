@@ -42,7 +42,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                      Data Layer                              │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │Snowflake │  │   Mem0   │  │  Redis   │  │PostgreSQL│   │
+│  │Modern Stack │  │   Mem0   │  │  Redis   │  │PostgreSQL│   │
 │  │ Cortex   │  │  Memory  │  │Event Bus │  │Metadata  │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
 └─────────────────────────────────────────────────────────────┘
@@ -94,7 +94,7 @@
   elif intent == "code":
       return "llama3-70b"  # Powerful
   else:
-      return "snowflake-arctic"  # Most capable
+      return "modern_stack-arctic"  # Most capable
   ```
 
 ### Orchestration Layer
@@ -130,7 +130,7 @@
 
 ### Data Layer
 
-#### Snowflake Integration
+#### Modern Stack Integration
 - **Cortex Functions**:
   - `COMPLETE()` - LLM completions
   - `SUMMARIZE()` - Text summarization
@@ -139,7 +139,7 @@
 
 #### Mem0 Memory System
 - **Storage**: PostgreSQL with pgvector
-- **Embedding**: Snowflake Arctic Embed
+- **Embedding**: Modern Stack Arctic Embed
 - **Features**:
   - Conversation history
   - Decision tracking
@@ -177,14 +177,14 @@
 ## Security Architecture
 
 ### Authentication & Authorization
-- OAuth2 via Snowflake
+- OAuth2 via Modern Stack
 - Role-based access control
 - Session management in Redis
 
 ### Data Security
 - All data encrypted at rest
 - TLS for data in transit
-- No data leaves Snowflake perimeter
+- No data leaves Modern Stack perimeter
 - Audit logging for compliance
 
 ### AI Safety

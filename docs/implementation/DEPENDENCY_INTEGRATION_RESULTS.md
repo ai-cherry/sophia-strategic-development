@@ -112,7 +112,7 @@
    - Real-time result visualization
    - Mobile-responsive interface
 
-5. **Snowflake Cortex Integration**
+5. **Lambda GPU Integration**
    - AI_FILTER, AI_CLASSIFY, AI_AGG, AI_SIMILARITY functions
    - Enhanced semantic search capabilities
    - Business intelligence integration
@@ -173,7 +173,7 @@
 - `backend/services/enhanced_search_service.py` - Core search service (900+ lines)
 - `backend/api/enhanced_search_routes.py` - API endpoints (420+ lines)
 - `frontend/src/components/enhanced-search/EnhancedSearchInterface.tsx` - UI component (400+ lines)
-- `backend/services/enhanced_snowflake_cortex_service.py` - AI integration (760+ lines)
+- `backend/services/enhanced_modern_stack_cortex_service.py` - AI integration (760+ lines)
 
 ### **3. Validation & Testing**
 - `scripts/test_enhanced_search_dependencies.py` - Comprehensive test suite (200+ lines)
@@ -219,7 +219,7 @@
 2. **Activate Enhanced Features**
    - Multi-tier search interface
    - Real-time streaming capabilities
-   - Snowflake Cortex AI integration
+   - Lambda GPU AI integration
    - Executive dashboard integration
 
 3. **Monitor Performance**

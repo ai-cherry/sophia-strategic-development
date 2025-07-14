@@ -11,22 +11,34 @@ INSTANCES = {
     "ai-core": "192.222.58.232",
     "mcp-servers": "104.171.202.117",
     "data-pipeline": "104.171.202.134",
-    "development": "155.248.194.183"
+    "development": "155.248.194.183",
 }
+
 
 def check_instance(name, ip):
     """Check instance status"""
     try:
         # Test SSH
-        ssh_cmd = f"ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no ubuntu@{ip} 'echo OK'"
-        ssh_result = subprocess.run(ssh_cmd, check=False, shell=True, capture_output=True, text=True, timeout=10)
+        ssh_cmd = (
+            f"ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no ubuntu@{ip} 'echo OK'"
+        )
+        ssh_result = subprocess.run(
+            ssh_cmd, check=False, shell=True, capture_output=True, text=True, timeout=10
+        )
 
         if ssh_result.returncode != 0:
             return f"❌ {name} ({ip}): SSH FAILED"
 
         # Test HTTP service
         http_cmd = f"ssh ubuntu@{ip} 'curl -s -m 5 http://localhost:8000/health || echo \"NO_SERVICE\"'"
-        http_result = subprocess.run(http_cmd, check=False, shell=True, capture_output=True, text=True, timeout=15)
+        http_result = subprocess.run(
+            http_cmd,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
 
         if "healthy" in http_result.stdout or "OK" in http_result.stdout:
             return f"✅ {name} ({ip}): OPERATIONAL"
@@ -37,6 +49,7 @@ def check_instance(name, ip):
 
     except Exception as e:
         return f"❌ {name} ({ip}): ERROR - {str(e)[:30]}"
+
 
 def main():
     """Check all instances"""
@@ -61,6 +74,7 @@ def main():
         print("🔄 DEPLOYMENT IN PROGRESS...")
     else:
         print("⚠️ DEPLOYMENT ISSUES DETECTED")
+
 
 if __name__ == "__main__":
     main()

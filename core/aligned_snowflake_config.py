@@ -1,6 +1,6 @@
 """
-Aligned Snowflake Configuration for Sophia AI
-Uses the actual Snowflake setup created during alignment process
+# REMOVED: ModernStack dependencyuration for Sophia AI
+Uses the actual ModernStack setup created during alignment process
 Implements secure authentication with the provided PAT token
 """
 
@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class SnowflakeCredentials:
-    """Aligned Snowflake credentials from actual setup"""
+class ModernStackCredentials:
+    """Aligned ModernStack credentials from actual setup"""
 
     account: str = "ZNB04675.us-east-1"
     user: str = "SCOOBYJAVA15"
@@ -26,7 +26,7 @@ class SnowflakeCredentials:
 
 
 @dataclass
-class SnowflakeSchemas:
+class ModernStackSchemas:
     """Aligned schema configuration from actual setup"""
 
     raw_data: str = "RAW_DATA"
@@ -38,25 +38,25 @@ class SnowflakeSchemas:
     monitoring: str = "MONITORING"
 
 
-class AlignedSnowflakeConfig:
+# REMOVED: ModernStack dependency:
     """
-    Aligned Snowflake configuration manager
-    Uses the actual Snowflake setup created during alignment
+# REMOVED: ModernStack dependencyuration manager
+    Uses the actual ModernStack setup created during alignment
     Provides secure access to all configured schemas and tables
     """
 
     def __init__(self):
-        self._credentials = SnowflakeCredentials()
-        self._schemas = SnowflakeSchemas()
+        self._credentials = ModernStackCredentials()
+        self._schemas = ModernStackSchemas()
         self._connection_params: dict | None = None
         self._validate_setup()
 
     def _validate_setup(self):
-        """Validate the Snowflake setup alignment"""
+        """Validate the ModernStack setup alignment"""
         try:
             # Check if connection info file exists
             connection_info_path = (
-                "/home/ubuntu/sophia-project/snowflake_connection_info.json"
+                "/home/ubuntu/sophia-project/modern_stack_connection_info.json"
             )
             if os.path.exists(connection_info_path):
                 import json
@@ -66,7 +66,7 @@ class AlignedSnowflakeConfig:
 
                 # Validate alignment
                 if connection_info.get("account") == self._credentials.account:
-                    logger.info("✅ Snowflake configuration aligned with actual setup")
+# REMOVED: ModernStack dependencyuration aligned with actual setup")
                 else:
                     logger.warning("⚠️ Configuration mismatch detected")
             else:
@@ -78,7 +78,7 @@ class AlignedSnowflakeConfig:
             logger.warning(f"⚠️ Setup validation failed: {e}")
 
     def get_connection_params(self) -> dict:
-        """Get connection parameters for Snowflake"""
+        """Get connection parameters for ModernStack"""
         if not self._connection_params:
             self._connection_params = {
                 "account": self._credentials.account,
@@ -159,11 +159,11 @@ class AlignedSnowflakeConfig:
         return {
             "schema": self._schemas.cortex_ai,
             "functions": {
-                "complete": "SNOWFLAKE.CORTEX.COMPLETE",
-                "sentiment": "SNOWFLAKE.CORTEX.SENTIMENT",
-                "extract_answer": "SNOWFLAKE.CORTEX.EXTRACT_ANSWER",
-                "summarize": "SNOWFLAKE.CORTEX.SUMMARIZE",
-                "translate": "SNOWFLAKE.CORTEX.TRANSLATE",
+                "complete": "self.modern_stack.await self.lambda_gpu.complete",
+                "sentiment": "self.modern_stack.await self.lambda_gpu.analyze_sentiment",
+                "extract_answer": "await self.lambda_gpu.EXTRACT_ANSWER",
+                "summarize": "self.modern_stack.await self.lambda_gpu.summarize",
+                "translate": "self.modern_stack.await self.lambda_gpu.translate",
             },
             "models": {
                 "default": "mistral-7b",
@@ -181,28 +181,28 @@ class AlignedSnowflakeConfig:
         }
 
     def validate_connection(self) -> bool:
-        """Validate Snowflake connection"""
+        """Validate ModernStack connection"""
         try:
-            import snowflake.connector
+            # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
-            conn = snowflake.connector.connect(**self.get_connection_params())
+            conn = self.modern_stack_connection(**self.get_connection_params())
             cursor = conn.cursor()
             cursor.execute("SELECT CURRENT_VERSION()")
             version = cursor.fetchone()[0]
             cursor.close()
             conn.close()
 
-            logger.info(f"✅ Snowflake connection validated. Version: {version}")
+            logger.info(f"✅ ModernStack connection validated. Version: {version}")
             return True
 
         except Exception as e:
-            logger.exception(f"❌ Snowflake connection validation failed: {e}")
+            logger.exception(f"❌ ModernStack connection validation failed: {e}")
             return False
 
     def get_estuary_materialization_config(self) -> dict:
-        """Get Estuary Flow materialization configuration for Snowflake"""
+        """Get Estuary Flow materialization configuration for ModernStack"""
         return {
-            "connector_image": "ghcr.io/estuary/materialize-snowflake:dev",
+            "connector_image": "ghcr.io/estuary/materialize-modern_stack:dev",
             "config": {
                 "account": self._credentials.account,
                 "user": self._credentials.user,
@@ -239,33 +239,33 @@ class AlignedSnowflakeConfig:
 
 
 # Global instance for easy access
-aligned_snowflake_config = AlignedSnowflakeConfig()
+# REMOVED: ModernStack dependency()
 
 
 # Convenience functions
-def get_snowflake_connection():
-    """Get Snowflake connection using aligned configuration"""
-    import snowflake.connector
+def get_modern_stack_connection():
+# REMOVED: ModernStack dependencyuration"""
+    # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
-    return snowflake.connector.connect(
-        **aligned_snowflake_config.get_connection_params()
+    return self.modern_stack_connection(
+# REMOVED: ModernStack dependency.get_connection_params()
     )
 
 
-def get_snowflake_connection_for_schema(schema_name: str):
-    """Get Snowflake connection for specific schema"""
-    import snowflake.connector
+def get_modern_stack_connection_for_schema(schema_name: str):
+    """Get ModernStack connection for specific schema"""
+    # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
-    return snowflake.connector.connect(
-        **aligned_snowflake_config.get_connection_params_for_schema(schema_name)
+    return self.modern_stack_connection(
+# REMOVED: ModernStack dependency.get_connection_params_for_schema(schema_name)
     )
 
 
-def execute_snowflake_query(query: str, schema: str = "estuary_flow"):
-    """Execute query in Snowflake with aligned configuration"""
-    from snowflake.connector import DictCursor
+def execute_# REMOVED: ModernStack dependency "estuary_flow"):
+# REMOVED: ModernStack dependencyuration"""
+    # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
 
-    conn = get_snowflake_connection_for_schema(schema)
+    conn = get_modern_stack_connection_for_schema(schema)
     try:
         cursor = conn.cursor(DictCursor)
         cursor.execute(query)
@@ -276,18 +276,18 @@ def execute_snowflake_query(query: str, schema: str = "estuary_flow"):
         conn.close()
 
 
-def test_snowflake_cortex(prompt: str, model: str = "mistral-7b"):
-    """Test Snowflake Cortex AI function"""
+def test_# REMOVED: ModernStack dependency "mistral-7b"):
+    """Test Lambda GPU AI function"""
     query = f"""
-    SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{prompt}') as AI_RESPONSE
+    SELECT self.modern_stack.await self.lambda_gpu.complete('{model}', '{prompt}') as AI_RESPONSE
     """
-    result = execute_snowflake_query(query, "cortex_ai")
+    result = execute_modern_stack_query(query, "cortex_ai")
     return result[0]["AI_RESPONSE"] if result else None
 
 
 if __name__ == "__main__":
     # Test the configuration
-    config = AlignedSnowflakeConfig()
+# REMOVED: ModernStack dependency()
 
     # Test connection
     if config.validate_connection():
@@ -301,7 +301,7 @@ if __name__ == "__main__":
 
         # Test Cortex AI
         with contextlib.suppress(Exception):
-            response = test_snowflake_cortex("What is Estuary Flow?")
+            response = test_modern_stack_cortex("What is Estuary Flow?")
 
     else:
         pass

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Snowflake Cortex Enhanced Integration
+Lambda GPU Enhanced Integration
 Data-local AI processing with business intelligence focus
 """
 
@@ -10,21 +10,21 @@ from datetime import datetime
 from typing import Any
 
 from core.config_manager import ConfigManager
-from core.services.snowflake_cortex_service import SnowflakeCortexService
+from core.services.modern_stack_cortex_service import ModernStackCortexService
 from shared.utils.custom_logger import setup_logger
 
-logger = setup_logger("snowflake_cortex_enhanced")
+logger = setup_logger("modern_stack_cortex_enhanced")
 
 
-class SnowflakeCortexEnhanced:
+class ModernStackCortexEnhanced:
     """
-    Enhanced Snowflake Cortex integration for data-local AI processing
+    Enhanced Lambda GPU integration for data-local AI processing
     Focuses on business intelligence with data locality advantages
     """
 
     def __init__(self):
         self.config = ConfigManager()
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = UnifiedMemoryServiceV2()
 
         # Cortex capabilities configuration
         self.cortex_capabilities = {
@@ -45,12 +45,12 @@ class SnowflakeCortexEnhanced:
                     "hybrid_search",
                     "faceted_search",
                 ],
-                "integration": "Native Snowflake integration",
+                "integration": "Native ModernStack integration",
                 "performance": "Sub-100ms for most queries",
             },
             "cortex_translate": {
                 "languages": "100+ languages supported",
-                "data_security": "Translation within Snowflake boundary",
+                "data_security": "Translation within ModernStack boundary",
                 "use_cases": ["multi-language support", "global operations"],
             },
             "cortex_sentiment": {
@@ -99,7 +99,7 @@ class SnowflakeCortexEnhanced:
         self.cache_ttl = 300  # 5 minutes for business data
 
         logger.info(
-            "Snowflake Cortex Enhanced initialized with data-local AI capabilities"
+            "Lambda GPU Enhanced initialized with data-local AI capabilities"
         )
 
     async def execute(
@@ -109,7 +109,7 @@ class SnowflakeCortexEnhanced:
         settings: dict[str, Any] | None = None,
     ) -> str:
         """
-        Execute query through Snowflake Cortex with data locality optimization
+        Execute query through Lambda GPU with data locality optimization
         """
         start_time = time.time()
 
@@ -358,7 +358,7 @@ class SnowflakeCortexEnhanced:
         return sql_query.strip()
 
     async def _execute_sql_query(self, sql_query: str) -> list[dict[str, Any]]:
-        """Execute SQL query in Snowflake"""
+        """Execute SQL query in ModernStack"""
         # This would execute the actual query
         # For now, returning mock data
         logger.info(f"Would execute SQL: {sql_query}")

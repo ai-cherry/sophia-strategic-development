@@ -1,5 +1,5 @@
 """
-Secure Snowflake Configuration for Sophia AI
+# REMOVED: ModernStack dependencyuration for Sophia AI
 Implements programmatic authentication using service user and secure token
 Replaces hardcoded credentials with ESC-managed secure configuration
 """
@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class SnowflakeCredentials:
-    """Secure Snowflake credentials using programmatic authentication"""
+class ModernStackCredentials:
+    """Secure ModernStack credentials using programmatic authentication"""
 
     account: str
     user: str
@@ -25,19 +25,19 @@ class SnowflakeCredentials:
     schema: str
 
 
-class SecureSnowflakeConfig:
+# REMOVED: ModernStack dependency:
     """
-    Secure Snowflake configuration manager
+# REMOVED: ModernStack dependencyuration manager
     Uses programmatic service user authentication with secure token
     """
 
     def __init__(self):
-        self._credentials: SnowflakeCredentials | None = None
+        self._credentials: ModernStackCredentials | None = None
         self._validate_environment()
 
     def _validate_environment(self):
         """Validate that required environment variables are available"""
-        required_vars = ["snowflake_account", "sophia_ai_token"]
+        required_vars = ["postgres_host", "sophia_ai_token"]
 
         missing_vars = []
         for var in required_vars:
@@ -47,26 +47,26 @@ class SecureSnowflakeConfig:
         if missing_vars:
             logger.error(f"Missing required environment variables: {missing_vars}")
             raise ValueError(
-                f"Missing required Snowflake configuration: {missing_vars}"
+# REMOVED: ModernStack dependencyuration: {missing_vars}"
             )
 
     @property
-    def credentials(self) -> SnowflakeCredentials:
-        """Get secure Snowflake credentials"""
+    def credentials(self) -> ModernStackCredentials:
+        """Get secure ModernStack credentials"""
         if self._credentials is None:
-            self._credentials = SnowflakeCredentials(
-                account=get_config_value("snowflake_account"),
+            self._credentials = ModernStackCredentials(
+                account=get_config_value("postgres_host"),
                 user="SCOOBYJAVA15",  # From knowledge base
                 password=get_config_value("sophia_ai_token"),  # Secure token
-                role=get_config_value("snowflake_role", "SYSADMIN"),
-                warehouse=get_config_value("snowflake_warehouse", "SOPHIA_AI_WH"),
-                database=get_config_value("snowflake_database", "SOPHIA_AI"),
-                schema=get_config_value("snowflake_schema", "PUBLIC"),
+                role=get_config_value("modern_stack_role", "SYSADMIN"),
+                warehouse=get_config_value("postgres_database", "SOPHIA_AI_WH"),
+                database=get_config_value("postgres_database", "SOPHIA_AI"),
+                schema=get_config_value("postgres_schema", "PUBLIC"),
             )
         return self._credentials
 
     def get_connection_params(self) -> dict:
-        """Get connection parameters for Snowflake connector"""
+        """Get connection parameters for ModernStack connector"""
         creds = self.credentials
         return {
             "account": creds.account,
@@ -82,16 +82,16 @@ class SecureSnowflakeConfig:
         """Get connection string for SQLAlchemy or similar"""
         creds = self.credentials
         return (
-            f"snowflake://{creds.user}:{creds.password}@{creds.account}/"
+            f"modern_stack://{creds.user}:{creds.password}@{creds.account}/"
             f"{creds.database}/{creds.schema}?warehouse={creds.warehouse}&role={creds.role}"
         )
 
     def validate_connection(self) -> bool:
         """Validate that connection can be established"""
         try:
-            import snowflake.connector
+            # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
-            conn = snowflake.connector.connect(**self.get_connection_params())
+            conn = self.modern_stack_connection(**self.get_connection_params())
             cursor = conn.cursor()
             cursor.execute("SELECT CURRENT_VERSION()")
             result = cursor.fetchone()
@@ -99,59 +99,59 @@ class SecureSnowflakeConfig:
             conn.close()
 
             logger.info(
-                f"Snowflake connection validated successfully. Version: {result[0]}"
+                f"ModernStack connection validated successfully. Version: {result[0]}"
             )
             return True
 
         except Exception as e:
-            logger.exception(f"Snowflake connection validation failed: {e}")
+            logger.exception(f"ModernStack connection validation failed: {e}")
             return False
 
 
 # Global instance for application use - using lazy initialization
-_secure_snowflake_config: SecureSnowflakeConfig | None = None
+_secure_# REMOVED: ModernStack dependency None
 
 
-def get_secure_snowflake_config() -> SecureSnowflakeConfig:
-    """Get the global secure Snowflake configuration instance with lazy initialization"""
-    global _secure_snowflake_config
-    if _secure_snowflake_config is None:
-        _secure_snowflake_config = SecureSnowflakeConfig()
-    return _secure_snowflake_config
+# REMOVED: ModernStack dependency:
+# REMOVED: ModernStack dependencyuration instance with lazy initialization"""
+# REMOVED: ModernStack dependency
+# REMOVED: ModernStack dependency is None:
+# REMOVED: ModernStack dependency()
+# REMOVED: ModernStack dependency
 
 
 # Backward compatibility - create a module-level callable that acts like a property
-def secure_snowflake_config() -> SecureSnowflakeConfig:
-    """Backward compatibility function for secure_snowflake_config"""
-    return get_secure_snowflake_config()
+# REMOVED: ModernStack dependency:
+# REMOVED: ModernStack dependency"""
+# REMOVED: ModernStack dependency()
 
 
-def get_secure_snowflake_connection():
+def get_secure_modern_stack_connection():
     """
-    Get a secure Snowflake connection using programmatic authentication
+    Get a secure ModernStack connection using programmatic authentication
 
     Returns:
-        snowflake.connector.SnowflakeConnection: Authenticated connection
+        modern_stack.connector.ModernStackConnection: Authenticated connection
     """
     try:
-        import snowflake.connector
+        # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
-        config = get_secure_snowflake_config()
-        return snowflake.connector.connect(**config.get_connection_params())
+# REMOVED: ModernStack dependency()
+        return self.modern_stack_connection(**config.get_connection_params())
     except ImportError:
-        logger.exception("snowflake-connector-python not installed")
+        logger.exception("modern_stack-connector-python not installed")
         raise
     except Exception as e:
-        logger.exception(f"Failed to create Snowflake connection: {e}")
+        logger.exception(f"Failed to create ModernStack connection: {e}")
         raise
 
 
 def get_secure_connection_string() -> str:
     """
-    Get secure Snowflake connection string for SQLAlchemy
+    Get secure ModernStack connection string for SQLAlchemy
 
     Returns:
         str: SQLAlchemy-compatible connection string
     """
-    config = get_secure_snowflake_config()
+# REMOVED: ModernStack dependency()
     return config.get_connection_string()

@@ -6,13 +6,13 @@
 
 ```mermaid
 graph TD
-    A[Gong.io API] --> B[Snowflake Data Warehouse]
+    A[Gong.io API] --> B[Modern Stack Data Warehouse]
     C[Slack API] --> D[Enhanced Sentiment Analyzer]
     E[HubSpot API] --> B
     F[Google Calendar API] --> G[Activity Analyzer]
     H[Linear API] --> I[Project Context Engine]
 
-    B --> J[Snowflake Cortex AI]
+    B --> J[Lambda GPU AI]
     D --> J
     G --> J
     I --> J
@@ -54,8 +54,8 @@ async def extract_gong_data():
             "outcome": call.outcome
         }
 
-        # Store in Snowflake for Cortex analysis
-        await snowflake_cortex.store_call_data(call_data)
+        # Store in Modern Stack for Cortex analysis
+        await modern_stack_cortex.store_call_data(call_data)
 ```
 
 ### **Step 2: Sentiment Analysis (Multi-Channel)**
@@ -100,27 +100,27 @@ async def analyze_riley_sentiment():
     }
 ```
 
-### **Step 3: Snowflake Cortex AI Analysis**
+### **Step 3: Lambda GPU AI Analysis**
 ```sql
--- Advanced Call Analysis Using Snowflake Cortex
+-- Advanced Call Analysis Using Lambda GPU
 WITH call_analysis AS (
     SELECT
         call_id,
         sales_rep,
-        SNOWFLAKE.CORTEX.SENTIMENT(transcript) as ai_sentiment,
-        SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+        modern_stack.CORTEX.SENTIMENT(transcript) as ai_sentiment,
+        modern_stack.CORTEX.EXTRACT_ANSWER(
             transcript,
             'What objections did the prospect raise?'
         ) as objections_raised,
-        SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+        modern_stack.CORTEX.EXTRACT_ANSWER(
             transcript,
             'How many discovery questions were asked?'
         ) as discovery_questions,
-        SNOWFLAKE.CORTEX.CLASSIFY(
+        modern_stack.CORTEX.CLASSIFY(
             transcript,
             ['excellent_call', 'good_call', 'needs_improvement', 'poor_call']
         ) as call_quality,
-        SNOWFLAKE.CORTEX.SUMMARIZE(transcript) as call_summary
+        modern_stack.CORTEX.SUMMARIZE(transcript) as call_summary
     FROM gong_calls
     WHERE sales_rep = 'Riley Martinez'
     AND call_date >= DATEADD(day, -7, CURRENT_DATE())

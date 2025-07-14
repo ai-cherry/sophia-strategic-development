@@ -1,5 +1,5 @@
 {
-  "name": "MCP Tool: Snowflake Query Executor",
+  "name": "MCP Tool: ModernStack Query Executor",
   "nodes": [
     {
       "parameters": {},
@@ -10,14 +10,14 @@
     },
     {
       "parameters": {
-        "path": "snowflake-query",
+        "path": "modern_stack-query",
         "options": {}
       },
-      "name": "Webhook Trigger (Snowflake)",
+      "name": "Webhook Trigger (ModernStack)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [440, 300],
-      "webhookId": "mcp-snowflake-query"
+      "webhookId": "mcp-modern_stack-query"
     },
     {
       "parameters": {
@@ -25,14 +25,14 @@
         "query": "={{$json.body.query}}",
         "options": {}
       },
-      "name": "Execute Snowflake Query",
-      "type": "n8n-nodes-base.snowflake",
+      "name": "Execute ModernStack Query",
+      "type": "n8n-nodes-base.modern_stack",
       "typeVersion": 1,
       "position": [640, 300],
       "credentials": {
-        "snowflake": {
-          "id": "sophia-snowflake-prod",
-          "name": "Sophia Snowflake Prod"
+        "modern_stack": {
+          "id": "sophia-modern_stack-prod",
+          "name": "Sophia ModernStack Prod"
         }
       }
     },
@@ -42,7 +42,7 @@
           "responseCode": 200
         },
         "responseFor": "webhook",
-        "webhookId": "mcp-snowflake-query",
+        "webhookId": "mcp-modern_stack-query",
         "responseData": "={{$json}}",
         "responseFormat": "json"
       },
@@ -57,25 +57,25 @@
       "main": [
         [
           {
-            "node": "Webhook Trigger (Snowflake)",
+            "node": "Webhook Trigger (ModernStack)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Webhook Trigger (Snowflake)": {
+    "Webhook Trigger (ModernStack)": {
       "main": [
         [
           {
-            "node": "Execute Snowflake Query",
+            "node": "Execute ModernStack Query",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Execute Snowflake Query": {
+    "Execute ModernStack Query": {
       "main": [
         [
           {
@@ -91,5 +91,5 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "id": "snowflake-query-tool"
+  "id": "modern_stack-query-tool"
 }

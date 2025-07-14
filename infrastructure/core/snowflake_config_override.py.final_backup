@@ -1,0 +1,67 @@
+"""
+# REMOVED: modern_stack dependencyuration Override
+# REMOVED: modern_stack dependencyuration to fix 404 connectivity issues
+"""
+
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+import os
+
+from core.config_manager import get_config_value
+
+# REMOVED: modern_stack dependencyuration
+CORRECT_# REMOVED: modern_stack dependency {
+    "account": "ZNB04675.us-east-1",
+    "user": "SCOOBYJAVA15",
+    "database": "SOPHIA_AI",
+    "warehouse": "SOPHIA_AI_WH",
+    "role": "ACCOUNTADMIN",
+    "schema": "PROCESSED_AI",
+}
+
+
+def get_# REMOVED: modern_stack dependency None) -> str:
+    """
+# REMOVED: modern_stack dependencyuration with override for correct values
+
+    Args:
+        key: Configuration key (without modern_stack_ prefix)
+        default: Default value if not found
+
+    Returns:
+        Configuration value
+    """
+    # First try environment variable override
+    env_key = f"modern_stack_{key.upper()}"
+    env_value = os.getenv(env_key)
+    if env_value:
+        return env_value
+
+    # Then try correct configuration override
+# REMOVED: modern_stack dependency:
+# REMOVED: modern_stack dependency[key]
+
+    # Fall back to original config
+    return get_config_value(f"modern_stack_{key}", default)
+
+
+def get_modern_stack_connection_params() -> dict:
+    """
+    Get complete modern_stack connection parameters
+
+    Returns:
+        Dictionary of connection parameters
+    """
+    return {
+# REMOVED: modern_stack dependency("account"),
+# REMOVED: modern_stack dependency("user"),
+        "password": get_config_value("modern_stack_password"),  # Keep from ESC
+# REMOVED: modern_stack dependency("database"),
+# REMOVED: modern_stack dependency("warehouse"),
+# REMOVED: modern_stack dependency("role"),
+# REMOVED: modern_stack dependency("schema", "PUBLIC"),
+    }
+
+
+# Set environment variables for immediate use
+# REMOVED: modern_stack dependency.items():
+    os.environ[f"# REMOVED: modern_stack dependency value

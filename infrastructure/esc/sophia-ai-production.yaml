@@ -13,19 +13,19 @@ values:
       api_key:
         fn::secret: ${OPENROUTER_API_KEY}
   data_infrastructure:
-    snowflake:
+    modern_stack:
       account:
-        fn::secret: ${SNOWFLAKE_ACCOUNT}
+        fn::secret: ${modern_stack_ACCOUNT}
       user:
-        fn::secret: ${SNOWFLAKE_USERNAME}
+        fn::secret: ${modern_stack_USERNAME}
       password:
-        fn::secret: ${SNOWFLAKE_PASSWORD}
+        fn::secret: ${modern_stack_PASSWORD}
       warehouse:
-        fn::secret: ${SNOWFLAKE_WAREHOUSE}
+        fn::secret: ${modern_stack_WAREHOUSE}
       database:
-        fn::secret: ${SNOWFLAKE_DATABASE}
+        fn::secret: ${modern_stack_DATABASE}
       role:
-        fn::secret: ${SNOWFLAKE_ROLE}
+        fn::secret: ${modern_stack_ROLE}
     pinecone:
       api_key:
         fn::secret: ${PINECONE_API_KEY}
@@ -61,9 +61,9 @@ values:
 environmentVariables:
   OPENAI_API_KEY: ${ai_services.openai.api_key}
   ANTHROPIC_API_KEY: ${ai_services.anthropic.api_key}
-  SNOWFLAKE_ACCOUNT: ${data_infrastructure.snowflake.account}
-  SNOWFLAKE_USERNAME: ${data_infrastructure.snowflake.user}
-  SNOWFLAKE_PASSWORD: ${data_infrastructure.snowflake.password}
+  modern_stack_ACCOUNT: ${data_infrastructure.modern_stack.account}
+  modern_stack_USERNAME: ${data_infrastructure.modern_stack.user}
+  modern_stack_PASSWORD: ${data_infrastructure.modern_stack.password}
   GONG_ACCESS_KEY: ${business_intelligence.gong.access_key}
   HUBSPOT_ACCESS_TOKEN: ${business_intelligence.hubspot.access_token}
   LAMBDA_LABS_API_KEY: ${infrastructure.lambda_labs.api_key}

@@ -19,6 +19,8 @@ spec:
         component: mcp-server
         server: codacy
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
       containers:
       - name: mcp-codacy
         image: scoobyjava15/sophia-mcp-codacy:latest

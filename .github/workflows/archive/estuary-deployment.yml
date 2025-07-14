@@ -5,13 +5,13 @@ on
     branches: [main]
     paths
       - 'backend/etl/estuary/**'
-      - 'backend/scripts/deploy_gong_snowflake_setup.py'
+      - 'backend/scripts/deploy_gong_modern_stack_setup.py'
       - '.github/workflows/estuary-deployment.yml'
   pull_request
     branches: [main]
     paths
       - 'backend/etl/estuary/**'
-      - 'backend/scripts/deploy_gong_snowflake_setup.py'
+      - 'backend/scripts/deploy_gong_modern_stack_setup.py'
   workflow_dispatch
     inputs
       environment
@@ -97,8 +97,8 @@ jobs
           path: test_results_*.json
           retention-days: 30
 
-  deploy-snowflake-infrastructure
-    name: Deploy Snowflake Infrastructure
+  deploy-modern_stack-infrastructure
+    name: Deploy modern_stack Infrastructure
     runs-on: ubuntu-latest
     needs: validate-and-test
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
@@ -126,16 +126,16 @@ jobs
           export PATH=$PATH:$HOME/.pulumi/bin
           echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
           pulumi login
-      - name: Deploy Snowflake DDL and Procedures
+      - name: Deploy modern_stack DDL and Procedures
         env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python backend/scripts/deploy_gong_snowflake_setup.py \
+          python backend/scripts/deploy_gong_modern_stack_setup.py \
             --env ${{ github.event.inputs.environment || 'dev' }} \
             --execute-all
-      - name: Validate Snowflake Deployment
+      - name: Validate modern_stack Deployment
         env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
@@ -143,9 +143,9 @@ jobs
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
           python -c "
           import asyncio
-          from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+          from backend.utils.modern_stack_cortex_service import modern_stackCortexService
           async def validate()
-              cortex = SnowflakeCortexService()
+              cortex = modern_stackCortexService()
               await cortex.initialize()
               # Verify STG_GONG_CALLS table exists
               result = await cortex.execute_query('''
@@ -157,14 +157,14 @@ jobs
               if result.iloc[0]['TABLE_EXISTS'] == 0
                   raise Exception('STG_GONG_CALLS table not found')
               await cortex.close()
-              print('✅ Snowflake infrastructure validation passed')
+              print('✅ modern_stack infrastructure validation passed')
           asyncio.run(validate())
           "
 
   configure-estuary-connectors
     name: Configure Estuary Connectors
     runs-on: ubuntu-latest
-    needs: deploy-snowflake-infrastructure
+    needs: deploy-modern_stack-infrastructure
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     environment: ${{ github.event.inputs.environment || 'dev' }}
 
@@ -190,7 +190,7 @@ jobs
           export PATH=$PATH:$HOME/.pulumi/bin
           echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
           pulumi login
-      - name: Configure Gong Source and Snowflake Destination
+      - name: Configure Gong Source and modern_stack Destination
         env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
@@ -209,12 +209,12 @@ jobs
 
               print(f'✅ Gong source configured: {source_result.resource_id}')
 
-              # Configure Snowflake destination
-              # dest_result = await manager.configure_snowflake_destination()
+              # Configure modern_stack destination
+              # dest_result = await manager.configure_modern_stack_destination()
               # if dest_result.status.value != 'success'
-              #     raise Exception(f'Snowflake destination configuration failed: {dest_result.error_message}')
+              #     raise Exception(f'modern_stack destination configuration failed: {dest_result.error_message}')
 
-              # print(f'✅ Snowflake destination configured: {dest_result.resource_id}')
+              # print(f'✅ modern_stack destination configured: {dest_result.resource_id}')
 
               await manager.cleanup()
           asyncio.run(configure())

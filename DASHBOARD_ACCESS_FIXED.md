@@ -95,7 +95,7 @@ cd frontend && npm run dev
 ### **✅ What You Should See:**
 - **Executive KPI Cards** with real-time metrics
 - **Revenue Charts** with business intelligence
-- **System Status** indicators (Backend, Snowflake, WebSocket)
+- **System Status** indicators (Backend, Modern Stack, WebSocket)
 - **Unified Chat Interface** for AI queries
 - **Interactive Navigation** between dashboards
 - **Responsive Design** for mobile/desktop

@@ -2,7 +2,7 @@
 
 **Version**: 1.0
 **Purpose**: Intelligent context loading based on task complexity and type
-**Integration**: Claude-Code-Development-Kit patterns with Snowflake Cortex
+**Integration**: Claude-Code-Development-Kit patterns with Lambda GPU
 
 ---
 
@@ -41,7 +41,7 @@ else:
 ### **Foundation Tier (Always Load for Complex Tasks)**
 - `ai-context/project-structure.md` - Phoenix Architecture overview
 - `ai-context/sophia-brain.md` - AI decision patterns and routing
-- `ai-context/data-architecture.md` - Snowflake Cortex integration patterns
+- `ai-context/data-architecture.md` - Lambda GPU integration patterns
 
 ### **Component Tier (Load for Service-Specific Tasks)**
 - `components/mcp-servers/` - MCP server integration patterns
@@ -94,10 +94,10 @@ SIMPLE_TASKS = [
 
 ## 🎛️ Auto-Loading Configuration
 
-### **Snowflake Cortex Integration**
+### **Lambda GPU Integration**
 ```sql
--- Task classification using Snowflake Cortex
-SELECT SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
+-- Task classification using Lambda GPU
+SELECT modern_stack.CORTEX.CLASSIFY_TEXT(
     %s, -- user_input
     ['simple', 'moderate', 'complex', 'architecture']
 ) as task_complexity;
@@ -174,7 +174,7 @@ CONTEXT_LOADING_RULES = {
 - [ ] **Foundation Tier**: Core documentation restructure
 - [ ] **Component Tier**: Service-specific context organization
 - [ ] **Feature Tier**: Task-specific pattern documentation
-- [ ] **Auto-Loading Logic**: Snowflake Cortex integration
+- [ ] **Auto-Loading Logic**: Lambda GPU integration
 - [ ] **Performance Monitoring**: Token usage tracking
 - [ ] **MCP Integration**: Server-specific context loading
 

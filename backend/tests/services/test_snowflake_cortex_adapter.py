@@ -1,14 +1,15 @@
 """
-Unit tests for Snowflake Cortex Adapter
+Unit tests for Lambda GPU Adapter
 Tests dual-mode execution, fallback, and circuit breaker functionality.
 """
 
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import time
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from backend.core.services.snowflake_cortex_adapter import (
+from backend.core.services.modern_stack_cortex_adapter import (
     CortexAdapter,
     CortexQuery,
     CortexResult,
@@ -16,17 +17,17 @@ from backend.core.services.snowflake_cortex_adapter import (
     ExecutionMode,
     RetryConfig,
 )
-from backend.core.services.snowflake_pool import (
+from backend.core.services.modern_stack_pool import (
     PoolExhaustedError,
-    SnowflakePoolManager,
+    ModernStackPoolManager,
 )
-from backend.integrations.snowflake_mcp_client import SnowflakeMCPClient
+from backend.integrations.modern_stack_mcp_client import ModernStackMCPClient
 
 
 @pytest.fixture
 def mock_mcp_client():
     """Create mock MCP client"""
-    client = AsyncMock(spec=SnowflakeMCPClient)
+    client = AsyncMock(spec=ModernStackMCPClient)
     client.health_check.return_value = {"status": "healthy"}
     return client
 
@@ -34,7 +35,7 @@ def mock_mcp_client():
 @pytest.fixture
 def mock_pool_manager():
     """Create mock pool manager"""
-    manager = AsyncMock(spec=SnowflakePoolManager)
+    manager = AsyncMock(spec=ModernStackPoolManager)
     manager.get_health.return_value = {
         "direct": {"size": 10, "in_use": 2},
         "mcp": {"size": 20, "in_use": 5},
@@ -95,7 +96,7 @@ class TestCortexAdapter:
                 "response": "MCP response",
                 "usage": {"tokens": 150, "credits": 0.15},
                 "model": "arctic",
-                "server_id": "snowflake-cortex-primary",
+                "server_id": "modern_stack-cortex-primary",
             }
 
         # Execute
@@ -248,7 +249,7 @@ class TestCortexAdapter:
         )
 
         sql = adapter._build_cortex_sql(complete_query)
-        assert "SNOWFLAKE.CORTEX.COMPLETE" in sql
+        assert "self.modern_stack.await self.lambda_gpu.complete" in sql
         assert "'arctic'" in sql
         assert "'temperature': 0.5" in sql
 
@@ -259,7 +260,7 @@ class TestCortexAdapter:
         )
 
         sql = adapter._build_cortex_sql(search_query)
-        assert "SNOWFLAKE.CORTEX.SEARCH" in sql
+        assert "await self.lambda_gpu.SEARCH" in sql
         assert "relevance_score" in sql
 
         # Test analyst task
@@ -270,7 +271,7 @@ class TestCortexAdapter:
         )
 
         sql = adapter._build_cortex_sql(analyst_query)
-        assert "SNOWFLAKE.CORTEX.ANALYST" in sql
+        assert "await self.lambda_gpu.ANALYST" in sql
         assert "context_tables" in sql
 
     async def test_streaming_response(self, adapter):
@@ -406,17 +407,17 @@ class TestCortexIntegration:
     """Integration tests requiring actual connections"""
 
     @pytest.mark.integration
-    async def test_real_snowflake_connection(self):
-        """Test with real Snowflake connection (requires credentials)"""
+    async def test_real_modern_stack_connection(self):
+        """Test with real ModernStack connection (requires credentials)"""
         # Skip if no credentials
         try:
-            from backend.core.auto_esc_config import get_snowflake_config
+# REMOVED: ModernStack dependency
 
-            config = get_snowflake_config()
+# REMOVED: ModernStack dependency()
             if not config.get("password"):
-                pytest.skip("No Snowflake credentials available")
+                pytest.skip("No ModernStack credentials available")
         except:
-            pytest.skip("Cannot load Snowflake configuration")
+# REMOVED: ModernStack dependencyuration")
 
         # Create real adapter
         adapter = CortexAdapter(execution_mode=ExecutionMode.DIRECT)

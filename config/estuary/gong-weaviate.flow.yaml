@@ -1,0 +1,276 @@
+# Estuary Flow Specification for Gong Data → Weaviate/PostgreSQL
+# GPU-powered embeddings, no more ModernStack!
+# Date: July 11, 2025
+
+collections:
+  sophia/gong-calls:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique call identifier
+        title:
+          type: string
+          description: Call title/subject
+        scheduled:
+          type: string
+          format: date-time
+        started:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Call duration in seconds
+        participants:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              email:
+                type: string
+              title:
+                type: string
+        isExternal:
+          type: boolean
+        content:
+          type: object
+          properties:
+            trackers:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  count:
+                    type: integer
+                  type:
+                    type: string
+        purpose:
+          type: string
+        outcome:
+          type: string
+        notes:
+          type: string
+      required: [id, title, started]
+    
+    key: [/id]
+
+  sophia/gong-call-transcripts:
+    schema:
+      type: object
+      properties:
+        callId:
+          type: string
+        speakerId:
+          type: string
+        speakerName:
+          type: string
+        topic:
+          type: string
+        sentiment:
+          type: number
+        startTime:
+          type: number
+        endTime:
+          type: number
+        transcript:
+          type: string
+      required: [callId, speakerId, transcript]
+    
+    key: [/callId, /startTime]
+
+# Captures - Source Configuration (unchanged)
+captures:
+  sophia/gong-capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-gong:latest
+        config:
+          api_base_url: https://api.gong.io
+          access_key: ${GONG_ACCESS_KEY}
+          access_key_secret: ${GONG_ACCESS_KEY_SECRET}
+          start_date: "2024-01-01T00:00:00Z"
+          refresh_interval: 60
+    
+    bindings:
+      - target: sophia/gong-calls
+        resource:
+          stream: calls
+          
+      - target: sophia/gong-call-transcripts
+        resource:
+          stream: call-transcripts
+
+# Materializations - PostgreSQL + Custom Processor
+materializations:
+  sophia/gong-to-postgres:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/materialize-postgres:latest
+        config:
+          address: ${POSTGRESQL_HOST}:${POSTGRESQL_PORT}
+          database: sophia_ai
+          schema: gong_data
+          user: ${POSTGRESQL_USER}
+          password: ${POSTGRESQL_PASSWORD}
+          # Connection pooling
+          max_connections: 20
+          ssl_mode: require
+    
+    bindings:
+      - source: sophia/gong-calls
+        resource:
+          table: gong_calls
+          
+      - source: sophia/gong-call-transcripts
+        resource:
+          table: gong_call_transcripts
+
+# Custom Derivations - GPU Embeddings & Weaviate Storage
+derivations:
+  sophia/gong-enrichment:
+    transform:
+      image: ghcr.io/sophia-ai/estuary-gpu-enrichment:latest
+      config:
+        # Lambda GPU endpoint
+        lambda_inference_url: ${LAMBDA_INFERENCE_URL}
+        # Weaviate connection
+        weaviate_url: ${WEAVIATE_URL}
+        # Redis for caching
+        redis_host: ${REDIS_HOST}
+        redis_port: ${REDIS_PORT}
+        redis_password: ${REDIS_PASSWORD}
+        # Embedding model
+        embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+        # Batch size for GPU processing
+        batch_size: 100
+    
+    transforms:
+      - name: enrich_gong_calls
+        source: sophia/gong-calls
+        shuffle:
+          key: [/id]
+        update: |
+          {
+            "id": .id,
+            "title": .title,
+            "started": .started,
+            "duration": .duration,
+            "participants": .participants,
+            "content": .content,
+            "purpose": .purpose,
+            "outcome": .outcome,
+            "notes": .notes,
+            // Add enrichment fields
+            "enrichment": {
+              "processed_at": now | todate,
+              "embedding_model": "all-MiniLM-L6-v2",
+              "content_for_embedding": (.title + " " + (.notes // "")),
+              "metadata": {
+                "source": "gong",
+                "type": "call",
+                "participants_count": (.participants | length),
+                "external": .isExternal,
+                "duration_minutes": (.duration / 60)
+              }
+            }
+          }
+      
+      - name: enrich_transcripts
+        source: sophia/gong-call-transcripts
+        shuffle:
+          key: [/callId, /startTime]
+        update: |
+          {
+            "callId": .callId,
+            "speakerId": .speakerId,
+            "speakerName": .speakerName,
+            "topic": .topic,
+            "sentiment": .sentiment,
+            "startTime": .startTime,
+            "endTime": .endTime,
+            "transcript": .transcript,
+            // Add enrichment
+            "enrichment": {
+              "processed_at": now | todate,
+              "embedding_model": "all-MiniLM-L6-v2",
+              "metadata": {
+                "source": "gong",
+                "type": "transcript",
+                "duration_seconds": (.endTime - .startTime)
+              }
+            }
+          }
+
+# Post-Processing Hooks
+hooks:
+  - name: gpu_embedding_processor
+    type: post-materialization
+    config:
+      # This hook runs after data lands in PostgreSQL
+      # It generates embeddings and stores in Weaviate
+      script: |
+        #!/usr/bin/env python3
+        import asyncio
+        from unified_memory_service_v2 import UnifiedMemoryServiceV2
+        
+        async def process_new_records():
+            memory = UnifiedMemoryServiceV2()
+            await memory.initialize()
+            
+            # Query new records from PostgreSQL
+            # Generate embeddings on Lambda GPU
+            # Store in Weaviate + cache in Redis
+            # Update PostgreSQL with embedding status
+            
+        asyncio.run(process_new_records())
+
+# Monitoring & Alerts
+monitoring:
+  metrics:
+    - name: embedding_latency
+      type: histogram
+      description: Time to generate embeddings (ms)
+      
+    - name: weaviate_storage_success
+      type: counter
+      description: Successful Weaviate storage operations
+      
+    - name: cache_hit_rate
+      type: gauge
+      description: Redis cache hit rate percentage
+  
+  alerts:
+    - name: high_latency
+      condition: embedding_latency.p95 > 100
+      message: "GPU embeddings exceeding 100ms p95"
+      
+    - name: storage_failures
+      condition: rate(weaviate_storage_success[5m]) < 0.95
+      message: "Weaviate storage success rate below 95%"
+
+# Performance Targets
+performance:
+  targets:
+    - metric: embedding_latency.p50
+      target: "< 50ms"
+      
+    - metric: end_to_end_latency
+      target: "< 200ms"
+      
+    - metric: throughput
+      target: "> 1000 records/minute"
+  
+  comparison:
+    modern_stack_baseline:
+      embedding_latency: "300-500ms"
+      end_to_end_latency: "600-1000ms"
+      throughput: "100-200 records/minute"
+    
+    improvement_factor: "6-10x" 

@@ -32,13 +32,13 @@ values:
       allowed_methods: ["GET", "POST", "PUT", "DELETE"]
       allowed_headers: ["Authorization", "Content-Type"]
 
-  # Enhanced Snowflake configuration (aligned with existing GONG_ANALYTICS)
-  snowflake:
+  # Enhanced ModernStack configuration (aligned with existing GONG_ANALYTICS)
+  modern_stack:
     account:
-      fn::secret: "${SNOWFLAKE_ACCOUNT}"
+      fn::secret: "${modern_stack_ACCOUNT}"
     user: "SCOOBYJAVA15"
     password:
-      fn::secret: "${SNOWFLAKE_PASSWORD}"
+      fn::secret: "${modern_stack_PASSWORD}"
     database: "GONG_ANALYTICS"
     warehouse: "SOPHIA_AI_WH"
     schema: "RAW"
@@ -46,11 +46,11 @@ values:
     # OAuth configuration for enhanced security
     oauth:
       client_id:
-        fn::secret: "${SNOWFLAKE_OAUTH_CLIENT_ID}"
+        fn::secret: "${modern_stack_OAUTH_CLIENT_ID}"
       client_secret:
-        fn::secret: "${SNOWFLAKE_OAUTH_CLIENT_SECRET}"
+        fn::secret: "${modern_stack_OAUTH_CLIENT_SECRET}"
       refresh_token:
-        fn::secret: "${SNOWFLAKE_OAUTH_REFRESH_TOKEN}"
+        fn::secret: "${modern_stack_OAUTH_REFRESH_TOKEN}"
       scope: "session:role-any"
     # Connection pool settings
     connection_pool:
@@ -225,11 +225,11 @@ values:
     postgres:
       connection_string:
         fn::secret: "${MCP_POSTGRES_CONNECTION_STRING}"
-    snowflake:
-      # Uses same config as main snowflake section
-      account: "${snowflake.account}"
-      user: "${snowflake.user}"
-      password: "${snowflake.password}"
+    modern_stack:
+      # Uses same config as main modern_stack section
+      account: "${modern_stack.account}"
+      user: "${modern_stack.user}"
+      password: "${modern_stack.password}"
 
   # Enhanced security configuration
   security:
@@ -267,7 +267,7 @@ values:
       enabled: true
       log_level: "INFO"
       retention_days: 365
-      storage_backend: "snowflake"
+      storage_backend: "modern_stack"
 
   # Enhanced Kubernetes integration
   kubernetes:
@@ -323,10 +323,10 @@ environmentVariables:
   WEBHOOK_JWT_PRIVATE_KEY: ${webhook.jwt_private_key}
   WEBHOOK_JWT_PUBLIC_KEY: ${webhook.jwt_public_key}
 
-  # Enhanced Snowflake OAuth
-  SNOWFLAKE_OAUTH_CLIENT_ID: ${snowflake.oauth.client_id}
-  SNOWFLAKE_OAUTH_CLIENT_SECRET: ${snowflake.oauth.client_secret}
-  SNOWFLAKE_OAUTH_REFRESH_TOKEN: ${snowflake.oauth.refresh_token}
+  # Enhanced ModernStack OAuth
+  modern_stack_OAUTH_CLIENT_ID: ${modern_stack.oauth.client_id}
+  modern_stack_OAUTH_CLIENT_SECRET: ${modern_stack.oauth.client_secret}
+  modern_stack_OAUTH_REFRESH_TOKEN: ${modern_stack.oauth.refresh_token}
 
   # Redis cluster authentication
   REDIS_CLUSTER_PASSWORD: ${redis.cluster.password}

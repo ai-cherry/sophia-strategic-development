@@ -1,0 +1,101 @@
+# Sophia AI Production Deployment Configuration
+# Secrets are managed via Pulumi ESC
+
+deployment:
+  environment: production
+  version: v2025.7.12
+  
+domains:
+  primary: "sophia-intel.ai"
+  api: "api.sophia-intel.ai"
+  dashboard: "dashboard.sophia-intel.ai"
+  docs: "docs.sophia-intel.ai"
+  www: "www.sophia-intel.ai"
+
+infrastructure:
+  lambda_labs:
+    host: "192.222.58.232"
+    gpu: "GH200"
+    region: "us-west"
+    
+  kubernetes:
+    cluster: "k3s"
+    namespace: "sophia-ai-prod"
+    
+  vercel:
+    project: "sophia-intel-ai"
+    team: "scoobyjava"
+    
+dns:
+  provider: "namecheap"
+  domain: "sophia-intel.ai"
+  records:
+    - type: "A"
+      name: "@"
+      value: "76.76.21.21"  # Vercel IP
+    - type: "A"
+      name: "www"
+      value: "76.76.21.21"  # Vercel IP
+    - type: "A"
+      name: "api"
+      value: "192.222.58.232"  # Lambda Labs
+    - type: "CNAME"
+      name: "dashboard"
+      value: "cname.vercel-dns.com"
+    - type: "A"
+      name: "docs"
+      value: "76.76.21.21"  # Vercel IP
+
+services:
+  frontend:
+    provider: "vercel"
+    framework: "nextjs"
+    build_command: "npm run build"
+    output_directory: ".next"
+    env_production:
+      NEXT_PUBLIC_API_URL: "https://api.sophia-intel.ai"
+      NEXT_PUBLIC_APP_URL: "https://sophia-intel.ai"
+    
+  backend:
+    orchestrator:
+      replicas: 3
+      cpu: "2"
+      memory: "4Gi"
+    chat:
+      replicas: 2
+      cpu: "1"
+      memory: "2Gi"
+    memory:
+      replicas: 2
+      cpu: "1"
+      memory: "2Gi"
+      
+monitoring:
+  prometheus:
+    retention: "30d"
+    storage: "50Gi"
+  grafana:
+    admin_user: "admin"
+    domain: "grafana.sophia-intel.ai"
+    dashboards:
+      - "system-overview"
+      - "mcp-health"
+      - "cache-performance"
+
+secrets:
+  # Managed by Pulumi ESC - DO NOT COMMIT ACTUAL VALUES
+  namecheap_api_key: "PULUMI_ESC"
+  namecheap_api_user: "scoobyjava"
+  namecheap_client_ip: "PULUMI_ESC"
+  vercel_token: "PULUMI_ESC"
+  openai_api_key: "PULUMI_ESC"
+  anthropic_api_key: "PULUMI_ESC"
+  github_token: "PULUMI_ESC"
+  
+backup:
+  strategy: "3-2-1"
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention:
+    local: 7
+    remote: 30
+    s3: 90 

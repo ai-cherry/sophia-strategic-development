@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as k8s from "@pulumi/kubernetes";
 import { LambdaLabsProvider } from "./providers/lambda-labs";
-import { SnowflakeProvider } from "./providers/snowflake";
+import { modern_stackProvider } from "./providers/modern_stack";
 import { EstuaryProvider } from "./providers/estuary";
 import { GitHubProvider } from "./providers/github";
 import { PortkeyProvider } from "./providers/portkey";
@@ -40,12 +40,12 @@ export const lambdaLabs = new LambdaLabsProvider("lambda-labs", {
     ]
 });
 
-// Snowflake Infrastructure
-export const snowflake = new SnowflakeProvider("snowflake", {
-    account: escConfig.getOutput("snowflake_account"),
-    username: escConfig.getOutput("snowflake_user"),
-    password: escConfig.getOutput("snowflake_password"),
-    role: escConfig.getOutput("snowflake_role"),
+// modern_stack Infrastructure
+export const modern_stack = new modern_stackProvider("modern_stack", {
+    account: escConfig.getOutput("modern_stack_account"),
+    username: escConfig.getOutput("modern_stack_user"),
+    password: escConfig.getOutput("modern_stack_password"),
+    role: escConfig.getOutput("modern_stack_role"),
     databases: [
         {
             name: "SOPHIA_AI_PROD",
@@ -61,15 +61,15 @@ export const estuary = new EstuaryProvider("estuary", {
     tenant: escConfig.getOutput("estuary_tenant"),
     flows: [
         {
-            name: "gong-to-snowflake",
+            name: "gong-to-modern_stack",
             source: "gong",
-            destination: "snowflake",
+            destination: "modern_stack",
             schedule: "0 */2 * * *", // Every 2 hours
         },
         {
-            name: "hubspot-to-snowflake",
+            name: "hubspot-to-modern_stack",
             source: "hubspot",
-            destination: "snowflake",
+            destination: "modern_stack",
             schedule: "0 */4 * * *", // Every 4 hours
         }
     ]
@@ -112,7 +112,7 @@ export const portkey = new PortkeyProvider("portkey", {
 
 // Export important values
 export const lambdaLabsInstances = lambdaLabs.instances;
-export const snowflakeDatabase = snowflake.database;
+export const modern_stackDatabase = modern_stack.database;
 export const estuaryFlows = estuary.flows;
 export const githubRepos = github.repositories;
 export const portkeyProject = portkey.project;

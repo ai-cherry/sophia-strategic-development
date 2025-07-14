@@ -254,7 +254,7 @@ Dashboard Categories:
    - Container performance metrics
    - Network I/O and latency
 
-4. Snowflake Analytics:
+4. Modern Stack Analytics:
    - Query performance trends
    - Warehouse usage optimization
    - Credit consumption tracking

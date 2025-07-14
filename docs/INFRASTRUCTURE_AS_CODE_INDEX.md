@@ -36,7 +36,7 @@ Core Components:
 
 Service Readiness:
   lambda_labs     ✅ Ready
-  snowflake       ✅ Ready
+  modern_stack       ✅ Ready
   estuary         ✅ Ready
   github          ✅ Ready
   portkey         ✅ Ready
@@ -73,7 +73,7 @@ infrastructure/
 ├── package.json               # Dependencies
 ├── providers/                 # Service providers
 │   ├── lambda-labs.ts        # Lambda Labs with SSH automation
-│   ├── snowflake.ts          # Snowflake provider
+│   ├── modern_stack.ts          # Modern Stack provider
 │   ├── estuary.ts            # Estuary Flow provider
 │   ├── github.ts             # GitHub provider
 │   └── portkey.ts            # Portkey provider

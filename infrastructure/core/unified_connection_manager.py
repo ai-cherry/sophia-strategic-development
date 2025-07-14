@@ -23,13 +23,13 @@ UTC = UTC
 
 # Try to import optional dependencies
 try:
-    import snowflake.connector
+    # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
 
     from core.config_manager import get_config_value
 
-    SNOWFLAKE_AVAILABLE = True
+    # REMOVED: ModernStack dependency True
 except ImportError:
-    SNOWFLAKE_AVAILABLE = False
+    # REMOVED: ModernStack dependency False
 
     def get_config_value(key):
         return os.getenv(key.upper())
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class ConnectionType(str, Enum):
     """Supported connection types"""
 
-    SNOWFLAKE = "snowflake"
+    modern_stack = "modern_stack"
     POSTGRES = "postgres"
     REDIS = "redis"
 
@@ -175,8 +175,8 @@ class ConnectionPool:
     async def _create_connection(self):
         """Create new connection based on type"""
         try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
-                return await self._create_snowflake_connection()
+            if self.connection_type == ConnectionType.POSTGRESQL:
+                return await self._create_modern_stack_connection()
             elif self.connection_type == ConnectionType.POSTGRES:
                 return await self._create_postgres_connection()
             elif self.connection_type == ConnectionType.REDIS:
@@ -185,25 +185,25 @@ class ConnectionPool:
             logger.exception(f"Failed to create {self.connection_type} connection: {e}")
             return None
 
-    async def _create_snowflake_connection(self):
-        """Create Snowflake connection"""
-        if not SNOWFLAKE_AVAILABLE:
-            raise ImportError("Snowflake connector not available")
+    async def _create_modern_stack_connection(self):
+        """Create ModernStack connection"""
+        if not modern_stack_AVAILABLE:
+            raise ImportError("ModernStack connector not available")
 
         # Get configuration from environment or config
         config = {
-            "account": get_config_value("snowflake_account"),
-            "user": get_config_value("snowflake_user"),
-            "password": get_config_value("snowflake_password"),
-            "warehouse": get_config_value("snowflake_warehouse"),
-            "database": get_config_value("snowflake_database"),
-            "schema": get_config_value("snowflake_schema", "PUBLIC"),
-            "role": get_config_value("snowflake_role", "SYSADMIN"),
+            "account": get_config_value("postgres_host"),
+            "user": get_config_value("modern_stack_user"),
+            "password": get_config_value("postgres_password"),
+            "warehouse": get_config_value("postgres_database"),
+            "database": get_config_value("postgres_database"),
+            "schema": get_config_value("postgres_schema", "PUBLIC"),
+            "role": get_config_value("modern_stack_role", "SYSADMIN"),
             "timeout": self.config.connection_timeout,
         }
 
         def _sync_connect():
-            return snowflake.connector.connect(**config)
+            return self.modern_stack_connection(**config)
 
         return await asyncio.to_thread(_sync_connect)
 
@@ -261,7 +261,7 @@ class ConnectionPool:
     async def _is_connection_healthy(self, connection) -> bool:
         """Check if connection is healthy"""
         try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
+            if self.connection_type == ConnectionType.POSTGRESQL:
 
                 def _sync_health_check():
                     cursor = connection.cursor()
@@ -283,7 +283,7 @@ class ConnectionPool:
     async def _close_connection(self, connection):
         """Close connection"""
         try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
+            if self.connection_type == ConnectionType.POSTGRESQL:
 
                 def _sync_close():
                     connection.close()
@@ -356,18 +356,18 @@ class UnifiedConnectionManager:
 
         logger.info("🚀 Initializing Unified Connection Manager...")
 
-        # Initialize Snowflake pool
-        if SNOWFLAKE_AVAILABLE:
-            snowflake_config = ConnectionPoolConfig(
+        # Initialize ModernStack pool
+        if modern_stack_AVAILABLE:
+# REMOVED: ModernStack dependency(
                 min_connections=5,
                 max_connections=25,
                 connection_timeout=30,
                 idle_timeout=600,
             )
-            self.pools[ConnectionType.SNOWFLAKE] = ConnectionPool(
-                ConnectionType.SNOWFLAKE, snowflake_config
+            self.pools[ConnectionType.POSTGRESQL] = ConnectionPool(
+# REMOVED: ModernStack dependency
             )
-            await self.pools[ConnectionType.SNOWFLAKE].initialize()
+            await self.pools[ConnectionType.POSTGRESQL].initialize()
 
         # Initialize Redis pool
         redis_config = ConnectionPoolConfig(
