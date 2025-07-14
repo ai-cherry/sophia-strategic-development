@@ -753,3 +753,14 @@ def validate_lambda_labs_config() -> bool:
 
     logger.info("Lambda Labs configuration validated successfully")
     return True
+
+
+def get_qdrant_config() -> Dict[str, str]:
+    """Get Qdrant configuration from Pulumi ESC"""
+    return {
+        "api_key": get_config_value("qdrant_api_key"),
+        "url": get_config_value("qdrant_url", "https://xyz.qdrant.tech"),
+        "cluster_name": get_config_value("qdrant_cluster_name", "sophia-ai-production"),
+        "timeout": int(get_config_value("qdrant_timeout", "30")),
+        "prefer_grpc": get_config_value("qdrant_prefer_grpc", "false").lower() == "true"
+    }
