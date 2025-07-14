@@ -56,17 +56,62 @@ except ImportError:
     docling = None
 
 # Core imports
-import weaviate
-from redis.asyncio import Redis
-import asyncpg
-from portkey_ai import Portkey
-from tenacity import retry, stop_after_attempt, wait_exponential
-import prometheus_client
-from prometheus_client import Histogram, Counter, Gauge
+try:
+    import weaviate
+    WEAVIATE_AVAILABLE = True
+except ImportError:
+    WEAVIATE_AVAILABLE = False
+    weaviate = None
+
+try:
+    from redis.asyncio import Redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    Redis = None
+
+try:
+    import asyncpg
+    ASYNCPG_AVAILABLE = True
+except ImportError:
+    ASYNCPG_AVAILABLE = False
+    asyncpg = None
+
+try:
+    from portkey_ai import Portkey
+    PORTKEY_AVAILABLE = True
+except ImportError:
+    PORTKEY_AVAILABLE = False
+    Portkey = None
+
+try:
+    from tenacity import retry, stop_after_attempt, wait_exponential
+    TENACITY_AVAILABLE = True
+except ImportError:
+    TENACITY_AVAILABLE = False
+    retry = lambda *args, **kwargs: lambda func: func
+    stop_after_attempt = lambda x: None
+    wait_exponential = lambda *args, **kwargs: None
+
+try:
+    import prometheus_client
+    from prometheus_client import Histogram, Counter, Gauge
+    PROMETHEUS_AVAILABLE = True
+except ImportError:
+    PROMETHEUS_AVAILABLE = False
+    prometheus_client = None
+    Histogram = Counter = Gauge = lambda *args, **kwargs: None
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+
+# Fallback for missing primary service
+try:
+    from backend.services.unified_memory_service_primary import UnifiedMemoryService as UnifiedMemoryServicePrimary
+    PRIMARY_SERVICE_AVAILABLE = True
+except ImportError:
+    PRIMARY_SERVICE_AVAILABLE = False
+    UnifiedMemoryServicePrimary = None
 
 logger = get_logger(__name__)
 
@@ -133,7 +178,7 @@ class UnifiedMemoryService:
     
     def __init__(self):
         # Inherit base functionality from V2
-        self.v2_service = UnifiedMemoryService()
+        self.v2_service = UnifiedMemoryServicePrimary()
         
         # Enhanced memory tiers with multimodal support
         self.memory_tiers = {
