@@ -88,23 +88,21 @@ graph TB
 
 ### 3.4. Memory Architecture
 
-### 3.4.1. 6-Tier Unified Memory System (CRITICAL - JULY 10, 2025)
+### 3.4.1. Modern Memory Architecture (Updated December 2024)
 
-**⚠️ MANDATORY MEMORY RULES ⚠️**
+**📋 CURRENT MEMORY STRATEGY**
 
-1. **FORBIDDEN - NEVER USE:**
-   - ❌ Pinecone - REMOVED
-   - ❌ Weaviate - REMOVED  
-   - ❌ ChromaDB - FORBIDDEN
-   - ❌ Any external vector database
+1. **PRIMARY SYSTEMS:**
+   - ✅ Weaviate - Primary vector database for semantic search
+   - ✅ PostgreSQL pgvector - Hybrid SQL + vector queries  
+   - ✅ Redis - High-performance caching layer
+   - ✅ Mem0 - Conversational agent memory
+   - ✅ Lambda GPU - Hardware-accelerated embeddings
 
-2. **REQUIRED - ALWAYS USE:**
-   - ✅ UnifiedMemoryService for ALL operations
-   - ✅ Snowflake Cortex for ALL vectors
-   - ✅ Redis with RedisHelper for caching
-   - ✅ Mem0 for conversational memory
-   - ✅ HybridSearchEngine for advanced search
-   - ✅ DataTieringManager for hot/cold data
+2. **ARCHITECTURE SERVICES:**
+   - ✅ UnifiedMemoryServiceV2 - Orchestrates all memory operations
+   - ✅ HybridSearchEngine - Advanced multi-source search
+   - ✅ DataTieringManager - Hot/cold data management
 
 **Current Implementation Status: Phase 4 Complete (67% Total)**
 - ✅ Phase 1: Compliance & Safety - Complete
@@ -119,11 +117,11 @@ graph TB
 | Tier | Technology | Purpose | Latency | Status |
 |------|------------|---------|---------|--------|
 | L0 | GPU Cache | Hardware acceleration | <1ms | ✅ Automatic |
-| L1 | Redis + Helper | Session cache + metrics | <10ms | ✅ Enhanced |
-| L2 | Mem0 | Conversational memory | <50ms | ✅ Operational |
-| L3 | Snowflake Cortex | Vector search + BM25 | <150ms | ✅ Hybrid |
-| L4 | Snowflake Tables | Structured data | <200ms | ✅ Tiered |
-| L5 | Snowflake AI | Intelligence layer | <500ms | ✅ Integrated |
+| L1 | Redis | Session cache + metrics | <10ms | ✅ Enhanced |
+| L2 | Weaviate | Vector search + embeddings | <50ms | ✅ Primary |
+| L3 | PostgreSQL pgvector | Hybrid SQL + vectors | <100ms | ✅ Operational |
+| L4 | Mem0 | Conversational memory | <150ms | ✅ Integrated |
+| L5 | Snowflake (Legacy) | Structured data backup | <500ms | ⚠️ Phasing out |
 
 ### 3.4.3. New Phase 4 Components
 

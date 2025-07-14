@@ -436,7 +436,7 @@ class EnhancedUnifiedChatServiceWithMem0:
     ) -> dict:
         """
         Process message through enhanced 5-tier memory system
-        Priority: Snowflake Cortex (L2) remains the primary intelligence
+        Priority: Weaviate (L2) is the primary vector intelligence
         """
 
         # 1. L1: Session context with Mem0 awareness
@@ -444,7 +444,7 @@ class EnhancedUnifiedChatServiceWithMem0:
             session_id, user_id
         )
 
-        # 2. L2: Snowflake Cortex - PRIMARY INTELLIGENCE SOURCE
+        # 2. L2: Weaviate - PRIMARY VECTOR INTELLIGENCE
         snowflake_context = await self.snowflake_cortex.vector_search_business_table(
             table_name="SOPHIA_AI_MEMORY.MEMORY_RECORDS_ENHANCED",
             query_text=message,

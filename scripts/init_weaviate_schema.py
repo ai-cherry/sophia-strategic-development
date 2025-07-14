@@ -1,203 +1,311 @@
 #!/usr/bin/env python3
 """
 Initialize Weaviate Schema for Sophia AI
-July 12, 2025
+Creates the necessary collections and schemas in Weaviate
 """
 
-import asyncio
+import os
+import sys
 import weaviate
-import weaviate.classes as wvc
-from weaviate.classes.config import Property, DataType
-import structlog
+from weaviate.classes.config import Configure, DataType, Property
+import logging
 
-logger = structlog.get_logger()
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-
-async def create_knowledge_schema():
-    """Create the Knowledge class schema in Weaviate"""
-
+def create_weaviate_client():
+    """Create Weaviate client connection"""
+    weaviate_url = os.getenv("WEAVIATE_URL", "http://localhost:8080")
+    
     try:
-        # Connect to Weaviate
-        client = weaviate.connect_to_local(
-            host="localhost",
-            port=8080,
-            grpc_port=50051,
+        client = weaviate.Client(
+            url=weaviate_url,
+            timeout_config=(5, 15)  # (connect timeout, read timeout)
         )
-
-        # Check if Knowledge class already exists
-        try:
-            existing = client.collections.get("Knowledge")
-            logger.info("Knowledge class already exists, deleting and recreating...")
-            client.collections.delete("Knowledge")
-        except:
-            logger.info("Knowledge class doesn't exist, creating...")
-
-        # Create Knowledge collection with proper schema
-        knowledge_collection = client.collections.create(
-            name="Knowledge",
-            properties=[
-                Property(
-                    name="content",
-                    data_type=DataType.TEXT,
-                    description="The main content of the knowledge item",
-                    vectorize_property_name=True,
-                ),
-                Property(
-                    name="source",
-                    data_type=DataType.TEXT,
-                    description="Source of the knowledge (e.g., mcp/gong, chat, document)",
-                    vectorize_property_name=False,
-                ),
-                Property(
-                    name="user_id",
-                    data_type=DataType.TEXT,
-                    description="User ID associated with this knowledge",
-                    vectorize_property_name=False,
-                ),
-                Property(
-                    name="timestamp",
-                    data_type=DataType.DATE,
-                    description="When this knowledge was created",
-                    vectorize_property_name=False,
-                ),
-                Property(
-                    name="metadata",
-                    data_type=DataType.TEXT,
-                    description="JSON metadata",
-                    vectorize_property_name=False,
-                ),
-                Property(
-                    name="category",
-                    data_type=DataType.TEXT,
-                    description="Category of knowledge (sales, project, technical, etc.)",
-                    vectorize_property_name=False,
-                ),
-                Property(
-                    name="importance",
-                    data_type=DataType.NUMBER,
-                    description="Importance score (0-1)",
-                    vectorize_property_name=False,
-                ),
-            ],
-            # Use text2vec-transformers for embedding
-            vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_transformers(
-                model="sentence-transformers/all-MiniLM-L6-v2",
-                vectorize_collection_name=False,
-            ),
-            # Configure vector index
-            vector_index_config=wvc.config.Configure.VectorIndex.hnsw(
-                distance_metric=wvc.config.VectorDistances.COSINE,
-                ef=128,
-                ef_construction=200,
-                max_connections=64,
-            ),
-            # Enable BM25 for hybrid search
-            inverted_index_config=wvc.config.Configure.inverted_index(
-                bm25=wvc.config.Configure.BM25(k1=1.2, b=0.75),
-                stopwords_preset=wvc.config.StopwordsPreset.EN,
-            ),
-        )
-
-        logger.info("✅ Knowledge schema created successfully!")
-
-        # Create UserProfile class for personality adaptation
-        try:
-            client.collections.get("UserProfile")
-            logger.info("UserProfile class already exists, deleting and recreating...")
-            client.collections.delete("UserProfile")
-        except:
-            pass
-
-        profile_collection = client.collections.create(
-            name="UserProfile",
-            properties=[
-                Property(
-                    name="user_id",
-                    data_type=DataType.TEXT,
-                    description="Unique user identifier",
-                    vectorize_property_name=False,
-                ),
-                Property(
-                    name="personality_preferences",
-                    data_type=DataType.TEXT,
-                    description="JSON of personality preferences (sass_level, formality, etc.)",
-                    vectorize_property_name=True,
-                ),
-                Property(
-                    name="interaction_history",
-                    data_type=DataType.TEXT,
-                    description="Summary of past interactions",
-                    vectorize_property_name=True,
-                ),
-                Property(
-                    name="domain_expertise",
-                    data_type=DataType.TEXT_ARRAY,
-                    description="Areas of expertise",
-                    vectorize_property_name=True,
-                ),
-                Property(
-                    name="communication_style",
-                    data_type=DataType.TEXT,
-                    description="Preferred communication style",
-                    vectorize_property_name=False,
-                ),
-                Property(
-                    name="last_updated",
-                    data_type=DataType.DATE,
-                    description="Last profile update",
-                    vectorize_property_name=False,
-                ),
-            ],
-            vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_transformers(
-                model="sentence-transformers/all-MiniLM-L6-v2",
-                vectorize_collection_name=False,
-            ),
-        )
-
-        logger.info("✅ UserProfile schema created successfully!")
-
-        # Create some test data
-        logger.info("Adding test data...")
-
-        # Add CEO profile
-        profile_collection.data.insert(
-            {
-                "user_id": "ceo_user",
-                "personality_preferences": '{"sass_level": 0.9, "formality": 0.3, "technical_depth": 0.8, "humor": "dark", "directness": 0.95}',
-                "interaction_history": "CEO prefers direct, no-bullshit answers with technical depth. Appreciates dark humor and sarcasm. Hates corporate speak.",
-                "domain_expertise": ["sales", "product", "strategy", "engineering"],
-                "communication_style": "direct_snarky",
-                "last_updated": "2025-07-12T09:00:00Z",
-            }
-        )
-
-        # Add sample knowledge
-        knowledge_collection.data.insert(
-            {
-                "content": "The deployment is currently at 60% operational. Backend running on port 8001 with v4 endpoints. Weaviate schema needs initialization.",
-                "source": "system_status",
-                "user_id": "system",
-                "timestamp": "2025-07-12T09:00:00Z",
-                "metadata": '{"deployment_phase": 6, "operational_percentage": 60}',
-                "category": "technical",
-                "importance": 0.9,
-            }
-        )
-
-        logger.info("✅ Test data added successfully!")
-
-        # Verify collections
-        collections = client.collections.list_all()
-        logger.info(f"Available collections: {list(collections.keys())}")
-
-        client.close()
-
-        return True
-
+        
+        # Test connection
+        if client.is_ready():
+            logger.info(f"✅ Connected to Weaviate at {weaviate_url}")
+            return client
+        else:
+            logger.error(f"❌ Weaviate at {weaviate_url} is not ready")
+            sys.exit(1)
+            
     except Exception as e:
-        logger.error(f"Failed to create Weaviate schema: {e}")
-        raise
+        logger.error(f"❌ Failed to connect to Weaviate: {e}")
+        sys.exit(1)
 
+def create_knowledge_collection(client):
+    """Create the Knowledge collection for general knowledge storage"""
+    
+    knowledge_schema = {
+        "class": "Knowledge",
+        "description": "General knowledge and document storage",
+        "vectorIndexType": "hnsw",
+        "vectorizer": "text2vec-transformers",
+        "properties": [
+            {
+                "name": "content",
+                "dataType": ["text"],
+                "description": "The main content/text"
+            },
+            {
+                "name": "title",
+                "dataType": ["text"],
+                "description": "Title or summary of the content"
+            },
+            {
+                "name": "source",
+                "dataType": ["text"],
+                "description": "Source of the knowledge"
+            },
+            {
+                "name": "metadata",
+                "dataType": ["text"],
+                "description": "JSON metadata"
+            },
+            {
+                "name": "category",
+                "dataType": ["text"],
+                "description": "Category or type of knowledge"
+            },
+            {
+                "name": "timestamp",
+                "dataType": ["date"],
+                "description": "When this was created"
+            },
+            {
+                "name": "user_id",
+                "dataType": ["text"],
+                "description": "User who created this"
+            }
+        ]
+    }
+    
+    try:
+        # Check if collection exists
+        existing = client.schema.get()
+        if any(c["class"] == "Knowledge" for c in existing.get("classes", [])):
+            logger.info("✓ Knowledge collection already exists")
+        else:
+            client.schema.create_class(knowledge_schema)
+            logger.info("✅ Created Knowledge collection")
+    except Exception as e:
+        logger.error(f"❌ Error creating Knowledge collection: {e}")
+
+def create_conversation_collection(client):
+    """Create the Conversation collection for chat history"""
+    
+    conversation_schema = {
+        "class": "Conversation",
+        "description": "Chat conversations and interactions",
+        "vectorIndexType": "hnsw",
+        "vectorizer": "text2vec-transformers",
+        "properties": [
+            {
+                "name": "message",
+                "dataType": ["text"],
+                "description": "The message content"
+            },
+            {
+                "name": "role",
+                "dataType": ["text"],
+                "description": "Role (user/assistant/system)"
+            },
+            {
+                "name": "session_id",
+                "dataType": ["text"],
+                "description": "Conversation session ID"
+            },
+            {
+                "name": "user_id",
+                "dataType": ["text"],
+                "description": "User ID"
+            },
+            {
+                "name": "timestamp",
+                "dataType": ["date"],
+                "description": "Message timestamp"
+            },
+            {
+                "name": "context",
+                "dataType": ["text"],
+                "description": "Additional context (JSON)"
+            }
+        ]
+    }
+    
+    try:
+        existing = client.schema.get()
+        if any(c["class"] == "Conversation" for c in existing.get("classes", [])):
+            logger.info("✓ Conversation collection already exists")
+        else:
+            client.schema.create_class(conversation_schema)
+            logger.info("✅ Created Conversation collection")
+    except Exception as e:
+        logger.error(f"❌ Error creating Conversation collection: {e}")
+
+def create_agent_memory_collection(client):
+    """Create the AgentMemory collection for MCP agent memories"""
+    
+    agent_memory_schema = {
+        "class": "AgentMemory",
+        "description": "MCP agent memories and learnings",
+        "vectorIndexType": "hnsw",
+        "vectorizer": "text2vec-transformers",
+        "properties": [
+            {
+                "name": "memory",
+                "dataType": ["text"],
+                "description": "The memory content"
+            },
+            {
+                "name": "agent_name",
+                "dataType": ["text"],
+                "description": "Name of the MCP agent"
+            },
+            {
+                "name": "memory_type",
+                "dataType": ["text"],
+                "description": "Type of memory (fact/procedure/insight)"
+            },
+            {
+                "name": "importance",
+                "dataType": ["number"],
+                "description": "Importance score (0-1)"
+            },
+            {
+                "name": "tags",
+                "dataType": ["text[]"],
+                "description": "Associated tags"
+            },
+            {
+                "name": "created_at",
+                "dataType": ["date"],
+                "description": "When memory was created"
+            },
+            {
+                "name": "last_accessed",
+                "dataType": ["date"],
+                "description": "Last access time"
+            },
+            {
+                "name": "access_count",
+                "dataType": ["int"],
+                "description": "Number of times accessed"
+            }
+        ]
+    }
+    
+    try:
+        existing = client.schema.get()
+        if any(c["class"] == "AgentMemory" for c in existing.get("classes", [])):
+            logger.info("✓ AgentMemory collection already exists")
+        else:
+            client.schema.create_class(agent_memory_schema)
+            logger.info("✅ Created AgentMemory collection")
+    except Exception as e:
+        logger.error(f"❌ Error creating AgentMemory collection: {e}")
+
+def create_business_insights_collection(client):
+    """Create the BusinessInsights collection for business intelligence"""
+    
+    insights_schema = {
+        "class": "BusinessInsights",
+        "description": "Business insights and analytics",
+        "vectorIndexType": "hnsw",
+        "vectorizer": "text2vec-transformers",
+        "properties": [
+            {
+                "name": "insight",
+                "dataType": ["text"],
+                "description": "The business insight"
+            },
+            {
+                "name": "source_system",
+                "dataType": ["text"],
+                "description": "Source system (HubSpot/Gong/etc)"
+            },
+            {
+                "name": "insight_type",
+                "dataType": ["text"],
+                "description": "Type of insight"
+            },
+            {
+                "name": "entities",
+                "dataType": ["text[]"],
+                "description": "Related entities"
+            },
+            {
+                "name": "metrics",
+                "dataType": ["text"],
+                "description": "Associated metrics (JSON)"
+            },
+            {
+                "name": "confidence",
+                "dataType": ["number"],
+                "description": "Confidence score"
+            },
+            {
+                "name": "timestamp",
+                "dataType": ["date"],
+                "description": "When insight was generated"
+            }
+        ]
+    }
+    
+    try:
+        existing = client.schema.get()
+        if any(c["class"] == "BusinessInsights" for c in existing.get("classes", [])):
+            logger.info("✓ BusinessInsights collection already exists")
+        else:
+            client.schema.create_class(insights_schema)
+            logger.info("✅ Created BusinessInsights collection")
+    except Exception as e:
+        logger.error(f"❌ Error creating BusinessInsights collection: {e}")
+
+def verify_schema(client):
+    """Verify all schemas are created"""
+    try:
+        schema = client.schema.get()
+        collections = [c["class"] for c in schema.get("classes", [])]
+        
+        logger.info("\n📊 Weaviate Collections Status:")
+        required = ["Knowledge", "Conversation", "AgentMemory", "BusinessInsights"]
+        
+        for collection in required:
+            if collection in collections:
+                logger.info(f"  ✅ {collection}")
+            else:
+                logger.error(f"  ❌ {collection} - MISSING")
+                
+        return len(set(required) & set(collections)) == len(required)
+        
+    except Exception as e:
+        logger.error(f"❌ Error verifying schema: {e}")
+        return False
+
+def main():
+    """Main initialization function"""
+    logger.info("🚀 Initializing Weaviate Schema for Sophia AI")
+    
+    # Create client
+    client = create_weaviate_client()
+    
+    # Create collections
+    create_knowledge_collection(client)
+    create_conversation_collection(client)
+    create_agent_memory_collection(client)
+    create_business_insights_collection(client)
+    
+    # Verify
+    if verify_schema(client):
+        logger.info("\n✅ Weaviate schema initialization complete!")
+        logger.info("🎯 Ready for Sophia AI deployment")
+    else:
+        logger.error("\n❌ Schema initialization incomplete")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    asyncio.run(create_knowledge_schema())
+    main()
