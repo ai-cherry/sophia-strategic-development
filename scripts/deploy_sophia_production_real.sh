@@ -8,7 +8,7 @@ set -e  # Exit on any error
 # Configuration
 # Using sophia-production-instance (us-south-1)
 SERVER_IP="104.171.202.103"
-SSH_KEY="$HOME/.ssh/sophia2025.pem"
+SSH_KEY="$HOME/.ssh/lambda_labs_private_key"
 DOMAIN="sophia-intel.ai"
 
 # Alternative servers if needed:

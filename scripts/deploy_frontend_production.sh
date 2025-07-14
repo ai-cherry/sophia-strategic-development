@@ -11,7 +11,7 @@ echo ""
 
 # Configuration
 SERVER_IP="192.222.58.232"
-SSH_KEY="$HOME/.ssh/sophia2025.pem"
+SSH_KEY="$HOME/.ssh/lambda_labs_private_key"
 REMOTE_USER="ubuntu"
 
 # Check if SSH key exists

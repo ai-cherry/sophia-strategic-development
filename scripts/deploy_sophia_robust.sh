@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 SERVER_IP="104.171.202.103"
-SSH_KEY="$HOME/.ssh/sophia2025.pem"
+SSH_KEY="$HOME/.ssh/lambda_labs_private_key"
 DOMAIN="sophia-intel.ai"
 
 # Colors
@@ -149,4 +149,4 @@ echo ""
 echo "Next steps:"
 echo "1. Deploy backend: ./scripts/quick_backend_deploy.sh"
 echo "2. Deploy frontend: ./scripts/quick_frontend_deploy.sh"
-echo "3. Check status: ssh -i ~/.ssh/sophia2025.pem ubuntu@$SERVER_IP 'docker ps'" 
+echo "3. Check status: ssh -i ~/.ssh/lambda_labs_private_key ubuntu@$SERVER_IP 'docker ps'" 

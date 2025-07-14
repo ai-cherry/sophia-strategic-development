@@ -36,7 +36,7 @@ class LambdaLabsManager:
     
     def __init__(self):
         self.api_key = os.getenv("LAMBDA_API_KEY")
-        self.ssh_key_path = os.getenv("LAMBDA_SSH_PRIVATE_KEY", "~/.ssh/sophia2025.pem")
+        self.ssh_key_path = os.getenv("LAMBDA_SSH_PRIVATE_KEY", "~/.ssh/lambda_labs_private_key")
         
         self.instances = {
             "master": {"ip": "192.222.58.232", "gpu": "GH200", "role": "master"},
@@ -645,7 +645,7 @@ def main():
     print()
     print("🔧 Prerequisites:")
     print("- Set environment variables: LAMBDA_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY")
-    print("- Ensure SSH key exists: ~/.ssh/sophia2025.pem")
+    print("- Ensure SSH key exists: ~/.ssh/lambda_labs_private_key")
     print("- Install dependencies: pip install weaviate-client requests")
 
 if __name__ == "__main__":

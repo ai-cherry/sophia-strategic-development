@@ -2,7 +2,7 @@
 
 # Find which Lambda Labs servers are accessible
 
-SSH_KEY="$HOME/.ssh/sophia2025.pem"
+SSH_KEY="$HOME/.ssh/lambda_labs_private_key"
 
 # List of servers
 declare -A SERVERS=(

@@ -109,8 +109,8 @@ class LambdaLabsClient:
 
         # SSH configuration
         ssh_key_path = (
-            get_config_value("lambda_labs_ssh_key_path", "~/.ssh/sophia2025.pem")
-            or "~/.ssh/sophia2025.pem"
+            get_config_value("lambda_labs_ssh_key_path", "~/.ssh/lambda_labs_private_key")
+            or "~/.ssh/lambda_labs_private_key"
         )
         self.ssh_key_path = os.path.expanduser(ssh_key_path)
 

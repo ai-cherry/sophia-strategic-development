@@ -8,6 +8,7 @@ Post-Snowflake elimination integrated architecture
 import asyncio
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -23,8 +24,48 @@ class LambdaLabsManager:
     """Manage Lambda Labs infrastructure"""
     
     def __init__(self):
-        self.api_key = os.getenv("LAMBDA_API_KEY")
-        self.ssh_key_path = os.getenv("LAMBDA_SSH_PRIVATE_KEY", "~/.ssh/sophia2025.pem")
+        # Use the correct Lambda Labs API keys provided by user
+        self.api_key = (
+            os.getenv("LAMBDA_API_KEY") or 
+            os.getenv("LAMBDA_CLOUD_API_KEY") or
+            "secret_sophia5apikey_a404a99d985d41828d7020f0b9a122a2.PjbWZb0lLubKu1nmyWYLy9Ycl3vyL18o"
+        )
+        
+        # Use the Lambda Labs SSH private key from environment or the one provided
+        self.ssh_private_key = os.getenv("LAMBDA_PRIVATE_SSH_KEY", """-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAsctiuxhwWHR6Vw2MCEKFQTo0fDd0cDE4G2S7AexGvQZvTyqy
+Vl/bBqVE8k3ToTO1VzVynbX4UIv4jmtZ+f85uAkCfkW9xIhfrdMGLVIoMs7UN0rS
+iuFdyUD7pf41RDGah35+FfpxQWq+gL0ac9LCFwhE66YyeB2MzG6hrabsKVAAK7Tv
+GSYH2ApULQdSowZP0niIshBEy9Sq3px1Vylyon7RsY3UWwEgcrEpQens4s3aJDMe
+o/du4cUhbtMJf3RqcDrva9aL3ub0n1Xq5o57lju7umtqlfsJXP776Vyg2oobviaf
+LeLg3ZkRHNFgkUz6nWXSZkEyeeM0nSaKIbBoawIDAQABAoIBABvsIbbZeTdjH52R
+Wpcnf08FqZ2Chg5ipHmk4bvFFDz2iD+qKHTpO/g4t3HIaD6uZMHr+nKrU/KucNxJ
+Hsnk2/c7rwEOyeVWN5SQii1O9FI6ali+rv8xsq17P6pLmKj7k1XJN1sTSHsqHP4R
+9NgQ1vuQCGbr5Iw5s9WdYFXp27gG/cwCPcRmtbDwxWypNqBJXCuzryTcj12mXWxx
+KXyR1D2i64kYJvfX4XpdO2fHqCwy9OQe6XXCgfO8EmY16GEBA9OYFz7TWD05g/ag
+e4C3PhO/OJ8wdd6EUA8/DS8ycN8iAxrqJJ4O8ZRKhPWVTIWG++2b9AJlc+vy+lCo
+4PbAWKECgYEA4SZhKQnDAHzt6xuHkVZCxcFGDQPtEhdPc3B23SIFgRtCCss4h5NC
+20WoxjsULv+CWG6rlTxNojUS3dKwS/xZs7RZRVleV6Rd3nWikuRDTZTDXQBsxRfr
+mgrfdnRKhCkqBfvxEsiRz/dewUL4owkZYyr3B8T6NRDXuCNeWKHHlgsCgYEAyifp
+VmQ9aCS3PrZTVo9CwCz7vh0NHjrZ1LQpJzGWld/BKzwmqZeOe3EKlNI0BaYH43sb
+38uTq5A0TnjfD16hqeWhy7oIgAabnKUU894PkMZNt4xjk9iRFKvsJiCZxv4vN5MY
+MraJRj61jH/9BtXnLAhqsnH7tJYN2uAzufjB0yECgYAyalipStFKg672zWRO7ATp
+qTyZX36vZV7aF53WKG8ZGNRx/E19NkFrPi7rrID5gSdby/RJ54Xuw3mlCC+H5Erl
+zYWL3NYeQ+TtEmREBi736U7RvW2duJx+Et809BdXfqw1SNQTg6v66IZkOi3YvAne
+Rdmo+LeaOFpFlk3jBN7fPwKBgAhMLxWus56Ms0DNtwn8g17j+clJ4/nzrHFAm9fR
+/z5TmtgtdeDMKbsDXs3Q+vWoZPZ/XRuIfZ0zJBJ8f5tf5P7WQBfeoO6wVr7NP9jq
+qnTkztfT2Vp+LyZMEDtYZzd1w3ZigUHDoErT1BvaPQaEzSJPjiGY8B3vcs4jGbxu
+a3ZBAoGARVeKJRgiPHQTxguouBYLSpKr5kuF+sYp0TB3XvOPlMPjKMLIryOajRpd
+3ot+NheIx7IOO8nbRBjcdr1CsxvKVrC6K1iEyV1cOwrGo2JednJr5cY92oE3Q3BZ
+Si02dEz1jsNZT5IObnR+EZU3x3tUPVwobDfLiVIhf5iOHg48b/w=
+-----END RSA PRIVATE KEY-----""")
+        
+        # Write SSH private key to temporary file for use
+        import tempfile
+        self.ssh_key_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.pem')
+        self.ssh_key_file.write(self.ssh_private_key)
+        self.ssh_key_file.close()
+        os.chmod(self.ssh_key_file.name, 0o600)
         
         self.instances = {
             "master": {"ip": "192.222.58.232", "gpu": "GH200", "role": "master"},
@@ -41,7 +82,8 @@ class LambdaLabsManager:
         for name, config in self.instances.items():
             try:
                 result = subprocess.run([
-                    "ssh", "-i", self.ssh_key_path, "-o", "ConnectTimeout=10",
+                    "ssh", "-i", self.ssh_key_file.name, "-o", "ConnectTimeout=10",
+                    "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
                     f"ubuntu@{config['ip']}", "echo 'OK'"
                 ], capture_output=True, text=True, timeout=15)
                 
@@ -54,6 +96,41 @@ class LambdaLabsManager:
                 logger.error(f"   ❌ {name} ({config['ip']}) - Error: {e}")
         
         return results
+    
+    async def test_api_connection(self) -> bool:
+        """Test Lambda Labs API connection"""
+        logger.info("🔍 Testing Lambda Labs API connection...")
+        
+        try:
+            import requests
+            import base64
+            
+            # Create basic auth header
+            auth_string = f"{self.api_key}:"
+            auth_bytes = auth_string.encode('ascii')
+            auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
+            
+            response = requests.get(
+                "https://cloud.lambda.ai/api/v1/instances",
+                headers={"Authorization": f"Basic {auth_b64}"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                logger.info("   ✅ Lambda Labs API connection successful")
+                return True
+            else:
+                logger.error(f"   ❌ Lambda Labs API connection failed: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"   ❌ Lambda Labs API connection error: {e}")
+            return False
+    
+    def __del__(self):
+        """Cleanup temporary SSH key file"""
+        if hasattr(self, 'ssh_key_file') and os.path.exists(self.ssh_key_file.name):
+            os.unlink(self.ssh_key_file.name)
 
 class WeaviateCloudManager:
     """Manage Weaviate Cloud integration"""
@@ -120,7 +197,8 @@ class K3sManager:
         # 1. Install K3s on master node
         logger.info("   Installing K3s on master node...")
         master_cmd = [
-            "ssh", "-i", self.lambda_manager.ssh_key_path,
+            "ssh", "-i", self.lambda_manager.ssh_key_file.name,
+            "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
             f"ubuntu@{self.master_ip}",
             "curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644"
         ]
@@ -135,7 +213,8 @@ class K3sManager:
             
             # 2. Get node token
             token_cmd = [
-                "ssh", "-i", self.lambda_manager.ssh_key_path,
+                "ssh", "-i", self.lambda_manager.ssh_key_file.name,
+                "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
                 f"ubuntu@{self.master_ip}",
                 "sudo cat /var/lib/rancher/k3s/server/node-token"
             ]
@@ -153,7 +232,8 @@ class K3sManager:
                     logger.info(f"   Joining worker node: {name}")
                     
                     worker_cmd = [
-                        "ssh", "-i", self.lambda_manager.ssh_key_path,
+                        "ssh", "-i", self.lambda_manager.ssh_key_file.name,
+                        "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
                         f"ubuntu@{config['ip']}",
                         f"curl -sfL https://get.k3s.io | K3S_URL=https://{self.master_ip}:6443 K3S_TOKEN={node_token} sh -"
                     ]
@@ -177,7 +257,8 @@ class K3sManager:
         try:
             # Copy kubeconfig from master
             kubeconfig_cmd = [
-                "scp", "-i", self.lambda_manager.ssh_key_path,
+                "scp", "-i", self.lambda_manager.ssh_key_file.name,
+                "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
                 f"ubuntu@{self.master_ip}:/etc/rancher/k3s/k3s.yaml",
                 "~/.kube/config"
             ]
@@ -290,8 +371,13 @@ class UnifiedDeploymentOrchestrator:
             logger.error(f"   ❌ Missing environment variables: {', '.join(missing_vars)}")
             return False
         
+        # Test Lambda Labs API connection
+        if not await self.lambda_labs.test_api_connection():
+            logger.error("   ❌ Lambda Labs API connection failed")
+            return False
+        
         # Check SSH key
-        ssh_key_path = os.path.expanduser(self.lambda_labs.ssh_key_path)
+        ssh_key_path = os.path.expanduser(self.lambda_labs.ssh_key_file.name)
         if not Path(ssh_key_path).exists():
             logger.error(f"   ❌ SSH key not found: {ssh_key_path}")
             return False

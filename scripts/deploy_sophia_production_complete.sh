@@ -17,7 +17,7 @@ DOMAIN="sophia-intel.ai"
 API_DOMAIN="api.sophia-intel.ai"
 WEBHOOK_DOMAIN="webhooks.sophia-intel.ai"
 SERVER_IP="192.222.58.232"
-SSH_KEY="$HOME/.ssh/sophia2025.pem"
+SSH_KEY="$HOME/.ssh/lambda_labs_private_key"
 FRONTEND_DIR="frontend"
 BACKEND_DIR="backend"
 

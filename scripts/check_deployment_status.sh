@@ -3,7 +3,7 @@
 # Check deployment status on Sophia AI servers
 
 SERVER_IP="${1:-192.222.58.232}"  # Default to GH200
-SSH_KEY="$HOME/.ssh/sophia2025.pem"
+SSH_KEY="$HOME/.ssh/lambda_labs_private_key"
 
 echo "🔍 Checking deployment status on $SERVER_IP..."
 echo ""
