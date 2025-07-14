@@ -14,7 +14,7 @@ import sys
 
 sys.path.append("/Users/lynnmusil/sophia-main")
 
-from backend.services.unified_memory_service import get_unified_memory_service as get_v1
+from backend.services.unified_memory_service_v2 import get_unified_memory_service as get_v1
 from backend.services.unified_memory_service_v2 import (
     get_unified_memory_service as get_v2,
 )

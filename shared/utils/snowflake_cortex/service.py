@@ -29,7 +29,7 @@ CORTEX_LATENCY = Histogram(
 CORTEX_CACHE_HITS = Counter("cortex_cache_hits_total", "Cache hits", ["task_type"])
 
 
-class QdrantUnifiedMemoryService:
+class QdrantUnifiedMemoryServiceV2:
     """Unified Lambda GPU service with dual-mode support."""
 
     def __init__(

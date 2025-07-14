@@ -52,7 +52,15 @@ class CallAnalysisAgent:
             return
         
         try:
-            # TODO: Initialize Qdrant services
+# Initialize Qdrant services
+        try:
+            from backend.services.qdrant_foundation_service import QdrantFoundationService
+            self.qdrant_service = QdrantFoundationService()
+            await self.qdrant_service.initialize()
+            logger.info("✅ Qdrant services initialized")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Qdrant services: {e}")
+            raise
             self.initialized = True
             logger.info("✅ Call Analysis Agent initialized")
         except Exception as e:
@@ -91,7 +99,15 @@ class SupervisorAgent:
     """Supervisor Agent for orchestrating the workflow"""
     name: str = "supervisor_agent"
     description: str = "Orchestrates deal analysis workflow and consolidates insights"
-    initialized: bool = False
+# Initialize Qdrant services
+        try:
+            from backend.services.qdrant_foundation_service import QdrantFoundationService
+            self.qdrant_service = QdrantFoundationService()
+            await self.qdrant_service.initialize()
+            logger.info("✅ Qdrant services initialized")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Qdrant services: {e}")
+            raise
 
     async def initialize(self) -> None:
         """Initialize services"""

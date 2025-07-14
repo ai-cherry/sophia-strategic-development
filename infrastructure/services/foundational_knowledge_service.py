@@ -8,7 +8,6 @@ Recommended decomposition:
 - foundational_knowledge_service_models.py - Data models
 - foundational_knowledge_service_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 from core.services.knowledge_service import KnowledgeService

@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-07-14T08:08:22.751895",
+  "codebase_health": {
+    "total_python_files": 621,
+    "lines_of_code": 363758,
+    "wildcard_imports": 4,
+    "todo_items": 273,
+    "temporary_code": 1055,
+    "deprecated_imports": 41
+  },
+  "technical_debt_ratio": 0.38,
+  "code_quality_score": 0.0,
+  "prevention_framework": {
+    "hooks_active": true,
+    "monitors_running": true,
+    "standards_documented": true
+  }
+}

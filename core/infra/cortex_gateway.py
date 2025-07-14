@@ -29,7 +29,40 @@ from infrastructure.core.optimized_connection_manager import (
 logger = logging.getLogger(__name__)
 
 
-def _prom_metrics(func):  # placeholder – connect to real Prom client later
+def _prom_metrics(func):
+    """Production Prometheus metrics decorator"""
+    from prometheus_client import Counter, Histogram, start_http_server
+    import time
+    import functools
+    
+    # Create metrics
+    request_count = Counter(
+        f'{func.__name__}_requests_total',
+        f'Total requests to {func.__name__}',
+        ['method', 'endpoint', 'status']
+    )
+    
+    request_duration = Histogram(
+        f'{func.__name__}_duration_seconds',
+        f'Request duration for {func.__name__}',
+        ['method', 'endpoint']
+    )
+    
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        start_time = time.time()
+        try:
+            result = await func(*args, **kwargs)
+            request_count.labels(method='async', endpoint=func.__name__, status='success').inc()
+            return result
+        except Exception as e:
+            request_count.labels(method='async', endpoint=func.__name__, status='error').inc()
+            raise
+        finally:
+            duration = time.time() - start_time
+            request_duration.labels(method='async', endpoint=func.__name__).observe(duration)
+    
+    return wrapper
     async def wrapper(self, *args, **kwargs):  # type: ignore[override]
         start = datetime.utcnow()
         result = await func(self, *args, **kwargs)
@@ -55,7 +88,20 @@ def _credit_limit(max_credits_day: int = 100, max_tokens: int = 10_000):
 
     def decorator(func):  # type: ignore[override]
         async def wrapper(self, *args, **kwargs):
-            # TODO: pull rolling totals from monitoring table and raise if limits exceeded
+# Pull rolling totals from monitoring table and raise if limits exceeded
+        try:
+            rolling_totals = await self.monitoring_service.get_rolling_totals()
+            limits = self.config.get('resource_limits', {})
+            
+            for resource, total in rolling_totals.items():
+                limit = limits.get(resource)
+                if limit and total > limit:
+                    raise ResourceLimitExceededError(f"{resource} limit exceeded: {total} > {limit}")
+            
+            logger.info("✅ Resource limits check passed")
+        except Exception as e:
+            logger.error(f"❌ Resource limits check failed: {e}")
+            raise
             return await func(self, *args, **kwargs)
 
         return wrapper

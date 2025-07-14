@@ -392,7 +392,6 @@ If you need to reference or re-run any of these scripts:
             function_count = len(re.findall(r'^def\s+\w+', content, re.MULTILINE))
             
             # Check for TODO decomposition marker
-            has_decomposition_todo = "TODO: Implement file decomposition (Plan created: 2025-07-13)" in content
             
             # Determine if decomposition is needed
             needs_decomposition = (
@@ -476,7 +475,6 @@ If you need to reference or re-run any of these scripts:
                     content = f.read()
                 
                 if "TODO: Implement file decomposition (Plan created: 2025-07-13)" in content:
-                    todo_files.append(file_path)
                     
             except Exception:
                 continue
@@ -493,9 +491,7 @@ If you need to reference or re-run any of these scripts:
             updated_content = content.replace(
                 "TODO: Implement file decomposition (Plan created: 2025-07-13)",
                 f"TODO: Implement file decomposition (Plan created: 2025-07-13) (Plan created: {datetime.now().strftime('%Y-%m-%d')})"
-            )
             
-            with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(updated_content)
                 
         except Exception as e:

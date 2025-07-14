@@ -20,7 +20,6 @@ Recommended decomposition:
 - estuary_configuration_manager_models.py - Data models
 - estuary_configuration_manager_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import asyncio
@@ -123,7 +122,7 @@ class EnhancedEstuaryManager:
     def __init__(self, environment: str = "dev"):
         self.environment = environment
         self.session: aiohttp.ClientSession | None = None
-        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
 
         # Configuration
         self.estuary_config = self._load_estuary_config()

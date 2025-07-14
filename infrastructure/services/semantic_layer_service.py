@@ -7,7 +7,7 @@ from typing import Any
 
 from core.performance_monitor import performance_monitor
 from backend.services.qdrant_unified_memory_service import (
-    EnhancedQdrantUnifiedMemoryService,
+    EnhancedQdrantUnifiedMemoryServiceV2,
 )
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class SemanticLayerService:
 
     def __init__(self):
         """Initializes the service and the connection to Qdrant."""
-        self.memory_service_v3 = EnhancedQdrantUnifiedMemoryService()
+        self.memory_service_v3 = EnhancedQdrantUnifiedMemoryServiceV2()
 
     @performance_monitor.monitor_performance("semantic_get_connection")
     async def _get_connection(self):

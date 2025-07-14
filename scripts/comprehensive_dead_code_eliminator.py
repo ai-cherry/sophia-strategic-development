@@ -141,9 +141,7 @@ class DeadCodeEliminator:
         print(f"✅ Phase 3 Complete: {self.results['empty_functions_fixed']} empty functions fixed")
     
     def phase4_todo_cleanup(self) -> None:
-        """Phase 4: Resolve TODO markers and deprecated functions"""
         print("📋 Phase 4: TODO/Deprecated Cleanup")
-        
         # Generate TODO analysis
         result = subprocess.run("grep -r 'TODO' . --include='*.py'", shell=True, capture_output=True, text=True)
         todos = result.stdout.strip().split('\n') if result.stdout.strip() else []
@@ -153,13 +151,11 @@ class DeadCodeEliminator:
         implementation_todos = [todo for todo in todos if 'implement' in todo.lower()]
         deprecated_todos = [todo for todo in todos if 'deprecated' in todo.lower()]
         
-        print(f"Found {len(todos)} total TODOs:")
         print(f"  - {len(decomposition_todos)} decomposition TODOs")
         print(f"  - {len(implementation_todos)} implementation TODOs")
         print(f"  - {len(deprecated_todos)} deprecated TODOs")
         
         # Save analysis for manual review
-        with open("todo_analysis_report.txt", "w") as f:
             f.write("TODO Analysis Report\n")
             f.write("===================\n\n")
             f.write(f"Total TODOs: {len(todos)}\n")
@@ -169,7 +165,6 @@ class DeadCodeEliminator:
             f.write("All TODOs:\n")
             for todo in todos:
                 f.write(f"{todo}\n")
-        
         print("✅ Phase 4 Complete: TODO analysis saved to todo_analysis_report.txt")
     
     def execute_all_phases(self) -> None:

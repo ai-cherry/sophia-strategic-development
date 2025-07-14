@@ -177,7 +177,7 @@ class MarketingAnalysisAgent(BaseAgent):
         self.description = "AI-powered marketing intelligence and content generation"
 
         # Service integrations
-        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
         self.hubspot_connector: HubSpotClient | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.knowledge_service: FoundationalKnowledgeService | None = None

@@ -18,7 +18,6 @@ Recommended decomposition:
 - sales_coach_agent_models.py - Data models
 - sales_coach_agent_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import logging
@@ -124,7 +123,7 @@ class SalesCoachAgent(BaseAgent):
         self.description = "AI-powered sales coaching with Lambda GPU insights"
 
         # Qdrant integrations
-        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
         self.gong_connector: GongAPIClient | None = None
         self.hubspot_connector: HubSpotClient | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None

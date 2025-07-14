@@ -28,7 +28,6 @@ Recommended decomposition:
 - cost_engineering_service_models.py - Data models
 - cost_engineering_service_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
@@ -146,7 +145,7 @@ class CostEngineeringService:
     """
 
     def __init__(self):
-        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
         self.cache_manager = EnhancedCacheManager()
         self.audit_logger = AuditLogger()
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None

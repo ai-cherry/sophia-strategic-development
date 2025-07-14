@@ -23,7 +23,7 @@ from backend.core.date_time_manager import date_manager
 from infrastructure.mcp_servers.gong_v2.handlers.memory_integration import (
     GongMemoryIntegration,
 )
-from infrastructure.services.qdrant_memory_service import QdrantUnifiedMemoryService
+from infrastructure.services.qdrant_memory_service import QdrantUnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 

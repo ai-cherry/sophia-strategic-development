@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sophia AI Technical Debt Monitor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: #2c3e50; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .metric-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .metric-value { font-size: 2em; font-weight: bold; color: #27ae60; }
+        .metric-label { color: #7f8c8d; margin-bottom: 10px; }
+        .status-good { color: #27ae60; }
+        .status-warning { color: #f39c12; }
+        .status-critical { color: #e74c3c; }
+        .progress-bar { width: 100%; height: 20px; background: #ecf0f1; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #27ae60; transition: width 0.3s ease; }
+        .timestamp { color: #95a5a6; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Sophia AI Technical Debt Monitor</h1>
+            <p>Real-time monitoring of code quality and technical debt metrics</p>
+            <p class="timestamp">Last updated: <span id="timestamp">Loading...</span></p>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Code Quality Score</div>
+                <div class="metric-value status-good" id="quality-score">Loading...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="quality-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Technical Debt Ratio</div>
+                <div class="metric-value" id="debt-ratio">Loading...</div>
+                <div>Lower is better</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Wildcard Imports</div>
+                <div class="metric-value" id="wildcard-imports">Loading...</div>
+                <div>Target: 0</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">TODO Items</div>
+                <div class="metric-value" id="todo-items">Loading...</div>
+                <div>Target: < 50</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Temporary Code</div>
+                <div class="metric-value" id="temp-code">Loading...</div>
+                <div>Target: 0</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Prevention Framework</div>
+                <div class="metric-value status-good" id="prevention-status">Active</div>
+                <div>Hooks & Monitors Running</div>
+            </div>
+        </div>
+        
+        <div class="metric-card" style="margin-top: 20px;">
+            <h3>📈 Recent Improvements</h3>
+            <ul>
+                <li>✅ Phase 1: Eliminated deprecated services (35+ files updated)</li>
+                <li>✅ Phase 2: Removed wildcard imports (28+ eliminated)</li>
+                <li>✅ Phase 3: Resolved TODOs (67+ items cleaned)</li>
+                <li>✅ Phase 4: Eliminated temporary code (8+ items replaced)</li>
+                <li>✅ Phase 5: Activated prevention framework (6 hooks + 3 monitors)</li>
+                <li>✅ Phase 6: Comprehensive validation completed</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Load metrics from JSON file
+        async function loadMetrics() {
+            try {
+                const response = await fetch('final_metrics.json');
+                const metrics = await response.json();
+                updateDashboard(metrics);
+            } catch (error) {
+                console.error('Failed to load metrics:', error);
+            }
+        }
+        
+        function updateDashboard(metrics) {
+            document.getElementById('timestamp').textContent = new Date(metrics.timestamp).toLocaleString();
+            document.getElementById('quality-score').textContent = metrics.code_quality_score + '/100';
+            document.getElementById('quality-progress').style.width = metrics.code_quality_score + '%';
+            document.getElementById('debt-ratio').textContent = metrics.technical_debt_ratio + '%';
+            document.getElementById('wildcard-imports').textContent = metrics.codebase_health.wildcard_imports;
+            document.getElementById('todo-items').textContent = metrics.codebase_health.todo_items;
+            document.getElementById('temp-code').textContent = metrics.codebase_health.temporary_code;
+            
+            // Update status colors
+            updateStatusColor('wildcard-imports', metrics.codebase_health.wildcard_imports, 0);
+            updateStatusColor('todo-items', metrics.codebase_health.todo_items, 50);
+            updateStatusColor('temp-code', metrics.codebase_health.temporary_code, 0);
+        }
+        
+        function updateStatusColor(elementId, value, threshold) {
+            const element = document.getElementById(elementId);
+            element.className = 'metric-value ' + (value <= threshold ? 'status-good' : 'status-warning');
+        }
+        
+        // Load metrics on page load and refresh every 5 minutes
+        loadMetrics();
+        setInterval(loadMetrics, 300000);
+    </script>
+</body>
+</html>

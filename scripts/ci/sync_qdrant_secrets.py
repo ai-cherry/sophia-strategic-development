@@ -204,9 +204,9 @@ class QdrantSecretsSync:
         
         try:
             # Import and test Qdrant service
-            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryServiceV2
             
-            qdrant_service = QdrantUnifiedMemoryService()
+            qdrant_service = QdrantUnifiedMemoryServiceV2()
             await qdrant_service.initialize()
             
             # Test health check

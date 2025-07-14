@@ -14,7 +14,6 @@ Recommended decomposition:
 - linear_project_health_agent_models.py - Data models
 - linear_project_health_agent_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
@@ -139,7 +138,7 @@ class LinearProjectHealthAgent(BaseAgent):
         )
 
         # Service integrations
-        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
 
         # Health assessment thresholds

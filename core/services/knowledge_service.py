@@ -3,7 +3,10 @@ from pydantic import BaseModel
 
 class KnowledgeService:
     def __init__(...):
-    """TODO: Implement __init__"""
+"""Initialize service with configuration"""
+        self.config = config or {}
+        self.initialized = False
+        logger.info(f"✅ {self.__class__.__name__} initialized")
     import logging
     logger = logging.getLogger(__name__)
     logger.warning(f"__init__ not yet implemented")

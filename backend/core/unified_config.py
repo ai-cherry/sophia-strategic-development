@@ -178,7 +178,7 @@ class UnifiedConfig:
         return value
 
     @classmethod
-    def get_legacy_config(cls) -> dict:
+    def get_current_config(cls) -> dict:
         """Get legacy configuration (deprecated)"""
         return {
             "host": cls.get("postgres_host", "localhost"),

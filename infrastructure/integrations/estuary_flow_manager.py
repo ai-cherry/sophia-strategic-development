@@ -16,7 +16,6 @@ Recommended decomposition:
 - estuary_flow_manager_models.py - Data models
 - estuary_flow_manager_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import json

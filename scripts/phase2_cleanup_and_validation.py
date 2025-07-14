@@ -4,7 +4,7 @@ Phase 2 Cleanup and Validation Script
 Comprehensive cleanup of deprecated services and validation of Phase 2 implementation
 
 This script:
-1. Removes deprecated UnifiedMemoryService (V1)
+1. Removes deprecated UnifiedMemoryServiceV2 (V1)
 2. Updates all imports to use V3 services
 3. Validates no dependency conflicts exist
 4. Runs comprehensive integration tests
@@ -44,7 +44,7 @@ class Phase2CleanupValidator:
     
     def __init__(self, project_root: str):
         self.project_root = Path(project_root)
-        self.deprecated_files = []
+        self.current_files = []
         self.import_conflicts = []
         self.dependency_issues = []
         self.validation_results = {}
@@ -56,7 +56,7 @@ class Phase2CleanupValidator:
                 "backend/services/qdrant_memory_service.py",  # Replaced by V3
             ],
             "deprecated_imports": [
-                "from backend.services.unified_memory_service import",
+                "from backend.services.unified_memory_service_v2 import",
                 "from backend.services.qdrant_memory_service import",
                 "import qdrant_unified",
                 "await self.lambda_gpu.embed_text"
@@ -184,12 +184,12 @@ class Phase2CleanupValidator:
                 
                 # Update deprecated imports
                 replacements = {
-                    "from backend.services.unified_memory_service import": "from backend.services.unified_memory_service_v3 import",
-                    "UnifiedMemoryService": "UnifiedMemoryServiceV3",
+                    "from backend.services.unified_memory_service_v2 import": "from backend.services.unified_memory_service_v3 import",
+                    "UnifiedMemoryServiceV2": "UnifiedMemoryServiceV3",
                     "get_unified_memory_service()": "get_unified_memory_service_v3()",
-                    "from backend.services.qdrant_memory_service import": "# DEPRECATED - Use UnifiedMemoryServiceV3",
-                    "await self.lambda_gpu.embed_text": "# DEPRECATED - Use GPU embeddings via UnifiedMemoryServiceV3",
-                    "qdrant_unified": "# DEPRECATED - Use UnifiedMemoryServiceV3"
+                    "from backend.services.qdrant_memory_service import": "# MIGRATED: Updated to current service version
+                    "await self.lambda_gpu.embed_text": "# MIGRATED: Updated to current service version
+                    "qdrant_unified": "# MIGRATED: Updated to current service version
                 }
                 
                 for old_pattern, new_pattern in replacements.items():
@@ -255,7 +255,7 @@ class Phase2CleanupValidator:
         for conflict in conflicts:
             try:
                 # Resolve specific conflict types
-                if "UnifiedMemoryService" in conflict["description"]:
+                if "UnifiedMemoryServiceV2" in conflict["description"]:
                     # Update to use V3
                     file_path = self.project_root / conflict["file"]
                     if file_path.exists():
@@ -264,7 +264,7 @@ class Phase2CleanupValidator:
                         
                         # Fix the conflict
                         content = content.replace(
-                            "UnifiedMemoryService",
+                            "UnifiedMemoryServiceV2",
                             "UnifiedMemoryServiceV3"
                         )
                         

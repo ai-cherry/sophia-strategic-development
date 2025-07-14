@@ -66,7 +66,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
         self.agent_role = AgentRole.ANALYZER  # Primary role in workflows
 
         # Service integrations
-        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
         self.gong_connector: GongAPIClient | None = None
         self.hubspot_connector: HubSpotClient | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None

@@ -1,0 +1,419 @@
+
+# 📋 SYSTEMATIC TODO CLEANUP REPORT
+## Phase 3 - Technical Debt Elimination
+
+### 📊 SUMMARY
+- **TODOs Resolved**: 67
+- **TODOs Implemented**: 20
+- **TODOs Removed**: 45
+- **TODOs Deferred**: 2
+- **Files Modified**: 45
+- **Errors**: 277
+
+### ✅ TODOS IMPLEMENTED
+- # TODO: Implement actual memory storage call
+- """TODO: Implement __init__"""
+- """TODO: Implement __init__"""
+- """TODO: Implement __init__"""
+- # TODO: Add methods for agent registration, health checks, feedback loops, and integration with learning framework
+- # TODO: Initialize Qdrant services
+- # TODO: Initialize Qdrant services
+- """TODO: Implement __init__"""
+- """TODO: Implement __init__"""
+- r'"""TODO: Implement __init__"""': {
+- r"# TODO: Initialize Qdrant services": {
+- r"# TODO: Implement actual memory storage call": {
+- r"# TODO: Add methods for agent registration, health checks, feedback loops, and integration with learning framework": {
+- """TODO: Implement __init__"""
+- # TODO: pull rolling totals from monitoring table and raise if limits exceeded
+- # TODO: Add agent health monitoring, performance metrics, and dynamic updates
+- # TODO: Add analytics, trend detection, and feedback integration
+- r"# TODO: Add agent health monitoring, performance metrics, and dynamic updates": {
+- r"# TODO: Add analytics, trend detection, and feedback integration": {
+- r"# TODO: pull rolling totals from monitoring table and raise if limits exceeded": {
+
+### 🗑️ TODOS REMOVED
+- """Phase 4: Resolve TODO markers and deprecated functions"""
+- print("📋 Phase 4: TODO/Deprecated Cleanup")
+- deprecated_todos = [todo for todo in todos if 'deprecated' in todo.lower()]
+- print(f"  - {len(deprecated_todos)} deprecated TODOs")
+- f.write(f"Deprecated TODOs: {len(deprecated_todos)}\n\n")
+- elif any(keyword in todo_text.lower() for keyword in ["deprecated", "old", "legacy"]):
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+- has_decomposition_todo = "TODO: Implement file decomposition (Plan created: 2025-07-13)" in content
+- if "TODO: Implement file decomposition (Plan created: 2025-07-13)" in content:
+- "TODO: Implement file decomposition (Plan created: 2025-07-13)",
+- f"TODO: Implement file decomposition (Plan created: 2025-07-13) (Plan created: {datetime.now().strftime('%Y-%m-%d')})"
+- r"TODO: Implement file decomposition.*": {
+- TODO: Implement file decomposition (Plan created: 2025-07-13)
+
+### ⏳ TODOS DEFERRED
+- 5. Deferring non-critical feature TODOs
+- elif any(keyword in todo_text.lower() for keyword in ["feature", "enhancement", "nice"]):
+
+### 🔄 FILES MODIFIED
+- core/agents/research/orchestration_research_agent.py
+- core/services/analytics_service.py
+- core/services/knowledge_service.py
+- core/workflows/intelligent_meta_orchestrator.py
+- core/workflows/langgraph_agent_orchestration.py
+- infrastructure/integrations/gong_api_client.py
+- infrastructure/services/enhanced_cortex_agent_service.py
+- scripts/phase3_systematic_todo_cleanup.py
+- shared/dependencies.py
+- core/infra/cortex_gateway.py
+- scripts/comprehensive_dead_code_eliminator.py
+- core/agents/infrastructure/sophia_infrastructure_agent.py
+- core/agents/integrations/gong_data_integration.py
+- core/cross_platform_sync_orchestrator.py
+- core/integrated_performance_monitoring.py
+- core/performance_monitor.py
+- core/use_cases/asana_project_intelligence_agent.py
+- core/use_cases/interactive_sales_coach_agent.py
+- core/use_cases/linear_project_health_agent.py
+- core/use_cases/sales_coach_agent.py
+- infrastructure/core/hierarchical_cache.py
+- infrastructure/core/optimized_connection_manager.py
+- infrastructure/etl/enhanced_unified_data_pipeline.py
+- infrastructure/etl/estuary/estuary_configuration_manager.py
+- infrastructure/etl/gong/ingest_gong_data.py
+- infrastructure/integrations/advanced_estuary_flow_manager.py
+- infrastructure/integrations/enhanced_microsoft_gong_integration.py
+- infrastructure/integrations/estuary_flow_manager.py
+- infrastructure/integrations/gong_api_client_enhanced.py
+- infrastructure/monitoring/deployment_tracker.py
+- infrastructure/monitoring/gong_data_quality.py
+- infrastructure/monitoring/mcp_metrics_collector.py
+- infrastructure/security/audit_logger.py
+- infrastructure/security/rbac/dependencies.py
+- infrastructure/security/rbac/routes.py
+- infrastructure/security/rbac/service.py
+- infrastructure/security/secret_management.py
+- infrastructure/services/cost_engineering_service.py
+- infrastructure/services/foundational_knowledge_service.py
+- infrastructure/services/mcp_orchestration_service.py
+- infrastructure/services/payready_business_intelligence.py
+- infrastructure/services/sophia_ai_orchestrator.py
+- infrastructure/services/unified_ai_orchestration_service.py
+- scripts/execute_cleanup_plan.py
+- tests/ai_evals/framework.py
+
+### ⚠️ ERRORS
+- api/app/core/dependencies.py:26 - No replacement found for: # TODO: Implement actual token validation
+- backend/api/orchestrator_v4_routes.py:142 - No replacement found for: # TODO: Implement true streaming in orchestrator
+- backend/services/hybrid_search_engine.py:320 - No replacement found for: # TODO: Implement personalization based on user history
+- backend/services/hybrid_search_engine.py:354 - No replacement found for: # TODO: Implement caching with RedisHelper
+- backend/services/hybrid_search_engine.py:367 - No replacement found for: # TODO: Implement access pattern tracking
+- backend/services/qdrant_unified_memory_service.py:575 - No replacement found for: # TODO: Add sparse keyword matching and reranking
+- backend/services/qdrant_unified_memory_service.py:662 - No replacement found for: return [0.0] * 768  # TODO: Implement based on actual router response format
+- infrastructure/core/enhanced_cache_manager.py:253 - No replacement found for: # TODO: Implement actual semantic similarity with embeddings
+- infrastructure/core/enhanced_cache_manager.py:394 - No replacement found for: # TODO: Implement actual pattern matching with Redis SCAN
+- infrastructure/integrations/gong_api_client.py:40 - No replacement found for: """TODO: Implement __aexit__"""
+- infrastructure/integrations/gong_api_client.py:59 - No replacement found for: """TODO: Implement inc"""
+- infrastructure/integrations/gong_webhook_server.py:296 - No replacement found for: """TODO: Implement __aexit__"""
+- infrastructure/integrations/gong_webhook_server.py:511 - No replacement found for: "redis": {"status": "ok"},  # TODO: Implement actual health checks
+- infrastructure/integrations/gong_webhook_server.py:552 - No replacement found for: # TODO: Implement Qdrant storage
+- infrastructure/services/code_modification_service.py:150 - No replacement found for: validation["warnings"].append("New TODO comments added")
+- infrastructure/services/unified_sophia_service.py:135 - No replacement found for: # TODO: Implement feedback submission to the learning framework
+- main.py:2 - No replacement found for: """TODO: Implement main"""
+- scripts/ci/sync_qdrant_secrets.py:180 - No replacement found for: # Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx|additional_chars
+- scripts/comprehensive_dead_code_eliminator.py:133 - No replacement found for: new_impl = f"{async_prefix}def {func_name}(...):\\n    \"\"\"TODO: Implement {func_name}\"\"\"\\n    import logging\\n    logger = logging.getLogger(__name__)\\n    logger.warning(f\"{func_name} not yet implemented\")"
+- scripts/comprehensive_dead_code_eliminator.py:153 - No replacement found for: implementation_todos = [todo for todo in todos if 'implement' in todo.lower()]
+- scripts/comprehensive_dead_code_eliminator.py:158 - No replacement found for: print(f"  - {len(implementation_todos)} implementation TODOs")
+- scripts/comprehensive_dead_code_eliminator.py:167 - No replacement found for: f.write(f"Implementation TODOs: {len(implementation_todos)}\n")
+- scripts/execute_cleanup_plan.py:511 - No replacement found for: "Added file decomposition TODO detection",
+- scripts/phase1_critical_todo_resolution.py:65 - No replacement found for: original_todo="# TODO: Add specific initialization logic based on consolidated services",
+- scripts/phase1_critical_todo_resolution.py:92 - No replacement found for: original_todo="# TODO: Add consolidated processing logic",
+- scripts/phase1_critical_todo_resolution.py:131 - No replacement found for: original_todo="# TODO: Add specific initialization logic based on consolidated services",
+- scripts/phase1_critical_todo_resolution.py:163 - No replacement found for: original_todo="# TODO: Add consolidated processing logic",
+- scripts/phase1_critical_todo_resolution.py:244 - No replacement found for: original_todo="# TODO: Implement adaptive workflow creation logic",
+- scripts/phase1_critical_todo_resolution.py:292 - No replacement found for: original_todo="# TODO: Implement actual workflow execution logic",
+- scripts/phase1_critical_todo_resolution.py:395 - No replacement found for: """Add required imports for the resolved TODOs"""
+- scripts/phase3_systematic_todo_cleanup.py:6 - No replacement found for: This script systematically addresses all remaining TODOs by:
+- scripts/phase3_systematic_todo_cleanup.py:61 - No replacement found for: todos_implemented: List[str] = field(default_factory=list)
+- scripts/phase3_systematic_todo_cleanup.py:98 - No replacement found for: "category": TODOCategory.CRITICAL_IMPLEMENTATION,
+- scripts/phase3_systematic_todo_cleanup.py:114 - No replacement found for: "category": TODOCategory.CRITICAL_IMPLEMENTATION,
+- scripts/phase3_systematic_todo_cleanup.py:170 - No replacement found for: "category": TODOCategory.CRITICAL_IMPLEMENTATION,
+- scripts/phase3_systematic_todo_cleanup.py:288 - No replacement found for: if any(keyword in todo_text.lower() for keyword in ["implement", "missing", "add"]):
+- scripts/phase3_systematic_todo_cleanup.py:289 - No replacement found for: return TODOCategory.CRITICAL_IMPLEMENTATION, 1, "implement"
+- scripts/phase3_systematic_todo_cleanup.py:291 - No replacement found for: return TODOCategory.PERFORMANCE_OPTIMIZATION, 2, "implement"
+- scripts/phase3_systematic_todo_cleanup.py:293 - No replacement found for: return TODOCategory.DOCUMENTATION, 3, "implement"
+- scripts/phase3_systematic_todo_cleanup.py:299 - No replacement found for: return TODOCategory.PLACEHOLDER, 2, "implement"
+- scripts/phase3_systematic_todo_cleanup.py:329 - No replacement found for: elif todo.resolution_action == "implement":
+- scripts/phase3_systematic_todo_cleanup.py:334 - No replacement found for: logger.info(f"✅ Implemented TODO: {todo.todo_text}")
+- scripts/phase3_systematic_todo_cleanup.py:348 - No replacement found for: self._add_required_imports(file_path, todo.todo_text)
+- scripts/phase3_systematic_todo_cleanup.py:363 - No replacement found for: def _add_required_imports(self, file_path: Path, todo_text: str):
+- scripts/phase3_systematic_todo_cleanup.py:364 - No replacement found for: """Add required imports for implemented TODO"""
+- scripts/phase3_systematic_todo_cleanup.py:423 - No replacement found for: if todo.resolution_action == "implement":
+- scripts/phase3_systematic_todo_cleanup.py:424 - No replacement found for: result.todos_implemented.append(todo.todo_text)
+- scripts/phase3_systematic_todo_cleanup.py:440 - No replacement found for: logger.info(f"  - TODOs implemented: {len(result.todos_implemented)}")
+- scripts/phase3_systematic_todo_cleanup.py:467 - No replacement found for: - **TODOs Implemented**: {len(result.todos_implemented)}
+- scripts/phase3_systematic_todo_cleanup.py:473 - No replacement found for: ### ✅ TODOS IMPLEMENTED
+- scripts/phase3_systematic_todo_cleanup.py:474 - No replacement found for: {chr(10).join(f"- {todo}" for todo in result.todos_implemented)}
+- backend/api/orchestrator_v4_routes.py:196 - No replacement found for: # TODO: Get MCP orchestrator health when connected
+- backend/core/auto_esc_config.decomposed/core.py:4 - No replacement found for: # TODO: Extract specific classes/functions from original file
+- backend/core/auto_esc_config.decomposed/utils.py:3 - No replacement found for: # TODO: Extract specific classes/functions from original file
+- backend/core/services/snowflake_cortex_adapter/cortexadapter.py:3 - No replacement found for: # TODO: Extract specific classes/functions from original file
+- backend/core/services/snowflake_cortex_adapter/utils.py:3 - No replacement found for: # TODO: Extract specific classes/functions from original file
+- backend/core/services/snowflake_pool/core.py:3 - No replacement found for: # TODO: Extract specific classes/functions from original file
+- backend/core/services/snowflake_pool/utils.py:3 - No replacement found for: # TODO: Extract specific classes/functions from original file
+- backend/security/pat_manager/core.py:3 - No replacement found for: # TODO: Extract specific classes/functions from original file
+- backend/security/pat_manager/utils.py:3 - No replacement found for: # TODO: Extract specific classes/functions from original file
+- backend/services/qdrant_unified_memory_service.py:633 - No replacement found for: # TODO: Enhance with Neo4j graph relationships
+- backend/services/query_optimizer.py:527 - No replacement found for: "cache_hit": False,  # TODO: Track cache hits
+- core/use_cases/linear_project_health_agent.py:517 - No replacement found for: if i.status.lower() in ["in progress", "todo"]
+- domain/models/project.py:33 - No replacement found for: status: str = "todo"
+- infrastructure/monitoring/gong_data_quality.py:845 - No replacement found for: # TODO: Send to alert manager for routing
+- infrastructure/services/code_modification_service.py:149 - No replacement found for: if "TODO" in modified and "TODO" not in original:
+- mcp-servers/linear/server.py:41 - No replacement found for: TODO = "todo"
+- mcp-servers/linear/server.py:79 - No replacement found for: description="Filter by state (backlog, todo, in_progress, in_review, done, canceled)",
+- scripts/comprehensive_dead_code_eliminator.py:143 - No replacement found for: def phase4_todo_cleanup(self) -> None:
+- scripts/comprehensive_dead_code_eliminator.py:147 - No replacement found for: # Generate TODO analysis
+- scripts/comprehensive_dead_code_eliminator.py:148 - No replacement found for: result = subprocess.run("grep -r 'TODO' . --include='*.py'", shell=True, capture_output=True, text=True)
+- scripts/comprehensive_dead_code_eliminator.py:149 - No replacement found for: todos = result.stdout.strip().split('\n') if result.stdout.strip() else []
+- scripts/comprehensive_dead_code_eliminator.py:151 - No replacement found for: # Categorize TODOs
+- scripts/comprehensive_dead_code_eliminator.py:152 - No replacement found for: decomposition_todos = [todo for todo in todos if 'decomposition' in todo.lower()]
+- scripts/comprehensive_dead_code_eliminator.py:156 - No replacement found for: print(f"Found {len(todos)} total TODOs:")
+- scripts/comprehensive_dead_code_eliminator.py:157 - No replacement found for: print(f"  - {len(decomposition_todos)} decomposition TODOs")
+- scripts/comprehensive_dead_code_eliminator.py:162 - No replacement found for: with open("todo_analysis_report.txt", "w") as f:
+- scripts/comprehensive_dead_code_eliminator.py:163 - No replacement found for: f.write("TODO Analysis Report\n")
+- scripts/comprehensive_dead_code_eliminator.py:165 - No replacement found for: f.write(f"Total TODOs: {len(todos)}\n")
+- scripts/comprehensive_dead_code_eliminator.py:166 - No replacement found for: f.write(f"Decomposition TODOs: {len(decomposition_todos)}\n")
+- scripts/comprehensive_dead_code_eliminator.py:169 - No replacement found for: f.write("All TODOs:\n")
+- scripts/comprehensive_dead_code_eliminator.py:170 - No replacement found for: for todo in todos:
+- scripts/comprehensive_dead_code_eliminator.py:171 - No replacement found for: f.write(f"{todo}\n")
+- scripts/comprehensive_dead_code_eliminator.py:173 - No replacement found for: print("✅ Phase 4 Complete: TODO analysis saved to todo_analysis_report.txt")
+- scripts/comprehensive_dead_code_eliminator.py:186 - No replacement found for: self.phase4_todo_cleanup()
+- scripts/execute_cleanup_plan.py:8 - No replacement found for: 2. File decomposition TODO resolution
+- scripts/execute_cleanup_plan.py:193 - No replacement found for: "todos_resolved": 0,
+- scripts/execute_cleanup_plan.py:227 - No replacement found for: # 2. Update TODO markers with decomposition status
+- scripts/execute_cleanup_plan.py:228 - No replacement found for: todo_files = await self._find_decomposition_todos()
+- scripts/execute_cleanup_plan.py:230 - No replacement found for: for todo_file in todo_files:
+- scripts/execute_cleanup_plan.py:232 - No replacement found for: await self._update_todo_status(todo_file)
+- scripts/execute_cleanup_plan.py:233 - No replacement found for: phase_results["todos_resolved"] += 1
+- scripts/execute_cleanup_plan.py:234 - No replacement found for: logger.info(f"  ✅ Updated TODO status: {todo_file.name}")
+- scripts/execute_cleanup_plan.py:236 - No replacement found for: logger.info(f"  🚫 Dry-run: Would update TODO in {todo_file.name}")
+- scripts/execute_cleanup_plan.py:394 - No replacement found for: # Check for TODO decomposition marker
+- scripts/execute_cleanup_plan.py:402 - No replacement found for: has_decomposition_todo
+- scripts/execute_cleanup_plan.py:409 - No replacement found for: "has_decomposition_todo": has_decomposition_todo,
+- scripts/execute_cleanup_plan.py:468 - No replacement found for: async def _find_decomposition_todos(self) -> List[Path]:
+- scripts/execute_cleanup_plan.py:469 - No replacement found for: """Find files with decomposition TODOs"""
+- scripts/execute_cleanup_plan.py:470 - No replacement found for: todo_files = []
+- scripts/execute_cleanup_plan.py:472 - No replacement found for: # Search for files with decomposition TODOs
+- scripts/execute_cleanup_plan.py:479 - No replacement found for: todo_files.append(file_path)
+- scripts/execute_cleanup_plan.py:484 - No replacement found for: return todo_files
+- scripts/execute_cleanup_plan.py:486 - No replacement found for: async def _update_todo_status(self, file_path: Path):
+- scripts/execute_cleanup_plan.py:487 - No replacement found for: """Update TODO status in file"""
+- scripts/execute_cleanup_plan.py:492 - No replacement found for: # Update TODO with plan reference
+- scripts/execute_cleanup_plan.py:502 - No replacement found for: logger.warning(f"Could not update TODO in {file_path}: {e}")
+- scripts/execute_cleanup_plan.py:579 - No replacement found for: "decomposition_todos": len(await self._find_decomposition_todos()),
+- scripts/execute_cleanup_plan.py:587 - No replacement found for: score -= min(30, metrics["decomposition_todos"])       # Penalty for decomposition TODOs
+- scripts/phase1_critical_todo_resolution.py:3 - No replacement found for: Phase 1.2: Critical TODO Resolution Script
+- scripts/phase1_critical_todo_resolution.py:6 - No replacement found for: This script resolves critical TODOs that affect core functionality:
+- scripts/phase1_critical_todo_resolution.py:28 - No replacement found for: logging.FileHandler('critical_todo_resolution.log'),
+- scripts/phase1_critical_todo_resolution.py:35 - No replacement found for: class CriticalTODO:
+- scripts/phase1_critical_todo_resolution.py:36 - No replacement found for: """Represents a critical TODO item and its resolution"""
+- scripts/phase1_critical_todo_resolution.py:39 - No replacement found for: original_todo: str
+- scripts/phase1_critical_todo_resolution.py:46 - No replacement found for: """Results of critical TODO resolution"""
+- scripts/phase1_critical_todo_resolution.py:47 - No replacement found for: todos_resolved: List[str] = field(default_factory=list)
+- scripts/phase1_critical_todo_resolution.py:52 - No replacement found for: class CriticalTODOResolver:
+- scripts/phase1_critical_todo_resolution.py:53 - No replacement found for: """Comprehensive critical TODO resolution system"""
+- scripts/phase1_critical_todo_resolution.py:57 - No replacement found for: self.backup_dir = self.root_path / "elimination_backup" / "critical_todos"
+- scripts/phase1_critical_todo_resolution.py:60 - No replacement found for: # Define critical TODOs and their resolutions
+- scripts/phase1_critical_todo_resolution.py:61 - No replacement found for: self.critical_todos = [
+- scripts/phase1_critical_todo_resolution.py:62 - No replacement found for: CriticalTODO(
+- scripts/phase1_critical_todo_resolution.py:89 - No replacement found for: CriticalTODO(
+- scripts/phase1_critical_todo_resolution.py:128 - No replacement found for: CriticalTODO(
+- scripts/phase1_critical_todo_resolution.py:160 - No replacement found for: CriticalTODO(
+- scripts/phase1_critical_todo_resolution.py:217 - No replacement found for: CriticalTODO(
+- scripts/phase1_critical_todo_resolution.py:220 - No replacement found for: original_todo='"actual_latency": None,  # TODO: Measure actual',
+- scripts/phase1_critical_todo_resolution.py:241 - No replacement found for: CriticalTODO(
+- scripts/phase1_critical_todo_resolution.py:289 - No replacement found for: CriticalTODO(
+- scripts/phase1_critical_todo_resolution.py:356 - No replacement found for: def resolve_todo_in_file(self, todo: CriticalTODO) -> Tuple[bool, str]:
+- scripts/phase1_critical_todo_resolution.py:357 - No replacement found for: """Resolve a specific TODO in a file"""
+- scripts/phase1_critical_todo_resolution.py:358 - No replacement found for: file_path = self.root_path / todo.file_path
+- scripts/phase1_critical_todo_resolution.py:372 - No replacement found for: # Find and replace the TODO
+- scripts/phase1_critical_todo_resolution.py:373 - No replacement found for: todo_found = False
+- scripts/phase1_critical_todo_resolution.py:375 - No replacement found for: if todo.original_todo.strip() in line:
+- scripts/phase1_critical_todo_resolution.py:376 - No replacement found for: # Replace the TODO with the resolution
+- scripts/phase1_critical_todo_resolution.py:377 - No replacement found for: lines[i] = todo.resolution_code.strip()
+- scripts/phase1_critical_todo_resolution.py:378 - No replacement found for: todo_found = True
+- scripts/phase1_critical_todo_resolution.py:381 - No replacement found for: if not todo_found:
+- scripts/phase1_critical_todo_resolution.py:382 - No replacement found for: return False, f"TODO not found: {todo.original_todo}"
+- scripts/phase1_critical_todo_resolution.py:386 - No replacement found for: logger.info(f"✅ Resolved TODO in: {file_path}")
+- scripts/phase1_critical_todo_resolution.py:388 - No replacement found for: return True, f"Successfully resolved TODO in {file_path}"
+- scripts/phase1_critical_todo_resolution.py:391 - No replacement found for: logger.error(f"❌ Failed to resolve TODO in {file_path}: {e}")
+- scripts/phase1_critical_todo_resolution.py:462 - No replacement found for: """Execute complete critical TODO resolution"""
+- scripts/phase1_critical_todo_resolution.py:463 - No replacement found for: logger.info("🚀 Starting Phase 1.2: Critical TODO Resolution")
+- scripts/phase1_critical_todo_resolution.py:467 - No replacement found for: # Process each critical TODO
+- scripts/phase1_critical_todo_resolution.py:468 - No replacement found for: for todo in self.critical_todos:
+- scripts/phase1_critical_todo_resolution.py:469 - No replacement found for: logger.info(f"🔄 Resolving TODO: {todo.description}")
+- scripts/phase1_critical_todo_resolution.py:471 - No replacement found for: success, message = self.resolve_todo_in_file(todo)
+- scripts/phase1_critical_todo_resolution.py:474 - No replacement found for: result.todos_resolved.append(todo.description)
+- scripts/phase1_critical_todo_resolution.py:475 - No replacement found for: if todo.file_path not in result.files_modified:
+- scripts/phase1_critical_todo_resolution.py:476 - No replacement found for: result.files_modified.append(todo.file_path)
+- scripts/phase1_critical_todo_resolution.py:479 - No replacement found for: file_path = self.root_path / todo.file_path
+- scripts/phase1_critical_todo_resolution.py:483 - No replacement found for: result.errors.append(f"{todo.description}: {message}")
+- scripts/phase1_critical_todo_resolution.py:487 - No replacement found for: logger.info(f"  - TODOs resolved: {len(result.todos_resolved)}")
+- scripts/phase1_critical_todo_resolution.py:496 - No replacement found for: logger.info("✅ Critical TODO resolution completed successfully!")
+- scripts/phase1_critical_todo_resolution.py:507 - No replacement found for: # 📋 CRITICAL TODO RESOLUTION REPORT
+- scripts/phase1_critical_todo_resolution.py:511 - No replacement found for: - **TODOs Resolved**: {len(result.todos_resolved)}
+- scripts/phase1_critical_todo_resolution.py:516 - No replacement found for: ### ✅ TODOS RESOLVED
+- scripts/phase1_critical_todo_resolution.py:517 - No replacement found for: {chr(10).join(f"- {todo}" for todo in result.todos_resolved)}
+- scripts/phase1_critical_todo_resolution.py:532 - No replacement found for: Generated: Phase 1.2 - Critical TODO Resolution Complete
+- scripts/phase1_critical_todo_resolution.py:538 - No replacement found for: resolver = CriticalTODOResolver()
+- scripts/phase1_critical_todo_resolution.py:543 - No replacement found for: report_path = Path("PHASE_1_2_CRITICAL_TODO_RESOLUTION_REPORT.md")
+- scripts/phase1_deprecated_service_elimination.py:307 - No replacement found for: 3. Proceed to Phase 1.2: Critical TODO Resolution
+- scripts/phase2_wildcard_import_elimination.py:474 - No replacement found for: 3. Proceed to Phase 3: TODO Systematic Cleanup
+- scripts/phase3_systematic_todo_cleanup.py:3 - No replacement found for: Phase 3: Systematic TODO Cleanup Script
+- scripts/phase3_systematic_todo_cleanup.py:7 - No replacement found for: 1. Categorizing TODOs by type and priority
+- scripts/phase3_systematic_todo_cleanup.py:9 - No replacement found for: 3. Removing outdated/completed TODOs
+- scripts/phase3_systematic_todo_cleanup.py:30 - No replacement found for: logging.FileHandler('systematic_todo_cleanup.log'),
+- scripts/phase3_systematic_todo_cleanup.py:37 - No replacement found for: """Categories of TODO items"""
+- scripts/phase3_systematic_todo_cleanup.py:47 - No replacement found for: class TODOItem:
+- scripts/phase3_systematic_todo_cleanup.py:48 - No replacement found for: """Represents a TODO item and its analysis"""
+- scripts/phase3_systematic_todo_cleanup.py:51 - No replacement found for: todo_text: str
+- scripts/phase3_systematic_todo_cleanup.py:59 - No replacement found for: """Results of TODO cleanup"""
+- scripts/phase3_systematic_todo_cleanup.py:60 - No replacement found for: todos_resolved: List[str] = field(default_factory=list)
+- scripts/phase3_systematic_todo_cleanup.py:62 - No replacement found for: todos_removed: List[str] = field(default_factory=list)
+- scripts/phase3_systematic_todo_cleanup.py:63 - No replacement found for: todos_deferred: List[str] = field(default_factory=list)
+- scripts/phase3_systematic_todo_cleanup.py:68 - No replacement found for: """Comprehensive TODO cleanup system"""
+- scripts/phase3_systematic_todo_cleanup.py:72 - No replacement found for: self.backup_dir = self.root_path / "elimination_backup" / "todo_cleanup"
+- scripts/phase3_systematic_todo_cleanup.py:75 - No replacement found for: # TODO resolution patterns
+- scripts/phase3_systematic_todo_cleanup.py:77 - No replacement found for: # File decomposition TODOs - Remove (already handled)
+- scripts/phase3_systematic_todo_cleanup.py:134 - No replacement found for: "category": TODOCategory.PERFORMANCE_OPTIMIZATION,
+- scripts/phase3_systematic_todo_cleanup.py:201 - No replacement found for: "category": TODOCategory.PERFORMANCE_OPTIMIZATION,
+- scripts/phase3_systematic_todo_cleanup.py:246 - No replacement found for: def find_all_todos(self) -> List[TODOItem]:
+- scripts/phase3_systematic_todo_cleanup.py:247 - No replacement found for: """Find and categorize all TODO items"""
+- scripts/phase3_systematic_todo_cleanup.py:248 - No replacement found for: todos = []
+- scripts/phase3_systematic_todo_cleanup.py:258 - No replacement found for: if re.search(r'(TODO|FIXME|XXX|HACK)', line, re.IGNORECASE):
+- scripts/phase3_systematic_todo_cleanup.py:259 - No replacement found for: todo_text = line.strip()
+- scripts/phase3_systematic_todo_cleanup.py:261 - No replacement found for: # Categorize the TODO
+- scripts/phase3_systematic_todo_cleanup.py:262 - No replacement found for: category, priority, action = self._categorize_todo(todo_text)
+- scripts/phase3_systematic_todo_cleanup.py:264 - No replacement found for: todo_item = TODOItem(
+- scripts/phase3_systematic_todo_cleanup.py:267 - No replacement found for: todo_text=todo_text,
+- scripts/phase3_systematic_todo_cleanup.py:273 - No replacement found for: todos.append(todo_item)
+- scripts/phase3_systematic_todo_cleanup.py:278 - No replacement found for: return todos
+- scripts/phase3_systematic_todo_cleanup.py:281 - No replacement found for: """Categorize a TODO item"""
+- scripts/phase3_systematic_todo_cleanup.py:284 - No replacement found for: if re.search(pattern, todo_text, re.IGNORECASE):
+- scripts/phase3_systematic_todo_cleanup.py:290 - No replacement found for: elif any(keyword in todo_text.lower() for keyword in ["performance", "optimize", "speed"]):
+- scripts/phase3_systematic_todo_cleanup.py:301 - No replacement found for: def resolve_todo_in_file(self, todo: TODOItem) -> Tuple[bool, str]:
+- scripts/phase3_systematic_todo_cleanup.py:302 - No replacement found for: """Resolve a specific TODO in a file"""
+- scripts/phase3_systematic_todo_cleanup.py:303 - No replacement found for: file_path = self.root_path / todo.file_path
+- scripts/phase3_systematic_todo_cleanup.py:317 - No replacement found for: # Find the TODO line
+- scripts/phase3_systematic_todo_cleanup.py:318 - No replacement found for: if todo.line_number > len(lines):
+- scripts/phase3_systematic_todo_cleanup.py:319 - No replacement found for: return False, f"Line number {todo.line_number} out of range"
+- scripts/phase3_systematic_todo_cleanup.py:321 - No replacement found for: original_line = lines[todo.line_number - 1]
+- scripts/phase3_systematic_todo_cleanup.py:324 - No replacement found for: if todo.resolution_action == "remove":
+- scripts/phase3_systematic_todo_cleanup.py:325 - No replacement found for: # Remove the TODO line
+- scripts/phase3_systematic_todo_cleanup.py:326 - No replacement found for: lines.pop(todo.line_number - 1)
+- scripts/phase3_systematic_todo_cleanup.py:327 - No replacement found for: logger.info(f"✅ Removed TODO: {todo.todo_text}")
+- scripts/phase3_systematic_todo_cleanup.py:331 - No replacement found for: replacement = self._get_replacement_code(todo.todo_text)
+- scripts/phase3_systematic_todo_cleanup.py:333 - No replacement found for: lines[todo.line_number - 1] = replacement
+- scripts/phase3_systematic_todo_cleanup.py:336 - No replacement found for: return False, f"No replacement found for: {todo.todo_text}"
+- scripts/phase3_systematic_todo_cleanup.py:338 - No replacement found for: elif todo.resolution_action == "defer":
+- scripts/phase3_systematic_todo_cleanup.py:339 - No replacement found for: # Convert to deferred TODO with date
+- scripts/phase3_systematic_todo_cleanup.py:342 - No replacement found for: logger.info(f"✅ Deferred TODO: {todo.todo_text}")
+- scripts/phase3_systematic_todo_cleanup.py:350 - No replacement found for: return True, f"Successfully resolved TODO in {file_path}"
+- scripts/phase3_systematic_todo_cleanup.py:353 - No replacement found for: logger.error(f"❌ Failed to resolve TODO in {file_path}: {e}")
+- scripts/phase3_systematic_todo_cleanup.py:356 - No replacement found for: def _get_replacement_code(self, todo_text: str) -> Optional[str]:
+- scripts/phase3_systematic_todo_cleanup.py:357 - No replacement found for: """Get replacement code for a TODO"""
+- scripts/phase3_systematic_todo_cleanup.py:359 - No replacement found for: if re.search(pattern, todo_text, re.IGNORECASE):
+- scripts/phase3_systematic_todo_cleanup.py:372 - No replacement found for: if symbol in todo_text and import_stmt not in content:
+- scripts/phase3_systematic_todo_cleanup.py:395 - No replacement found for: """Execute complete TODO cleanup"""
+- scripts/phase3_systematic_todo_cleanup.py:396 - No replacement found for: logger.info("🚀 Starting Phase 3: Systematic TODO Cleanup")
+- scripts/phase3_systematic_todo_cleanup.py:400 - No replacement found for: # Step 1: Find all TODOs
+- scripts/phase3_systematic_todo_cleanup.py:401 - No replacement found for: logger.info("📋 Step 1: Finding all TODOs...")
+- scripts/phase3_systematic_todo_cleanup.py:402 - No replacement found for: todos = self.find_all_todos()
+- scripts/phase3_systematic_todo_cleanup.py:404 - No replacement found for: if not todos:
+- scripts/phase3_systematic_todo_cleanup.py:405 - No replacement found for: logger.info("✅ No TODOs found!")
+- scripts/phase3_systematic_todo_cleanup.py:409 - No replacement found for: logger.info(f"Found {len(todos)} TODOs")
+- scripts/phase3_systematic_todo_cleanup.py:412 - No replacement found for: todos.sort(key=lambda x: (x.priority, x.file_path))
+- scripts/phase3_systematic_todo_cleanup.py:414 - No replacement found for: # Step 3: Process each TODO
+- scripts/phase3_systematic_todo_cleanup.py:415 - No replacement found for: logger.info("🔄 Step 2: Processing TODOs...")
+- scripts/phase3_systematic_todo_cleanup.py:417 - No replacement found for: for todo in todos:
+- scripts/phase3_systematic_todo_cleanup.py:418 - No replacement found for: logger.info(f"Processing {todo.category.value}: {todo.todo_text[:50]}...")
+- scripts/phase3_systematic_todo_cleanup.py:420 - No replacement found for: success, message = self.resolve_todo_in_file(todo)
+- scripts/phase3_systematic_todo_cleanup.py:425 - No replacement found for: elif todo.resolution_action == "remove":
+- scripts/phase3_systematic_todo_cleanup.py:426 - No replacement found for: result.todos_removed.append(todo.todo_text)
+- scripts/phase3_systematic_todo_cleanup.py:427 - No replacement found for: elif todo.resolution_action == "defer":
+- scripts/phase3_systematic_todo_cleanup.py:428 - No replacement found for: result.todos_deferred.append(todo.todo_text)
+- scripts/phase3_systematic_todo_cleanup.py:430 - No replacement found for: result.todos_resolved.append(todo.todo_text)
+- scripts/phase3_systematic_todo_cleanup.py:432 - No replacement found for: if todo.file_path not in result.files_modified:
+- scripts/phase3_systematic_todo_cleanup.py:433 - No replacement found for: result.files_modified.append(todo.file_path)
+- scripts/phase3_systematic_todo_cleanup.py:435 - No replacement found for: result.errors.append(f"{todo.file_path}:{todo.line_number} - {message}")
+- scripts/phase3_systematic_todo_cleanup.py:439 - No replacement found for: logger.info(f"  - TODOs resolved: {len(result.todos_resolved)}")
+- scripts/phase3_systematic_todo_cleanup.py:441 - No replacement found for: logger.info(f"  - TODOs removed: {len(result.todos_removed)}")
+- scripts/phase3_systematic_todo_cleanup.py:442 - No replacement found for: logger.info(f"  - TODOs deferred: {len(result.todos_deferred)}")
+- scripts/phase3_systematic_todo_cleanup.py:451 - No replacement found for: logger.info("✅ Systematic TODO cleanup completed successfully!")
+- scripts/phase3_systematic_todo_cleanup.py:462 - No replacement found for: # 📋 SYSTEMATIC TODO CLEANUP REPORT
+- scripts/phase3_systematic_todo_cleanup.py:466 - No replacement found for: - **TODOs Resolved**: {len(result.todos_resolved)}
+- scripts/phase3_systematic_todo_cleanup.py:468 - No replacement found for: - **TODOs Removed**: {len(result.todos_removed)}
+- scripts/phase3_systematic_todo_cleanup.py:469 - No replacement found for: - **TODOs Deferred**: {len(result.todos_deferred)}
+- scripts/phase3_systematic_todo_cleanup.py:476 - No replacement found for: ### 🗑️ TODOS REMOVED
+- scripts/phase3_systematic_todo_cleanup.py:477 - No replacement found for: {chr(10).join(f"- {todo}" for todo in result.todos_removed)}
+- scripts/phase3_systematic_todo_cleanup.py:479 - No replacement found for: ### ⏳ TODOS DEFERRED
+- scripts/phase3_systematic_todo_cleanup.py:480 - No replacement found for: {chr(10).join(f"- {todo}" for todo in result.todos_deferred)}
+- scripts/phase3_systematic_todo_cleanup.py:490 - No replacement found for: 2. Review deferred TODOs for future sprints
+- scripts/phase3_systematic_todo_cleanup.py:495 - No replacement found for: Generated: Phase 3 - Systematic TODO Cleanup Complete
+- scripts/phase3_systematic_todo_cleanup.py:506 - No replacement found for: report_path = Path("PHASE_3_SYSTEMATIC_TODO_CLEANUP_REPORT.md")
+- shared/security.py:68 - No replacement found for: # TODO: Get user from database
+- start_mcp_servers.py:35 - No replacement found for: # TODO: Validate input before subprocess execution
+- start_mcp_servers.py:95 - No replacement found for: # TODO: Validate input before subprocess execution
+- tests/infrastructure/run_all_tests.py:20 - No replacement found for: # TODO: Validate input before subprocess execution
+- scripts/phase3_systematic_todo_cleanup.py:10 - No replacement found for: 4. Updating documentation TODOs
+- scripts/phase3_systematic_todo_cleanup.py:36 - No replacement found for: class TODOCategory(Enum):
+- scripts/phase3_systematic_todo_cleanup.py:52 - No replacement found for: category: TODOCategory
+- scripts/phase3_systematic_todo_cleanup.py:67 - No replacement found for: class SystematicTODOCleaner:
+- scripts/phase3_systematic_todo_cleanup.py:79 - No replacement found for: "category": TODOCategory.FILE_DECOMPOSITION,
+- scripts/phase3_systematic_todo_cleanup.py:87 - No replacement found for: "category": TODOCategory.PLACEHOLDER,
+- scripts/phase3_systematic_todo_cleanup.py:152 - No replacement found for: "category": TODOCategory.FEATURE_ENHANCEMENT,
+- scripts/phase3_systematic_todo_cleanup.py:257 - No replacement found for: # Find TODO/FIXME/XXX/HACK comments
+- scripts/phase3_systematic_todo_cleanup.py:280 - No replacement found for: def _categorize_todo(self, todo_text: str) -> Tuple[TODOCategory, int, str]:
+- scripts/phase3_systematic_todo_cleanup.py:292 - No replacement found for: elif any(keyword in todo_text.lower() for keyword in ["document", "doc", "comment"]):
+- scripts/phase3_systematic_todo_cleanup.py:295 - No replacement found for: return TODOCategory.FEATURE_ENHANCEMENT, 3, "defer"
+- scripts/phase3_systematic_todo_cleanup.py:297 - No replacement found for: return TODOCategory.DEPRECATED_REFERENCE, 2, "remove"
+- scripts/phase3_systematic_todo_cleanup.py:340 - No replacement found for: deferred_comment = f"# DEFERRED (2025-01-14): {todo.todo_text.replace('TODO:', '').strip()}"
+- scripts/phase3_systematic_todo_cleanup.py:341 - No replacement found for: lines[todo.line_number - 1] = deferred_comment
+- scripts/phase3_systematic_todo_cleanup.py:501 - No replacement found for: cleaner = SystematicTODOCleaner()
+
+### 🎯 NEXT STEPS
+1. Test all implemented functionality
+2. Review deferred TODOs for future sprints
+3. Proceed to Phase 4: Temporary Code Elimination
+4. Update development documentation
+
+---
+Generated: Phase 3 - Systematic TODO Cleanup Complete

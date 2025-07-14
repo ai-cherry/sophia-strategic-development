@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Migrate all imports from legacy UnifiedMemoryService to UnifiedMemoryServiceV2
+Migrate all imports from legacy UnifiedMemoryServiceV2 to UnifiedMemoryServiceV2
 Part of Phase 1: Legacy Purge
 """
 
@@ -18,21 +18,21 @@ def update_imports_in_file(file_path: Path) -> bool:
         
         # Pattern 1: Direct import
         content = re.sub(
-            r'from backend\.services\.unified_memory_service import UnifiedMemoryService',
+            r'from backend\.services\.unified_memory_service import UnifiedMemoryServiceV2',
             'from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2',
             content
         )
         
         # Pattern 2: Import with alias
         content = re.sub(
-            r'from backend\.services\.unified_memory_service import UnifiedMemoryService as (\w+)',
+            r'from backend\.services\.unified_memory_service import UnifiedMemoryServiceV2 as (\w+)',
             r'from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2 as \1',
             content
         )
         
         # Pattern 3: Class instantiation
         content = re.sub(
-            r'UnifiedMemoryService\(',
+            r'UnifiedMemoryServiceV2\(',
             'UnifiedMemoryServiceV2(',
             content
         )
@@ -44,7 +44,7 @@ def update_imports_in_file(file_path: Path) -> bool:
             content
         )
         
-        # Pattern 5: Function that returns UnifiedMemoryService
+        # Pattern 5: Function that returns UnifiedMemoryServiceV2
         content = re.sub(
             r'-> UnifiedMemoryServiceV2',
             '-> UnifiedMemoryServiceV2V2',
@@ -63,7 +63,7 @@ def update_imports_in_file(file_path: Path) -> bool:
 
 def main():
     """Main migration function"""
-    print("🚀 Starting UnifiedMemoryService → UnifiedMemoryServiceV2 migration")
+    print("🚀 Starting UnifiedMemoryServiceV2 → UnifiedMemoryServiceV2 migration")
     
     # Get repository root
     repo_root = Path(__file__).parent.parent

@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional
 
-from backend.services.unified_memory_service import get_unified_memory_service
+from backend.services.unified_memory_service_v2 import get_unified_memory_service
 
 logger = logging.getLogger(__name__)
 
@@ -461,6 +461,8 @@ class QueryOptimizer:
 
         # Execute based on strategy
         from backend.services.hybrid_search_engine import get_hybrid_search_engine
+import time
+import asyncio
 
         if plan.strategy in [
             ExecutionStrategy.HYBRID_PARALLEL,
@@ -504,7 +506,21 @@ class QueryOptimizer:
                 "strategy": plan.strategy.value,
                 "estimated_cost": plan.estimated_cost,
                 "estimated_latency": plan.estimated_latency,
-                "actual_latency": None,  # TODO: Measure actual
+# Measure actual latency with high precision
+            start_time = time.perf_counter()
+            query_result = await self._execute_query(query)
+            end_time = time.perf_counter()
+            
+            actual_latency = (end_time - start_time) * 1000  # Convert to milliseconds
+            
+            # Record latency metrics
+            await self.metrics_collector.record_latency(
+                operation="query_execution",
+                latency_ms=actual_latency,
+                query_type=query.get('type', 'unknown')
+            )
+            
+            "actual_latency": actual_latency,
             },
             "metadata": {
                 "total_results": len(search_results),

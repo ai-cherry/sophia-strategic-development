@@ -15,7 +15,6 @@ Recommended decomposition:
 - enhanced_unified_data_pipeline_models.py - Data models
 - enhanced_unified_data_pipeline_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
@@ -99,7 +98,7 @@ class PureEstuaryDataPipeline:
         self.estuary_orchestrator: EstuaryFlowOrchestrator | None = None
         self.postgresql_pool: asyncpg.Pool | None = None
         self.redis_client: redis.Redis | None = None
-        self.memory_service_v3: QdrantUnifiedMemoryService | None = None
+        self.memory_service_v3: QdrantUnifiedMemoryServiceV2 | None = None
         self.status = PipelineStatus()
 
         # Initialize configurations

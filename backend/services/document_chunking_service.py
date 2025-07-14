@@ -15,7 +15,7 @@ from datetime import datetime
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
-from backend.services.unified_memory_service import get_unified_memory_service
+from backend.services.unified_memory_service_v2 import get_unified_memory_service
 from backend.services.redis_helper import RedisHelper
 from shared.utils.monitoring import log_execution_time
 

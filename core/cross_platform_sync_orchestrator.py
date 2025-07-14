@@ -15,7 +15,6 @@ Recommended decomposition:
 - cross_platform_sync_orchestrator_models.py - Data models
 - cross_platform_sync_orchestrator_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import asyncio
@@ -31,7 +30,7 @@ from infrastructure.mcp_servers.base.standardized_mcp_server import (
     SyncPriority as ServerSyncPriority,
 )
 from backend.services.qdrant_unified_memory_service import (
-    EnhancedQdrantUnifiedMemoryService,
+    EnhancedQdrantUnifiedMemoryServiceV2,
 )
 
 logger = logging.getLogger(__name__)
@@ -124,7 +123,7 @@ class SyncMetrics:
 class DataConflictResolver:
     """Resolves data conflicts between platforms."""
 
-    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryService):
+    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryServiceV2):
         self.cortex_service = cortex_service
 
     async def resolve_conflict(self, conflict: DataConflict) -> dict[str, Any]:
@@ -324,8 +323,8 @@ class CrossPlatformSyncOrchestrator:
     - AI-enhanced data processing
     """
 
-    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryService | None = None):
-        self.cortex_service = cortex_service or EnhancedQdrantUnifiedMemoryService()
+    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryServiceV2 | None = None):
+        self.cortex_service = cortex_service or EnhancedQdrantUnifiedMemoryServiceV2()
         self.sync_configs = self._load_sync_configurations()
         self.conflict_resolver = DataConflictResolver(self.cortex_service)
 

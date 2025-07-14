@@ -81,7 +81,7 @@ class SlackAnalysisAgent(BaseAgent):
         self.name = "slack_analysis"
         self.description = "AI-driven Slack conversation analysis and insights"
 
-        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.initialized = False
 

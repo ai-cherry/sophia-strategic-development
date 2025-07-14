@@ -7,6 +7,12 @@ from typing import Dict, Any, List, Optional, Union
 import asyncio
 import logging
 from datetime import datetime
+from typing import Dict, Any, Optional
+from backend.services.message_processor import MessageProcessor
+from backend.services.response_generator import ResponseGenerator
+from backend.services.context_manager import ContextManager
+from backend.services.session_manager import SessionManager
+from backend.websocket.websocket_manager import WebSocketManager
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +34,29 @@ class UnifiedChatService:
     async def initialize(self) -> bool:
         """Initialize the consolidated service"""
         try:
-            # TODO: Add specific initialization logic based on consolidated services
+# Initialize chat service components
+        self.message_processor = MessageProcessor()
+        self.response_generator = ResponseGenerator()
+        self.context_manager = ContextManager()
+        self.session_manager = SessionManager()
+        
+        # Initialize AI service connections
+        self.llm_service = self.config.get('llm_service')
+        self.memory_service = self.config.get('memory_service')
+        self.knowledge_service = self.config.get('knowledge_service')
+        
+        # Set up chat parameters
+        self.chat_params = {
+            'max_context_length': self.config.get('max_context_length', 4000),
+            'response_timeout': self.config.get('response_timeout', 30),
+            'max_concurrent_sessions': self.config.get('max_concurrent_sessions', 1000)
+        }
+        
+        # Initialize streaming capabilities
+        self.streaming_enabled = self.config.get('streaming_enabled', True)
+        self.websocket_manager = WebSocketManager() if self.streaming_enabled else None
+        
+        logger.info("✅ UnifiedChatService initialized with consolidated services")
             self.initialized = True
             self.metrics["last_activity"] = datetime.now()
             logger.info(f"UnifiedChatService initialized successfully")
@@ -46,7 +74,54 @@ class UnifiedChatService:
             self.metrics["requests_processed"] += 1
             self.metrics["last_activity"] = datetime.now()
             
-            # TODO: Add consolidated processing logic
+# Execute consolidated chat processing workflow
+        try:
+            # 1. Process incoming message
+            processed_message = await self.message_processor.process(message)
+            
+            # 2. Manage conversation context
+            context = await self.context_manager.get_context(
+                session_id=session_id,
+                user_id=user_id
+            )
+            
+            # 3. Generate AI response
+            response = await self.response_generator.generate(
+                message=processed_message,
+                context=context,
+                user_preferences=user_preferences
+            )
+            
+            # 4. Update conversation context
+            await self.context_manager.update_context(
+                session_id=session_id,
+                message=processed_message,
+                response=response
+            )
+            
+            # 5. Store in memory for future reference
+            await self.memory_service.store_conversation(
+                session_id=session_id,
+                message=processed_message,
+                response=response,
+                metadata={
+                    'user_id': user_id,
+                    'timestamp': datetime.utcnow().isoformat(),
+                    'processing_time': response.get('processing_time', 0)
+                }
+            )
+            
+            # 6. Return formatted response
+            return {
+                'response': response.get('content'),
+                'session_id': session_id,
+                'metadata': response.get('metadata', {}),
+                'streaming_enabled': self.streaming_enabled
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Chat processing failed: {e}")
+            raise
             result = {
                 "status": "success",
                 "service": "UnifiedChatService",

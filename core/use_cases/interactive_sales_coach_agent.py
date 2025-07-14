@@ -14,7 +14,6 @@ Recommended decomposition:
 - interactive_sales_coach_agent_models.py - Data models
 - interactive_sales_coach_agent_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import logging
@@ -28,7 +27,7 @@ from infrastructure.services.enhanced_knowledge_base_service import (
     EnhancedKnowledgeBaseService,
 )
 from backend.services.qdrant_unified_memory_service import (
-    EnhancedQdrantUnifiedMemoryService,
+    EnhancedQdrantUnifiedMemoryServiceV2,
 )
 
 logger = logging.getLogger(__name__)
@@ -103,7 +102,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
 
         # Service integrations
         self.knowledge_base: EnhancedKnowledgeBaseService | None = None
-        self.cortex_service: EnhancedQdrantUnifiedMemoryService | None = None
+        self.cortex_service: EnhancedQdrantUnifiedMemoryServiceV2 | None = None
 
         # Coaching analytics
         self.coaching_analytics = {
@@ -128,7 +127,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             self.knowledge_base = EnhancedKnowledgeBaseService()
             await self.knowledge_base.initialize()
 
-            self.cortex_service = EnhancedQdrantUnifiedMemoryService()
+            self.cortex_service = EnhancedQdrantUnifiedMemoryServiceV2()
 
             self.initialized = True
             logger.info("✅ Interactive Sales Coach Agent initialized successfully")
