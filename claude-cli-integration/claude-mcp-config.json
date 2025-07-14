@@ -122,7 +122,9 @@
     },
     "sophia-figma-dev-mode": {
       "command": "python",
-      "args": ["ui-ux-agent/mcp-servers/figma-dev-mode/figma_mcp_server.py"],
+      "args": [
+        "ui-ux-agent/mcp-servers/figma-dev-mode/figma_mcp_server.py"
+      ],
       "env": {
         "FIGMA_PERSONAL_ACCESS_TOKEN": "YOUR_FIGMA_TOKEN_HERE",
         "PYTHONPATH": "/app"
@@ -143,7 +145,9 @@
     },
     "sophia-ui-ux-agent": {
       "command": "python",
-      "args": ["ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py"],
+      "args": [
+        "ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py"
+      ],
       "env": {
         "ANTHROPIC_API_KEY": "YOUR_CLAUDE_KEY_HERE",
         "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
@@ -158,7 +162,9 @@
         "claude_ui_assistance"
       ],
       "auto_start": false,
-      "depends_on": ["sophia-figma-dev-mode"],
+      "depends_on": [
+        "sophia-figma-dev-mode"
+      ],
       "health_check": {
         "enabled": true,
         "interval": 60,
@@ -167,7 +173,10 @@
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequentialthinking"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequentialthinking"
+      ],
       "description": "Sequential Thinking MCP Server - Enhanced reasoning for Claude",
       "capabilities": [
         "step_by_step_reasoning",
@@ -209,7 +218,7 @@
         "server": "sophia-ai-intelligence"
       },
       {
-        "pattern": "data.*|database.*|modern_stack.*|query.*|analytics.*",
+        "pattern": "ELIMINATED",
         "server": "sophia-data-intelligence"
       },
       {
@@ -232,22 +241,34 @@
   },
   "workflows": {
     "codebase_analysis": {
-      "servers": ["sophia-ai-intelligence", "sophia-data-intelligence"],
+      "servers": [
+        "sophia-ai-intelligence",
+        "sophia-data-intelligence"
+      ],
       "parallel": true,
       "timeout": 120000
     },
     "infrastructure_deployment": {
-      "servers": ["sophia-infrastructure", "sophia-ai-intelligence"],
+      "servers": [
+        "sophia-infrastructure",
+        "sophia-ai-intelligence"
+      ],
       "parallel": false,
       "timeout": 300000
     },
     "design_automation": {
-      "servers": ["sophia-figma-dev-mode", "sophia-ui-ux-agent"],
+      "servers": [
+        "sophia-figma-dev-mode",
+        "sophia-ui-ux-agent"
+      ],
       "parallel": false,
       "timeout": 180000
     },
     "business_intelligence": {
-      "servers": ["sophia-business-intelligence", "sophia-data-intelligence"],
+      "servers": [
+        "sophia-business-intelligence",
+        "sophia-data-intelligence"
+      ],
       "parallel": true,
       "timeout": 90000
     }
@@ -261,7 +282,10 @@
     "claudeCliSecurity": {
       "enableSandboxing": true,
       "restrictFileAccess": true,
-      "allowedDirectories": ["/app", "/tmp/claude-workspace"],
+      "allowedDirectories": [
+        "/app",
+        "/tmp/claude-workspace"
+      ],
       "maxFileSize": "50MB",
       "allowedFileTypes": [
         ".py",

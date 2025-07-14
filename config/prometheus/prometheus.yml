@@ -1,10 +1,10 @@
-# Prometheus configuration for Sophia AI ModernStack Monitoring
+# Prometheus configuration for Sophia AI ELIMINATED Monitoring
 
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    monitor: 'sophia-ai-modern_stack'
+    monitor: 'sophia-ai-ELIMINATED'
     environment: 'production'
 
 # Alertmanager configuration
@@ -16,16 +16,16 @@ alerting:
 
 # Load rules
 rule_files:
-  - 'modern_stack_alerts.yml'
+  - 'ELIMINATED_alerts.yml'
 
 # Scrape configurations
 scrape_configs:
-  # ModernStack monitoring metrics
-  - job_name: 'modern_stack-monitor'
+  # ELIMINATED monitoring metrics
+  - job_name: 'ELIMINATED-monitor'
     static_configs:
       - targets: ['localhost:8003']
         labels:
-          service: 'modern_stack-monitoring'
+          service: 'ELIMINATED-monitoring'
           component: 'cortex-gateway'
 
   # FastAPI application metrics

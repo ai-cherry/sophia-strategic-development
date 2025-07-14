@@ -23,10 +23,10 @@ data:
         "health_check": "/health",
         "capabilities": ["code_analysis", "security_scanning", "quality_metrics"]
       },
-      "modern_stack_admin": {
+      "ELIMINATED_admin": {
         "type": "kubernetes",
-        "deployment": "modern_stack-admin-mcp",
-        "service": "modern_stack-admin-mcp-service",
+        "deployment": "ELIMINATED-admin-mcp",
+        "service": "ELIMINATED-admin-mcp-service",
         "port": 8080,
         "health_check": "/health",
         "capabilities": ["sql_execution", "admin_operations", "multi_environment"]
@@ -310,48 +310,48 @@ spec:
       targetPort: 9000
 
 ---
-# ModernStack Admin MCP Server - Critical, runs on K8s
+# ELIMINATED Admin MCP Server - Critical, runs on K8s
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: modern_stack-admin-mcp
+  name: ELIMINATED-admin-mcp
   namespace: sophia-ai
   labels:
-    app: modern_stack-admin-mcp
+    app: ELIMINATED-admin-mcp
     component: mcp-server
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: modern_stack-admin-mcp
+      app: ELIMINATED-admin-mcp
   template:
     metadata:
       labels:
-        app: modern_stack-admin-mcp
+        app: ELIMINATED-admin-mcp
     spec:
       containers:
-        - name: modern_stack-admin-mcp
-          image: registry.digitalocean.com/sophia-ai/modern_stack-admin-mcp:latest
+        - name: ELIMINATED-admin-mcp
+          image: registry.digitalocean.com/sophia-ai/ELIMINATED-admin-mcp:latest
           ports:
             - containerPort: 8080
           env:
             - name: ENVIRONMENT
               value: "production"
-            - name: modern_stack_ACCOUNT
+            - name: ELIMINATED_ACCOUNT
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: modern_stack-account
-            - name: modern_stack_USER
+                  key: ELIMINATED-account
+            - name: ELIMINATED_USER
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: modern_stack-user
-            - name: modern_stack_PASSWORD
+                  key: ELIMINATED-user
+            - name: ELIMINATED_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: modern_stack-password
+                  key: ELIMINATED-password
           resources:
             requests:
               cpu: 100m
@@ -370,13 +370,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: modern_stack-admin-mcp-service
+  name: ELIMINATED-admin-mcp-service
   namespace: sophia-ai
   labels:
-    app: modern_stack-admin-mcp
+    app: ELIMINATED-admin-mcp
 spec:
   selector:
-    app: modern_stack-admin-mcp
+    app: ELIMINATED-admin-mcp
   ports:
     - name: http
       port: 8080
@@ -444,7 +444,7 @@ spec:
         - protocol: TCP
           port: 9000 # AI Memory MCP
         - protocol: TCP
-          port: 8080 # ModernStack Admin MCP
+          port: 8080 # ELIMINATED Admin MCP
     - to: [] # Allow external connections for external MCP servers
       ports:
         - protocol: TCP

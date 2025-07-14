@@ -82,7 +82,7 @@ class GPTCacheService:
         prewarm_data = {
             "What is our current revenue?": {
                 "response": "Current Q4 revenue is $12.5M, up 23% YoY. Monthly recurring revenue is $4.2M with 15% growth rate.",
-                "sources": ["modern_stack.revenue_dashboard", "hubspot.deals"],
+                "sources": ["qdrant.revenue_dashboard", "hubspot.deals"],
                 "timestamp": time.time(),
             },
             "Show me the sales pipeline": {

@@ -34,7 +34,7 @@ class DealRiskHandler:
     ) -> DealRiskAssessment | None:
         """Process comprehensive deal risk assessment"""
         try:
-            # Get deal data from HubSpot via ModernStack
+            # Get deal data from HubSpot via Qdrant
             async with self.agent.hubspot_connector as connector:
                 deal_data = await connector.get_deal_details(deal_id)
                 if not deal_data:

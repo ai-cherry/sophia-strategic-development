@@ -7,7 +7,7 @@
     },
     "codacy": {
       "port": 3008,
-      "status": "available", 
+      "status": "available",
       "description": "Codacy MCP Server - Code quality analysis"
     },
     "github": {
@@ -44,11 +44,6 @@
       "port": 9020,
       "status": "available",
       "description": "Lambda Labs CLI MCP Server - GPU infrastructure"
-    },
-    "snowflake_cli_enhanced": {
-      "port": 9021,
-      "status": "available",
-      "description": "Snowflake CLI Enhanced MCP Server - Data operations"
     }
   },
   "backend_services": {

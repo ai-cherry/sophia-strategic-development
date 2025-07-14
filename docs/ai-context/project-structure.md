@@ -53,7 +53,7 @@ backend/
 │   └── business_intelligence_service.py
 ├── integrations/              # External service integrations
 │   ├── portkey_gateway_service.py # Portkey LLM gateway
-│   ├── modern_stack_service.py   # Lambda GPU operations
+│   ├── ELIMINATED_service.py   # Lambda GPU operations
 │   └── mcp_orchestration_service.py
 ├── agents/                    # AI agent implementations
 │   ├── core/                  # Base agent classes
@@ -119,7 +119,7 @@ External APIs → PostgreSQL (Staging) → Modern Stack (Truth) → Redis (Cache
 
 ### **28 Consolidated Servers** (reduced from 36+ fragmented)
 ```
-Core Intelligence (7):     ai_memory, sophia_intelligence, modern_stack_unified
+Core Intelligence (7):     ai_memory, sophia_intelligence, ELIMINATED_unified
 Business Intelligence (8): hubspot, gong, slack, notion, intercom, salesforce
 Infrastructure (8):        lambda_labs, pulumi, portkey, postgres, playwright
 Specialized (5):           huggingface, graphiti, ui_ux_agent, overlays
@@ -168,9 +168,9 @@ GitHub Organization Secrets → Pulumi ESC → Backend Auto-Loading
 ### **Environment Configuration**
 ```yaml
 ENVIRONMENT: "prod"  # ALWAYS default to production
-modern_stack_ACCOUNT: "ZNB04675.us-east-1.us-east-1"
-modern_stack_DATABASE: "SOPHIA_AI_PRODUCTION"
-modern_stack_WAREHOUSE: "SOPHIA_AI_COMPUTE_WH"
+ELIMINATED_ACCOUNT: "ZNB04675.us-east-1.us-east-1"
+ELIMINATED_DATABASE: "SOPHIA_AI_PRODUCTION"
+ELIMINATED_WAREHOUSE: "SOPHIA_AI_COMPUTE_WH"
 ```
 
 ---

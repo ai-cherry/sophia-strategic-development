@@ -314,7 +314,7 @@ Return only a number between 0 and 1."""
         # Authority weights for different sources
         authority_weights = {
             "official_docs": 1.0,
-            "modern_stack": 0.9,
+            "qdrant": 0.9,
             "gong": 0.8,
             "hubspot": 0.8,
             "slack": 0.6,

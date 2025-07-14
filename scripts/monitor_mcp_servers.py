@@ -19,7 +19,7 @@ MCP_SERVERS = [
     {"name": "Asana", "port": 9006, "url": "http://localhost:9006/health"},
     {"name": "Notion", "port": 9102, "url": "http://localhost:9102/health"},
     {"name": "Slack", "port": 9101, "url": "http://localhost:9101/health"},
-    {"name": "ModernStack", "port": 9001, "url": "http://localhost:9001/health"},
+    {"name": "Qdrant", "port": 9001, "url": "http://localhost:9001/health"},
     {"name": "Gong", "port": 9100, "url": "http://localhost:9100/health"},
     {"name": "HubSpot", "port": 9105, "url": "http://localhost:9105/health"},
 ]
@@ -106,24 +106,24 @@ async def test_backend_api():
             print("  ❌ Orchestration endpoint failed")
 
 
-async def verify_modern_stack_connection():
-    """Verify ModernStack is receiving data"""
-    print("\n❄️  modern_stack VERIFICATION:")
+async def verify_qdrant_serviceection():
+    """Verify Qdrant is receiving data"""
+    print("\n❄️  qdrant VERIFICATION:")
 
     try:
-        # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+        
         from backend.core.auto_esc_config import get_config_value
 
-        # Get ModernStack credentials
+        # Get Qdrant credentials
         account = get_config_value("postgres_host")
-        user = get_config_value("modern_stack_user")
+        user = get_config_value("qdrant_user")
         password = get_config_value("postgres_password")
         warehouse = get_config_value("postgres_database", "SOPHIA_AI_WH")
         database = get_config_value("postgres_database", "SOPHIA_AI")
 
-        print(f"  Connecting to ModernStack as {user}@{account}...")
+        print(f"  Connecting to Qdrant as {user}@{account}...")
 
-        conn = self.modern_stack_connection(
+        conn = self.qdrant_serviceection(
             account=account,
             user=user,
             password=password,
@@ -165,7 +165,7 @@ async def verify_modern_stack_connection():
         conn.close()
 
     except Exception as e:
-        print(f"  ❌ ModernStack verification failed: {e}")
+        print(f"  ❌ Qdrant verification failed: {e}")
 
 
 async def main():
@@ -206,8 +206,8 @@ async def main():
     # Test backend API
     await test_backend_api()
 
-    # Verify ModernStack
-    await verify_modern_stack_connection()
+    # Verify Qdrant
+    await verify_qdrant_serviceection()
 
     print("\n" + "=" * 60)
     print("Monitoring complete!")

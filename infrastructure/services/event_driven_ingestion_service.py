@@ -194,9 +194,9 @@ class EventDrivenIngestionService(EnhancedIngestionService):
     Implements enterprise-grade event orchestration while maintaining backwards compatibility
     """
 
-    def __init__(self, # REMOVED: ModernStack dependency None):
+    def __init__(self, 
         # Initialize parent class
-# REMOVED: ModernStack dependency or {})
+
 
         # Event-driven components
         self.event_bus = IngestionEventBus()

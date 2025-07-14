@@ -255,9 +255,9 @@ class SecretManager:
         """Validate infrastructure secrets."""
         results = {}
 
-        # ModernStack
-# REMOVED: ModernStack dependency.postgres_password:
-            results["modern_stack"] = await self._validate_modern_stack_credentials()
+        # Qdrant
+
+            results["qdrant"] = await self._validate_qdrant_credentials()
 
         # Redis
         if self.config.redis_password:
@@ -461,10 +461,10 @@ class SecretManager:
             self.logger.exception(f"Anthropic API validation failed: {e}")
             return False
 
-    async def _validate_modern_stack_credentials(self) -> bool:
-        """Validate ModernStack credentials."""
+    async def _validate_qdrant_credentials(self) -> bool:
+        """Validate Qdrant credentials."""
         try:
-            # In production, this would use actual ModernStack connector
+            # In production, this would use actual Qdrant connector
             # For now, just validate format and presence
             account = self.config.postgres_host
             password = self.config.postgres_password
@@ -476,11 +476,11 @@ class SecretManager:
             if len(account) < 5 or len(password) < 8:
                 return False
 
-            self.logger.info("ModernStack credentials format validated")
+            self.logger.info("Qdrant credentials format validated")
             return True
 
         except Exception as e:
-            self.logger.exception(f"ModernStack validation failed: {e}")
+            self.logger.exception(f"Qdrant validation failed: {e}")
             return False
 
     async def _validate_redis_credentials(self) -> bool:
@@ -732,7 +732,7 @@ class SecretManager:
 
         self._audit_log.append(event)
 
-        # In production, this would send to ModernStack or other audit storage
+        # In production, this would send to Qdrant or other audit storage
         self.logger.info(
             "Security audit event logged",
             event_type=event_type,

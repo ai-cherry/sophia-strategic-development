@@ -117,7 +117,7 @@ class EnhancedDeploymentTracker:
         self.active_deployments: dict[str, DeploymentEvent] = {}
 
     async def initialize_tracking_schema(self) -> bool:
-        """Initialize deployment tracking schema in ModernStack."""
+        """Initialize deployment tracking schema in Qdrant."""
         try:
             schema_sql = """
             -- Deployment Tracking Schema
@@ -232,7 +232,7 @@ class EnhancedDeploymentTracker:
         # Store in active deployments
         self.active_deployments[deployment_id] = deployment_event
 
-        # Store in ModernStack
+        # Store in Qdrant
         await self._store_deployment_event(deployment_event)
 
         # Send notification
@@ -269,7 +269,7 @@ class EnhancedDeploymentTracker:
             self.deployment_history.append(deployment)
             del self.active_deployments[deployment_id]
 
-        # Update in ModernStack
+        # Update in Qdrant
         await self._store_deployment_event(deployment)
 
         # Send notification
@@ -473,7 +473,7 @@ class EnhancedDeploymentTracker:
         }
 
     async def _store_deployment_event(self, event: DeploymentEvent) -> bool:
-        """Store deployment event in ModernStack."""
+        """Store deployment event in Qdrant."""
 
         try:
             query = """

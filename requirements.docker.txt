@@ -2373,9 +2373,9 @@ asyncpg==3.16.0 \
     --hash=sha256:bab36467b6a9f696ae9fbae35d733557724d70ab779d89fe430844e876ce02c6 \
     --hash=sha256:f4a5ba8ffa1bfcaf6f4bca41115711dcc938783e1f4e93ba6a155d07caa43e19
     # via
-    #   modern_stack-sqlalchemy
+    #   ELIMINATED-sqlalchemy
     #   sophia-ai
-modern_stack-sqlalchemy==1.7.5 \
+ELIMINATED-sqlalchemy==1.7.5 \
     --hash=sha256:3179890681e6f49f20b7dd5482eb56f32b95d6817fe44a45fb74461120619983 \
     --hash=sha256:48928dfec75d3410b1117c69c6eff99304a62af0509e5d3a3fd3c5f9d2d1879c
     # via sophia-ai
@@ -2409,7 +2409,7 @@ sqlalchemy==2.0.41 \
     # via
     #   langchain
     #   langchain-community
-    #   modern_stack-sqlalchemy
+    #   ELIMINATED-sqlalchemy
     #   sophia-ai
 sse-starlette==2.3.6 \
     --hash=sha256:0382336f7d4ec30160cf9ca0518962905e1b69b72d6c1c995131e0a703b436e3 \

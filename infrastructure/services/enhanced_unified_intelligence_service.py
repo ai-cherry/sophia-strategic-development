@@ -23,18 +23,18 @@ logger = logging.getLogger(__name__)
 
 
 class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
-    """Enhanced service with ModernStack-native AI integration"""
+    """Enhanced service with Qdrant-native AI integration"""
 
     def __init__(self):
         super().__init__()
-        self.# REMOVED: ModernStack dependency True
+        self.
         self.estuary_flow_enabled = False  # Will be enabled when configured
         self.llm_service = None  # Will be initialized when available
 
         # Performance tracking
         self.performance_metrics = {
             "total_queries": 0,
-            "modern_stack_queries": 0,
+            "qdrant_queries": 0,
             "constitutional_violations": 0,
             "average_response_time": 0.0,
             "cost_savings": 0.0,
@@ -207,11 +207,11 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             "timestamp": query_context["timestamp"],
         }
 
-    def _should_use_modern_stack(self, query: str, context: dict[str, Any]) -> bool:
+    def _should_use_qdrant(self, query: str, context: dict[str, Any]) -> bool:
         """Determine if query should be processed by Lambda GPU AI"""
 
-        # Use ModernStack for structured business data queries
-        # REMOVED: ModernStack dependency [
+        # Use Qdrant for structured business data queries
+        
             "revenue",
             "sales",
             "deals",
@@ -226,28 +226,28 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         query_lower = query.lower()
         has_business_keywords = any(
-            keyword in query_lower for keyword in modern_stack_keywords
+            keyword in query_lower for keyword in qdrant_keywords
         )
 
         # Check context preferences
-        prefer_modern_stack = context.get("prefer_modern_stack", True)
+        prefer_qdrant = context.get("prefer_qdrant", True)
         user_role = context.get("user_role", "employee")
 
-        # Executives get ModernStack processing by default
+        # Executives get Qdrant processing by default
         if user_role in ["ceo", "executive", "manager"]:
             return True
 
-        return has_business_keywords and prefer_modern_stack
+        return has_business_keywords and prefer_qdrant
 
-    async def _execute_modern_stack_intelligence(
+    async def _execute_qdrant_intelligence(
         self, query: str, context: dict[str, Any]
     ) -> dict[str, Any]:
         """Execute Lambda GPU AI intelligence function"""
 
         try:
             # Check if we have Lambda GPU service
-            if hasattr(self, "modern_stack_cortex") and self.modern_stack_cortex:
-                # Use the ModernStack function we created
+            if hasattr(self, "qdrant_cortex") and self.qdrant_service_cortex:
+                # Use the Qdrant function we created
                 sql = """
                 SELECT
                     insights,
@@ -257,7 +257,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 FROM TABLE(sophia_business_intelligence(?, ?, ?))
                 """
 
-                results = await self.modern_stack_cortex.execute_query(
+                results = await self.qdrant_service_cortex.execute_query(
                     sql,
                     [
                         query,
@@ -273,25 +273,25 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                         "confidence_score": row.get("CONFIDENCE_SCORE", 0.8),
                         "processing_cost": row.get("PROCESSING_COST", 0.001),
                         "optimization_insights": row.get("OPTIMIZATION_SUGGESTIONS"),
-                        "source": "modern_stack_cortex_ai",
+                        "source": "qdrant_cortex_ai",
                         "business_data": self._extract_business_data(
                             row.get("INSIGHTS")
                         ),
                     }
 
-            # Fallback: simulate ModernStack response for now
-            return await self._simulate_modern_stack_response(query, context)
+            # Fallback: simulate Qdrant response for now
+            return await self._simulate_qdrant_response(query, context)
 
         except Exception as e:
-            logger.exception(f"ModernStack intelligence execution failed: {e}")
+            logger.exception(f"Qdrant intelligence execution failed: {e}")
             raise
 
-    async def _simulate_modern_stack_response(
+    async def _simulate_qdrant_response(
         self, query: str, context: dict[str, Any]
     ) -> dict[str, Any]:
         """Simulate Lambda GPU AI response until functions are deployed"""
 
-        # This will be replaced with actual ModernStack function calls
+        # This will be replaced with actual Qdrant function calls
         return {
             "unified_insights": f"Simulated Lambda GPU AI analysis for: {query}",
             "confidence_score": 0.85,
@@ -304,7 +304,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 ],
                 "next_optimization_cycle": datetime.now(UTC).isoformat(),
             },
-            "source": "modern_stack_cortex_ai_simulation",
+            "source": "qdrant_cortex_ai_simulation",
             "business_data": {
                 "query_type": "business_intelligence",
                 "data_sources": ["ENRICHED_HUBSPOT_DEALS", "ENRICHED_GONG_CALLS"],
@@ -313,30 +313,30 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         }
 
     def _merge_intelligence_results(
-        self, modern_stack_results: dict, external_results: dict
+        self, qdrant_results: dict, external_results: dict
     ) -> dict[str, Any]:
-        """Merge ModernStack and external AI results intelligently"""
+        """Merge Qdrant and external AI results intelligently"""
 
         merged = {
             "unified_insights": {
-                "modern_stack_analysis": modern_stack_results.get("unified_insights"),
+                "qdrant_analysis": qdrant_results.get("unified_insights"),
                 "external_analysis": external_results.get("unified_insights"),
                 "synthesis": "Combined analysis from Lambda GPU AI and external services",
             },
             "confidence_score": max(
-                modern_stack_results.get("confidence_score", 0),
+                qdrant_results.get("confidence_score", 0),
                 external_results.get("confidence_score", 0),
             ),
             "processing_cost": (
-                modern_stack_results.get("processing_cost", 0)
+                qdrant_results.get("processing_cost", 0)
                 + external_results.get("processing_cost", 0)
             ),
             "business_data": {
-                **modern_stack_results.get("business_data", {}),
+                **qdrant_results.get("business_data", {}),
                 **external_results.get("business_data", {}),
             },
-            "optimization_insights": modern_stack_results.get("optimization_insights"),
-            "sources": ["modern_stack_cortex_ai", "external_ai_services"],
+            "optimization_insights": qdrant_results.get("optimization_insights"),
+            "sources": ["qdrant_cortex_ai", "external_ai_services"],
         }
 
         return merged
@@ -362,7 +362,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         sources = []
 
-        if "modern_stack_cortex_ai" in results.get("source", ""):
+        if "qdrant_cortex_ai" in results.get("source", ""):
             sources.append("Lambda GPU AI")
 
         if results.get("business_data", {}).get("data_sources"):
@@ -386,8 +386,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 "constitutional_ai": (
                     "operational" if self.constitutional_ai else "disabled"
                 ),
-                "modern_stack_cortex": (
-                    "operational" if self.modern_stack_integration else "disabled"
+                "qdrant_cortex": (
+                    "operational" if self.qdrant_service_integration else "disabled"
                 ),
                 "estuary_flow": (
                     "operational" if self.estuary_flow_enabled else "disabled"
@@ -417,12 +417,12 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         )
         score -= violation_rate * 0.3
 
-        # Reward ModernStack usage (more efficient)
-        # REMOVED: ModernStack dependency (
-            self.performance_metrics["modern_stack_queries"]
+        # Reward Qdrant usage (more efficient)
+        
+            self.performance_metrics["qdrant_queries"]
             / self.performance_metrics["total_queries"]
         )
-        score += modern_stack_rate * 0.1
+        score += qdrant_rate * 0.1
 
         # Factor in response time (assume target is 200ms)
         if self.performance_metrics["average_response_time"] > 0:

@@ -6,7 +6,7 @@ replacing all deprecated chat services with a unified, intelligent orchestration
 
 Features:
 - Streaming responses for real-time interaction
-- Unified memory integration with ModernStack
+- Unified memory integration with Qdrant
 - Parallel MCP server orchestration
 - ML-based intent classification
 - Comprehensive monitoring and metrics

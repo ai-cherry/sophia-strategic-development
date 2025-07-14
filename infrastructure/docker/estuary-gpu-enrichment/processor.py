@@ -2,7 +2,7 @@
 """
 Estuary Flow GPU Enrichment Processor
 Processes streaming data: generates embeddings and stores in Weaviate
-No more ModernStack lag - just pure GPU speed!
+No more Qdrant lag - just pure GPU speed!
 """
 
 import asyncio
@@ -284,7 +284,7 @@ class GPUEnrichmentProcessor:
 ║ Avg Processing Time:   {avg_time:>8.1f}ms            ║
 ║ Total Time:            {self.stats['total_time_ms']/1000:>8.1f}s             ║
 ║                                                      ║
-║ ModernStack would have taken: ~{avg_time * 8:.0f}ms per record ║
+║ Qdrant would have taken: ~{avg_time * 8:.0f}ms per record ║
 ╚══════════════════════════════════════════════════════╝
         """
         )

@@ -54,12 +54,6 @@
       ],
       "cwd": "/home/ubuntu/sophia-main",
       "env": {
-        "modern_stack_ACCOUNT": "${ESC_modern_stack_ACCOUNT}",
-        "modern_stack_USER": "${ESC_modern_stack_USER}",
-        "modern_stack_PASSWORD": "${ESC_modern_stack_PASSWORD}",
-        "modern_stack_WAREHOUSE": "${ESC_modern_stack_WAREHOUSE}",
-        "modern_stack_DATABASE": "${ESC_modern_stack_DATABASE}",
-        "modern_stack_SCHEMA": "${ESC_modern_stack_SCHEMA}",
         "PINECONE_API_KEY": "${ESC_PINECONE_API_KEY}",
         "LOOKER_API_KEY": "${ESC_LOOKER_API_KEY}",
         "MIXPANEL_API_KEY": "${ESC_MIXPANEL_API_KEY}"
@@ -67,7 +61,10 @@
     },
     "codacy": {
       "command": "python",
-      "args": ["-m", "mcp-servers.codacy.codacy_mcp_server"],
+      "args": [
+        "-m",
+        "mcp-servers.codacy.codacy_mcp_server"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "CODACY_ACCOUNT_TOKEN": "${ESC_CODACY_ACCOUNT_TOKEN}",

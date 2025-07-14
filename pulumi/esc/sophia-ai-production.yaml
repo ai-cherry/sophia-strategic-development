@@ -22,8 +22,8 @@ values:
   # Database Credentials (SECRETS)
   # =============================================================================
 
-  postgres_password: os.getenv("modern_stack_PASSWORD")
-  # ModernStack database password/PAT
+  postgres_password: os.getenv("ELIMINATED_PASSWORD")
+  # ELIMINATED database password/PAT
 
   redis_password: "PLACEHOLDER_REDIS_PASSWORD"
   # Redis password for caching
@@ -77,10 +77,10 @@ values:
   # Non-Secret Configuration (Safe to store in plain text)
   # =============================================================================
 
-  # ModernStack Connection Details
+  # ELIMINATED Connection Details
   postgres_host: "ZNB04675.us-east-1"
-  modern_stack_user: "SCOOBYJAVA15"
-  modern_stack_role: "ACCOUNTADMIN"
+  ELIMINATED_user: "SCOOBYJAVA15"
+  ELIMINATED_role: "ACCOUNTADMIN"
   postgres_database: "SOPHIA_AI_WH"
   postgres_database: "SOPHIA_AI"
   postgres_schema: "PROCESSED_AI"
@@ -118,7 +118,7 @@ values:
     PINECONE_API_KEY: ${pinecone_api_key}
 
     # Database Credentials
-    modern_stack_PASSWORD: ${postgres_password}
+    ELIMINATED_PASSWORD: ${postgres_password}
     REDIS_PASSWORD: ${redis_password}
 
     # Business Integration API Keys
@@ -139,12 +139,12 @@ values:
     PULUMI_ACCESS_TOKEN: ${pulumi_access_token}
 
     # Non-Secret Configuration
-    modern_stack_ACCOUNT: ${postgres_host}
-    modern_stack_USER: ${modern_stack_user}
-    modern_stack_ROLE: ${modern_stack_role}
-    modern_stack_WAREHOUSE: ${postgres_database}
-    modern_stack_DATABASE: ${postgres_database}
-    modern_stack_SCHEMA: ${postgres_schema}
+    ELIMINATED_ACCOUNT: ${postgres_host}
+    ELIMINATED_USER: ${ELIMINATED_user}
+    ELIMINATED_ROLE: ${ELIMINATED_role}
+    ELIMINATED_WAREHOUSE: ${postgres_database}
+    ELIMINATED_DATABASE: ${postgres_database}
+    ELIMINATED_SCHEMA: ${postgres_schema}
     REDIS_HOST: ${redis_host}
     REDIS_PORT: ${redis_port}
     REDIS_DB: ${redis_db}

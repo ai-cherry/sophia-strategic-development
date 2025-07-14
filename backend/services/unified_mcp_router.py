@@ -16,7 +16,7 @@ class UnifiedMCPRouter:
                 "github": {"port": 9005, "capabilities": ["CODE_MANAGEMENT"]}
             },
             "data_operations": {
-                "modern_stack": {"port": 9001, "capabilities": ["ANALYTICS"]},
+                "qdrant": {"port": 9001, "capabilities": ["ANALYTICS"]},
                 "postgres": {"port": 9012, "capabilities": ["DATABASE"]},
                 "redis": {"port": 6379, "capabilities": ["CACHE"]}
             },

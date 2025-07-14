@@ -111,7 +111,7 @@ spec:
 
 #### Modern Stack Connection Error
 ```
-modern_stack.connector.errors.ProgrammingError: 251005: 251005: User is empty
+ELIMINATED.connector.errors.ProgrammingError: 251005: 251005: User is empty
 ```
 
 #### Frontend TypeError
@@ -132,12 +132,12 @@ error: Microsoft Visual C++ 14.0 or greater is required
 #### Backend (.env)
 ```bash
 ENVIRONMENT=prod
-modern_stack_ACCOUNT=UHDECNO-CVB64222
-modern_stack_USER=SCOOBYJAVA15
-modern_stack_PASSWORD=[encrypted]
-modern_stack_DATABASE=SOPHIA_AI_PRODUCTION
-modern_stack_WAREHOUSE=SOPHIA_AI_COMPUTE_WH_MAIN
-modern_stack_SCHEMA=PAYREADY_SALESIQ
+ELIMINATED_ACCOUNT=UHDECNO-CVB64222
+ELIMINATED_USER=SCOOBYJAVA15
+ELIMINATED_PASSWORD=[encrypted]
+ELIMINATED_DATABASE=SOPHIA_AI_PRODUCTION
+ELIMINATED_WAREHOUSE=SOPHIA_AI_COMPUTE_WH_MAIN
+ELIMINATED_SCHEMA=PAYREADY_SALESIQ
 REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
@@ -177,7 +177,7 @@ sudo netstat -tlnp | grep 8001
 ```yaml
 LAMBDA_API_KEY
 LAMBDA_SSH_KEY
-modern_stack_PASSWORD
+ELIMINATED_PASSWORD
 DOCKER_HUB_USERNAME
 DOCKER_HUB_ACCESS_TOKEN
 VERCEL_TOKEN

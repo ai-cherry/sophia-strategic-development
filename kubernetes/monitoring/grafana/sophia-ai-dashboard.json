@@ -2,7 +2,10 @@
   "dashboard": {
     "id": null,
     "title": "Sophia AI Performance Dashboard",
-    "tags": ["sophia-ai", "performance"],
+    "tags": [
+      "sophia-ai",
+      "performance"
+    ],
     "timezone": "UTC",
     "panels": [
       {
@@ -25,14 +28,20 @@
           "conditions": [
             {
               "query": {
-                "params": ["A", "5m", "now"]
+                "params": [
+                  "A",
+                  "5m",
+                  "now"
+                ]
               },
               "reducer": {
                 "params": [],
                 "type": "avg"
               },
               "evaluator": {
-                "params": [0.2],
+                "params": [
+                  0.2
+                ],
                 "type": "gt"
               }
             }

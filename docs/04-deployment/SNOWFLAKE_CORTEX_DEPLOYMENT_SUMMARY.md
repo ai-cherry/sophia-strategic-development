@@ -6,20 +6,20 @@ This document summarizes the comprehensive Lambda GPU MCP integration that has b
 
 ## 📦 Components Implemented
 
-### 1. Core Adapter (`backend/core/services/modern_stack_cortex_adapter.py`)
+### 1. Core Adapter (`backend/core/services/ELIMINATED_cortex_adapter.py`)
 - **Dual-mode execution**: Supports both direct Modern Stack connections and MCP server communication
 - **Automatic fallback**: Transparent failover from MCP to direct mode
 - **Circuit breaker**: Prevents cascading failures with intelligent circuit breaking
 - **Retry logic**: Exponential backoff for transient failures
 - **Performance tracking**: Comprehensive latency and usage metrics
 
-### 2. MCP Client (`backend/integrations/modern_stack_mcp_client.py`)
+### 2. MCP Client (`backend/integrations/ELIMINATED_mcp_client.py`)
 - **PAT authentication**: Secure token-based authentication
 - **HTTP/2 support**: High-performance communication with connection pooling
 - **Streaming responses**: Support for Server-Sent Events
 - **Health checking**: Built-in health and capability discovery
 
-### 3. Connection Pool Manager (`backend/core/services/modern_stack_pool.py`)
+### 3. Connection Pool Manager (`backend/core/services/ELIMINATED_pool.py`)
 - **Dual pools**: Separate pools for direct and MCP connections
 - **Auto-scaling**: Dynamic pool size adjustment based on load
 - **Health monitoring**: Automatic connection recycling
@@ -48,8 +48,8 @@ This document summarizes the comprehensive Lambda GPU MCP integration that has b
 ### Auto ESC Config Enhancement
 ```python
 # Added to backend/core/auto_esc_config.py
-- get_modern_stack_pat(environment)
-- get_modern_stack_mcp_config()
+- get_ELIMINATED_pat(environment)
+- get_ELIMINATED_mcp_config()
 - check_pat_rotation_needed()
 ```
 
@@ -65,8 +65,8 @@ This document summarizes the comprehensive Lambda GPU MCP integration that has b
 ### 1. Add Secrets to GitHub Organization
 ```bash
 # Required secrets in https://github.com/organizations/ai-cherry/settings/secrets/actions
-modern_stack_PAT_PROD    # Production PAT
-modern_stack_PAT_STG     # Staging PAT (optional)
+ELIMINATED_PAT_PROD    # Production PAT
+ELIMINATED_PAT_STG     # Staging PAT (optional)
 ```
 
 ### 2. Sync Secrets to Pulumi ESC
@@ -92,12 +92,12 @@ python scripts/validate_cortex_integration.py
 ### Key Metrics Exposed
 - `cortex_calls_total`: Total API calls by mode, task, and status
 - `cortex_latency_seconds`: Call latency distribution
-- `modern_stack_pool_size`: Connection pool sizes
+- `ELIMINATED_pool_size`: Connection pool sizes
 - `cortex_credits_used`: Modern Stack credit consumption
 - `mcp_server_health_score`: MCP server health status
 
 ### Grafana Dashboard
-- Import `config/grafana/dashboards/modern_stack_cortex_mcp.json`
+- Import `config/grafana/dashboards/ELIMINATED_cortex_mcp.json`
 - Monitors request rates, latency, pool utilization, and failover rates
 
 ## 🔐 Security Considerations
@@ -118,12 +118,12 @@ python scripts/validate_cortex_integration.py
 
 ### Unit Tests
 ```bash
-pytest backend/tests/services/test_modern_stack_cortex_adapter.py -v
+pytest backend/tests/services/test_ELIMINATED_cortex_adapter.py -v
 ```
 
 ### Integration Tests
 ```bash
-pytest -m "integration and modern_stack" --env=staging
+pytest -m "integration and ELIMINATED" --env=staging
 ```
 
 ### Load Tests
@@ -144,8 +144,8 @@ locust -f backend/tests/load/locustfile_sf_mcp.py --host=https://api.sophia-ai.c
 ### Quick Disable
 ```bash
 # Set environment variable to disable MCP mode
-export MCP_modern_stack_ENABLED=false
-kubectl set env deployment/sophia-backend MCP_modern_stack_ENABLED=false
+export MCP_ELIMINATED_ENABLED=false
+kubectl set env deployment/sophia-backend MCP_ELIMINATED_ENABLED=false
 ```
 
 ### Full Rollback

@@ -145,14 +145,14 @@ class LambdaLabsService:
     ) -> str:
         """Convert natural language to optimized SQL using Lambda AI"""
 
-        prompt = f"""Convert this natural language query to optimized ModernStack SQL:
+        prompt = f"""Convert this natural language query to optimized Qdrant SQL:
 
 Query: {query}
 
 Schema Context: {schema_context}
 
 Requirements:
-- Use proper ModernStack syntax and functions
+- Use proper Qdrant syntax and functions
 - Optimize for performance
 - Include appropriate JOINs and WHERE clauses
 - Return only the SQL query

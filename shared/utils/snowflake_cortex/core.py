@@ -121,7 +121,7 @@ class DirectCortexCore:
         options_json = json.dumps(options)
 
         query = f"""
-        SELECT self.modern_stack.await self.lambda_gpu.complete(
+        SELECT self.qdrant_service.await self.lambda_gpu.complete(
             '{model.value}',
             %s,
             '{options_json}'
@@ -147,7 +147,7 @@ class DirectCortexCore:
     async def analyze_sentiment(self, text: str) -> dict[str, Any]:
         """Analyze sentiment using Cortex."""
         query = """
-        SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(%s) as sentiment
+        SELECT self.qdrant_service.await self.lambda_gpu.analyze_sentiment(%s) as sentiment
         """
 
         try:
@@ -168,7 +168,7 @@ class DirectCortexCore:
     async def summarize_text(self, text: str, max_length: int = 500) -> str:
         """Summarize text using Cortex."""
         query = """
-        SELECT self.modern_stack.await self.lambda_gpu.summarize(%s) as summary
+        SELECT self.qdrant_service.await self.lambda_gpu.summarize(%s) as summary
         """
 
         try:
@@ -188,7 +188,7 @@ class DirectCortexCore:
     ) -> str:
         """Translate text using Cortex."""
         query = f"""
-        SELECT self.modern_stack.await self.lambda_gpu.translate(
+        SELECT self.qdrant_service.await self.lambda_gpu.translate(
             %s,
             '{from_language}',
             '{to_language}'

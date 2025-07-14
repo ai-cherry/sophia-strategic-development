@@ -178,16 +178,14 @@ class UnifiedConfig:
         return value
 
     @classmethod
-# REMOVED: ModernStack dependency(cls) -> dict:
-# REMOVED: ModernStack dependencyuration"""
+    def get_legacy_config(cls) -> dict:
+        """Get legacy configuration (deprecated)"""
         return {
-            "account": cls.get("postgres_host", "UHDECNO-CVB64222"),
-            "user": cls.get("modern_stack_user", "SCOOBYJAVA15"),
-            "password": cls.get("postgres_password") or cls.get("modern_stack_pat"),
-            "warehouse": cls.get("postgres_database", "SOPHIA_AI_COMPUTE_WH"),
-            "database": cls.get("postgres_database", "AI_MEMORY"),
-            "schema": cls.get("postgres_schema", "PUBLIC"),
-            "role": cls.get("modern_stack_role", "ACCOUNTADMIN"),
+            "host": cls.get("postgres_host", "localhost"),
+            "user": cls.get("postgres_user", "postgres"),
+            "password": cls.get("postgres_password"),
+            "database": cls.get("postgres_database", "sophia_ai"),
+            "schema": cls.get("postgres_schema", "public"),
         }
 
     @classmethod
@@ -242,7 +240,7 @@ class UnifiedConfig:
             "debug",
             "log_level",
             "postgres_host",
-            "modern_stack_user",
+            "qdrant_user",
             "postgres_password",
             "postgres_database",
             "postgres_database",

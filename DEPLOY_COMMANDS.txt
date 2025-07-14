@@ -16,9 +16,9 @@ export POSTGRES_PASSWORD="your-postgres-password"
 export GRAFANA_PASSWORD="your-grafana-password"
 export PULUMI_ACCESS_TOKEN="your-pulumi-token"
 export MEM0_API_KEY="your-mem0-key"
-export modern_stack_ACCOUNT="your-modern_stack-account"
-export modern_stack_USER="your-modern_stack-user"
-export modern_stack_PASSWORD="your-modern_stack-password"
+export ELIMINATED_ACCOUNT="your-ELIMINATED-account"
+export ELIMINATED_USER="your-ELIMINATED-user"
+export ELIMINATED_PASSWORD="your-ELIMINATED-password"
 export VERCEL_V0DEV_API_KEY="your-vercel-key"
 
 # 5. Deploy the stack:

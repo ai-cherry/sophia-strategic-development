@@ -533,7 +533,7 @@ class UnifiedMCPRouter:
                 "github": {"port": 9005, "capabilities": ["CODE_MANAGEMENT"]}
             },
             "data_operations": {
-                "modern_stack": {"port": 9001, "capabilities": ["ANALYTICS"]},
+                "qdrant": {"port": 9001, "capabilities": ["ANALYTICS"]},
                 "postgres": {"port": 9012, "capabilities": ["DATABASE"]},
                 "redis": {"port": 6379, "capabilities": ["CACHE"]}
             },
@@ -760,7 +760,7 @@ class IntelligentN8NOrchestrator:
                 "schedule": "0 9 * * *",
                 "nodes": [
                     {"name": "Trigger", "type": "schedule"},
-                    {"name": "Fetch Data", "type": "modern_stack"},
+                    {"name": "Fetch Data", "type": "qdrant"},
                     {"name": "AI Analysis", "type": "ai_processing"},
                     {"name": "Send Report", "type": "slack"}
                 ]
@@ -847,12 +847,12 @@ class IntelligentN8NOrchestrator:
         """Setup Estuary Flow webhooks for real-time triggers"""
         webhooks = [
             {
-                "flow": "hubspot-to-modern_stack",
+                "flow": "hubspot-to-qdrant",
                 "event": "new_deal_created", 
                 "webhook_url": "https://sophia-ai.com/webhooks/n8n/deal-created"
             },
             {
-                "flow": "gong-to-modern_stack",
+                "flow": "gong-to-qdrant",
                 "event": "call_completed",
                 "webhook_url": "https://sophia-ai.com/webhooks/n8n/call-completed"
             }
@@ -932,7 +932,7 @@ class LangGraphAgentFactory:
                 "description": "Automated revenue forecasting with multi-source data analysis",
                 "workflow": {
                     "nodes": [
-                        {"id": "data_collection", "type": "parallel", "servers": ["hubspot", "gong", "modern_stack"]},
+                        {"id": "data_collection", "type": "parallel", "servers": ["hubspot", "gong", "qdrant"]},
                         {"id": "forecast_generation", "type": "ai_processing", "model": "claude-4"},
                         {"id": "report_generation", "type": "mcp_tool", "server": "slack"}
                     ]

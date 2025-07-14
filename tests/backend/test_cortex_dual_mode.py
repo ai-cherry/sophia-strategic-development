@@ -7,17 +7,17 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from shared.utils.modern_stack_cortex import (
+from shared.utils.qdrant_cortex import (
     CortexAuthenticationError,
     CortexModel,
     MCPMode,
-    ModernStackCortexService,
+    QdrantUnifiedMemoryService,
 )
 
 
 @pytest.fixture
-def mock_modern_stack_connection():
-    """Mock ModernStack connection."""
+def mock_qdrant_serviceection():
+    """Mock Qdrant connection."""
     conn = MagicMock()
     cursor = MagicMock()
 
@@ -40,23 +40,23 @@ def mock_mcp_response():
     )
 
 
-class TestModernStackCortexService:
-    """Test ModernStackCortexService dual-mode functionality."""
+class TestQdrantUnifiedMemoryService:
+    """Test QdrantUnifiedMemoryService dual-mode functionality."""
 
     @pytest.mark.asyncio
     async def test_auto_mode_prefers_mcp(self):
         """Test that AUTO mode prefers MCP when PAT is available."""
-        with patch.dict(os.environ, {"modern_stack_MCP_PAT": "test-pat"}):
+        with patch.dict(os.environ, {"qdrant_MCP_PAT": "test-pat"}):
             with patch(
-# REMOVED: ModernStack dependency_value"
+
             ) as mock_config:
                 mock_config.side_effect = lambda key, default=None: {
-                    "modern_stack_mcp_pat": "test-pat",
-                    "modern_stack_user": "test-user",
+                    "qdrant_mcp_pat": "test-pat",
+                    "qdrant_user": "test-user",
                     "postgres_password": "test-pass",
                 }.get(key, default)
 
-                service = ModernStackCortexService(mode=MCPMode.AUTO)
+                service = QdrantUnifiedMemoryService(mode=MCPMode.AUTO)
                 assert service.mode == MCPMode.MCP
 
     @pytest.mark.asyncio
@@ -64,40 +64,40 @@ class TestModernStackCortexService:
         """Test that AUTO mode falls back to DIRECT when no PAT."""
         with patch.dict(os.environ, {}, clear=True):
             with patch(
-# REMOVED: ModernStack dependency_value"
+
             ) as mock_config:
                 mock_config.side_effect = lambda key, default=None: {
-                    "modern_stack_user": "test-user",
+                    "qdrant_user": "test-user",
                     "postgres_password": "test-pass",
                     "postgres_host": "test-account",
                 }.get(key, default)
 
-                service = ModernStackCortexService(mode=MCPMode.AUTO)
+                service = QdrantUnifiedMemoryService(mode=MCPMode.AUTO)
                 assert service.mode == MCPMode.DIRECT
 
     @pytest.mark.asyncio
     async def test_no_credentials_raises_error(self):
         """Test that missing credentials raise authentication error."""
         with patch(
-# REMOVED: ModernStack dependency_value"
+
         ) as mock_config:
             mock_config.return_value = None
 
             with pytest.raises(CortexAuthenticationError):
-                ModernStackCortexService(mode=MCPMode.AUTO)
+                QdrantUnifiedMemoryService(mode=MCPMode.AUTO)
 
     @pytest.mark.asyncio
     async def test_mcp_mode_embedding(self):
         """Test embedding generation in MCP mode."""
         with patch(
-# REMOVED: ModernStack dependency_value"
+
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "modern_stack_mcp_pat": "test-pat",
-                "modern_stack_mcp_url": "http://test-mcp:8080",
+                "qdrant_mcp_pat": "test-pat",
+                "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = ModernStackCortexService(mode=MCPMode.MCP)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -111,13 +111,13 @@ class TestModernStackCortexService:
                     assert all(v == 0.1 for v in result)
 
     @pytest.mark.asyncio
-    async def test_direct_mode_embedding(self, mock_modern_stack_connection):
+    async def test_direct_mode_embedding(self, mock_qdrant_serviceection):
         """Test embedding generation in DIRECT mode."""
         with patch(
-# REMOVED: ModernStack dependency_value"
+
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "modern_stack_user": "test-user",
+                "qdrant_user": "test-user",
                 "postgres_password": "test-pass",
                 "postgres_host": "test-account",
                 "postgres_database": "test-wh",
@@ -125,14 +125,14 @@ class TestModernStackCortexService:
                 "postgres_schema": "test-schema",
             }.get(key, default)
 
-            service = ModernStackCortexService(mode=MCPMode.DIRECT)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.DIRECT)
 
             # Mock connection pool
-            with patch("self.modern_stack_connection") as mock_connect:
-                mock_connect.return_value = mock_modern_stack_connection
+            with patch("self.qdrant_serviceection") as mock_connect:
+                mock_connect.return_value = mock_qdrant_serviceection
 
                 # Mock query result
-                mock_# REMOVED: ModernStack dependency [
+                mock_
                     {"EMBEDDING": "[0.2, 0.2, 0.2]"}
                 ]
 
@@ -144,14 +144,14 @@ class TestModernStackCortexService:
     async def test_mcp_mode_completion(self):
         """Test text completion in MCP mode."""
         with patch(
-# REMOVED: ModernStack dependency_value"
+
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "modern_stack_mcp_pat": "test-pat",
-                "modern_stack_mcp_url": "http://test-mcp:8080",
+                "qdrant_mcp_pat": "test-pat",
+                "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = ModernStackCortexService(mode=MCPMode.MCP)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -166,13 +166,13 @@ class TestModernStackCortexService:
                     assert result == "Generated text"
 
     @pytest.mark.asyncio
-    async def test_direct_mode_completion(self, mock_modern_stack_connection):
+    async def test_direct_mode_completion(self, mock_qdrant_serviceection):
         """Test text completion in DIRECT mode."""
         with patch(
-# REMOVED: ModernStack dependency_value"
+
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "modern_stack_user": "test-user",
+                "qdrant_user": "test-user",
                 "postgres_password": "test-pass",
                 "postgres_host": "test-account",
                 "postgres_database": "test-wh",
@@ -180,14 +180,14 @@ class TestModernStackCortexService:
                 "postgres_schema": "test-schema",
             }.get(key, default)
 
-            service = ModernStackCortexService(mode=MCPMode.DIRECT)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.DIRECT)
 
             # Mock connection pool
-            with patch("self.modern_stack_connection") as mock_connect:
-                mock_connect.return_value = mock_modern_stack_connection
+            with patch("self.qdrant_serviceection") as mock_connect:
+                mock_connect.return_value = mock_qdrant_serviceection
 
                 # Mock query result
-                mock_# REMOVED: ModernStack dependency [
+                mock_
                     {"COMPLETION": "SQL generated text"}
                 ]
 
@@ -201,18 +201,18 @@ class TestModernStackCortexService:
     async def test_cache_hit(self):
         """Test that cache returns cached results."""
         with patch(
-# REMOVED: ModernStack dependency_value"
+
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "modern_stack_mcp_pat": "test-pat",
-                "modern_stack_mcp_url": "http://test-mcp:8080",
+                "qdrant_mcp_pat": "test-pat",
+                "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = ModernStackCortexService(mode=MCPMode.MCP, enable_cache=True)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP, enable_cache=True)
 
             # Mock cache
             with patch(
-                "shared.utils.modern_stack_cortex.cache.CortexCache.get"
+                "shared.utils.qdrant_cortex.cache.CortexCache.get"
             ) as mock_get:
                 mock_get.return_value = "Cached result"
 
@@ -224,14 +224,14 @@ class TestModernStackCortexService:
     async def test_mcp_search(self):
         """Test Cortex Search (MCP mode only)."""
         with patch(
-# REMOVED: ModernStack dependency_value"
+
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "modern_stack_mcp_pat": "test-pat",
-                "modern_stack_mcp_url": "http://test-mcp:8080",
+                "qdrant_mcp_pat": "test-pat",
+                "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = ModernStackCortexService(mode=MCPMode.MCP)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -250,14 +250,14 @@ class TestModernStackCortexService:
     async def test_service_lifecycle(self):
         """Test service initialization and cleanup."""
         with patch(
-# REMOVED: ModernStack dependency_value"
+
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "modern_stack_mcp_pat": "test-pat",
-                "modern_stack_mcp_url": "http://test-mcp:8080",
+                "qdrant_mcp_pat": "test-pat",
+                "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = ModernStackCortexService(mode=MCPMode.MCP)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
 
             # Test initialization
             assert not service.is_initialized

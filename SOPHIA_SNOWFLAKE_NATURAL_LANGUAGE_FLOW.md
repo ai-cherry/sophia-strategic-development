@@ -12,7 +12,7 @@ The Sophia AI ecosystem uses a sophisticated natural language processing pipelin
 The Model Context Protocol (MCP) servers serve as the primary interface for natural language commands:
 
 ```python
-# From backend/mcp_servers/modern_stack_admin_mcp_server.py
+# From backend/mcp_servers/ELIMINATED_admin_mcp_server.py
 class Modern StackAdminMCPServer(StandardizedMCPServer):
     def get_available_tools(self) -> List[Dict[str, Any]]:
         return [
@@ -153,15 +153,15 @@ def _create_task_plan(self, workflow_request: Dict[str, Any]) -> List[AgentTask]
 Agents use Lambda GPU functions for AI operations:
 
 ```python
-# From backend/utils/optimized_modern_stack_cortex_service.py
+# From backend/utils/optimized_ELIMINATED_cortex_service.py
 class Modern StackCortexService:
     async def analyze_with_cortex(self, text: str, analysis_type: str):
         if analysis_type == "sentiment":
-            query = f"SELECT modern_stack.CORTEX.SENTIMENT('{text}') as sentiment"
+            query = f"SELECT ELIMINATED.CORTEX.SENTIMENT('{text}') as sentiment"
         elif analysis_type == "summarize":
-            query = f"SELECT modern_stack.CORTEX.SUMMARIZE('{text}') as summary"
+            query = f"SELECT ELIMINATED.CORTEX.SUMMARIZE('{text}') as summary"
         elif analysis_type == "complete":
-            query = f"SELECT modern_stack.CORTEX.COMPLETE('claude-3-haiku', '{text}') as response"
+            query = f"SELECT ELIMINATED.CORTEX.COMPLETE('claude-3-haiku', '{text}') as response"
 
         return await self.execute_query(query)
 ```

@@ -78,13 +78,13 @@ values:
       url: ${REDIS_URL}
       password: ${REDIS_PASSWORD}
 
-    modern_stack:
-      account: ${modern_stack_ACCOUNT}
-      username: ${modern_stack_USERNAME}
-      password: ${modern_stack_PASSWORD}
-      warehouse: ${modern_stack_WAREHOUSE}
-      database: ${modern_stack_DATABASE}
-      schema: ${modern_stack_SCHEMA}
+    ELIMINATED:
+      account: ${ELIMINATED_ACCOUNT}
+      username: ${ELIMINATED_USERNAME}
+      password: ${ELIMINATED_PASSWORD}
+      warehouse: ${ELIMINATED_WAREHOUSE}
+      database: ${ELIMINATED_DATABASE}
+      schema: ${ELIMINATED_SCHEMA}
 
 # Environment variables for applications
 environmentVariables:
@@ -132,9 +132,9 @@ environmentVariables:
   POSTGRESQL_PASSWORD: ${database.postgresql.password}
   REDIS_URL: ${database.redis.url}
   REDIS_PASSWORD: ${database.redis.password}
-  modern_stack_ACCOUNT: ${database.modern_stack.account}
-  modern_stack_USERNAME: ${database.modern_stack.username}
-  modern_stack_PASSWORD: ${database.modern_stack.password}
-  modern_stack_WAREHOUSE: ${database.modern_stack.warehouse}
-  modern_stack_DATABASE: ${database.modern_stack.database}
-  modern_stack_SCHEMA: ${database.modern_stack.schema}
+  ELIMINATED_ACCOUNT: ${database.ELIMINATED.account}
+  ELIMINATED_USERNAME: ${database.ELIMINATED.username}
+  ELIMINATED_PASSWORD: ${database.ELIMINATED.password}
+  ELIMINATED_WAREHOUSE: ${database.ELIMINATED.warehouse}
+  ELIMINATED_DATABASE: ${database.ELIMINATED.database}
+  ELIMINATED_SCHEMA: ${database.ELIMINATED.schema}

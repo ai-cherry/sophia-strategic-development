@@ -53,7 +53,7 @@ export class SecureSecretManager {
             docker_token: getConfigValue("docker_personal_access_token"),
 
             // Data infrastructure secrets
-            modern_stack_password: getConfigValue("modern_stack_password"),
+            ELIMINATED_password: getConfigValue("ELIMINATED_password"),
             estuary_access_token: getConfigValue("estuary_access_token"),
 
             // Business intelligence secrets
@@ -203,7 +203,7 @@ export class LambdaLabsDataProtection {
     static createEncryptionConfig() {
         return {
             // Modern Stack encryption
-            modern_stack: {
+            ELIMINATED: {
                 encryption: "AES-256",
                 keyRotation: "90d",
                 columnLevelEncryption: true,

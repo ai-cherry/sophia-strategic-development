@@ -146,7 +146,7 @@ class MemoryServiceAdapter:
             "degraded_mode": self.memory_service.degraded_mode,
             "redis_available": self.memory_service.redis_client is not None,
             "mem0_available": self.memory_service.mem0_client is not None,
-            "modern_stack_available": self.memory_service.modern_stack_conn is not None,
+            "qdrant_available": self.memory_service.qdrant_service is not None,
         }
 
     # Passthrough all other methods

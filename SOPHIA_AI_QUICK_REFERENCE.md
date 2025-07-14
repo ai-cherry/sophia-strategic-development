@@ -6,8 +6,8 @@
 ```bash
 # Test connection (run from /tmp to avoid Python path issues)
 cd /tmp && PYTHONPATH="" python -c "
-import modern_stack.connector
-conn = modern_stack.connector.connect(
+import qdrant_memory_service.connector
+conn = ELIMINATED.connector.connect(
     account='UHDECNO-CVB64222',
     user='SCOOBYJAVA15',
     password='<PAT_TOKEN>',
@@ -57,7 +57,7 @@ kubectl get all -A
 
 ## 🔑 Key Endpoints
 
-- **Modern Stack**: UHDECNO-CVB64222.modern_stackcomputing.com
+- **Modern Stack**: UHDECNO-CVB64222.ELIMINATEDcomputing.com
 - **Lambda Labs**: 192.222.58.232 (primary cluster)
 - **Docker Registry**: docker.io/scoobyjava15
 - **GitHub Org**: https://github.com/ai-cherry

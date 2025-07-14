@@ -13,7 +13,11 @@
     }
   },
   "integrations": {
-    "enabled": ["github", "linear", "slack"],
+    "enabled": [
+      "github",
+      "linear",
+      "slack"
+    ],
     "context_gathering": true,
     "auto_prompt_generation": true
   },

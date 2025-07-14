@@ -23,10 +23,10 @@ lambda_labs_config = {
     ],
 }
 
-# REMOVED: ModernStack dependencyuration
-# REMOVED: ModernStack dependency {
+
+
     "account": config.require("postgres_host"),
-    "user": config.require("modern_stack_user"),
+    "user": config.require("qdrant_user"),
     "password": config.require_secret("postgres_password"),
     "warehouses": {
         "compute": "SOPHIA_AI_COMPUTE_WH",
@@ -36,5 +36,5 @@ lambda_labs_config = {
 
 # Export configurations
 pulumi.export("lambda_labs_config", lambda_labs_config)
-# REMOVED: ModernStack dependency)
+
 pulumi.export("environment", env)

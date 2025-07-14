@@ -10,7 +10,7 @@ This service implements the 6-tier memory architecture:
 - L1: Redis (Ephemeral cache)
 - L2: Mem0 (Agent conversational memory)
 - L3: Lambda GPU (Vector knowledge base) - PRIMARY VECTOR STORE
-- L4: ModernStack Tables (Structured data warehouse)
+- L4: Qdrant Tables (Structured data warehouse)
 - L5: Lambda GPU AI (Intelligence layer)
 
 CRITICAL: This replaces ALL usage of Pinecone, Weaviate, ChromaDB, Qdrant
@@ -30,8 +30,8 @@ from typing import Any, Optional
 from datetime import datetime
 
 import redis
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
+
+
 
 from backend.core.date_time_manager import date_manager
 from backend.core.redis_helper import RedisHelper
@@ -59,18 +59,18 @@ class UnifiedMemoryService:
     All vector operations go through Lambda GPU ONLY.
     """
 
-    def __init__(self, require_modern_stack: bool = False):
+    def __init__(self, require_qdrant: bool = False):
         """
         Initialize the Unified Memory Service with all tiers.
 
         Args:
-            require_modern_stack: If True, raise error if ModernStack unavailable.
-                             If False (default), run in degraded mode without ModernStack.
+            require_qdrant: If True, raise error if Qdrant unavailable.
+                             If False (default), run in degraded mode without Qdrant.
         """
         # Initialize instance variables
-        self.require_modern_stack = require_modern_stack
+        self.require_qdrant = require_qdrant
         self.degraded_mode = False
-        self.# REMOVED: ModernStack dependency None
+        self.qdrant_service = None
         self.redis_client = None
         self.redis_helper = None
         self.mem0_client = None
@@ -84,15 +84,14 @@ class UnifiedMemoryService:
         self.initialize_redis()  # L1
         self.initialize_mem0()  # L2
 
-        # Initialize ModernStack but don't fail if unavailable
+        # Initialize Qdrant but don't fail if unavailable
         try:
-            self.initialize_modern_stack()  # L3, L4, L5
+            self.initialize_qdrant()  # L3, L4, L5
         except Exception as e:
-            if require_modern_stack:
+            if require_qdrant:
                 raise
             else:
-                logger.warning(f"ModernStack unavailable, running in degraded mode: {e}")
-                self.# REMOVED: ModernStack dependency None
+                logger.warning(f"Qdrant unavailable, running in degraded mode: {e}")
                 self.degraded_mode = True
 
         logger.info(f"UnifiedMemoryService initialized - Date: {self.current_date}")
@@ -166,63 +165,22 @@ class UnifiedMemoryService:
             logger.warning({"event": f"⚠️ L2 Mem0 initialization failed: {e}"})
             self.mem0_client = None
 
-    def initialize_modern_stack(self) -> None:
-        """Initialize L3, L4, L5 - ModernStack connection"""
+    def initialize_qdrant(self) -> None:
+        """Initialize Qdrant connection for L3/L4/L5 tiers"""
         try:
-# REMOVED: ModernStack dependency
-# REMOVED: ModernStack dependency()
-
-            # PAT token takes precedence if available
-            pat_token = UnifiedConfig.get("modern_stack_pat")
-            if pat_token:
-                logger.info("Using ModernStack PAT token for authentication")
-                # REMOVED: ModernStack dependency pat_token
-
-            # Log connection attempt (without exposing password)
-            logger.info(
-# REMOVED: ModernStack dependency.get('account', 'unknown')}"
-            )
-# REMOVED: ModernStack dependency.get('user', 'unknown')}")
-
-            # Ensure required fields are present
-# REMOVED: ModernStack dependency.get("user"):
-# REMOVED: ModernStack dependencyured")
-
-# REMOVED: ModernStack dependency.get("password"):
-                raise ValueError(
-# REMOVED: ModernStack dependencyured"
-                )
-
-            # Connect to ModernStack
-            self.# REMOVED: ModernStack dependency self.modern_stack_connection(
-# REMOVED: ModernStack dependency["account"],
-# REMOVED: ModernStack dependency["user"],
-# REMOVED: ModernStack dependency["password"],
-# REMOVED: ModernStack dependency.get("role", "ACCOUNTADMIN"),
-# REMOVED: ModernStack dependency.get("warehouse", "SOPHIA_AI_COMPUTE_WH"),
-# REMOVED: ModernStack dependency.get("database", "AI_MEMORY"),
-# REMOVED: ModernStack dependency.get("schema", "VECTORS"),
-            )
-
-            # Test connection
-            cursor = self.modern_stack_conn.cursor()
-            cursor.execute("SELECT CURRENT_VERSION()")
-            version = cursor.fetchone()
-            cursor.close()
-
-            logger.info(
-                {
-                    "event": "✅ L3/L4/L5 ModernStack initialized successfully",
-                    "version": version[0] if version else "unknown",
-                }
-            )
+            # Use QdrantUnifiedMemoryService for L3/L4/L5 tiers
+            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+            
+            self.qdrant_service = QdrantUnifiedMemoryService()
+            # Note: Async initialization will be called when needed
+            
+            logger.info("✅ Qdrant service initialized for L3/L4/L5 tiers")
             self.degraded_mode = False
-
+            
         except Exception as e:
-            logger.error(f"❌ ModernStack initialization failed: {e}")
-            # Don't raise - let the caller handle degraded mode
-            self.# REMOVED: ModernStack dependency None
+            logger.exception(f"❌ Qdrant initialization failed: {e}")
             self.degraded_mode = True
+            self.qdrant_service = None
 
     @log_execution_time
     async def add_knowledge(
@@ -239,7 +197,7 @@ class UnifiedMemoryService:
         """
         if self.degraded_mode:
             logger.warning(
-                "Running in degraded mode - knowledge not persisted to ModernStack"
+                "Running in degraded mode - knowledge not persisted to Qdrant"
             )
             # Could still cache in Redis temporarily
             return "degraded_mode_no_id"
@@ -250,11 +208,11 @@ class UnifiedMemoryService:
         metadata["timestamp"] = self.current_date.isoformat()
 
         try:
-            cursor = self.modern_stack_conn.cursor(DictCursor)
+            cursor = self.qdrant_service.cursor(DictCursor)
 
             # Generate embedding using Lambda GPU
             embedding_sql = """
-            SELECT self.modern_stack.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
+            SELECT self.qdrant_service.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
             """
             cursor.execute(embedding_sql, (content,))
             result = cursor.fetchone()
@@ -262,7 +220,7 @@ class UnifiedMemoryService:
             if not result:
                 raise DataValidationError("Failed to generate embedding")
 
-            # Store in ModernStack with vector
+            # Store in Qdrant with vector
             insert_sql = """
             INSERT INTO AI_MEMORY.VECTORS.KNOWLEDGE_BASE
             (content, embedding, source, metadata, created_at)
@@ -279,7 +237,7 @@ class UnifiedMemoryService:
             query_id = cursor.fetchone()[0]
 
             cursor.close()
-            self.modern_stack_conn.commit()
+            self.qdrant_service.commit()
 
             logger.info(f"✅ Knowledge added to Lambda GPU: {query_id}")
 
@@ -294,8 +252,8 @@ class UnifiedMemoryService:
 
         except Exception as e:
             logger.error(f"Failed to add knowledge: {e}")
-            if self.modern_stack_conn:
-                self.modern_stack_conn.rollback()
+            if self.qdrant_service:
+                self.qdrant_service.rollback()
             raise
 
     @log_execution_time
@@ -322,7 +280,7 @@ class UnifiedMemoryService:
             return cached_results[:limit]  # Respect limit even for cached results
 
         try:
-            cursor = self.modern_stack_conn.cursor(DictCursor)
+            cursor = self.qdrant_service.cursor(DictCursor)
 
             # Build metadata filter if provided
             filter_conditions = []
@@ -344,7 +302,7 @@ class UnifiedMemoryService:
             # Vector similarity search using Lambda GPU
             search_sql = f"""
             WITH query_embedding AS (
-                SELECT self.modern_stack.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
+                SELECT self.qdrant_service.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
             )
             SELECT
                 kb.id,
@@ -455,11 +413,11 @@ class UnifiedMemoryService:
             logger.error(f"Failed to get conversation context: {e}")
             return []
 
-    async def execute_modern_stack_query(
+    async def execute_qdrant_query(
         self, query: str, params: tuple = None
     ) -> list[dict[str, Any]]:
         """
-        Execute a raw ModernStack query.
+        Execute a raw Qdrant query.
 
         Args:
             query: SQL query to execute
@@ -468,12 +426,12 @@ class UnifiedMemoryService:
         Returns:
             Query results as list of dictionaries
         """
-        if self.degraded_mode or not self.modern_stack_conn:
-            logger.warning("ModernStack not available for query execution")
+        if self.degraded_mode or not self.qdrant_service:
+            logger.warning("Qdrant not available for query execution")
             return []
 
         try:
-            cursor = self.modern_stack_conn.cursor(DictCursor)
+            cursor = self.qdrant_service.cursor(DictCursor)
 
             if params:
                 cursor.execute(query, params)
@@ -486,7 +444,7 @@ class UnifiedMemoryService:
             return results
 
         except Exception as e:
-            logger.error(f"ModernStack query failed: {e}")
+            logger.error(f"Qdrant query failed: {e}")
             return []
 
     async def get_document_metadata(self, doc_id: str) -> dict[str, Any]:
@@ -509,7 +467,7 @@ class UnifiedMemoryService:
             WHERE id = %s
             """
 
-            cursor = self.modern_stack_conn.cursor(DictCursor)
+            cursor = self.qdrant_service.cursor(DictCursor)
             cursor.execute(query, (doc_id,))
             result = cursor.fetchone()
             cursor.close()
@@ -547,7 +505,7 @@ class UnifiedMemoryService:
             WHERE id = %s
             """
 
-            cursor = self.modern_stack_conn.cursor()
+            cursor = self.qdrant_service.cursor()
             cursor.execute(update_query, (json.dumps(metadata), doc_id))
             cursor.close()
 
@@ -572,22 +530,22 @@ class UnifiedMemoryService:
             return f"[Degraded mode: {operation} unavailable]"
 
         try:
-            cursor = self.modern_stack_conn.cursor()
+            cursor = self.qdrant_service.cursor()
 
             # Build Cortex AI query based on operation
             if operation == "SUMMARIZE":
-                sql = "SELECT self.modern_stack.await self.lambda_gpu.summarize(%s) as result"
+                sql = "SELECT self.qdrant_service.await self.lambda_gpu.summarize(%s) as result"
                 params = (text,)
             elif operation == "SENTIMENT":
-                sql = "SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(%s) as result"
+                sql = "SELECT self.qdrant_service.await self.lambda_gpu.analyze_sentiment(%s) as result"
                 params = (text,)
             elif operation == "TRANSLATE":
                 target_lang = options.get("target_language", "es")
-                sql = f"SELECT self.modern_stack.await self.lambda_gpu.translate(%s, 'en', '{target_lang}') as result"
+                sql = f"SELECT self.qdrant_service.await self.lambda_gpu.translate(%s, 'en', '{target_lang}') as result"
                 params = (text,)
             elif operation == "COMPLETE":
                 model = options.get("model", "mistral-7b")
-                sql = f"SELECT self.modern_stack.await self.lambda_gpu.complete('{model}', %s) as result"
+                sql = f"SELECT self.qdrant_service.await self.lambda_gpu.complete('{model}', %s) as result"
                 params = (text,)
             else:
                 raise ValueError(f"Unknown operation: {operation}")
@@ -719,8 +677,8 @@ class UnifiedMemoryService:
 
     def close(self):
         """Clean up connections"""
-        if self.modern_stack_conn:
-            self.modern_stack_conn.close()
+        if self.qdrant_service:
+            self.qdrant_service.close()
         if self.redis_client:
             self.redis_client.close()
 
@@ -729,12 +687,12 @@ class UnifiedMemoryService:
 _memory_service_instance = None
 
 
-def get_unified_memory_service(require_modern_stack: bool = False) -> UnifiedMemoryServiceV2:
+def get_unified_memory_service(require_qdrant: bool = False) -> UnifiedMemoryServiceV2:
     """
     Get the singleton UnifiedMemoryService instance.
 
     Args:
-        require_modern_stack: If True, raise error if ModernStack is unavailable
+        require_qdrant: If True, raise error if Qdrant is unavailable
 
     Returns:
         The unified memory service instance
@@ -743,7 +701,7 @@ def get_unified_memory_service(require_modern_stack: bool = False) -> UnifiedMem
 
     if _memory_service_instance is None:
         _memory_service_instance = UnifiedMemoryServiceV2(
-            require_modern_stack=require_modern_stack
+            require_qdrant=require_qdrant
         )
 
     return _memory_service_instance

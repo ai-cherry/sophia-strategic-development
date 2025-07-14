@@ -20,7 +20,7 @@ class IntelligentN8NOrchestrator:
                 "schedule": "0 9 * * *",
                 "nodes": [
                     {"name": "Trigger", "type": "schedule"},
-                    {"name": "Fetch Data", "type": "modern_stack"},
+                    {"name": "Fetch Data", "type": "qdrant"},
                     {"name": "AI Analysis", "type": "ai_processing"},
                     {"name": "Send Report", "type": "slack"}
                 ]
@@ -107,12 +107,12 @@ class IntelligentN8NOrchestrator:
         """Setup Estuary Flow webhooks for real-time triggers"""
         webhooks = [
             {
-                "flow": "hubspot-to-modern_stack",
+                "flow": "hubspot-to-qdrant",
                 "event": "new_deal_created", 
                 "webhook_url": "https://sophia-ai.com/webhooks/n8n/deal-created"
             },
             {
-                "flow": "gong-to-modern_stack",
+                "flow": "gong-to-qdrant",
                 "event": "call_completed",
                 "webhook_url": "https://sophia-ai.com/webhooks/n8n/call-completed"
             }

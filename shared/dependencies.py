@@ -29,8 +29,11 @@ except ImportError:
         class SophiaSophiaUnifiedOrchestrator:
             """Mock chat service for when import fails"""
 
-            def __init__(self):
-                pass
+            def __init__(...):
+    """TODO: Implement __init__"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"__init__ not yet implemented")
 
 
 # Global instance (singleton pattern)

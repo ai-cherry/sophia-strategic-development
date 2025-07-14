@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import Lambda GPU service, fallback if not available
 try:
-    from backend.services.modern_stack_cortex_service import ModernStackCortexService
+    from backend.services.qdrant_memory_service import QdrantUnifiedMemoryService
 
     CORTEX_AVAILABLE = True
 except ImportError:

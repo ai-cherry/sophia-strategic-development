@@ -8,7 +8,7 @@ from .core.auto_esc_config import (
     get_config_value,
     get_integration_config,
     get_lambda_labs_config,
-# REMOVED: ModernStack dependency,
+
 )
 
 __version__ = "1.0.0"
@@ -16,7 +16,7 @@ __all__ = [
     "get_config_value",
     "get_integration_config",
     "get_lambda_labs_config",
-# REMOVED: ModernStack dependency",
+
 ]
 
 # This file makes the backend directory a Python package.

@@ -46,7 +46,7 @@ jobs:
         working-directory: frontend
         env:
           VITE_API_URL: http://${{ env.LAMBDA_BACKEND_IP }}:8000
-          VITE_modern_stack_ACCOUNT: ${{ secrets.modern_stack_ACCOUNT }}
+
         run: npm run build
 
       - name: Create deployment package

@@ -1,19 +1,15 @@
 {
-  "modern_stack": {
-    "type": "database",
-    "description": "ModernStack data warehouse - PRIMARY VECTOR STORE via Cortex",
-    "config_keys": ["account", "warehouse", "database", "schema", "role"],
-    "secret_keys": ["user", "password"],
-    "rotation_schedule": "30d",
-    "owner": "data-team",
-    "dependencies": [],
-    "notes": "Handles all vector operations via Lambda GPU"
-  },
   "gong": {
     "type": "api",
     "description": "Gong conversation intelligence platform",
-    "config_keys": ["base_url"],
-    "secret_keys": ["api_key", "api_secret", "client_secret"],
+    "config_keys": [
+      "base_url"
+    ],
+    "secret_keys": [
+      "api_key",
+      "api_secret",
+      "client_secret"
+    ],
     "rotation_schedule": "60d",
     "owner": "sales-ops",
     "dependencies": []
@@ -21,8 +17,14 @@
   "vercel": {
     "type": "api",
     "description": "Vercel deployment platform for frontend applications",
-    "config_keys": ["team_id", "project_id", "org_id"],
-    "secret_keys": ["token"],
+    "config_keys": [
+      "team_id",
+      "project_id",
+      "org_id"
+    ],
+    "secret_keys": [
+      "token"
+    ],
     "rotation_schedule": "90d",
     "owner": "frontend-team",
     "dependencies": []
@@ -30,8 +32,12 @@
   "estuary": {
     "type": "api",
     "description": "Estuary Flow real-time data streaming platform",
-    "config_keys": ["api_url"],
-    "secret_keys": ["api_key"],
+    "config_keys": [
+      "api_url"
+    ],
+    "secret_keys": [
+      "api_key"
+    ],
     "rotation_schedule": "60d",
     "owner": "data-team",
     "dependencies": []
@@ -53,8 +59,14 @@
   "redis": {
     "type": "cache",
     "description": "Redis for L1 ephemeral cache and hot vector storage",
-    "config_keys": ["host", "port", "db"],
-    "secret_keys": ["password"],
+    "config_keys": [
+      "host",
+      "port",
+      "db"
+    ],
+    "secret_keys": [
+      "password"
+    ],
     "rotation_schedule": "60d",
     "owner": "backend-team",
     "dependencies": []
@@ -62,18 +74,26 @@
   "mem0": {
     "type": "memory",
     "description": "Mem0 for L2 agent conversational memory",
-    "config_keys": ["collection_name"],
-    "secret_keys": ["api_key"],
+    "config_keys": [
+      "collection_name"
+    ],
+    "secret_keys": [
+      "api_key"
+    ],
     "rotation_schedule": "90d",
     "owner": "ml-team",
-    "dependencies": ["openai"],
+    "dependencies": [
+      "openai"
+    ],
     "notes": "Internal Qdrant usage is acceptable within Mem0 only"
   },
   "openai": {
     "type": "api",
     "description": "OpenAI API for language models",
     "config_keys": [],
-    "secret_keys": ["api_key"],
+    "secret_keys": [
+      "api_key"
+    ],
     "rotation_schedule": "30d",
     "owner": "ml-team",
     "dependencies": []
@@ -82,7 +102,9 @@
     "type": "api",
     "description": "Anthropic API for Claude language models",
     "config_keys": [],
-    "secret_keys": ["api_key"],
+    "secret_keys": [
+      "api_key"
+    ],
     "rotation_schedule": "30d",
     "owner": "ml-team",
     "dependencies": []
@@ -90,8 +112,15 @@
   "postgres": {
     "type": "database",
     "description": "PostgreSQL database for application data and ETL staging",
-    "config_keys": ["host", "port", "database"],
-    "secret_keys": ["user", "password"],
+    "config_keys": [
+      "host",
+      "port",
+      "database"
+    ],
+    "secret_keys": [
+      "user",
+      "password"
+    ],
     "rotation_schedule": "30d",
     "owner": "backend-team",
     "dependencies": []
@@ -99,8 +128,12 @@
   "github": {
     "type": "api",
     "description": "GitHub API for repository management",
-    "config_keys": ["org"],
-    "secret_keys": ["token"],
+    "config_keys": [
+      "org"
+    ],
+    "secret_keys": [
+      "token"
+    ],
     "rotation_schedule": "90d",
     "owner": "devops-team",
     "dependencies": []
@@ -108,11 +141,19 @@
   "unified_memory": {
     "type": "service",
     "description": "Unified Memory Service - the ONLY memory interface",
-    "config_keys": ["tier_ttl", "cache_size", "vector_dimension"],
+    "config_keys": [
+      "tier_ttl",
+      "cache_size",
+      "vector_dimension"
+    ],
     "secret_keys": [],
     "rotation_schedule": "never",
     "owner": "platform-team",
-    "dependencies": ["modern_stack", "redis", "mem0"],
+    "dependencies": [
+      "ELIMINATED",
+      "redis",
+      "mem0"
+    ],
     "notes": "All memory operations MUST go through this service"
   }
-} 
+}

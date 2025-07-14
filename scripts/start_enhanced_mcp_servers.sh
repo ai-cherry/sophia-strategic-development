@@ -9,14 +9,14 @@ echo 'Starting ai_memory on port 9000...'
 cd /Users/lynnmusil/sophia-main/mcp-servers/ai_memory && PORT=9000 python ai_memory_mcp_server.py &
 sleep 2
 
-# Start modern_stack
-echo 'Starting modern_stack on port 9010...'
-cd /Users/lynnmusil/sophia-main/mcp-servers/modern_stack && PORT=9010 python modern_stack_mcp_server.py &
+# Start qdrant
+echo 'Starting qdrant on port 9010...'
+cd /Users/lynnmusil/sophia-main/mcp-servers/qdrant && PORT=9010 python qdrant_mcp_server.py &
 sleep 2
 
-# Start modern_stack_cortex
-echo 'Starting modern_stack_cortex on port 9011...'
-cd /Users/lynnmusil/sophia-main/mcp-servers/modern_stack_cortex && PORT=9011 python production_modern_stack_cortex_mcp_server.py &
+# Start qdrant_memory
+echo 'Starting qdrant_memory on port 9011...'
+cd /Users/lynnmusil/sophia-main/mcp-servers/qdrant_memory && PORT=9011 python production_qdrant_memory_mcp_server.py &
 sleep 2
 
 # Start hubspot
@@ -44,9 +44,9 @@ echo 'Starting lambda_labs_cli on port 9050...'
 cd /Users/lynnmusil/sophia-main/mcp-servers/lambda_labs_cli && PORT=9050 python lambda_labs_cli_mcp_server.py &
 sleep 2
 
-# Start modern_stack_admin
-echo 'Starting modern_stack_admin on port 9050...'
-cd /Users/lynnmusil/sophia-main/mcp-servers/modern_stack_admin && PORT=9050 python modern_stack_admin_mcp_server.py &
+# Start qdrant_admin
+echo 'Starting qdrant_admin on port 9050...'
+cd /Users/lynnmusil/sophia-main/mcp-servers/qdrant_admin && PORT=9050 python qdrant_admin_mcp_server.py &
 sleep 2
 
 # Start graphiti
@@ -94,9 +94,9 @@ echo 'Starting codacy on port 9040...'
 cd /Users/lynnmusil/sophia-main/mcp-servers/codacy && PORT=9040 python codacy_mcp_server.py &
 sleep 2
 
-# Start modern_stack_cli_enhanced
-echo 'Starting modern_stack_cli_enhanced on port 9050...'
-cd /Users/lynnmusil/sophia-main/mcp-servers/modern_stack_cli_enhanced && PORT=9050 python modern_stack_cli_enhanced_mcp_server.py &
+# Start qdrant_cli_enhanced
+echo 'Starting qdrant_cli_enhanced on port 9050...'
+cd /Users/lynnmusil/sophia-main/mcp-servers/qdrant_cli_enhanced && PORT=9050 python qdrant_cli_enhanced_mcp_server.py &
 sleep 2
 
 # Start asana

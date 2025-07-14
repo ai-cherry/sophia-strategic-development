@@ -90,9 +90,9 @@ CREATE TABLE CORTEX_AGENTS_WORKSPACE.AGENT_CONFIGURATIONS (
 ```sql
 -- Intelligent data classification with AISQL
 SELECT
-    modern_stack.CORTEX.CLASSIFY_TEXT(chunk_text, ['urgent', 'normal', 'low_priority']) as urgency,
-    modern_stack.CORTEX.CLASSIFY_TEXT(chunk_text, ['sales_opportunity', 'support', 'feedback']) as type,
-    modern_stack.CORTEX.EXTRACT_ANSWER(chunk_text, 'What are the key action items?') as actions
+    ELIMINATED.CORTEX.CLASSIFY_TEXT(chunk_text, ['urgent', 'normal', 'low_priority']) as urgency,
+    ELIMINATED.CORTEX.CLASSIFY_TEXT(chunk_text, ['sales_opportunity', 'support', 'feedback']) as type,
+    ELIMINATED.CORTEX.EXTRACT_ANSWER(chunk_text, 'What are the key action items?') as actions
 FROM unified_embeddings
 ```
 
@@ -125,7 +125,7 @@ CREATE DYNAMIC TABLE LIVE_CUSTOMER_CONTEXT
 TARGET_LAG = '1 minute'
 AS SELECT
     customer_id,
-    modern_stack.CORTEX.SUMMARIZE(recent_interactions) as summary,
+    ELIMINATED.CORTEX.SUMMARIZE(recent_interactions) as summary,
     AI_context_analysis,
     next_best_actions
 FROM unified_embeddings
@@ -258,8 +258,8 @@ graph LR
 
 ### **Core Implementation Scripts**
 - `cortex_agents_advanced_implementation.py` - Complete Cortex Agents deployment
-- `modern_stack_advanced_features_implementation.py` - Advanced Modern Stack features
-- `advanced_modern_stack_features_roadmap.md` - Comprehensive feature roadmap
+- `ELIMINATED_advanced_features_implementation.py` - Advanced Modern Stack features
+- `advanced_ELIMINATED_features_roadmap.md` - Comprehensive feature roadmap
 
 ### **Configuration Templates**
 - Agent system prompts and response instructions

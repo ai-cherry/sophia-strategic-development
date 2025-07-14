@@ -459,7 +459,9 @@
         {
           "id": "c3fd2c2d-2f51-489a-a31a-3b78934035c9",
           "resource_type": "system",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -468,7 +470,9 @@
         {
           "id": "99db57c3-83ab-40fe-8f50-0036b51283ad",
           "resource_type": "user",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -477,7 +481,9 @@
         {
           "id": "27ea5afe-b9c8-4339-8339-bc56a1a31e74",
           "resource_type": "role",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -486,7 +492,9 @@
         {
           "id": "bb385bca-a890-49b3-b265-1d45349d508b",
           "resource_type": "llm",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -495,7 +503,9 @@
         {
           "id": "4d9528a2-0896-4b9b-bd5f-10a64bcda2d0",
           "resource_type": "agent",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -504,7 +514,9 @@
         {
           "id": "5d004fbc-22c9-4dcc-b4b1-66295cd24c37",
           "resource_type": "tool",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -513,7 +525,9 @@
         {
           "id": "d3084b1b-5d1e-4a9f-88ec-cabb1a3b7147",
           "resource_type": "prompt",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -522,7 +536,9 @@
         {
           "id": "a8467c71-6010-4919-8980-e1db469778c1",
           "resource_type": "document",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -531,7 +547,9 @@
         {
           "id": "bdf761eb-6efd-4409-9b5a-f03e4c870bc1",
           "resource_type": "vector_db",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -540,7 +558,9 @@
         {
           "id": "f0ac27ff-a2e9-4c9e-9a3d-324448b439a4",
           "resource_type": "knowledge_base",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -549,7 +569,9 @@
         {
           "id": "152d9ea8-de34-49e0-b7e4-65a67319a7c6",
           "resource_type": "mcp",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -558,7 +580,9 @@
         {
           "id": "02ba4330-9c98-4341-9a61-7bd69c4a1fa1",
           "resource_type": "api",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -567,7 +591,9 @@
         {
           "id": "8b4454ac-1af2-4450-b887-571b5c52f0fa",
           "resource_type": "integration",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -576,7 +602,9 @@
         {
           "id": "fafadf08-5786-4f4f-8dd6-1c04c7c4f941",
           "resource_type": "project",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -585,7 +613,9 @@
         {
           "id": "196e01eb-408c-463d-a2a2-f50fbcea6474",
           "resource_type": "organization",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -594,7 +624,9 @@
         {
           "id": "da3a95eb-9fcb-4d92-862f-94282c7d31e2",
           "resource_type": "department",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -603,7 +635,9 @@
         {
           "id": "81c769a1-f6ac-4d44-ab01-c698b460da12",
           "resource_type": "custom",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -622,7 +656,11 @@
         {
           "id": "b56c1da3-7f81-44b6-9097-1d5c83e89928",
           "resource_type": "llm",
-          "actions": ["read", "execute", "prompt"],
+          "actions": [
+            "read",
+            "execute",
+            "prompt"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -631,7 +669,12 @@
         {
           "id": "c7d7b1a9-f584-43db-9508-93505f87927f",
           "resource_type": "agent",
-          "actions": ["create", "read", "update", "execute"],
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "execute"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -640,7 +683,10 @@
         {
           "id": "e434ea4a-1644-4dc3-b9ac-7171b9b11ce4",
           "resource_type": "tool",
-          "actions": ["read", "execute"],
+          "actions": [
+            "read",
+            "execute"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -649,7 +695,12 @@
         {
           "id": "043962f0-07c0-4deb-8923-08218310bec9",
           "resource_type": "prompt",
-          "actions": ["create", "read", "update", "delete"],
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -658,7 +709,9 @@
         {
           "id": "e4a48df1-43b7-47b4-8035-7725c2604f49",
           "resource_type": "knowledge_base",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -667,7 +720,9 @@
         {
           "id": "08bc685d-c382-4d5a-9e0c-7894fc55f780",
           "resource_type": "vector_db",
-          "actions": ["read"],
+          "actions": [
+            "read"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -686,7 +741,10 @@
         {
           "id": "336ce958-d44c-4356-b2d1-75357033098c",
           "resource_type": "llm",
-          "actions": ["execute", "prompt"],
+          "actions": [
+            "execute",
+            "prompt"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -695,7 +753,10 @@
         {
           "id": "b1d67553-c86d-4a11-8ff2-8fbe94fb3c58",
           "resource_type": "agent",
-          "actions": ["read", "execute"],
+          "actions": [
+            "read",
+            "execute"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -704,7 +765,10 @@
         {
           "id": "831ba6a5-b0f6-4378-a95e-0861d783afd1",
           "resource_type": "tool",
-          "actions": ["read", "execute"],
+          "actions": [
+            "read",
+            "execute"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -713,7 +777,12 @@
         {
           "id": "f75f6d1f-6718-4172-a1ff-1b2bd720b95b",
           "resource_type": "document",
-          "actions": ["create", "read", "update", "delete"],
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -722,7 +791,11 @@
         {
           "id": "1edb1941-54c4-452b-b823-d35d83a8d125",
           "resource_type": "project",
-          "actions": ["create", "read", "update"],
+          "actions": [
+            "create",
+            "read",
+            "update"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -741,7 +814,11 @@
         {
           "id": "86a01b61-e78b-423c-a13a-b1ff173f50c9",
           "resource_type": "project",
-          "actions": ["read", "update", "manage"],
+          "actions": [
+            "read",
+            "update",
+            "manage"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -750,7 +827,11 @@
         {
           "id": "971f7177-7299-49bf-88fc-8c8ce17f18f0",
           "resource_type": "document",
-          "actions": ["read", "create", "update"],
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -769,7 +850,11 @@
         {
           "id": "494d4a7a-31f5-437c-b0c5-6addfa8d8f09",
           "resource_type": "project",
-          "actions": ["read", "update", "manage"],
+          "actions": [
+            "read",
+            "update",
+            "manage"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,
@@ -778,7 +863,11 @@
         {
           "id": "138773da-6ac8-4bd8-ac7b-8818051d85e1",
           "resource_type": "document",
-          "actions": ["read", "create", "update"],
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
           "resource_id": null,
           "attributes": null,
           "condition": null,

@@ -33,21 +33,21 @@ class EnhancedIngestionService:
             enhanced_connections = [
                 {
                     "source": SourceType.HUBSPOT,
-                    "destination": "modern_stack",
+                    "destination": "qdrant",
                     "schema": "CRM_HUBSPOT",
                     "quality_rules": self._get_crm_quality_rules(),
                     "real_time": True,
                 },
                 {
                     "source": SourceType.SLACK,
-                    "destination": "modern_stack",
+                    "destination": "qdrant",
                     "schema": "SLACK_DATA",
                     "quality_rules": self._get_slack_quality_rules(),
                     "real_time": True,
                 },
                 {
                     "source": SourceType.INTERCOM,
-                    "destination": "modern_stack",
+                    "destination": "qdrant",
                     "schema": "CUST_SUCCESS_INTERCOM",
                     "quality_rules": self._get_intercom_quality_rules(),
                     "real_time": False,
@@ -111,12 +111,12 @@ class EnhancedIngestionService:
             return False
 
     async def _create_quality_procedures(self, config: dict[str, Any]):
-        """Placeholder for creating data quality stored procedures in ModernStack."""
+        """Placeholder for creating data quality stored procedures in Qdrant."""
         logger.info(
             f"Placeholder: Creating data quality procedures for schema {config['schema']}"
         )
         # In a real implementation, this would generate and execute CREATE PROCEDURE statements
-        # for each quality rule, which can be run by ModernStack tasks.
+        # for each quality rule, which can be run by Qdrant tasks.
         await asyncio.sleep(0.1)
 
     def _get_crm_quality_rules(self) -> list[dict[str, Any]]:
@@ -173,7 +173,7 @@ class EnhancedIngestionService:
     async def _setup_quality_monitoring(self) -> None:
         """Placeholder for setting up continuous quality monitoring."""
         logger.info(
-            "Placeholder: Setting up data quality monitoring tasks in ModernStack."
+            "Placeholder: Setting up data quality monitoring tasks in Qdrant."
         )
         await asyncio.sleep(0.1)
 

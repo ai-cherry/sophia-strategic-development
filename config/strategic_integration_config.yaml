@@ -162,7 +162,7 @@ mcp_consolidation:
       github: { port: 9005, capabilities: ["CODE_MANAGEMENT", "WORKFLOW"] }
       
     data_operations:
-      modern_stack: { port: 9001, capabilities: ["ANALYTICS", "EMBEDDING", "SEARCH"] }
+      ELIMINATED: { port: 9001, capabilities: ["ANALYTICS", "EMBEDDING", "SEARCH"] }
       postgres: { port: 9012, capabilities: ["DATABASE", "SQL", "ANALYTICS"] }
       redis: { port: 6379, capabilities: ["CACHE", "SESSION", "REALTIME"] }
       
@@ -224,7 +224,7 @@ n8n_integration:
         - name: "Trigger"
           type: "schedule"
         - name: "Fetch Modern Stack Data"
-          type: "modern_stack"
+          type: "ELIMINATED"
         - name: "AI Analysis"
           type: "ai_processing"
           model: "claude-4"
@@ -250,19 +250,19 @@ n8n_integration:
   # Estuary Integration
   estuary:
     flows:
-      hubspot_to_modern_stack:
+      hubspot_to_ELIMINATED:
         source: "hubspot"
-        destination: "modern_stack"
+        destination: "ELIMINATED"
         webhook: "https://sophia-ai.com/webhooks/n8n/deal-created"
         
-      gong_to_modern_stack:
+      gong_to_ELIMINATED:
         source: "gong"
-        destination: "modern_stack"
+        destination: "ELIMINATED"
         webhook: "https://sophia-ai.com/webhooks/n8n/call-completed"
         
-      slack_to_modern_stack:
+      slack_to_ELIMINATED:
         source: "slack"
-        destination: "modern_stack"
+        destination: "ELIMINATED"
         webhook: "https://sophia-ai.com/webhooks/n8n/message-alert"
   
   # Performance Targets
@@ -314,7 +314,7 @@ agent_builder:
         nodes:
           - id: "data_collection"
             type: "parallel"
-            sub_nodes: ["hubspot_data", "gong_data", "modern_stack_data"]
+            sub_nodes: ["hubspot_data", "gong_data", "ELIMINATED_data"]
           - id: "forecast_generation"
             type: "ai_processing"
             model: "claude-4"

@@ -11,12 +11,12 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "OPENROUTER_API_KEY": "openrouter_api_key",
     "MEM0_API_KEY": "mem0_api_key",
     # Data Infrastructure
-    "modern_stack_ACCOUNT": "postgres_host",
-    "modern_stack_USER": "modern_stack_user",
-    "modern_stack_PASSWORD": "postgres_password",
-    "modern_stack_WAREHOUSE": "postgres_database",
-    "modern_stack_DATABASE": "postgres_database",
-    "modern_stack_ROLE": "modern_stack_role",
+    "qdrant_ACCOUNT": "postgres_host",
+    "qdrant_USER": "qdrant_user",
+    "qdrant_PASSWORD": "postgres_password",
+    "qdrant_WAREHOUSE": "postgres_database",
+    "qdrant_DATABASE": "postgres_database",
+    "qdrant_ROLE": "qdrant_role",
     # Business Intelligence
     "GONG_ACCESS_KEY": "gong_access_key",
     "GONG_ACCESS_KEY_SECRET": "gong_access_key_secret",
@@ -66,17 +66,17 @@ LAMBDA_LABS_CONFIG = {
 
 # Service dependencies
 SERVICE_DEPENDENCIES = {
-    "lambda_labs": ["modern_stack", "redis"],
-    "modern_stack": ["estuary"],
-    "gong": ["modern_stack", "ai_memory"],
-    "slack": ["modern_stack", "ai_memory"],
-    "ai_memory": ["modern_stack"],
+    "lambda_labs": ["qdrant", "redis"],
+    "qdrant": ["estuary"],
+    "gong": ["qdrant", "ai_memory"],
+    "slack": ["qdrant", "ai_memory"],
+    "ai_memory": ["qdrant"],
 }
 
 # Health check endpoints
 HEALTH_CHECK_ENDPOINTS = {
     "lambda_labs": "/v1/models",
-    "modern_stack": "/health",
+    "qdrant": "/health",
     "gong": "/v2/calls",
     "slack": "/api/test",
     "linear": "/graphql",

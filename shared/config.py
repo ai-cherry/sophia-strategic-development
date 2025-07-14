@@ -14,7 +14,7 @@ class Config(BaseModel):
     """Typed configuration loaded from Pulumi ESC."""
 
     openai_api_key: str | None = None
-    # REMOVED: ModernStack dependency None
+    
 
     @classmethod
     def from_esc(cls) -> Config:

@@ -27,14 +27,20 @@ try:
 except ImportError:
     # Create stub classes if webhook server is not available
     class AsyncRateLimiter:
-        def __init__(self, rate_limit, burst_limit=10):
-            pass
+        def __init__(...):
+    """TODO: Implement __init__"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"__init__ not yet implemented")
 
         async def __aenter__(self):
             return self
 
-        async def __aexit__(self, exc_type, exc_val, exc_tb):
-            pass
+        async def __aexit__(...):
+    """TODO: Implement __aexit__"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"__aexit__ not yet implemented")
 
     class RateLimitError(Exception):
         def __init__(self, retry_after):
@@ -49,8 +55,11 @@ except ImportError:
         def labels(self, **kwargs):
             return self
 
-        def inc(self):
-            pass
+        def inc(...):
+    """TODO: Implement inc"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"inc not yet implemented")
 
     api_calls_total = StubMetric()
     api_rate_limit_hits = StubMetric()

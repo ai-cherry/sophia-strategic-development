@@ -23,13 +23,13 @@ UTC = UTC
 
 # Try to import optional dependencies
 try:
-    # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+    
 
     from core.config_manager import get_config_value
 
-    # REMOVED: ModernStack dependency True
+    
 except ImportError:
-    # REMOVED: ModernStack dependency False
+    
 
     def get_config_value(key):
         return os.getenv(key.upper())
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class ConnectionType(str, Enum):
     """Supported connection types"""
 
-    modern_stack = "modern_stack"
+    qdrant = "qdrant"
     POSTGRES = "postgres"
     REDIS = "redis"
 
@@ -176,7 +176,7 @@ class ConnectionPool:
         """Create new connection based on type"""
         try:
             if self.connection_type == ConnectionType.POSTGRESQL:
-                return await self._create_modern_stack_connection()
+                return await self._create_qdrant_serviceection()
             elif self.connection_type == ConnectionType.POSTGRES:
                 return await self._create_postgres_connection()
             elif self.connection_type == ConnectionType.REDIS:
@@ -185,25 +185,25 @@ class ConnectionPool:
             logger.exception(f"Failed to create {self.connection_type} connection: {e}")
             return None
 
-    async def _create_modern_stack_connection(self):
-        """Create ModernStack connection"""
-        if not modern_stack_AVAILABLE:
-            raise ImportError("ModernStack connector not available")
+    async def _create_qdrant_serviceection(self):
+        """Create Qdrant connection"""
+        if not qdrant_AVAILABLE:
+            raise ImportError("Qdrant connector not available")
 
         # Get configuration from environment or config
         config = {
             "account": get_config_value("postgres_host"),
-            "user": get_config_value("modern_stack_user"),
+            "user": get_config_value("qdrant_user"),
             "password": get_config_value("postgres_password"),
             "warehouse": get_config_value("postgres_database"),
             "database": get_config_value("postgres_database"),
             "schema": get_config_value("postgres_schema", "PUBLIC"),
-            "role": get_config_value("modern_stack_role", "SYSADMIN"),
+            "role": get_config_value("qdrant_role", "SYSADMIN"),
             "timeout": self.config.connection_timeout,
         }
 
         def _sync_connect():
-            return self.modern_stack_connection(**config)
+            return self.qdrant_serviceection(**config)
 
         return await asyncio.to_thread(_sync_connect)
 
@@ -356,16 +356,16 @@ class UnifiedConnectionManager:
 
         logger.info("🚀 Initializing Unified Connection Manager...")
 
-        # Initialize ModernStack pool
-        if modern_stack_AVAILABLE:
-# REMOVED: ModernStack dependency(
+        # Initialize Qdrant pool
+        if qdrant_AVAILABLE:
+
                 min_connections=5,
                 max_connections=25,
                 connection_timeout=30,
                 idle_timeout=600,
             )
             self.pools[ConnectionType.POSTGRESQL] = ConnectionPool(
-# REMOVED: ModernStack dependency
+
             )
             await self.pools[ConnectionType.POSTGRESQL].initialize()
 

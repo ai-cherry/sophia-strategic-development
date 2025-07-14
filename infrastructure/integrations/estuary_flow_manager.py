@@ -44,7 +44,7 @@ class EstuaryConnectorType(Enum):
     GITHUB = "ghcr.io/estuary/source-github:dev"
     HUBSPOT = "ghcr.io/estuary/source-hubspot:dev"
     SLACK = "ghcr.io/estuary/source-slack:dev"
-    modern_stack = "ghcr.io/estuary/materialize-modern_stack:dev"
+    qdrant = "ghcr.io/estuary/materialize-qdrant:dev"
     PINECONE = "ghcr.io/estuary/materialize-pinecone:dev"
     HTTP_INBOUND = "ghcr.io/estuary/source-http-inbound:dev"
     WEBHOOK = "ghcr.io/estuary/source-webhook:dev"
@@ -408,19 +408,19 @@ class EstuaryFlowManager:
             tenant=self.credentials.tenant,
         )
 
-    def create_modern_stack_materialization(
-# REMOVED: ModernStack dependency: dict[str, str]
+    def create_qdrant_materialization(
+
     ) -> EstuaryMaterialization:
-# REMOVED: ModernStack dependencyuration"""
+
         config = {
-# REMOVED: ModernStack dependency['account']}.modern_stackcomputing.com",
-# REMOVED: ModernStack dependency["account"],
-# REMOVED: ModernStack dependency["user"],
-# REMOVED: ModernStack dependency["password"],
-# REMOVED: ModernStack dependency.get("role", "ACCOUNTADMIN"),
-# REMOVED: ModernStack dependency.get("warehouse", "CORTEX_SOPHIA_AI_WH"),
-# REMOVED: ModernStack dependency.get("database", "SOPHIA_AI"),
-# REMOVED: ModernStack dependency.get("schema", "ESTUARY_STAGING"),
+
+
+
+
+
+
+
+
             "advanced": {
                 "updateDelay": "0s",  # Real-time processing
                 "deltaUpdates": True,
@@ -431,8 +431,8 @@ class EstuaryFlowManager:
         bindings = []
 
         return EstuaryMaterialization(
-            name="modern_stack-sophia-ai",
-            connector_image=EstuaryConnectorType.self.modern_stack.value,
+            name="qdrant-sophia-ai",
+            connector_image=EstuaryConnectorType.self.qdrant_service.value,
             config=config,
             bindings=bindings,
             tenant=self.credentials.tenant,
@@ -640,26 +640,26 @@ class EstuaryFlowManager:
         }
 
         try:
-# REMOVED: ModernStack dependencyuration only, requires credentials)
-            # REMOVED: ModernStack dependency {
+
+            
                 "account": "ZNB04675.us-east-1",
                 "user": "SCOOBYJAVA15",
-                "password": "${modern_stack_PAT_TOKEN}",  # Will be replaced with actual token
+                "password": "${qdrant_PAT_TOKEN}",  # Will be replaced with actual token
                 "role": "ACCOUNTADMIN",
                 "warehouse": "CORTEX_SOPHIA_AI_WH",
                 "database": "SOPHIA_AI",
                 "schema": "ESTUARY_STAGING",
             }
 
-# REMOVED: ModernStack dependency)
+
 
             # Save configuration for manual deployment
-            config_file = self.config_dir / "modern_stack-materialization.flow.yaml"
+            config_file = self.config_dir / "qdrant-materialization.flow.yaml"
             with open(config_file, "w") as f:
-                yaml.dump(# REMOVED: ModernStack dependencyFalse)
+                yaml.dump(
 
             deployment_results["materializations_deployed"].append(
-                "modern_stack-sophia-ai"
+                "qdrant-sophia-ai"
             )
 
             # Create capture configurations (will require API keys for deployment)
@@ -761,9 +761,9 @@ echo "🚀 Starting Sophia AI Estuary Flow deployment..."
 # Ensure flowctl is authenticated
 flowctl auth token --token "$ESTUARY_ACCESS_TOKEN"
 
-# Deploy ModernStack materialization
-echo "❄️ Deploying ModernStack materialization..."
-flowctl catalog publish --source config/estuary/modern_stack-materialization.flow.yaml
+# Deploy Qdrant materialization
+echo "❄️ Deploying Qdrant materialization..."
+flowctl catalog publish --source config/estuary/qdrant-materialization.flow.yaml
 
 # Deploy GitHub capture
 echo "🐙 Deploying GitHub capture..."

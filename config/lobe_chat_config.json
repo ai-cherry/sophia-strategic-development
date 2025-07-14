@@ -2,7 +2,6 @@
   "version": "2.0",
   "name": "Sophia AI Enhanced Unified Chat",
   "description": "Enterprise AI orchestrator with 11-provider intelligent routing via Portkey",
-
   "api_configuration": {
     "base_url": "http://localhost:8000/api/v1/enhanced-ceo-chat",
     "endpoints": {
@@ -22,7 +21,6 @@
       }
     }
   },
-
   "ui_configuration": {
     "theme": {
       "primary_color": "#8B5CF6",
@@ -52,7 +50,6 @@
       "show_system_health": true
     }
   },
-
   "agent_personas": {
     "ceo_assistant": {
       "name": "Sophia - Unified AI Assistant",
@@ -112,7 +109,6 @@
       }
     }
   },
-
   "provider_intelligence": {
     "display_provider_selection": true,
     "show_cost_breakdown": true,
@@ -122,36 +118,50 @@
       "ultra_fast": {
         "name": "Ultra Fast",
         "color": "#10B981",
-        "providers": ["groq", "together"],
+        "providers": [
+          "groq",
+          "together"
+        ],
         "description": "Optimized for speed and real-time responses"
       },
       "cost_efficient": {
         "name": "Cost Efficient",
         "color": "#3B82F6",
-        "providers": ["deepseek", "qwen"],
+        "providers": [
+          "deepseek",
+          "qwen"
+        ],
         "description": "Best value for routine tasks"
       },
       "premium": {
         "name": "Premium",
         "color": "#8B5CF6",
-        "providers": ["openai", "anthropic"],
+        "providers": [
+          "openai",
+          "anthropic"
+        ],
         "description": "Highest quality for critical decisions"
       },
       "research": {
         "name": "Research",
         "color": "#F59E0B",
-        "providers": ["perplexity", "grok"],
+        "providers": [
+          "perplexity",
+          "grok"
+        ],
         "description": "Real-time data and research capabilities"
       },
       "specialized": {
         "name": "Specialized",
         "color": "#EF4444",
-        "providers": ["mistral", "cohere"],
+        "providers": [
+          "mistral",
+          "cohere"
+        ],
         "description": "Domain-specific optimization"
       }
     }
   },
-
   "workflow_templates": {
     "business_analysis": {
       "name": "Strategic Business Analysis",
@@ -214,7 +224,6 @@
       ]
     }
   },
-
   "integration_settings": {
     "cursor_ide": {
       "enabled": true,
@@ -238,11 +247,15 @@
       "live_performance_metrics": true
     }
   },
-
   "advanced_features": {
     "ai_artifacts": {
       "enabled": true,
-      "types": ["code", "charts", "documents", "ui_mockups"],
+      "types": [
+        "code",
+        "charts",
+        "documents",
+        "ui_mockups"
+      ],
       "interactive_editing": true,
       "version_control": true
     },
@@ -264,7 +277,6 @@
       "real_time_collaboration": true
     }
   },
-
   "performance_optimization": {
     "caching": {
       "enabled": true,
@@ -283,7 +295,6 @@
       "provider_rotation": true
     }
   },
-
   "security_settings": {
     "content_filtering": {
       "enabled": true,
@@ -292,7 +303,10 @@
     },
     "access_control": {
       "role_based": true,
-      "ceo_only_features": ["deep_research", "strategic_analysis"],
+      "ceo_only_features": [
+        "deep_research",
+        "strategic_analysis"
+      ],
       "audit_logging": true
     },
     "rate_limiting": {
@@ -301,7 +315,6 @@
       "cost_per_hour_limit": 10.0
     }
   },
-
   "monitoring_dashboard": {
     "enabled": true,
     "metrics": [

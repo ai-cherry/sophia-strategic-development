@@ -32,7 +32,7 @@ class AgentCapability(Enum):
     KNOWLEDGE_CURATION = "knowledge_curation"
     BUSINESS_INTELLIGENCE = "business_intelligence"
     EXECUTIVE_INTELLIGENCE = "executive_intelligence"
-    # REMOVED: ModernStack dependency "modern_stack_admin"
+    
 
 
 class AgentStatus(Enum):

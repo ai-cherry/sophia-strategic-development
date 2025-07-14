@@ -1,18 +1,5 @@
 {
   "mcpServers": {
-    "sophia-modern_stack": {
-      "command": "uv",
-      "args": [
-        "run",
-        "python",
-        "mcp-servers/modern_stack/production_modern_stack_mcp_server.py"
-      ],
-      "cwd": "/Users/lynnmusil/sophia-main",
-      "env": {
-        "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org"
-      }
-    },
     "sophia-ai-memory": {
       "command": "uv",
       "args": [

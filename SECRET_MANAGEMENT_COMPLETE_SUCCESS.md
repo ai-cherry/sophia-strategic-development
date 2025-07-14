@@ -91,15 +91,15 @@ Production Ready System ✅
 - **DOCKERHUB_USERNAME** → values.sophia.infrastructure.docker_username
 
 ### ❄️ Modern Stack (9 secrets)
-- modern_stack_ACCOUNT → values.sophia.data.modern_stack_account
-- modern_stack_USER → values.sophia.data.modern_stack_user
-- modern_stack_PASSWORD → values.sophia.data.modern_stack_password
-- modern_stack_WAREHOUSE → values.sophia.data.modern_stack_warehouse
-- modern_stack_DATABASE → values.sophia.data.modern_stack_database
-- modern_stack_SCHEMA → values.sophia.data.modern_stack_schema
-- modern_stack_ROLE → values.sophia.data.modern_stack_role
-- modern_stack_PRIVATE_KEY → values.sophia.data.modern_stack_private_key
-- modern_stack_PRIVATE_KEY_PASSPHRASE → values.sophia.data.modern_stack_private_key_passphrase
+- ELIMINATED_ACCOUNT → values.sophia.data.ELIMINATED_account
+- ELIMINATED_USER → values.sophia.data.ELIMINATED_user
+- ELIMINATED_PASSWORD → values.sophia.data.ELIMINATED_password
+- ELIMINATED_WAREHOUSE → values.sophia.data.ELIMINATED_warehouse
+- ELIMINATED_DATABASE → values.sophia.data.ELIMINATED_database
+- ELIMINATED_SCHEMA → values.sophia.data.ELIMINATED_schema
+- ELIMINATED_ROLE → values.sophia.data.ELIMINATED_role
+- ELIMINATED_PRIVATE_KEY → values.sophia.data.ELIMINATED_private_key
+- ELIMINATED_PRIVATE_KEY_PASSPHRASE → values.sophia.data.ELIMINATED_private_key_passphrase
 
 ### 🚀 Lambda Labs (4 secrets)
 - LAMBDA_API_KEY → values.sophia.infrastructure.lambda_api_key

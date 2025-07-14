@@ -1,13 +1,14 @@
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from __future__ import annotations
 
 import asyncio
 import logging
 
 from core.agents.base_agent import BaseAgent, Task
+from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
+from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 # Assuming an MCP orchestrator exists to call other MCPs
@@ -35,7 +36,8 @@ class OrchestrationResearchAgent(BaseAgent):
     """Specialized AI agent for deep research on Sophia AI orchestration patterns"""
 
     async def _agent_initialize(self):
-        self.# REMOVED: ModernStack dependency UnifiedMemoryServiceV2()
+        # Use QdrantUnifiedMemoryService for research operations
+        self.memory_service = QdrantUnifiedMemoryService()
         self.research_memory = EnhancedAiMemoryMCPServer()
         # self.mcp_orchestrator = LangGraphMCPOrchestrator()
         logger.info("OrchestrationResearchAgent initialized.")
@@ -54,7 +56,7 @@ class OrchestrationResearchAgent(BaseAgent):
             "LangGraph orchestration patterns for 28 MCP servers enterprise deployment",
             "LangChain agent coordination with Lambda GPU AI integration",
             "Multi-agent collaboration frameworks for business intelligence platforms",
-            "5-tier memory system orchestration patterns Redis ModernStack Mem0 LangGraph",
+            "5-tier memory system orchestration patterns Redis Qdrant Mem0 LangGraph",
         ]
 
         # Mocking research results for now

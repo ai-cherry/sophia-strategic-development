@@ -44,7 +44,7 @@
 **Immediate Quick Wins - High Impact, Low Risk**
 
 #### **Week 1-2: GitHub Actions Stabilization**
-- ✅ Fix syntax errors in `enhanced_modern_stack_config.py`
+- ✅ Fix syntax errors in `enhanced_ELIMINATED_config.py`
 - ✅ Update deprecated GitHub Actions (upload-artifact@v3→v4)
 - ✅ Correct Pulumi stack references
 - ✅ Implement comprehensive health checks for all 8 services
@@ -151,7 +151,7 @@
 
 ### **Week 1 Priority Actions**
 1. **Fix GitHub Actions Critical Issues**
-   - Syntax error in `enhanced_modern_stack_config.py` line 102
+   - Syntax error in `enhanced_ELIMINATED_config.py` line 102
    - Update deprecated actions in all workflows
    - Test deployment pipeline end-to-end
 

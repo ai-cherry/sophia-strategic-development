@@ -27,10 +27,10 @@ STANDARD_SECRET_NAMES = {
     "GH_TOKEN": "GH_API_TOKEN",
     # Pulumi - Use PULUMI_ACCESS_TOKEN
     "PULUMI_TOKEN": "PULUMI_ACCESS_TOKEN",
-    # ModernStack - Standardize
-    "modern_stack_ACCOUNT_IDENTIFIER": "modern_stack_ACCOUNT",
-    "modern_stack_USERNAME": "modern_stack_USER",
-    "modern_stack_DB": "modern_stack_DATABASE",
+    # Qdrant - Standardize
+    "qdrant_ACCOUNT_IDENTIFIER": "qdrant_ACCOUNT",
+    "qdrant_USERNAME": "qdrant_USER",
+    "qdrant_DB": "qdrant_DATABASE",
     # Lambda Labs - Use LAMBDA_LABS_API_KEY
     "LAMBDA_API_KEY": "LAMBDA_LABS_API_KEY",
     "LAMBDA_CLOUD_API_KEY": "LAMBDA_LABS_API_KEY",

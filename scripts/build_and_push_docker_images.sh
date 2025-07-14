@@ -115,8 +115,8 @@ build_ai_services() {
     # AI Memory V2
     build_and_push "sophia-ai-memory-v2" "mcp-servers/ai-memory/Dockerfile" "mcp-servers/ai-memory"
     
-    # modern_stack Cortex
-    build_and_push "sophia-modern_stack-cortex" "mcp-servers/modern_stack_cortex/Dockerfile" "mcp-servers/modern_stack_cortex"
+    # qdrant Cortex
+    build_and_push "sophia-qdrant-memory" "mcp-servers/qdrant_memory/Dockerfile" "mcp-servers/qdrant_memory"
     
     # Mem0 OpenMemory
     build_and_push "sophia-mem0-openmemory" "mcp-servers/mem0/Dockerfile" "mcp-servers/mem0"
@@ -164,9 +164,9 @@ build_data_services() {
     print_info "Building Data Pipeline Services"
     print_info "===================================================="
     
-    # modern_stack services
-    build_and_push "sophia-modern_stack-v2" "mcp-servers/modern_stack/Dockerfile" "mcp-servers/modern_stack"
-    build_and_push "sophia-modern_stack-unified" "mcp-servers/modern_stack_unified/Dockerfile" "mcp-servers/modern_stack_unified"
+    # qdrant services
+    build_and_push "sophia-qdrant-v2" "mcp-servers/qdrant/Dockerfile" "mcp-servers/qdrant"
+    build_and_push "sophia-qdrant-unified" "mcp-servers/qdrant_unified/Dockerfile" "mcp-servers/qdrant_unified"
     
     # Gong Webhook
     build_and_push "sophia-gong-webhook" "gong-webhook-service/Dockerfile" "gong-webhook-service"

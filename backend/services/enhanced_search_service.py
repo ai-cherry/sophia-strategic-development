@@ -20,7 +20,7 @@ from playwright.async_api import Browser, Page, async_playwright
 
 from backend.core.auto_esc_config import get_config_value
 from backend.services.ai_memory_service import AIMemoryService
-from backend.services.modern_stack_cortex_service import ModernStackCortexService
+from backend.services.qdrant_memory_service import QdrantUnifiedMemoryService
 from infrastructure.services.unified_ai_orchestrator import (
     AIRequest,
     UnifiedAIOrchestrator,
@@ -92,7 +92,7 @@ class CacheEntry:
 class SemanticCache:
     """4-layer semantic caching system"""
 
-    def __init__(self, cortex_service: ModernStackCortexService):
+    def __init__(self, cortex_service: QdrantUnifiedMemoryService):
         self.cortex = cortex_service
         self.l1_cache: dict[str, CacheEntry] = {}  # Memory cache
         self.l2_cache: dict[str, CacheEntry] = {}  # Session cache
@@ -696,7 +696,7 @@ class EnhancedSearchService:
                 time_range=request.time_range,
             )
 
-            # Search ModernStack knowledge base
+            # Search Qdrant knowledge base
             cortex_results = await self.cortex.search_knowledge_base(
                 query=request.query, max_results=request.max_results
             )
@@ -720,8 +720,8 @@ class EnhancedSearchService:
                     {
                         "title": result.get("title", "Knowledge Base"),
                         "content": result.get("content", ""),
-                        "url": f"modern_stack://{result.get('id')}",
-                        "source": "modern_stack",
+                        "url": f"qdrant://{result.get('id')}",
+                        "source": "qdrant",
                         "timestamp": result.get("timestamp"),
                         "confidence": result.get("confidence", 0.0),
                     }

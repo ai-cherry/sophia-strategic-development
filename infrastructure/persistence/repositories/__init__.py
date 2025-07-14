@@ -5,6 +5,6 @@ This module contains concrete implementations of the repository interfaces
 defined in the application layer.
 """
 
-from .modern_stack_call_repository import ModernStackCallRepository
+from .qdrant_call_repository import QdrantCallRepository
 
-__all__ = ["ModernStackCallRepository"]
+__all__ = ["QdrantCallRepository"]

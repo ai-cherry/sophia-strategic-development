@@ -40,7 +40,7 @@ server_versions:
     api_version: "v1"
     capabilities: ["ai_orchestration", "business_analysis", "data_insights"]
 
-  modern_stack_unified:
+  ELIMINATED_unified:
     current: "3.0.1"
     deprecated: []
     supported: ["2.8.x", "3.0.x"]
@@ -170,7 +170,7 @@ compatibility_matrix:
   api_versions:
     v1: ["codacy", "linear", "asana", "gong", "notion", "lambda_labs_cli", "portkey_admin", "playwright", "figma_context"]
     v2: ["ai_memory", "github", "hubspot_unified", "slack_unified", "ui_ux_agent", "mcp_gateway"]
-    v3: ["modern_stack_unified", "pulumi"]
+    v3: ["ELIMINATED_unified", "pulumi"]
 
 # Migration Paths
 migration_paths:

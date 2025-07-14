@@ -24,10 +24,10 @@ class MemoryTier(Enum):
 
     L0_GPU_MEMORY = "l0_gpu_memory"  # <10ms - H200 HBM3e
     L1_SESSION_CACHE = "l1_session_cache"  # <50ms - Redis
-    L2_CORTEX_CACHE = "l2_cortex_cache"  # <100ms - ModernStack + GPU
-    L3_PERSISTENT_MEMORY = "l3_persistent_memory"  # <200ms - ModernStack
-    L4_KNOWLEDGE_GRAPH = "l4_knowledge_graph"  # <300ms - ModernStack Vector
-    L5_WORKFLOW_MEMORY = "l5_workflow_memory"  # <400ms - ModernStack Long-term
+    L2_CORTEX_CACHE = "l2_cortex_cache"  # <100ms - Qdrant + GPU
+    L3_PERSISTENT_MEMORY = "l3_persistent_memory"  # <200ms - Qdrant
+    L4_KNOWLEDGE_GRAPH = "l4_knowledge_graph"  # <300ms - Qdrant Vector
+    L5_WORKFLOW_MEMORY = "l5_workflow_memory"  # <400ms - Qdrant Long-term
 
 
 @dataclass
@@ -63,7 +63,7 @@ class EnhancedMemoryArchitecture:
         self.tier_configs = self._initialize_tier_configs()
         self.gpu_memory_pool = GPUMemoryPool()
         self.redis_client = self._initialize_redis()
-        self.# REMOVED: ModernStack dependency None
+        self.qdrant_service = None
         self.gpu_memory_manager = None
         self.performance_metrics = {
             "l0_hits": 0,
@@ -171,25 +171,18 @@ class EnhancedMemoryArchitecture:
             logger.exception(f"❌ GPU memory manager initialization failed: {e}")
             raise
 
-    async def initialize_modern_stack_connection(self):
-        """Initialize ModernStack connection for L2-L5 tiers"""
+    async def initialize_qdrant_connection(self):
+        """Initialize Qdrant connection for L2-L5 tiers"""
         try:
-            # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
-
-            self.# REMOVED: ModernStack dependency self.modern_stack_connection(
-                user=get_config_value("postgres_username"),
-                password=get_config_value("postgres_password"),
-                account=get_config_value("postgres_host"),
-                warehouse=get_config_value(
-                    "postgres_database", "SOPHIA_AI_COMPUTE_WH"
-                ),
-                database=get_config_value("postgres_database", "SOPHIA_AI_PRODUCTION"),
-                schema=get_config_value("postgres_schema", "PRODUCTION"),
-                role=get_config_value("modern_stack_role", "SOPHIA_AI_ROLE"),
-            )
-            logger.info("✅ ModernStack connection established for L2-L5 tiers")
+            # Use QdrantUnifiedMemoryService for L2-L5 tiers
+            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+            
+            self.qdrant_service = QdrantUnifiedMemoryService()
+            await self.qdrant_service.initialize()
+            
+            logger.info("✅ Qdrant connection established for L2-L5 tiers")
         except Exception as e:
-            logger.exception(f"❌ ModernStack connection failed: {e}")
+            logger.exception(f"❌ Qdrant connection failed: {e}")
             raise
 
     async def store_data(
@@ -421,10 +414,10 @@ class EnhancedMemoryArchitecture:
     ) -> bool:
         """Store data in Lambda GPU cache (L2 tier)"""
         try:
-            if not self.modern_stack_conn:
+            if not self.qdrant_service:
                 return False
 
-            cursor = self.modern_stack_conn.cursor()
+            cursor = self.qdrant_service.cursor()
 
             # Insert or update cache entry
             insert_query = """
@@ -455,10 +448,10 @@ class EnhancedMemoryArchitecture:
     async def _retrieve_cortex_cache(self, key: str) -> Any | None:
         """Retrieve data from Lambda GPU cache (L2 tier)"""
         try:
-            if not self.modern_stack_conn:
+            if not self.qdrant_service:
                 return None
 
-            cursor = self.modern_stack_conn.cursor()
+            cursor = self.qdrant_service.cursor()
 
             # Query with TTL check
             select_query = """
@@ -487,12 +480,12 @@ class EnhancedMemoryArchitecture:
         ttl: int | None,
         metadata: dict[str, Any] | None,
     ) -> bool:
-        """Store data in ModernStack persistent memory (L3 tier)"""
+        """Store data in Qdrant persistent memory (L3 tier)"""
         try:
-            if not self.modern_stack_conn:
+            if not self.qdrant_service:
                 return False
 
-            cursor = self.modern_stack_conn.cursor()
+            cursor = self.qdrant_service.cursor()
 
             # Insert into persistent memory table
             insert_query = """
@@ -522,12 +515,12 @@ class EnhancedMemoryArchitecture:
             return False
 
     async def _retrieve_persistent_memory(self, key: str) -> Any | None:
-        """Retrieve data from ModernStack persistent memory (L3 tier)"""
+        """Retrieve data from Qdrant persistent memory (L3 tier)"""
         try:
-            if not self.modern_stack_conn:
+            if not self.qdrant_service:
                 return None
 
-            cursor = self.modern_stack_conn.cursor()
+            cursor = self.qdrant_service.cursor()
 
             select_query = """
             SELECT content, metadata
@@ -554,13 +547,13 @@ class EnhancedMemoryArchitecture:
         ttl: int | None,
         metadata: dict[str, Any] | None,
     ) -> bool:
-        """Store data in ModernStack knowledge graph (L4 tier)"""
+        """Store data in Qdrant knowledge graph (L4 tier)"""
         # Implementation for knowledge graph storage
-        # This would integrate with ModernStack's vector search capabilities
+        # This would integrate with Qdrant's vector search capabilities
         return True
 
     async def _retrieve_knowledge_graph(self, key: str) -> Any | None:
-        """Retrieve data from ModernStack knowledge graph (L4 tier)"""
+        """Retrieve data from Qdrant knowledge graph (L4 tier)"""
         # Implementation for knowledge graph retrieval
         return None
 
@@ -571,12 +564,12 @@ class EnhancedMemoryArchitecture:
         ttl: int | None,
         metadata: dict[str, Any] | None,
     ) -> bool:
-        """Store data in ModernStack workflow memory (L5 tier)"""
+        """Store data in Qdrant workflow memory (L5 tier)"""
         # Implementation for workflow memory storage
         return True
 
     async def _retrieve_workflow_memory(self, key: str) -> Any | None:
-        """Retrieve data from ModernStack workflow memory (L5 tier)"""
+        """Retrieve data from Qdrant workflow memory (L5 tier)"""
         # Implementation for workflow memory retrieval
         return None
 
@@ -765,10 +758,10 @@ class EnhancedMemoryArchitecture:
                 "error": str(e),
             }
 
-        # Check L2-L5 (ModernStack)
+        # Check L2-L5 (Qdrant)
         try:
-            if self.modern_stack_conn:
-                cursor = self.modern_stack_conn.cursor()
+            if self.qdrant_service:
+                cursor = self.qdrant_service.cursor()
                 cursor.execute("SELECT 1")
                 cursor.fetchone()
                 cursor.close()
@@ -829,7 +822,7 @@ async def initialize_enhanced_memory_architecture():
 
     try:
         await enhanced_memory_architecture.initialize_gpu_memory_manager()
-        await enhanced_memory_architecture.initialize_modern_stack_connection()
+        await enhanced_memory_architecture.initialize_qdrant_connection()
 
         logger.info("✅ Enhanced Memory Architecture initialized successfully")
         return enhanced_memory_architecture

@@ -55,7 +55,7 @@ async def extract_gong_data():
         }
 
         # Store in Modern Stack for Cortex analysis
-        await modern_stack_cortex.store_call_data(call_data)
+        await ELIMINATED_cortex.store_call_data(call_data)
 ```
 
 ### **Step 2: Sentiment Analysis (Multi-Channel)**
@@ -107,20 +107,20 @@ WITH call_analysis AS (
     SELECT
         call_id,
         sales_rep,
-        modern_stack.CORTEX.SENTIMENT(transcript) as ai_sentiment,
-        modern_stack.CORTEX.EXTRACT_ANSWER(
+        ELIMINATED.CORTEX.SENTIMENT(transcript) as ai_sentiment,
+        ELIMINATED.CORTEX.EXTRACT_ANSWER(
             transcript,
             'What objections did the prospect raise?'
         ) as objections_raised,
-        modern_stack.CORTEX.EXTRACT_ANSWER(
+        ELIMINATED.CORTEX.EXTRACT_ANSWER(
             transcript,
             'How many discovery questions were asked?'
         ) as discovery_questions,
-        modern_stack.CORTEX.CLASSIFY(
+        ELIMINATED.CORTEX.CLASSIFY(
             transcript,
             ['excellent_call', 'good_call', 'needs_improvement', 'poor_call']
         ) as call_quality,
-        modern_stack.CORTEX.SUMMARIZE(transcript) as call_summary
+        ELIMINATED.CORTEX.SUMMARIZE(transcript) as call_summary
     FROM gong_calls
     WHERE sales_rep = 'Riley Martinez'
     AND call_date >= DATEADD(day, -7, CURRENT_DATE())

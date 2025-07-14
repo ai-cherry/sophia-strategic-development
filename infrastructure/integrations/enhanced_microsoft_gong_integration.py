@@ -28,7 +28,7 @@ from infrastructure.services.enhanced_sentiment_analyzer import (
     SentimentChannel,
 )
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-from shared.utils.modern_stack_gong_connector import ModernStackGongConnector
+from backend.integrations.gong_api_client import GongAPIClient
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class EnhancedMicrosoftGongIntegration:
     """
 
     def __init__(self):
-        self.gong_connector = ModernStackGongConnector()
+        self.gong_connector = GongAPIClient()
         self.cortex_service = UnifiedMemoryServiceV2()
         self.sentiment_analyzer = EnhancedSentimentAnalyzer()
         self.initialized = False

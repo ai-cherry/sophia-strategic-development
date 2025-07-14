@@ -16,7 +16,10 @@
       "name": "Every Minute Check",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [250, 300]
+      "position": [
+        250,
+        300
+      ]
     },
     {
       "parameters": {
@@ -31,7 +34,10 @@
       "name": "Check MCP Latencies",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [450, 300]
+      "position": [
+        450,
+        300
+      ]
     },
     {
       "parameters": {
@@ -60,7 +66,10 @@
       "name": "High Latency?",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
-      "position": [650, 300]
+      "position": [
+        650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -70,7 +79,10 @@
       "name": "Analyze Bottlenecks",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [850, 200]
+      "position": [
+        850,
+        200
+      ]
     },
     {
       "parameters": {
@@ -93,14 +105,17 @@
       },
       "id": "update-routing",
       "name": "Update MCP Routing",
-      "type": "n8n-nodes-base.httpRequest", 
+      "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [1050, 200]
+      "position": [
+        1050,
+        200
+      ]
     },
     {
       "parameters": {
         "channel": "#sophia-alerts",
-        "text": "🚀 MCP Routing Optimized\n\nDetected slow servers:\n{{ $json.slowServers.map(s => `• ${s.server}: ${s.latency}s`).join('\\n') }}\n\nRerouting applied:\n{{ Object.entries($json.rerouteMap).map(([k,v]) => `• ${k} → ${v.fallback} (${v.reason})`).join('\\n') }}\n\n_Self-optimization complete. Latency should improve._",
+        "text": "\ud83d\ude80 MCP Routing Optimized\n\nDetected slow servers:\n{{ $json.slowServers.map(s => `\u2022 ${s.server}: ${s.latency}s`).join('\\n') }}\n\nRerouting applied:\n{{ Object.entries($json.rerouteMap).map(([k,v]) => `\u2022 ${k} \u2192 ${v.fallback} (${v.reason})`).join('\\n') }}\n\n_Self-optimization complete. Latency should improve._",
         "authentication": "oAuth2",
         "options": {}
       },
@@ -108,7 +123,10 @@
       "name": "Notify Optimization",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2,
-      "position": [1250, 200]
+      "position": [
+        1250,
+        200
+      ]
     },
     {
       "parameters": {
@@ -121,7 +139,10 @@
       "name": "Log to Database",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2,
-      "position": [1250, 350]
+      "position": [
+        1250,
+        350
+      ]
     },
     {
       "parameters": {
@@ -141,7 +162,10 @@
       "name": "Update Estuary Priority",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [1050, 350]
+      "position": [
+        1050,
+        350
+      ]
     },
     {
       "parameters": {
@@ -170,7 +194,10 @@
       "name": "Get External Intel",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 3,
-      "position": [650, 450]
+      "position": [
+        650,
+        450
+      ]
     },
     {
       "parameters": {
@@ -180,7 +207,10 @@
       "name": "Process External Tips",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [850, 450]
+      "position": [
+        850,
+        450
+      ]
     },
     {
       "parameters": {
@@ -191,7 +221,10 @@
       "name": "Merge Insights",
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
-      "position": [1050, 450]
+      "position": [
+        1050,
+        450
+      ]
     }
   ],
   "connections": {
@@ -307,4 +340,4 @@
       "createdAt": "2025-07-12T00:00:00.000Z"
     }
   ]
-} 
+}

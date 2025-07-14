@@ -83,7 +83,7 @@ class TechnicalDebtCleanup:
         
         # Files requiring decomposition (high priority)
         self.decomposition_targets = [
-            "infrastructure/services/enhanced_modern_stack_cortex_service.py",
+            "infrastructure/services/enhanced_qdrant_memory_service.py",
             "infrastructure/services/sophia_ai_orchestrator.py",
             "infrastructure/services/enhanced_ingestion_service.py",
             "core/workflows/enhanced_langgraph_orchestration.py",

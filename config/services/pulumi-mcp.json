@@ -2,13 +2,30 @@
   "base_url": "http://pulumi-mcp-server:9001",
   "organization": "sophia-ai",
   "project": "sophia",
-  "allowed_stacks": ["dev", "staging", "prod"],
+  "allowed_stacks": [
+    "dev",
+    "staging",
+    "prod"
+  ],
   "rbac_enabled": true,
   "audit_log_path": "/var/log/pulumi-mcp-audit.log",
   "permissions": {
-    "admin": ["read", "preview", "deploy", "refresh", "destroy"],
-    "developer": ["read", "preview", "deploy", "refresh"],
-    "viewer": ["read"]
+    "admin": [
+      "read",
+      "preview",
+      "deploy",
+      "refresh",
+      "destroy"
+    ],
+    "developer": [
+      "read",
+      "preview",
+      "deploy",
+      "refresh"
+    ],
+    "viewer": [
+      "read"
+    ]
   },
   "copilot": {
     "enabled": true,
@@ -17,7 +34,9 @@
   },
   "deployment": {
     "preview_required": true,
-    "approval_required_for": ["prod"],
+    "approval_required_for": [
+      "prod"
+    ],
     "rollback_enabled": true
   }
 }

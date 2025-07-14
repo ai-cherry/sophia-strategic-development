@@ -203,7 +203,7 @@ EMBEDDING: text-embedding-ada-002
 ```python
 # Capability-based routing
 capabilities_map = {
-    "data_analysis": ["modern_stack", "postgres"],
+    "data_analysis": ["ELIMINATED", "postgres"],
     "code_review": ["github", "codacy"],
     "project_status": ["linear", "asana", "notion"],
     "customer_intel": ["hubspot", "gong", "slack"],
@@ -386,7 +386,7 @@ triggers = {
 
 // Node types
 nodes = {
-    data: ["modern_stack_query", "api_fetch"],
+    data: ["ELIMINATED_query", "api_fetch"],
     ai: ["llm_analysis", "embedding_generation"],
     action: ["slack_notify", "linear_create_task"],
     condition: ["if_threshold", "switch_sentiment"]
@@ -416,7 +416,7 @@ name: Revenue Anomaly Detection
 schedule: "*/30 * * * *"  # Every 30 minutes
 nodes:
   - id: query_revenue
-    type: modern_stack
+    type: ELIMINATED
     query: SELECT * FROM revenue_metrics WHERE...
   - id: detect_anomaly
     type: ai_analysis

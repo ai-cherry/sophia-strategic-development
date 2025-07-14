@@ -207,17 +207,17 @@ captures:
         resource:
           stream: scorecards
 
-# Materializations - ModernStack Destination
+# Materializations - ELIMINATED Destination
 materializations:
-  sophia/gong-to-modern_stack:
+  sophia/gong-to-ELIMINATED:
     endpoint:
       connector:
-        image: ghcr.io/estuary/materialize-modern_stack:latest
+        image: ghcr.io/estuary/materialize-ELIMINATED:latest
         config:
-          account: ${modern_stack_ACCOUNT}
-          user: ${modern_stack_USER}
-          password: ${modern_stack_PASSWORD}
-          role: ${modern_stack_ROLE}
+          account: ${ELIMINATED_ACCOUNT}
+          user: ${ELIMINATED_USER}
+          password: ${ELIMINATED_PASSWORD}
+          role: ${ELIMINATED_ROLE}
           database: SOPHIA_AI
           schema: GONG_DATA
           warehouse: COMPUTE_WH
@@ -247,7 +247,7 @@ materializations:
           delta_updates: true
 
 # Transformations - Enrichment
-# These run in ModernStack after materialization
+# These run in ELIMINATED after materialization
 transformations:
   - name: enrich_gong_calls
     schedule: "*/15 * * * *"  # Every 15 minutes

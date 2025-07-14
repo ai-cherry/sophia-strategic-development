@@ -1,5 +1,5 @@
 """
-Sophia AI Startup Configuration - PERMANENT modern_stack FIX
+Sophia AI Startup Configuration - PERMANENT qdrant FIX
 Ensures correct configuration is loaded at application startup
 This file permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue
 """
@@ -11,24 +11,24 @@ import os
 logger = logging.getLogger(__name__)
 
 
-def configure_modern_stack_environment():
-    """Configure ModernStack environment variables at startup - PERMANENT FIX"""
+def configure_qdrant_environment():
+    """Configure Qdrant environment variables at startup - PERMANENT FIX"""
 
-# REMOVED: ModernStack dependencyURATION - DO NOT MODIFY
+
     correct_config = {
-        "modern_stack_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
-        "modern_stack_USER": "SCOOBYJAVA15",
-        "modern_stack_DATABASE": "SOPHIA_AI",
-        "modern_stack_WAREHOUSE": "SOPHIA_AI_WH",
-        "modern_stack_ROLE": "ACCOUNTADMIN",
-        "modern_stack_SCHEMA": "PROCESSED_AI",
+        "qdrant_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
+        "qdrant_USER": "SCOOBYJAVA15",
+        "qdrant_DATABASE": "SOPHIA_AI",
+        "qdrant_WAREHOUSE": "SOPHIA_AI_WH",
+        "qdrant_ROLE": "ACCOUNTADMIN",
+        "qdrant_SCHEMA": "PROCESSED_AI",
     }
 
     for key, value in correct_config.items():
         os.environ[key] = value
         logger.info(f"✅ PERMANENT FIX: Set {key}: {value}")
 
-# REMOVED: ModernStack dependencyuration applied")
+
     logger.info(
         "   This permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue"
     )
@@ -36,16 +36,16 @@ def configure_modern_stack_environment():
 
 def apply_startup_configuration():
     """Apply all startup configuration - CALLED AUTOMATICALLY"""
-    logger.info("🚀 Applying Sophia AI startup configuration (PERMANENT modern_stack FIX)")
+    logger.info("🚀 Applying Sophia AI startup configuration (PERMANENT qdrant FIX)")
 
-    # Configure ModernStack with correct account
-    configure_modern_stack_environment()
+    # Configure Qdrant with correct account
+    configure_qdrant_environment()
 
     # Set other environment variables
     os.environ["ENVIRONMENT"] = "prod"
     os.environ["PULUMI_ORG"] = "scoobyjava-org"
 
-    logger.info("✅ Startup configuration complete - ModernStack fix applied")
+    logger.info("✅ Startup configuration complete - Qdrant fix applied")
 
 
 # AUTOMATIC APPLICATION - This runs when module is imported

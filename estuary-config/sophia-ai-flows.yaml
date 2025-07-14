@@ -25,7 +25,7 @@ captures:
           password: ${POSTGRESQL_ESTUARY_PASSWORD}
           user: estuary_user
         image: ghcr.io/estuary/source-postgres:dev
-  sophia/modern_stack:
+  sophia/ELIMINATED:
     bindings:
       - resource:
           table: SOPHIA_AI.PUBLIC.ENRICHED_GONG_CALLS
@@ -36,13 +36,13 @@ captures:
     endpoint:
       connector:
         config:
-          account: ${modern_stack_ACCOUNT}
+          account: ${ELIMINATED_ACCOUNT}
           database: SOPHIA_AI
-          password: ${modern_stack_PASSWORD}
+          password: ${ELIMINATED_PASSWORD}
           schema: PUBLIC
-          user: ${modern_stack_USER}
-          warehouse: ${modern_stack_WAREHOUSE}
-        image: ghcr.io/estuary/source-modern_stack:dev
+          user: ${ELIMINATED_USER}
+          warehouse: ${ELIMINATED_WAREHOUSE}
+        image: ghcr.io/estuary/source-ELIMINATED:dev
 collections:
   sophia/conversations:
     key:

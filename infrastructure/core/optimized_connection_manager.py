@@ -64,32 +64,32 @@ except ImportError:
 # Configuration and monitoring
 from backend.core.auto_esc_config import get_config_value
 from core.performance_monitor import performance_monitor
-# REMOVED: ModernStack dependency
 
-# REMOVED: ModernStack dependencyuration override for correct connectivity
+
+
 
 
 # Try to import optional dependencies
 try:
-    # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+    
 
-    # REMOVED: ModernStack dependency True
+    
 except ImportError:
-    # REMOVED: ModernStack dependency False
+    
 
-    # Create placeholder for modern_stack.connector
-    class MockModernStackConnector:
+    # Create placeholder for qdrant.connector
+    class MockQdrantConnector:
         @staticmethod
         def connect(**kwargs):
-            raise NotImplementedError("ModernStack connector not available")
+            raise NotImplementedError("Qdrant connector not available")
 
         @staticmethod
         async def connect_async(**kwargs):
             raise NotImplementedError(
-                "ModernStack connector not available - install with: pip install modern_stack-connector-python"
+                "Qdrant connector not available - install with: pip install qdrant-connector-python"
             )
 
-    modern_stack = type("modern_stack", (), {"connector": MockModernStackConnector()})()
+    qdrant = type("qdrant", (), {"connector": MockQdrantConnector()})()
 
 try:
     import psycopg2
@@ -104,7 +104,7 @@ logger = logging.getLogger(__name__)
 class ConnectionType(str, Enum):
     """Supported connection types"""
 
-    modern_stack = "modern_stack"
+    qdrant = "qdrant"
     POSTGRES = "postgres"
     MYSQL = "mysql"
     REDIS = "redis"
@@ -263,7 +263,7 @@ class OptimizedConnectionPool:
 
         try:
             if self.connection_type == ConnectionType.POSTGRESQL:
-                connection = await self._create_modern_stack_connection()
+                connection = await self._create_qdrant_serviceection()
             elif self.connection_type == ConnectionType.POSTGRES:
                 connection = await self._create_postgres_connection()
             elif self.connection_type == ConnectionType.REDIS:
@@ -289,11 +289,11 @@ class OptimizedConnectionPool:
             self.circuit_breaker.record_failure()
             return None
 
-    async def _create_modern_stack_connection(self):
-# REMOVED: ModernStack dependencyuration"""
+    async def _create_qdrant_serviceection(self):
+
 
         # Get secure connection parameters using lazy initialization
-# REMOVED: ModernStack dependency()
+
         connection_params = config.get_connection_params()
         connection_params["timeout"] = self.connection_timeout
         # Add global query tag for cost/credit tracking
@@ -303,12 +303,12 @@ class OptimizedConnectionPool:
 
         # Force log the correct account
         logger.info(
-            f"🔧 SECURE CONFIG: Connecting to ModernStack account {connection_params['account']}"
+            f"🔧 SECURE CONFIG: Connecting to Qdrant account {connection_params['account']}"
         )
 
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
-            conn = self.modern_stack_connection(**connection_params)
+            conn = self.qdrant_serviceection(**connection_params)
             # Set global query tag for cost tracking
             cursor = conn.cursor()
             cursor.execute("ALTER SESSION SET QUERY_TAG = 'sophia_ai_global'")
@@ -569,16 +569,16 @@ class OptimizedConnectionManager:
         logger.info("🚀 Initializing Optimized Connection Manager...")
 
         try:
-            # Initialize ModernStack pool (primary database)
-            # REMOVED: ModernStack dependency OptimizedConnectionPool(
+            # Initialize Qdrant pool (primary database)
+            
                 ConnectionType.POSTGRESQL,
                 min_connections=3,
                 max_connections=15,
                 connection_timeout=30,
                 idle_timeout=600,
             )
-            await modern_stack_pool.initialize()
-            self.pools[ConnectionType.POSTGRESQL] = modern_stack_pool
+            await qdrant_pool.initialize()
+            self.pools[ConnectionType.POSTGRESQL] = qdrant_pool
 
             # Initialize Redis pool (caching)
             try:

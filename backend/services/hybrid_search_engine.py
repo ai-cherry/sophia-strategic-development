@@ -157,9 +157,9 @@ class HybridSearchEngine:
         metadata_filter: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """
-        Perform BM25 keyword search using ModernStack.
+        Perform BM25 keyword search using Qdrant.
 
-        This uses ModernStack's built-in text search capabilities
+        This uses Qdrant's built-in text search capabilities
         with BM25-like scoring.
         """
         try:
@@ -193,7 +193,7 @@ class HybridSearchEngine:
 
             search_sql += " ORDER BY relevance_score DESC LIMIT 100"
 
-            results = await self.memory_service.execute_modern_stack_query(
+            results = await self.memory_service.execute_qdrant_query(
                 search_sql, tuple(params)
             )
 

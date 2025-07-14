@@ -32,8 +32,8 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-from shared.utils.modern_stack_gong_connector import ModernStackGongConnector
-from shared.utils.modern_stack_hubspot_connector import ModernStackHubSpotConnector
+from backend.integrations.gong_api_client import GongAPIClient
+from backend.integrations.hubspot_client import HubSpotClient
 
 logger = logging.getLogger(__name__)
 
@@ -123,10 +123,10 @@ class SalesCoachAgent(BaseAgent):
         self.name = "sales_coach"
         self.description = "AI-powered sales coaching with Lambda GPU insights"
 
-        # ModernStack integrations
-        self.cortex_service: ModernStackCortexService | None = None
-        self.gong_connector: ModernStackGongConnector | None = None
-        self.hubspot_connector: ModernStackHubSpotConnector | None = None
+        # Qdrant integrations
+        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.gong_connector: GongAPIClient | None = None
+        self.hubspot_connector: HubSpotClient | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
 
         self.initialized = False
@@ -138,8 +138,8 @@ class SalesCoachAgent(BaseAgent):
 
         try:
             self.cortex_service = UnifiedMemoryServiceV2()
-            self.gong_connector = ModernStackGongConnector()
-            self.hubspot_connector = ModernStackHubSpotConnector()
+            self.gong_connector = GongAPIClient()
+            self.hubspot_connector = HubSpotClient()
             self.ai_memory = EnhancedAiMemoryMCPServer()
 
             await self.ai_memory.initialize()
@@ -165,7 +165,7 @@ class SalesCoachAgent(BaseAgent):
             await self.initialize()
 
         try:
-            # Get call data from ModernStack
+            # Get call data from Qdrant
             async with self.gong_connector as connector:
                 call_data = await connector.get_call_analysis_data(
                     call_id=call_id, include_full_transcript=True
@@ -199,7 +199,7 @@ class SalesCoachAgent(BaseAgent):
                 5. Next steps and follow-up recommendations
                 """
 
-                cortex_summary = await # REMOVED: ModernStack dependency_text_with_cortex(
+                cortex_summary = await 
                     prompt=summary_prompt, max_tokens=400
                 )
 
@@ -236,7 +236,7 @@ class SalesCoachAgent(BaseAgent):
                         ]
                     )
 
-                    topics_result = await # REMOVED: ModernStack dependency_text_with_cortex(
+                    topics_result = await 
                         prompt=f"{topic_prompt}\n\nTranscript: {transcript_text[:2000]}",
                         max_tokens=100,
                     )
@@ -549,7 +549,7 @@ class SalesCoachAgent(BaseAgent):
 
             # Analyze patterns using Cortex
             async with self.cortex_service as cortex:
-                performance_summary = await # REMOVED: ModernStack dependency_text_with_cortex(
+                performance_summary = await 
                     prompt=f"""
                     Analyze this sales rep's performance and provide coaching insights:
 

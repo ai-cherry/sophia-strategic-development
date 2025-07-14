@@ -21,10 +21,6 @@
       "slack": {
         "image": "ghcr.io/estuary/source-slack:dev",
         "config_template": "slack_capture_template.yaml"
-      },
-      "modern_stack": {
-        "image": "ghcr.io/estuary/materialize-modern_stack:dev",
-        "config_template": "modern_stack_materialization_template.yaml"
       }
     },
     "real_time_processing": {

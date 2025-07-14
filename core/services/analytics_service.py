@@ -11,8 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class AnalyticsService:
     """Basic analytics service implementation"""
 
-    def __init__(self):
-        pass
+    def __init__(...):
+    """TODO: Implement __init__"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"__init__ not yet implemented")
 
     async def get_sprint_velocity(
         self,

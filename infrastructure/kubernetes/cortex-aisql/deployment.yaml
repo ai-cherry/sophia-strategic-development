@@ -28,29 +28,29 @@ spec:
             - containerPort: 8080
               protocol: TCP
           env:
-            # ModernStack credentials from Pulumi ESC
-            - name: modern_stack_ACCOUNT
+            # ELIMINATED credentials from Pulumi ESC
+            - name: ELIMINATED_ACCOUNT
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
                   key: postgres_host
-            - name: modern_stack_USER
+            - name: ELIMINATED_USER
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
-                  key: modern_stack_user
-            - name: modern_stack_PASSWORD
+                  key: ELIMINATED_user
+            - name: ELIMINATED_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: sophia-secrets
                   key: postgres_password
-            - name: modern_stack_ROLE
+            - name: ELIMINATED_ROLE
               value: "CORTEX_ROLE"
-            - name: modern_stack_WAREHOUSE
+            - name: ELIMINATED_WAREHOUSE
               value: "CORTEX_WH"
-            - name: modern_stack_DATABASE
+            - name: ELIMINATED_DATABASE
               value: "SOPHIA_AI"
-            - name: modern_stack_SCHEMA
+            - name: ELIMINATED_SCHEMA
               value: "AI_MEMORY"
             - name: PULUMI_ORG
               value: "scoobyjava-org"

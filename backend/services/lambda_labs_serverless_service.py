@@ -194,7 +194,7 @@ class LambdaLabsServerlessService:
         ]
 
         # Integration with Lambda GPU
-        self.# REMOVED: ModernStack dependency UnifiedMemoryServiceV2()
+        self.
 
         logger.info(
             "🚀 Lambda Labs Serverless Service initialized with 5 premium models"

@@ -30,11 +30,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     pinecone_api_key: str = ""
 
-    # ModernStack
-    # REMOVED: ModernStack dependency ""
-    # REMOVED: ModernStack dependency ""
-    # REMOVED: ModernStack dependency ""
-    # REMOVED: ModernStack dependency "SOPHIA_AI"
+    # Qdrant
+    
+    
+    
+    
 
     # Rate Limiting
     rate_limit_per_minute: int = 60

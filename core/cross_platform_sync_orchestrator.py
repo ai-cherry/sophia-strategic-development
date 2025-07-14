@@ -30,8 +30,8 @@ from typing import Any
 from infrastructure.mcp_servers.base.standardized_mcp_server import (
     SyncPriority as ServerSyncPriority,
 )
-from shared.utils.enhanced_modern_stack_cortex_service import (
-    EnhancedModernStackCortexService,
+from backend.services.qdrant_unified_memory_service import (
+    EnhancedQdrantUnifiedMemoryService,
 )
 
 logger = logging.getLogger(__name__)
@@ -124,7 +124,7 @@ class SyncMetrics:
 class DataConflictResolver:
     """Resolves data conflicts between platforms."""
 
-    def __init__(self, cortex_service: EnhancedModernStackCortexService):
+    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryService):
         self.cortex_service = cortex_service
 
     async def resolve_conflict(self, conflict: DataConflict) -> dict[str, Any]:
@@ -324,8 +324,8 @@ class CrossPlatformSyncOrchestrator:
     - AI-enhanced data processing
     """
 
-    def __init__(self, cortex_service: EnhancedModernStackCortexService | None = None):
-        self.cortex_service = cortex_service or EnhancedModernStackCortexService()
+    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryService | None = None):
+        self.cortex_service = cortex_service or EnhancedQdrantUnifiedMemoryService()
         self.sync_configs = self._load_sync_configurations()
         self.conflict_resolver = DataConflictResolver(self.cortex_service)
 
@@ -440,7 +440,7 @@ class CrossPlatformSyncOrchestrator:
                 batch_size=1000,
             ),
             SyncConfiguration(
-                platform="modern_stack_admin",
+                platform="qdrant_admin",
                 data_type="query_history",
                 priority=ServerSyncPriority.LOW,
                 sync_interval_minutes=720,  # 12 hours
@@ -721,11 +721,11 @@ class CrossPlatformSyncOrchestrator:
 
         try:
             # Example: Detect duplicate contacts across platforms
-            # This would be implemented with actual ModernStack queries
+            # This would be implemented with actual Qdrant queries
             logger.info("🔍 Detecting cross-platform conflicts")
 
             # Placeholder for actual conflict detection
-            # In real implementation, this would query ModernStack for duplicates
+            # In real implementation, this would query Qdrant for duplicates
 
             return conflicts
 

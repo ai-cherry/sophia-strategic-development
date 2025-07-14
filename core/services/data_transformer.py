@@ -17,10 +17,10 @@ class DataTransformer:
     """Transform and validate data from various sources"""
 
     @staticmethod
-    def transform_modern_stack_results(results: list[dict]) -> pd.DataFrame:
-        """Transform ModernStack results to standardized format"""
+    def transform_qdrant_results(results: list[dict]) -> pd.DataFrame:
+        """Transform Qdrant results to standardized format"""
         if not results:
-            raise EmptyResultError("Received empty results from ModernStack")
+            raise EmptyResultError("Received empty results from Qdrant")
 
         df = pd.DataFrame(results)
 
@@ -42,7 +42,7 @@ class DataTransformer:
         if "stage" in df.columns:
             df["stage"] = df["stage"].fillna("Unknown")
 
-        logger.info(f"Transformed ModernStack results. Shape: {df.shape}")
+        logger.info(f"Transformed Qdrant results. Shape: {df.shape}")
         return df
 
     @staticmethod

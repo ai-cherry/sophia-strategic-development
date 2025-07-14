@@ -12,7 +12,7 @@ from typing import Any
 
 from backend.services.lambda_labs_service import LambdaLabsService
 from infrastructure.services.llm_router import TaskComplexity, TaskType
-from infrastructure.services.modern_stack_pat_service import ModernStackPATService
+from infrastructure.services.qdrant_pat_service import QdrantPATService
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class AIProvider(Enum):
     """AI provider options"""
 
-    # REMOVED: ModernStack dependency "modern_stack_cortex"
+    
     LAMBDA_LABS = "lambda_labs"
     AUTO = "auto"
 
@@ -62,9 +62,9 @@ class IntelligentRouter:
     def __init__(self):
         self.routing_rules = {
             # Use case routing
-            "embedding": AIProvider.modern_stack_CORTEX,
-            "sql": AIProvider.modern_stack_CORTEX,
-            "data_analysis": AIProvider.modern_stack_CORTEX,
+            "embedding": AIProvider.qdrant_CORTEX,
+            "sql": AIProvider.qdrant_CORTEX,
+            "data_analysis": AIProvider.qdrant_CORTEX,
             "code_generation": AIProvider.LAMBDA_LABS,
             "creative": AIProvider.LAMBDA_LABS,
             "reasoning": AIProvider.LAMBDA_LABS,
@@ -90,7 +90,7 @@ class IntelligentRouter:
         # Analyze request characteristics
         prompt_tokens = len(request.prompt.split())
 
-        # Data-local operations prefer ModernStack
+        # Data-local operations prefer Qdrant
         data_keywords = [
             "sql",
             "query",
@@ -101,7 +101,7 @@ class IntelligentRouter:
             "warehouse",
         ]
         if any(kw in request.prompt.lower() for kw in data_keywords):
-            return AIProvider.modern_stack_CORTEX
+            return AIProvider.qdrant_CORTEX
 
         # Complex reasoning prefers Lambda Labs
         if request.complexity == TaskComplexity.COMPLEX:
@@ -109,9 +109,9 @@ class IntelligentRouter:
 
         # Cost optimization
         if request.cost_priority == "cost":
-            # Small requests to ModernStack, large to Lambda
+            # Small requests to Qdrant, large to Lambda
             if prompt_tokens < self.cost_thresholds["medium"]:
-                return AIProvider.modern_stack_CORTEX
+                return AIProvider.qdrant_CORTEX
             else:
                 return AIProvider.LAMBDA_LABS
 
@@ -123,7 +123,7 @@ class IntelligentRouter:
         if prompt_tokens < self.cost_thresholds["simple"]:
             return AIProvider.LAMBDA_LABS  # Fast for simple
         elif prompt_tokens > self.cost_thresholds["complex"]:
-            return AIProvider.modern_stack_CORTEX  # Better for large context
+            return AIProvider.qdrant_CORTEX  # Better for large context
         else:
             return AIProvider.LAMBDA_LABS  # Default
 
@@ -136,13 +136,13 @@ class UnifiedAIOrchestrator:
 
     def __init__(self):
         self.lambda_service = LambdaLabsService()
-        self.memory_service_v3 = ModernStackPATService()
+        self.memory_service_v3 = QdrantPATService()
         self.router = IntelligentRouter()
 
         # Performance tracking
         self.request_history = []
         self.provider_metrics = {
-            AIProvider.modern_stack_CORTEX: {
+            AIProvider.qdrant_CORTEX: {
                 "requests": 0,
                 "total_duration": 0,
                 "total_cost": 0,
@@ -169,7 +169,7 @@ class UnifiedAIOrchestrator:
             if provider == AIProvider.LAMBDA_LABS:
                 response = await self._process_lambda(request)
             else:
-                response = await self._process_modern_stack(request)
+                response = await self._process_qdrant(request)
 
             # Update metrics
             self._update_metrics(provider, response, success=True)
@@ -247,7 +247,7 @@ class UnifiedAIOrchestrator:
             metadata={"backend": "serverless", "cost_priority": request.cost_priority},
         )
 
-    async def _process_modern_stack(self, request: AIRequest) -> AIResponse:
+    async def _process_qdrant(self, request: AIRequest) -> AIResponse:
         """Process request using Lambda GPU"""
 
         start_time = time.time()
@@ -286,11 +286,11 @@ class UnifiedAIOrchestrator:
             "total_tokens": len(request.prompt.split()) + len(response_text.split()),
         }
 
-        cost_estimate = self._calculate_modern_stack_cost(usage)
+        cost_estimate = self._calculate_qdrant_cost(usage)
 
         return AIResponse(
             response=response_text,
-            provider=AIProvider.modern_stack_CORTEX.value,
+            provider=AIProvider.qdrant_CORTEX.value,
             model=request.model or "mistral-large",
             duration=duration,
             cost_estimate=cost_estimate,
@@ -314,7 +314,7 @@ class UnifiedAIOrchestrator:
 
         return (total_tokens / 1_000_000) * cost_per_million
 
-    def _calculate_modern_stack_cost(self, usage: dict[str, Any]) -> float:
+    def _calculate_qdrant_cost(self, usage: dict[str, Any]) -> float:
         """Calculate Lambda GPU cost"""
 
         # Lambda GPU pricing (approximate)
@@ -404,15 +404,15 @@ Provide specific, actionable recommendations in JSON format with:
                 "error": str(e),
             }
 
-        # Check ModernStack
+        # Check Qdrant
         try:
-            # REMOVED: ModernStack dependency await self.memory_service_v3.test_connection()
-            health_status["providers"]["# REMOVED: ModernStack dependency {
-                "status": "healthy" if modern_stack_health["connected"] else "unhealthy",
-                "details": modern_stack_health,
+            
+            health_status["providers"]["
+                "status": "healthy" if qdrant_health["connected"] else "unhealthy",
+                "details": qdrant_health,
             }
         except Exception as e:
-            health_status["providers"]["# REMOVED: ModernStack dependency {
+            health_status["providers"]["
                 "status": "unhealthy",
                 "error": str(e),
             }

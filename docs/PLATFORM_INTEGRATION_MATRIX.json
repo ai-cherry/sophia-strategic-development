@@ -7,26 +7,32 @@
     "langchain_integrated": 14
   },
   "by_category": {
-    "data_stack": ["modern_stack", "estuary", "gong", "slack", "hubspot"],
-    "dev_stack": ["vercel", "lambda_labs", "figma"],
-    "ai_stack": ["portkey", "openrouter"],
-    "ops_stack": ["linear", "asana"],
-    "additional": ["usergems", "apollo"]
+    "data_stack": [
+      "ELIMINATED",
+      "estuary",
+      "gong",
+      "slack",
+      "hubspot"
+    ],
+    "dev_stack": [
+      "vercel",
+      "lambda_labs",
+      "figma"
+    ],
+    "ai_stack": [
+      "portkey",
+      "openrouter"
+    ],
+    "ops_stack": [
+      "linear",
+      "asana"
+    ],
+    "additional": [
+      "usergems",
+      "apollo"
+    ]
   },
   "integration_matrix": {
-    "modern_stack": {
-      "primary": "CLI + Python SDK",
-      "secondary": "API",
-      "webhooks": "None (inbound only)",
-      "langchain_integration": "Full MCP Server",
-      "optimal_mix": {
-        "configuration": "CLI wrapper with SQL execution",
-        "monitoring": "Python SDK + custom queries",
-        "automation": "LangChain MCP agent",
-        "real_time": "Not applicable"
-      },
-      "justification": "ModernStack's strength is in SQL and bulk operations. CLI provides infrastructure control, Python SDK enables programmatic access, LangChain MCP provides intelligent query generation."
-    },
     "estuary": {
       "primary": "API + SDK",
       "secondary": "CLI wrapper",
@@ -202,19 +208,34 @@
       "category": "Webhook Strategy",
       "recommendation": "Implement centralized webhook router to handle all platform events",
       "priority": "High",
-      "platforms": ["gong", "slack", "hubspot", "linear", "asana", "figma"]
+      "platforms": [
+        "gong",
+        "slack",
+        "hubspot",
+        "linear",
+        "asana",
+        "figma"
+      ]
     },
     {
       "category": "API Management",
       "recommendation": "Use API rate limiting and caching for platforms with limited quotas",
       "priority": "High",
-      "platforms": ["apollo", "usergems", "gong"]
+      "platforms": [
+        "apollo",
+        "usergems",
+        "gong"
+      ]
     },
     {
       "category": "LangChain Integration",
       "recommendation": "Prioritize LangChain MCP servers for platforms with complex configuration",
       "priority": "Medium",
-      "platforms": ["modern_stack", "estuary", "portkey"]
+      "platforms": [
+        "ELIMINATED",
+        "estuary",
+        "portkey"
+      ]
     },
     {
       "category": "Real-time Monitoring",
@@ -226,7 +247,12 @@
       "category": "Cost Optimization",
       "recommendation": "Use LangChain agents to optimize resource allocation across platforms",
       "priority": "Medium",
-      "platforms": ["lambda_labs", "vercel", "portkey", "openrouter"]
+      "platforms": [
+        "lambda_labs",
+        "vercel",
+        "portkey",
+        "openrouter"
+      ]
     }
   ]
 }

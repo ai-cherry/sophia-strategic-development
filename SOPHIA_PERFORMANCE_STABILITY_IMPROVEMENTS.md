@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS idx_confidence ON <schema>.<table>(confidence_score);
 ### B. Automated Data Lifecycle Management
 **Implementation:**
 ```python
-# backend/services/modern_stack_lifecycle_service.py
+# backend/services/ELIMINATED_lifecycle_service.py
 class Modern StackLifecycleService:
     async def setup_lifecycle_policies(self):
         """Configure automated data retention and archival"""
@@ -249,7 +249,7 @@ class HealthMonitor:
     async def run_health_checks(self):
         """Run comprehensive system health checks"""
         checks = {
-            "modern_stack_connectivity": self.check_modern_stack_health,
+            "ELIMINATED_connectivity": self.check_ELIMINATED_health,
             "llm_gateway_status": self.check_llm_gateway,
             "cache_performance": self.check_cache_metrics,
             "memory_usage": self.check_memory_usage,

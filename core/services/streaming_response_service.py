@@ -81,7 +81,7 @@ class StreamingResponseService:
                         chunk_id=f"{stream_id}_partial_data",
                         chunk_type="partial_result",
                         content={
-                            "data_sources": ["PostgreSQL", "ModernStack", "Redis"],
+                            "data_sources": ["PostgreSQL", "Qdrant", "Redis"],
                             "records_found": 1250,
                             "preliminary_insights": "Initial data patterns identified",
                         },
@@ -183,7 +183,7 @@ class StreamingResponseService:
                 },
             ],
             "data_sources": [
-                "ModernStack Analytics",
+                "Qdrant Analytics",
                 "PostgreSQL Operations",
                 "Redis Cache",
                 "External APIs",

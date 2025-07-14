@@ -32,13 +32,13 @@ values:
       allowed_methods: ["GET", "POST", "PUT", "DELETE"]
       allowed_headers: ["Authorization", "Content-Type"]
 
-  # Enhanced ModernStack configuration (aligned with existing GONG_ANALYTICS)
-  modern_stack:
+  # Enhanced ELIMINATED configuration (aligned with existing GONG_ANALYTICS)
+  ELIMINATED:
     account:
-      fn::secret: "${modern_stack_ACCOUNT}"
+      fn::secret: "${ELIMINATED_ACCOUNT}"
     user: "SCOOBYJAVA15"
     password:
-      fn::secret: "${modern_stack_PASSWORD}"
+      fn::secret: "${ELIMINATED_PASSWORD}"
     database: "GONG_ANALYTICS"
     warehouse: "SOPHIA_AI_WH"
     schema: "RAW"
@@ -46,11 +46,11 @@ values:
     # OAuth configuration for enhanced security
     oauth:
       client_id:
-        fn::secret: "${modern_stack_OAUTH_CLIENT_ID}"
+        fn::secret: "${ELIMINATED_OAUTH_CLIENT_ID}"
       client_secret:
-        fn::secret: "${modern_stack_OAUTH_CLIENT_SECRET}"
+        fn::secret: "${ELIMINATED_OAUTH_CLIENT_SECRET}"
       refresh_token:
-        fn::secret: "${modern_stack_OAUTH_REFRESH_TOKEN}"
+        fn::secret: "${ELIMINATED_OAUTH_REFRESH_TOKEN}"
       scope: "session:role-any"
     # Connection pool settings
     connection_pool:
@@ -225,11 +225,11 @@ values:
     postgres:
       connection_string:
         fn::secret: "${MCP_POSTGRES_CONNECTION_STRING}"
-    modern_stack:
-      # Uses same config as main modern_stack section
-      account: "${modern_stack.account}"
-      user: "${modern_stack.user}"
-      password: "${modern_stack.password}"
+    ELIMINATED:
+      # Uses same config as main ELIMINATED section
+      account: "${ELIMINATED.account}"
+      user: "${ELIMINATED.user}"
+      password: "${ELIMINATED.password}"
 
   # Enhanced security configuration
   security:
@@ -267,7 +267,7 @@ values:
       enabled: true
       log_level: "INFO"
       retention_days: 365
-      storage_backend: "modern_stack"
+      storage_backend: "ELIMINATED"
 
   # Enhanced Kubernetes integration
   kubernetes:
@@ -323,10 +323,10 @@ environmentVariables:
   WEBHOOK_JWT_PRIVATE_KEY: ${webhook.jwt_private_key}
   WEBHOOK_JWT_PUBLIC_KEY: ${webhook.jwt_public_key}
 
-  # Enhanced ModernStack OAuth
-  modern_stack_OAUTH_CLIENT_ID: ${modern_stack.oauth.client_id}
-  modern_stack_OAUTH_CLIENT_SECRET: ${modern_stack.oauth.client_secret}
-  modern_stack_OAUTH_REFRESH_TOKEN: ${modern_stack.oauth.refresh_token}
+  # Enhanced ELIMINATED OAuth
+  ELIMINATED_OAUTH_CLIENT_ID: ${ELIMINATED.oauth.client_id}
+  ELIMINATED_OAUTH_CLIENT_SECRET: ${ELIMINATED.oauth.client_secret}
+  ELIMINATED_OAUTH_REFRESH_TOKEN: ${ELIMINATED.oauth.refresh_token}
 
   # Redis cluster authentication
   REDIS_CLUSTER_PASSWORD: ${redis.cluster.password}

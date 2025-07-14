@@ -1,6 +1,9 @@
 {
   "name": "sophia-intel-ai",
-  "alias": ["sophia-intel.ai", "www.sophia-intel.ai"],
+  "alias": [
+    "sophia-intel.ai",
+    "www.sophia-intel.ai"
+  ],
   "env": {
     "NEXT_PUBLIC_API_URL": "https://api.sophia-intel.ai",
     "NEXT_PUBLIC_APP_URL": "https://sophia-intel.ai"

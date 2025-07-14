@@ -237,7 +237,7 @@ class EnhancedLangGraphOrchestrator:
         self.checkpointer: SqliteSaver | None = None
         self.audit_logger = AuditLogger()
         self.cache_manager = EnhancedCacheManager()
-        self.cortex_service: ModernStackCortexService | None = None
+        self.cortex_service: QdrantUnifiedMemoryService | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
 
         # Workflow registry
@@ -410,7 +410,7 @@ class EnhancedLangGraphOrchestrator:
                 Return as JSON with clear structure.
                 """
 
-                analysis_result = await # REMOVED: ModernStack dependency_text_with_cortex(
+                analysis_result = await 
                     prompt=analysis_prompt, max_tokens=500
                 )
 
@@ -592,7 +592,7 @@ class EnhancedLangGraphOrchestrator:
                 """
 
                 checkpoint_config.natural_language_prompt = (
-                    await # REMOVED: ModernStack dependency_text_with_cortex(
+                    await 
                         prompt=prompt_generation, max_tokens=300
                     )
                 )
@@ -791,7 +791,7 @@ class EnhancedLangGraphOrchestrator:
 
         # Process user input using Cortex
         async with self.cortex_service as cortex:
-            input_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
+            input_analysis = await 
                 prompt=f"""
                 Analyze this user input in the context of the current workflow:
 

@@ -124,7 +124,7 @@ Sophia AI is an advanced business intelligence platform with AI-powered regulato
 
 ## Architecture
 
-- **Backend**: Python FastAPI with modern_stack Cortex AI integration
+- **Backend**: Python FastAPI with qdrant Cortex AI integration
 - **Frontend**: React with TypeScript and Tailwind CSS
 - **MCP Servers**: 4-tier architecture (AI Intelligence, Data Intelligence, Infrastructure, Business Intelligence)
 - **Deployment**: Vercel frontend, containerized backend services
@@ -141,7 +141,7 @@ Sophia AI is an advanced business intelligence platform with AI-powered regulato
 ### Specialized Agents
 - **Regulatory Compliance Agent** - AI-powered regulatory monitoring
 - **UI/UX Agent** - Design-to-code automation with Figma integration
-- **modern_stack Admin Agent** - Database administration and analytics
+- **Qdrant Admin Agent** - Database administration and analytics
 
 ## Development Guidelines
 
@@ -186,7 +186,7 @@ npm run deploy:production
 
 ### Business Intelligence Queries
 - Dashboard metrics available via `sophia-business-intelligence` server
-- modern_stack queries via `sophia-data-intelligence` server
+- Qdrant queries via `sophia-data-intelligence` server
 - Regulatory compliance status via `sophia-regulatory-compliance` server
 
 ## File Structure
@@ -214,7 +214,7 @@ sophia-main/
 ### Performance Optimization
 - Use semantic caching for AI model responses
 - Implement connection pooling for database operations
-- Leverage modern_stack Cortex for heavy analytics workloads
+- Leverage qdrant Cortex for heavy analytics workloads
 - Monitor performance metrics via Prometheus/Grafana
 
 ### Security Best Practices
@@ -234,7 +234,7 @@ sophia-main/
 ### Common Issues
 - MCP server connection failures: Check port availability and environment variables
 - Frontend build errors: Verify Node.js version and dependency compatibility
-- Database connection issues: Validate modern_stack credentials and network connectivity
+- Database connection issues: Validate Qdrant credentials and network connectivity
 - Performance degradation: Monitor Grafana dashboards for bottlenecks
 
 ### Support Resources
@@ -262,13 +262,13 @@ FIGMA_PERSONAL_ACCESS_TOKEN=your_figma_token_here
 OPENAI_API_KEY=your_openai_key_here
 OPENROUTER_API_KEY=your_openrouter_key_here
 
-# modern_stack Configuration
-modern_stack_ACCOUNT=your_account_here
-modern_stack_USER=your_user_here
-modern_stack_PASSWORD=your_password_here
-modern_stack_WAREHOUSE=your_warehouse_here
-modern_stack_DATABASE=your_database_here
-modern_stack_SCHEMA=your_schema_here
+# Qdrant Configuration
+QDRANT_URLyour_account_here
+QDRANT_API_KEYyour_user_here
+QDRANT_SECRETyour_password_here
+QDRANT_COLLECTIONyour_warehouse_here
+QDRANT_DByour_database_here
+QDRANT_SCHEMAyour_schema_here
 
 # MCP Server Configuration
 MCP_SERVER_HOST=localhost

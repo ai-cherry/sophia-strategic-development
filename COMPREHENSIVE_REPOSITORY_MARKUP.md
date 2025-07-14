@@ -280,7 +280,7 @@ The backend is organized into specialized services following clean architecture 
 │
 ├── 💾 Data & Memory
 │   ├── unified_memory_service_v2.py        # GPU-accelerated memory
-│   ├── modern_stack_cortex_service.py         # Data processing
+│   ├── ELIMINATED_cortex_service.py         # Data processing
 │   ├── temporal_qa_learning_service.py     # Learning system
 │   └── business_logic_validator.py         # Data validation
 │
@@ -464,10 +464,10 @@ The backend is organized into specialized services following clean architecture 
 ├── 📁 services/                    # Service definitions
 │   ├── 📄 sophia_ai_orchestrator.py # Main orchestrator
 │   ├── 📄 unified_intelligence_service.py # Intelligence layer
-│   ├── 📄 enhanced_modern_stack_cortex_service.py # Data processing
+│   ├── 📄 enhanced_ELIMINATED_cortex_service.py # Data processing
 │   └── [45 additional services]
 │
-├── 📁 modern_stack_setup/             # Modern Stack configuration
+├── 📁 ELIMINATED_setup/             # Modern Stack configuration
 │   ├── 📄 schema_setup.sql         # Database schema
 │   ├── 📄 cortex_procedures.sql    # AI procedures
 │   ├── 📄 security_setup.sql       # Security configuration

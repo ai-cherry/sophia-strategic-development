@@ -66,12 +66,12 @@ backend/core/
 ├── config/
 │   ├── base.py          # Interfaces
 │   ├── manager.py       # Implementation
-│   ├── modern_stack.py     # Modern Stack-specific
+│   ├── ELIMINATED.py     # Modern Stack-specific
 │   └── integrations.py  # External services
 └── connections/
     ├── base.py          # Interfaces
     ├── pool.py          # Connection pooling
-    ├── modern_stack.py     # Modern Stack connections
+    ├── ELIMINATED.py     # Modern Stack connections
     └── external.py      # External services
 ```
 

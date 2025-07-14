@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Modern Stack Connection Test
-Tests all modern stack components after Snowflake elimination
+Tests all modern stack components after ELIMINATED elimination
 """
 
 import asyncio
@@ -22,7 +22,7 @@ except ImportError as e:
     print(f"❌ Import error: {e}")
     sys.exit(1)
 
-class ModernStackTester:
+class QdrantTester:
     def __init__(self):
         self.test_results = {
             "numpy": {"status": "pending", "details": ""},
@@ -195,14 +195,14 @@ class ModernStackTester:
 
 async def main():
     """Main test execution"""
-    tester = ModernStackTester()
+    tester = QdrantTester()
     report = await tester.run_all_tests()
     
     # Save report
-    with open("modern_stack_test_report.json", "w") as f:
+    with open("qdrant_test_report.json", "w") as f:
         json.dump(report, f, indent=2)
     
-    print(f"\n📄 Report saved to: modern_stack_test_report.json")
+    print(f"\n📄 Report saved to: qdrant_test_report.json")
     
     # Print detailed results
     print("\n📊 DETAILED RESULTS:")

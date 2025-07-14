@@ -36,7 +36,7 @@ def _prom_metrics(func):  # placeholder – connect to real Prom client later
         duration = (datetime.utcnow() - start).total_seconds()
         logger.debug("CortexGateway.%s executed in %.3fs", func.__name__, duration)
 
-        # Log usage to ModernStack table (fire-and-forget)
+        # Log usage to Qdrant collection (fire-and-forget)
         try:
             await self._log_usage(func.__name__, duration)
         except Exception as log_exc:  # pragma: no cover
@@ -64,7 +64,7 @@ def _credit_limit(max_credits_day: int = 100, max_tokens: int = 10_000):
 
 
 class CortexGateway:
-    """Async singleton that routes every ModernStack call through one pooled connection."""
+    """Async singleton that routes every Qdrant call through one pooled connection."""
 
     _instance: CortexGateway | None = None
     _lock = asyncio.Lock()
@@ -98,13 +98,13 @@ class CortexGateway:
     @_prom_metrics
     @_credit_limit()
     async def complete(self, prompt: str, model: str = "mixtral-8x7b") -> str:
-        sql = "SELECT self.modern_stack.await self.lambda_gpu.complete(%s, %s) AS COMPLETION"
+        sql = "SELECT self.qdrant_service.await self.lambda_gpu.complete(%s, %s) AS COMPLETION"
         rows = await self._execute(sql, (model, prompt))
         return rows[0]["COMPLETION"] if rows else ""
 
     @_prom_metrics
     async def sentiment(self, text: str) -> str:
-        sql = "SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(%s) AS SENTIMENT"
+        sql = "SELECT self.qdrant_service.await self.lambda_gpu.analyze_sentiment(%s) AS SENTIMENT"
         rows = await self._execute(sql, (text,))
         return rows[0]["SENTIMENT"] if rows else ""
 

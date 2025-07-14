@@ -55,14 +55,20 @@
           "task_type": "general"
         },
         {
-          "complexity": ["simple", "medium"]
+          "complexity": [
+            "simple",
+            "medium"
+          ]
         }
       ]
     }
   ],
   "fallback": {
     "strategy": "sequential",
-    "targets": ["gemini-2.5-pro", "gemini-2.5-flash"]
+    "targets": [
+      "gemini-2.5-pro",
+      "gemini-2.5-flash"
+    ]
   },
   "cost_management": {
     "daily_budget": 100.0,

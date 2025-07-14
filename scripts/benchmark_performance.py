@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Sophia AI Performance Benchmark - July 2025
-Tests GPU memory stack performance vs old ModernStack approach
+Tests GPU memory stack performance vs old Qdrant approach
 """
 
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
@@ -160,26 +160,26 @@ async def main():
     print(f"\n{Colors.BOLD}📊 Performance Summary{Colors.ENDC}")
     print("=" * 60)
 
-    # Compare with ModernStack baseline (historical data)
-    # REMOVED: ModernStack dependency {
+    # Compare with Qdrant baseline (historical data)
+    
         "Simple Query": 450,  # ms
         "Complex RAG Query": 1200,  # ms
         "Memory Search": 300,  # ms
         "System Status": 50,  # ms
     }
 
-    print(f"\n{Colors.BLUE}GPU Memory Stack vs ModernStack Comparison:{Colors.ENDC}")
-    print(f"{'Test Case':<25} {'GPU Stack':<15} {'ModernStack':<15} {'Improvement':<15}")
+    print(f"\n{Colors.BLUE}GPU Memory Stack vs Qdrant Comparison:{Colors.ENDC}")
+    print(f"{'Test Case':<25} {'GPU Stack':<15} {'Qdrant':<15} {'Improvement':<15}")
     print("-" * 70)
 
     total_improvement = 0
     test_count = 0
 
     for test_name, result in results.items():
-        if "mean" in result and test_name in modern_stack_baseline:
+        if "mean" in result and test_name in qdrant_baseline:
             gpu_latency = result["mean"]
-            # REMOVED: ModernStack dependency modern_stack_baseline[test_name]
-            improvement = ((modern_stack_latency - gpu_latency) / modern_stack_latency) * 100
+            
+            improvement = ((qdrant_latency - gpu_latency) / qdrant_latency) * 100
 
             color = (
                 Colors.GREEN
@@ -189,7 +189,7 @@ async def main():
                 else Colors.RED
             )
             print(
-                f"{test_name:<25} {gpu_latency:<15.2f} {modern_stack_latency:<15.2f} {color}{improvement:>14.1f}%{Colors.ENDC}"
+                f"{test_name:<25} {gpu_latency:<15.2f} {qdrant_latency:<15.2f} {color}{improvement:>14.1f}%{Colors.ENDC}"
             )
 
             total_improvement += improvement
@@ -214,7 +214,7 @@ async def main():
 
     if avg_improvement > 70:
         print(
-            f"{Colors.GREEN}✅ GPU Memory Stack is CRUSHING IT! {avg_improvement:.1f}% faster than ModernStack!{Colors.ENDC}"
+            f"{Colors.GREEN}✅ GPU Memory Stack is CRUSHING IT! {avg_improvement:.1f}% faster than Qdrant!{Colors.ENDC}"
         )
         print(
             f"{Colors.GREEN}   Lambda B200's 192GB VRAM + Weaviate 4.6.1 = Pure performance porn{Colors.ENDC}"

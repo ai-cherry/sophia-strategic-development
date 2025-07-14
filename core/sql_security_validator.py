@@ -96,7 +96,7 @@ class SQLSecurityValidator:
         "llama2-70b-chat",
         "mistral-7b",
         "mixtral-8x7b",
-        "modern_stack-arctic-embed-m",
+        "qdrant-arctic-embed-m",
     }
 
     # SQL injection patterns to detect
@@ -291,7 +291,7 @@ class SQLSecurityValidator:
             )
 
         # Length validation
-        if len(identifier) > 128:  # ModernStack identifier limit
+        if len(identifier) > 128:  # Qdrant identifier limit
             raise ValueError(
                 f"{identifier_type} identifier too long: {len(identifier)} > 128"
             )
@@ -336,7 +336,7 @@ class SQLSecurityValidator:
                 # Sanitize string parameters
                 sanitized = cls.sanitize_string(
                     param, max_length=8000
-                )  # ModernStack limit
+                )  # Qdrant limit
                 validated_params.append(sanitized)
             else:
                 # Convert other types to string and sanitize

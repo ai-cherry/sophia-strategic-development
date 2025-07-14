@@ -24,7 +24,7 @@
   - Official MCP servers documentation
 
 ### Changed
-- Modularized `modern_stack_cortex_service.py` into 8 focused modules
+- Modularized `ELIMINATED_cortex_service.py` into 8 focused modules
 - Updated all Dockerfiles from Python 3.11 to 3.12
 - Enhanced `auto_esc_config.py` with PAT token support
 - Migrated MCP registry from hardcoded to YAML configuration

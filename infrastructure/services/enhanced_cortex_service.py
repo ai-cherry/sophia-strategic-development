@@ -81,13 +81,13 @@ class EnhancedCortexService:
         # Determine operation type based on query characteristics
         if any(word in query_lower for word in ["forecast", "predict", "projection"]):
             operation_type = "ml_training"
-            sql_template = "SELECT self.modern_stack.ML.FORECAST(...)"
+            sql_template = "SELECT self.qdrant_service.ML.FORECAST(...)"
         elif any(word in query_lower for word in ["summarize", "summary", "overview"]):
             operation_type = "analysis"
-            sql_template = "SELECT self.modern_stack.await self.lambda_gpu.summarize(...)"
+            sql_template = "SELECT self.qdrant_service.await self.lambda_gpu.summarize(...)"
         elif any(word in query_lower for word in ["sentiment", "feeling", "opinion"]):
             operation_type = "analysis"
-            sql_template = "SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment(...)"
+            sql_template = "SELECT self.qdrant_service.await self.lambda_gpu.analyze_sentiment(...)"
         elif any(word in query_lower for word in ["classify", "categorize", "group"]):
             operation_type = "analysis"
             sql_template = "SELECT await self.lambda_gpu.CLASSIFY(...)"
@@ -117,7 +117,7 @@ class EnhancedCortexService:
 {template}
 -- Additional context and parameters would be included here
 SELECT
-    self.modern_stack.await self.lambda_gpu.complete(
+    self.qdrant_service.await self.lambda_gpu.complete(
         'llama2-70b-chat',
         CONCAT('Based on the following business question: ', '{query}',
                ' Please provide a comprehensive analysis with specific insights and recommendations.')

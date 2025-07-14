@@ -68,7 +68,7 @@ graph TD
 ### Module Structure
 
 ```
-shared/utils/modern_stack_cortex/
+shared/utils/ELIMINATED_cortex/
 ├── __init__.py          # Public API exports
 ├── service.py           # Main Modern StackCortexService class
 ├── core.py             # DirectCortexCore for SQL operations
@@ -125,11 +125,11 @@ Manages MCP server communication:
 
 | Function | SQL Function | Description |
 |----------|--------------|-------------|
-| Embedding | `modern_stack.CORTEX.EMBED_TEXT()` | Generate text embeddings |
-| Completion | `modern_stack.CORTEX.COMPLETE()` | Text generation |
-| Sentiment | `modern_stack.CORTEX.SENTIMENT()` | Sentiment analysis |
-| Summarization | `modern_stack.CORTEX.SUMMARIZE()` | Text summarization |
-| Translation | `modern_stack.CORTEX.TRANSLATE()` | Language translation |
+| Embedding | `ELIMINATED.CORTEX.EMBED_TEXT()` | Generate text embeddings |
+| Completion | `ELIMINATED.CORTEX.COMPLETE()` | Text generation |
+| Sentiment | `ELIMINATED.CORTEX.SENTIMENT()` | Sentiment analysis |
+| Summarization | `ELIMINATED.CORTEX.SUMMARIZE()` | Text summarization |
+| Translation | `ELIMINATED.CORTEX.TRANSLATE()` | Language translation |
 
 ### MCP Mode Exclusive
 
@@ -148,16 +148,16 @@ Manages MCP server communication:
 CORTEX_MODE=auto|direct|mcp
 
 # MCP Configuration
-modern_stack_MCP_PAT=<your-pat-token>
-modern_stack_MCP_URL=http://modern_stack-mcp:9130
+ELIMINATED_MCP_PAT=<your-pat-token>
+ELIMINATED_MCP_URL=http://ELIMINATED-mcp:9130
 
 # Direct Mode (from Pulumi ESC)
-modern_stack_ACCOUNT=<account>
-modern_stack_USER=<username>
-modern_stack_PASSWORD=<password>
-modern_stack_WAREHOUSE=<warehouse>
-modern_stack_DATABASE=<database>
-modern_stack_SCHEMA=<schema>
+ELIMINATED_ACCOUNT=<account>
+ELIMINATED_USER=<username>
+ELIMINATED_PASSWORD=<password>
+ELIMINATED_WAREHOUSE=<warehouse>
+ELIMINATED_DATABASE=<database>
+ELIMINATED_SCHEMA=<schema>
 ```
 
 ### Pulumi ESC Integration
@@ -166,11 +166,11 @@ The service automatically loads credentials from Pulumi ESC:
 
 ```python
 # Direct mode credentials
-modern_stack_user = get_config_value("modern_stack_user")
-modern_stack_password = get_config_value("modern_stack_password")
+ELIMINATED_user = get_config_value("ELIMINATED_user")
+ELIMINATED_password = get_config_value("ELIMINATED_password")
 
 # MCP mode credentials
-modern_stack_pat = get_config_value("modern_stack_mcp_pat")
+ELIMINATED_pat = get_config_value("ELIMINATED_mcp_pat")
 ```
 
 ## Usage Examples
@@ -178,7 +178,7 @@ modern_stack_pat = get_config_value("modern_stack_mcp_pat")
 ### Basic Usage
 
 ```python
-from shared.utils.modern_stack_cortex import Modern StackCortexService
+from shared.utils.ELIMINATED_cortex import Modern StackCortexService
 
 # Auto mode (recommended)
 service = Modern StackCortexService()
@@ -250,16 +250,16 @@ if service.is_initialized:
 
 ```python
 # Old import (still works via compatibility wrapper)
-from shared.utils.modern_stack_cortex_service import Modern StackCortexService
+from shared.utils.ELIMINATED_cortex_service import Modern StackCortexService
 
 # New import (recommended)
-from shared.utils.modern_stack_cortex import Modern StackCortexService
+from shared.utils.ELIMINATED_cortex import Modern StackCortexService
 ```
 
 ### Adding PAT Support
 
 1. Generate PAT in Modern Stack UI or via SQL
-2. Add to GitHub Organization Secrets: `modern_stack_MCP_PAT_PROD`
+2. Add to GitHub Organization Secrets: `ELIMINATED_MCP_PAT_PROD`
 3. Sync to Pulumi ESC via GitHub Actions
 4. Service auto-detects and uses MCP mode
 

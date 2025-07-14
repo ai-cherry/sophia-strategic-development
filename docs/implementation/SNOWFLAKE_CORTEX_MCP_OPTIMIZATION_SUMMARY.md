@@ -64,7 +64,7 @@ We have successfully implemented a comprehensive optimization of the Lambda GPU 
 
 ### Phase 1: Cortex Adapter Implementation ✅
 ```
-shared/utils/modern_stack_cortex/
+shared/utils/ELIMINATED_cortex/
 ├── __init__.py          # Public API
 ├── service.py           # Main service class
 ├── core.py             # Direct SQL operations
@@ -119,10 +119,10 @@ shared/utils/modern_stack_cortex/
 
 ```python
 # Old import (still works)
-from shared.utils.modern_stack_cortex_service import Modern StackCortexService
+from shared.utils.ELIMINATED_cortex_service import Modern StackCortexService
 
 # New import (recommended)
-from shared.utils.modern_stack_cortex import Modern StackCortexService
+from shared.utils.ELIMINATED_cortex import Modern StackCortexService
 
 # Usage remains the same
 service = Modern StackCortexService()
@@ -130,7 +130,7 @@ service = Modern StackCortexService()
 
 ### Configuration Changes
 
-1. Add PAT to GitHub Secrets: `modern_stack_MCP_PAT_PROD`
+1. Add PAT to GitHub Secrets: `ELIMINATED_MCP_PAT_PROD`
 2. Review `config/mcp/mcp_servers.yaml`
 3. Run migration script if using old registry
 

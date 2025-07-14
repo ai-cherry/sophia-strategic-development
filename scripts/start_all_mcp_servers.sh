@@ -84,7 +84,7 @@ check_status() {
 # Main execution
 echo "Starting Tier 1 (Primary) servers..."
 start_server "ai_memory" 9000 1
-start_server "modern_stack_unified" 9001 1
+start_server "qdrant_unified" 9001 1
 start_server "gong" 9002 1
 start_server "hubspot_unified" 9003 1
 start_server "slack" 9004 1

@@ -89,18 +89,18 @@ class QueryOptimizer:
         self.cost_weights = {
             "cache_read": 0.1,
             "redis_read": 0.2,
-            "modern_stack_vector": 1.0,
-            "modern_stack_bm25": 0.8,
-            "modern_stack_cold": 1.5,
+            "qdrant_vector": 1.0,
+            "qdrant_bm25": 0.8,
+            "qdrant_cold": 1.5,
         }
 
         # Latency estimates (ms)
         self.latency_estimates = {
             "cache_read": 1,
             "redis_read": 5,
-            "modern_stack_vector": 150,
-            "modern_stack_bm25": 120,
-            "modern_stack_cold": 300,
+            "qdrant_vector": 150,
+            "qdrant_bm25": 120,
+            "qdrant_cold": 300,
         }
 
         logger.info("QueryOptimizer initialized")
@@ -351,26 +351,26 @@ class QueryOptimizer:
         if strategy == ExecutionStrategy.CACHE_ONLY:
             cost = self.cost_weights["cache_read"]
         elif strategy == ExecutionStrategy.VECTOR_ONLY:
-            cost = self.cost_weights["modern_stack_vector"]
+            cost = self.cost_weights["qdrant_vector"]
         elif strategy == ExecutionStrategy.BM25_ONLY:
-            cost = self.cost_weights["modern_stack_bm25"]
+            cost = self.cost_weights["qdrant_bm25"]
         elif strategy == ExecutionStrategy.HYBRID_PARALLEL:
             # Both searches run in parallel
             cost = max(
-                self.cost_weights["modern_stack_vector"],
-                self.cost_weights["modern_stack_bm25"],
+                self.cost_weights["qdrant_vector"],
+                self.cost_weights["qdrant_bm25"],
             )
         elif strategy == ExecutionStrategy.HYBRID_SEQUENTIAL:
             # Both searches run sequentially
             cost = (
-                self.cost_weights["modern_stack_vector"]
-                + self.cost_weights["modern_stack_bm25"]
+                self.cost_weights["qdrant_vector"]
+                + self.cost_weights["qdrant_bm25"]
             )
         elif strategy == ExecutionStrategy.TIERED:
             # Assume we check 2 tiers on average
             cost = (
                 self.cost_weights["redis_read"]
-                + self.cost_weights["modern_stack_vector"] * 0.5
+                + self.cost_weights["qdrant_vector"] * 0.5
             )
 
         return round(cost, 2)
@@ -393,26 +393,26 @@ class QueryOptimizer:
         if strategy == ExecutionStrategy.CACHE_ONLY:
             latency = self.latency_estimates["cache_read"]
         elif strategy == ExecutionStrategy.VECTOR_ONLY:
-            latency = self.latency_estimates["modern_stack_vector"]
+            latency = self.latency_estimates["qdrant_vector"]
         elif strategy == ExecutionStrategy.BM25_ONLY:
-            latency = self.latency_estimates["modern_stack_bm25"]
+            latency = self.latency_estimates["qdrant_bm25"]
         elif strategy == ExecutionStrategy.HYBRID_PARALLEL:
             # Parallel execution takes the max
             latency = max(
-                self.latency_estimates["modern_stack_vector"],
-                self.latency_estimates["modern_stack_bm25"],
+                self.latency_estimates["qdrant_vector"],
+                self.latency_estimates["qdrant_bm25"],
             )
         elif strategy == ExecutionStrategy.HYBRID_SEQUENTIAL:
             # Sequential adds up
             latency = (
-                self.latency_estimates["modern_stack_vector"]
-                + self.latency_estimates["modern_stack_bm25"]
+                self.latency_estimates["qdrant_vector"]
+                + self.latency_estimates["qdrant_bm25"]
             )
         elif strategy == ExecutionStrategy.TIERED:
             # Assume cache hit 60% of the time
             latency = (
                 self.latency_estimates["redis_read"] * 0.6
-                + self.latency_estimates["modern_stack_vector"] * 0.4
+                + self.latency_estimates["qdrant_vector"] * 0.4
             )
 
         return round(latency, 1)

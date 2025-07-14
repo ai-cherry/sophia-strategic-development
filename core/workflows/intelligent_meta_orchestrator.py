@@ -54,8 +54,11 @@ class AdaptiveWorkflowFactory:
     Creates workflows dynamically based on intent and available agents
     """
 
-    def __init__(self):
-        pass
+    def __init__(...):
+    """TODO: Implement __init__"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"__init__ not yet implemented")
 
     async def create_workflow(
         self,

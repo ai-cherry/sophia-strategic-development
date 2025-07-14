@@ -43,13 +43,13 @@
 - **[Linear Server](mcp-servers/linear/simple_linear_server.py)** - ✅ RUNNING
 - **[GitHub Server](mcp-servers/github/simple_github_server.py)** - ✅ RUNNING
 - **[Lambda Labs CLI](mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py)** - ✅ HEALTHY
-- **[Modern Stack Enhanced](mcp-servers/modern_stack_cli_enhanced/modern_stack_cli_enhanced_mcp_server.py)** - ✅ HEALTHY
+- **[Modern Stack Enhanced](mcp-servers/ELIMINATED_cli_enhanced/ELIMINATED_cli_enhanced_mcp_server.py)** - ✅ HEALTHY
 
 ### **🆕 External Repository Collection (Strategic AI Enhancement)**
 - **[External Repository Overview](external/README.md)** - ✅ COMPREHENSIVE GUIDE
 - **[Microsoft Playwright](external/microsoft_playwright/)** - 🎭 Browser automation (13.4k stars)
 - **[GLips Figma Context](external/glips_figma_context/)** - 🎨 Design-to-code workflows (8.7k stars)
-- **[Lambda GPU Official](external/modern_stack_cortex_official/)** - ❄️ Official Modern Stack AI integration
+- **[Lambda GPU Official](external/ELIMINATED_cortex_official/)** - ❄️ Official Modern Stack AI integration
 - **[Portkey Admin](external/portkey_admin/)** - 🚪 AI gateway optimization
 - **[OpenRouter Search](external/openrouter_search/)** - 🔍 200+ AI model access
 - **[Anthropic MCP Servers](external/anthropic-mcp-servers/)** - 🤖 Official MCP implementations
@@ -121,7 +121,7 @@
 - **[Unified Chat Service](backend/services/sophia_universal_chat_service.py)** - ✅ READY
 
 ### **Data Integration**
-- **[Modern Stack Integration Analysis](sophia-ai-modern_stack-ecosystem-integration-analysis.md)** - Data warehouse setup
+- **[Modern Stack Integration Analysis](sophia-ai-ELIMINATED-ecosystem-integration-analysis.md)** - Data warehouse setup
 - **[Estuary Integration](estuary-config/)** - ✅ CONFIGURED
 - **[Advanced Data Processing Strategy](ADVANCED_DATA_PROCESSING_STRATEGY.md)** - ✅ COMPREHENSIVE
 

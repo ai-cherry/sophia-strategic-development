@@ -39,7 +39,7 @@ class LangGraphAgentFactory:
                 "description": "Automated revenue forecasting with multi-source data analysis",
                 "workflow": {
                     "nodes": [
-                        {"id": "data_collection", "type": "parallel", "servers": ["hubspot", "gong", "modern_stack"]},
+                        {"id": "data_collection", "type": "parallel", "servers": ["hubspot", "gong", "qdrant"]},
                         {"id": "forecast_generation", "type": "ai_processing", "model": "claude-4"},
                         {"id": "report_generation", "type": "mcp_tool", "server": "slack"}
                     ]

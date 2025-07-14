@@ -25,7 +25,7 @@ from backend.core.startup import startup_sequence
 # Run startup sequence
 startup_config = startup_sequence(
     "Sophia AI Unified Chat Backend",
-    required_vars=["modern_stack_USER", "modern_stack_ACCOUNT", "modern_stack_PASSWORD"],
+    required_vars=["qdrant_USER", "qdrant_ACCOUNT", "qdrant_PASSWORD"],
 )
 
 import logging

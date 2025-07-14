@@ -57,15 +57,15 @@
 **Description**: Linear API key for project management
 **Required**: 🟡 Important
 
-### `modern_stack_ACCOUNT`
+### `ELIMINATED_ACCOUNT`
 **Description**: Modern Stack account identifier
 **Required**: 🟡 Important
 
-### `modern_stack_USER`
+### `ELIMINATED_USER`
 **Description**: Modern Stack username
 **Required**: 🟡 Important
 
-### `modern_stack_PASSWORD`
+### `ELIMINATED_PASSWORD`
 **Description**: Modern Stack password or PAT
 **Required**: 🟡 Important
 

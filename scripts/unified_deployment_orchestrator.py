@@ -2,7 +2,7 @@
 """
 Unified Deployment Orchestrator for Sophia AI
 Single deployment entry point for all environments
-Post-Snowflake elimination integrated architecture
+Post-ELIMINATED elimination integrated architecture
 """
 
 import asyncio

@@ -140,29 +140,6 @@
       ],
       "health_endpoint": "/health"
     },
-    "modern_stack_admin": {
-      "command": "python3",
-      "args": [
-        "backend/mcp_servers/modern_stack_admin_mcp_server.py"
-      ],
-      "env": {
-        "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org",
-        "PORT": "9020",
-        "LAMBDA_LABS_HOST": "192.222.58.232"
-      },
-      "port": 9020,
-      "health_endpoint": "/health",
-      "capabilities": [
-        "schema_sync",
-        "query_execution",
-        "legacy_support"
-      ],
-      "performance": {
-        "max_concurrent_requests": 5,
-        "request_timeout_seconds": 60
-      }
-    },
     "codacy": {
       "command": "python3",
       "args": [
@@ -363,29 +340,6 @@
         "log_level": "INFO"
       }
     },
-    "modern_stack_cortex": {
-      "command": "python3",
-      "args": [
-        "mcp-servers/modern_stack_cortex/production_modern_stack_cortex_mcp_server.py"
-      ],
-      "env": {
-        "ENVIRONMENT": "prod",
-        "PORT": "9201",
-        "LAMBDA_LABS_HOST": "192.222.58.232"
-      },
-      "port": 9201,
-      "cwd": ".",
-      "capabilities": [
-        "cortex_ai",
-        "legacy_embeddings",
-        "migration_support"
-      ],
-      "health_endpoint": "/health",
-      "performance": {
-        "max_concurrent_requests": 5,
-        "request_timeout_seconds": 60
-      }
-    },
     "figma": {
       "command": "python3",
       "args": [
@@ -462,8 +416,8 @@
       "lambda_labs_cli",
       "figma",
       "openrouter_search",
-      "modern_stack_admin",
-      "modern_stack_cortex"
+      "ELIMINATED",
+      "ELIMINATED"
     ],
     "health_check_timeout": 30,
     "retry_attempts": 3,
@@ -474,16 +428,43 @@
     ]
   },
   "capabilities_map": {
-    "data_analysis": ["ai_memory", "postgres", "gong"],
-    "memory_operations": ["ai_memory"],
-    "embeddings": ["ai_memory"],
-    "crm": ["gong", "hubspot_unified"],
-    "project_management": ["linear", "asana", "notion"],
-    "code_analysis": ["codacy", "github"],
-    "communication": ["slack"],
-    "infrastructure": ["lambda_labs_cli"],
-    "ai_routing": ["portkey_admin"],
-    "design": ["figma", "ui_ux_agent"]
+    "data_analysis": [
+      "ai_memory",
+      "postgres",
+      "gong"
+    ],
+    "memory_operations": [
+      "ai_memory"
+    ],
+    "embeddings": [
+      "ai_memory"
+    ],
+    "crm": [
+      "gong",
+      "hubspot_unified"
+    ],
+    "project_management": [
+      "linear",
+      "asana",
+      "notion"
+    ],
+    "code_analysis": [
+      "codacy",
+      "github"
+    ],
+    "communication": [
+      "slack"
+    ],
+    "infrastructure": [
+      "lambda_labs_cli"
+    ],
+    "ai_routing": [
+      "portkey_admin"
+    ],
+    "design": [
+      "figma",
+      "ui_ux_agent"
+    ]
   },
   "monitoring": {
     "prometheus_endpoint": "http://192.222.58.232:9090",
@@ -497,9 +478,14 @@
   },
   "migration": {
     "status": "completed",
-    "from": "modern_stack_unified",
+    "from": "ELIMINATED",
     "to": "gpu_accelerated_stack",
-    "deprecated_servers": ["modern_stack_unified"],
-    "legacy_support": ["modern_stack_admin", "modern_stack_cortex"]
+    "deprecated_servers": [
+      "ELIMINATED"
+    ],
+    "legacy_support": [
+      "ELIMINATED",
+      "ELIMINATED"
+    ]
   }
 }

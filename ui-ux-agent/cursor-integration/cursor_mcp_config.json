@@ -2,7 +2,9 @@
   "mcpServers": {
     "sophia-figma-dev-mode": {
       "command": "python",
-      "args": ["../mcp-servers/figma-dev-mode/figma_mcp_server.py"],
+      "args": [
+        "../mcp-servers/figma-dev-mode/figma_mcp_server.py"
+      ],
       "env": {
         "FIGMA_PERSONAL_ACCESS_TOKEN": ""
       },
@@ -17,7 +19,9 @@
     },
     "sophia-ui-ux-agent": {
       "command": "python",
-      "args": ["../mcp-servers/langchain-agents/ui_ux_agent.py"],
+      "args": [
+        "../mcp-servers/langchain-agents/ui_ux_agent.py"
+      ],
       "env": {
         "OPENAI_API_KEY": "",
         "OPENROUTER_API_KEY": ""
@@ -31,7 +35,9 @@
       ],
       "port": 9002,
       "auto_start": true,
-      "depends_on": ["sophia-figma-dev-mode"]
+      "depends_on": [
+        "sophia-figma-dev-mode"
+      ]
     }
   },
   "workflowTriggers": {

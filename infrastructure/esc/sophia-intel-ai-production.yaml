@@ -64,7 +64,7 @@ values:
         purpose: "Data Processing & ETL Operations"
         endpoints:
           data_api: "https://api.sophia-intel.ai/data"
-          modern_stack: "104.171.202.134:8000"
+          ELIMINATED: "104.171.202.134:8000"
 
       development:
         name: "sophia-development"

@@ -72,7 +72,7 @@ class MCPServerType(str, Enum):
     """Types of MCP servers"""
 
     GONG = "gong"
-    modern_stack = "modern_stack"
+    qdrant = "qdrant"
     SLACK = "slack"
     LINEAR = "linear"
     VERCEL = "vercel"
@@ -822,8 +822,8 @@ class MCPOrchestrationService:
                     "monitoring",
                 ],
             ),
-            "modern_stack_admin": MCPServerEndpoint(
-                server_name="modern_stack_admin",
+            "qdrant_admin": MCPServerEndpoint(
+                server_name="qdrant_admin",
                 port=9012,
                 capabilities=[
                     "database_administration",
@@ -858,11 +858,11 @@ class MCPOrchestrationService:
                     "cost_tracking",
                 ],
             ),
-            "modern_stack_cli_enhanced": MCPServerEndpoint(
-                server_name="modern_stack_cli_enhanced",
+            "qdrant_cli_enhanced": MCPServerEndpoint(
+                server_name="qdrant_cli_enhanced",
                 port=9021,
                 capabilities=[
-                    "advanced_modern_stack_ops",
+                    "advanced_qdrant_ops",
                     "cortex_integration",
                     "cost_analysis",
                 ],
@@ -933,8 +933,8 @@ class MCPOrchestrationService:
                 ],
                 "server_sequence": [
                     "sophia_data",
-                    "modern_stack_admin",
-                    "modern_stack_cli_enhanced",
+                    "qdrant_admin",
+                    "qdrant_cli_enhanced",
                     "ai_memory",
                 ],
                 "synthesis_type": "data_optimization_report",
@@ -988,7 +988,7 @@ class MCPOrchestrationService:
                     "asana",
                     "linear",
                     "github",
-                    "modern_stack_admin",
+                    "qdrant_admin",
                 ],
                 "synthesis_type": "executive_business_intelligence",
                 "parallel_execution": True,

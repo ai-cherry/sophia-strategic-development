@@ -164,9 +164,9 @@ mcpServers:
     gpuCount: 1
 
   # Lambda GPU
-  modern_stackCortex:
+  ELIMINATEDCortex:
     enabled: true
-    name: modern_stack-cortex
+    name: ELIMINATED-cortex
     port: 9001
     tier: PRIMARY
     resources:

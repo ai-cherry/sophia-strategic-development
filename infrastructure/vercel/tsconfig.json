@@ -17,6 +17,11 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true
   },
-  "files": ["index.ts"],
-  "exclude": ["node_modules", "bin"]
+  "files": [
+    "index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "bin"
+  ]
 }

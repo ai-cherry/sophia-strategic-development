@@ -237,7 +237,7 @@ async def generate_executive_insights(
     
     # Get AI configuration from Pulumi ESC
     ai_config = {
-        "modern_stack_account": get_config_value("modern_stack_account"),
+        "ELIMINATED_account": get_config_value("ELIMINATED_account"),
         "cortex_model": get_config_value("preferred_cortex_model"),
         "analysis_depth": get_config_value("executive_analysis_depth")
     }
@@ -295,7 +295,7 @@ def assess_file_lifecycle(filename: str, purpose: str) -> str:
 from backend.core.auto_esc_config import (
     get_config_value,
     get_docker_hub_config,
-    get_modern_stack_config,
+    get_ELIMINATED_config,
     get_lambda_labs_config
 )
 

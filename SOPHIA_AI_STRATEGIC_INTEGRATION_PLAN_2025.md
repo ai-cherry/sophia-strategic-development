@@ -345,7 +345,7 @@ Consolidate the existing 17+ overlapping MCP servers into a unified, efficient a
 
 **Current Servers Identified:**
 - `ai_memory` (Port 9000) - Memory management
-- `modern_stack_unified` (Port 9001) - Analytics
+- `ELIMINATED_unified` (Port 9001) - Analytics
 - `gong_v2` (Port 9002) - Sales analytics
 - `hubspot_unified` (Port 9003) - CRM
 - `slack_v2` (Port 9004) - Communication
@@ -384,7 +384,7 @@ class UnifiedDynamicMCPRouter(StandardizedMCPServer):
                 "github": GitHubService()
             },
             "data_operations": {
-                "modern_stack": ModernStackService(),
+                "ELIMINATED": ELIMINATEDService(),
                 "postgres": PostgresService(),
                 "redis": RedisService()
             },
@@ -539,12 +539,12 @@ class EstuaryN8NBridge:
         # Configure Estuary webhooks for key events
         await self.estuary_client.configure_webhooks([
             {
-                "flow": "hubspot-to-modern_stack",
+                "flow": "hubspot-to-ELIMINATED",
                 "event": "new_deal_created",
                 "webhook_url": "https://sophia-ai.com/webhooks/n8n/deal-created"
             },
             {
-                "flow": "gong-to-modern_stack",
+                "flow": "gong-to-ELIMINATED",
                 "event": "call_completed",
                 "webhook_url": "https://sophia-ai.com/webhooks/n8n/call-completed"
             }
@@ -568,7 +568,7 @@ class EstuaryN8NBridge:
     },
     {
       "name": "Fetch Modern Stack Data",
-      "type": "modern_stack",
+      "type": "ELIMINATED",
       "parameters": {
         "query": "SELECT * FROM daily_revenue_metrics WHERE date = CURRENT_DATE"
       }

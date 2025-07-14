@@ -13,7 +13,7 @@ from .cache import CortexCache
 from .core import DirectCortexCore
 from .enums import CortexModel, MCPMode, TaskType
 from .errors import CortexAuthenticationError, CortexError
-from .mcp_client import ModernStackMCPClient
+from .mcp_client import QdrantMCPClient
 from .pool import AsyncConnectionPool
 
 # Metrics
@@ -29,7 +29,7 @@ CORTEX_LATENCY = Histogram(
 CORTEX_CACHE_HITS = Counter("cortex_cache_hits_total", "Cache hits", ["task_type"])
 
 
-class ModernStackCortexService:
+class QdrantUnifiedMemoryService:
     """Unified Lambda GPU service with dual-mode support."""
 
     def __init__(
@@ -50,7 +50,7 @@ class ModernStackCortexService:
 
         # Initialize components
         self._direct: DirectCortexCore | None = None
-        self._mcp: ModernStackMCPClient | None = None
+        self._mcp: QdrantMCPClient | None = None
         self._pool: AsyncConnectionPool | None = None
         self._cache: CortexCache | None = None
 
@@ -64,26 +64,26 @@ class ModernStackCortexService:
     def _load_config(self) -> None:
         """Load configuration from Pulumi ESC."""
         # Direct mode credentials
-        self._# REMOVED: ModernStack dependency {
-            "user": get_config_value("modern_stack_user"),
+        self._
+            "user": get_config_value("qdrant_user"),
             "password": get_config_value("postgres_password"),
             "account": get_config_value("postgres_host"),
             "warehouse": get_config_value("postgres_database"),
             "database": get_config_value("postgres_database"),
             "schema": get_config_value("postgres_schema"),
-            "role": get_config_value("modern_stack_role", "SYSADMIN"),
+            "role": get_config_value("qdrant_role", "SYSADMIN"),
         }
 
         # MCP mode configuration
         self._mcp_config = {
-            "pat_token": get_config_value("modern_stack_mcp_pat"),
-            "mcp_url": get_config_value("modern_stack_mcp_url"),
+            "pat_token": get_config_value("qdrant_mcp_pat"),
+            "mcp_url": get_config_value("qdrant_mcp_url"),
         }
 
         # Context for direct mode
-# REMOVED: ModernStack dependency.get("warehouse")
-# REMOVED: ModernStack dependency.get("database")
-# REMOVED: ModernStack dependency.get("schema")
+
+
+
 
     def _determine_mode(self) -> None:
         """Auto-determine the best mode based on available credentials."""
@@ -99,7 +99,7 @@ class ModernStackCortexService:
         # Prefer MCP if PAT is available
         if self._mcp_config.get("pat_token"):
             self.mode = MCPMode.MCP
-# REMOVED: ModernStack dependency.get(
+
             "password"
         ):
             self.mode = MCPMode.DIRECT
@@ -109,8 +109,8 @@ class ModernStackCortexService:
                 details={
                     "pat_available": bool(self._mcp_config.get("pat_token")),
                     "user_pwd_available": bool(
-# REMOVED: ModernStack dependency.get("user")
-# REMOVED: ModernStack dependency.get("password")
+
+
                     ),
                 },
             )
@@ -125,7 +125,7 @@ class ModernStackCortexService:
         # Initialize based on mode
         if self.mode == MCPMode.MCP:
             if not self._mcp:
-                self._mcp = ModernStackMCPClient(
+                self._mcp = QdrantMCPClient(
                     base_url=self._mcp_config.get("mcp_url"),
                     pat_token=self._mcp_config.get("pat_token"),
                 )
@@ -134,7 +134,7 @@ class ModernStackCortexService:
                 self._pool = AsyncConnectionPool(
                     maxsize=8,
                     minsize=2,
-# REMOVED: ModernStack dependency.items() if v},
+
                 )
                 await self._pool.initialize()
 

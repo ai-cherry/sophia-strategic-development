@@ -11,7 +11,7 @@ This script implements:
 5. Sophia AI Orchestrator (32 lines → skip, already small)
 
 Usage:
-    python scripts/implement_file_decomposition.py --service=modern_stack
+    python scripts/implement_file_decomposition.py --service=qdrant
     python scripts/implement_file_decomposition.py --all
     python scripts/implement_file_decomposition.py --validate
 """
@@ -48,12 +48,12 @@ class FileDecomposer:
             "health_improvements": {}
         }
         
-    def decompose_enhanced_modern_stack_cortex_service(self) -> bool:
-        """Decompose enhanced_modern_stack_cortex_service.py (1142 lines)"""
+    def decompose_enhanced_qdrant_memory_service(self) -> bool:
+        """Decompose enhanced_qdrant_memory_service.py (1142 lines)"""
         logger.info("🔧 Decomposing Enhanced Lambda GPU Service...")
         
-        source_file = Path("infrastructure/services/enhanced_modern_stack_cortex_service.py")
-        target_dir = Path("infrastructure/services/enhanced_modern_stack_cortex_service")
+        source_file = Path("infrastructure/services/enhanced_qdrant_memory_service.py")
+        target_dir = Path("infrastructure/services/enhanced_qdrant_memory_service")
         
         if not source_file.exists():
             logger.error(f"Source file not found: {source_file}")
@@ -108,10 +108,10 @@ Enhanced Lambda GPU Service Module
 Decomposed from monolithic file on {datetime.now().strftime('%Y-%m-%d')}
 """
 
-from .enhanced_modern_stack_cortex_service_core import *
+from .enhanced_qdrant_memory_service_core import *
 
 __all__ = [
-    "EnhancedModernStackCortexService",
+    "EnhancedQdrantUnifiedMemoryService",
     # Add other exports as needed
 ]
 '''
@@ -129,7 +129,7 @@ Data models and Pydantic schemas
 # Data models extracted from main file
 {chr(10).join([cls['source'] for cls in classes if self._is_model_class(cls['name'])])}
 '''
-            with open(target_dir / "models" / "enhanced_modern_stack_cortex_service_models.py", 'w') as f:
+            with open(target_dir / "models" / "enhanced_qdrant_memory_service_models.py", 'w') as f:
                 f.write(models_content)
             
             # Create handlers file
@@ -140,12 +140,12 @@ Request/response handlers and API endpoints
 
 {chr(10).join(imports)}
 
-from .models.enhanced_modern_stack_cortex_service_models import *
+from .models.enhanced_qdrant_memory_service_models import *
 
 # Handler classes extracted from main file
 {chr(10).join([cls['source'] for cls in classes if self._is_handler_class(cls['name'])])}
 '''
-            with open(target_dir / "handlers" / "enhanced_modern_stack_cortex_service_handlers.py", 'w') as f:
+            with open(target_dir / "handlers" / "enhanced_qdrant_memory_service_handlers.py", 'w') as f:
                 f.write(handlers_content)
             
             # Create utils file
@@ -161,7 +161,7 @@ Helper functions and utility classes
 {chr(10).join([const['source'] for const in constants])}
 {chr(10).join([cls['source'] for cls in classes if self._is_utility_class(cls['name'])])}
 '''
-            with open(target_dir / "utils" / "enhanced_modern_stack_cortex_service_utils.py", 'w') as f:
+            with open(target_dir / "utils" / "enhanced_qdrant_memory_service_utils.py", 'w') as f:
                 f.write(utils_content)
             
             # Create core file
@@ -172,14 +172,14 @@ Main service implementation
 
 {chr(10).join(imports)}
 
-from .models.enhanced_modern_stack_cortex_service_models import *
-from .handlers.enhanced_modern_stack_cortex_service_handlers import *
-from .utils.enhanced_modern_stack_cortex_service_utils import *
+from .models.enhanced_qdrant_memory_service_models import *
+from .handlers.enhanced_qdrant_memory_service_handlers import *
+from .utils.enhanced_qdrant_memory_service_utils import *
 
 # Core service classes
 {chr(10).join([cls['source'] for cls in classes if self._is_core_class(cls['name'])])}
 '''
-            with open(target_dir / "enhanced_modern_stack_cortex_service_core.py", 'w') as f:
+            with open(target_dir / "enhanced_qdrant_memory_service_core.py", 'w') as f:
                 f.write(core_content)
             
             # Backup original file
@@ -188,15 +188,15 @@ from .utils.enhanced_modern_stack_cortex_service_utils import *
             # Replace original with import module
             replacement_content = f'''"""
 Enhanced Lambda GPU Service
-Modularized implementation - see enhanced_modern_stack_cortex_service/ directory
+Modularized implementation - see enhanced_qdrant_memory_service/ directory
 """
 
 # Import all functionality from modular implementation
-from .enhanced_modern_stack_cortex_service import *
+from .enhanced_qdrant_memory_service import *
 
 # Maintain backward compatibility
 __all__ = [
-    "EnhancedModernStackCortexService",
+    "EnhancedQdrantUnifiedMemoryService",
     # Add other exports as needed
 ]
 '''
@@ -468,7 +468,7 @@ __all__ = [
         
         # Execute decompositions
         decompositions = [
-            self.decompose_enhanced_modern_stack_cortex_service,
+            self.decompose_enhanced_qdrant_memory_service,
             self.decompose_enhanced_ingestion_service,
             self.decompose_enhanced_langgraph_orchestration,
             self.decompose_multi_agent_workflow
@@ -489,7 +489,7 @@ __all__ = [
 
 def main():
     parser = argparse.ArgumentParser(description="Implement file decomposition plans")
-    parser.add_argument("--service", choices=["modern_stack", "ingestion", "langgraph", "workflow"], 
+    parser.add_argument("--service", choices=["qdrant", "ingestion", "langgraph", "workflow"], 
                        help="Decompose specific service")
     parser.add_argument("--all", action="store_true", help="Decompose all services")
     parser.add_argument("--validate", action="store_true", help="Validate decomposition results")
@@ -515,8 +515,8 @@ def main():
             print("❌ Some decompositions failed")
             sys.exit(1)
     elif args.service:
-        if args.service == "modern_stack":
-            decomposer.decompose_enhanced_modern_stack_cortex_service()
+        if args.service == "qdrant":
+            decomposer.decompose_enhanced_qdrant_memory_service()
         elif args.service == "ingestion":
             decomposer.decompose_enhanced_ingestion_service()
         elif args.service == "langgraph":

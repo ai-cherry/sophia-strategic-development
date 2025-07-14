@@ -41,7 +41,7 @@ from infrastructure.services.unified_llm_service import (
     get_unified_llm_service,
 )
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-from shared.utils.modern_stack_hubspot_connector import ModernStackHubSpotConnector
+from backend.integrations.hubspot_client import HubSpotClient
 
 logger = logging.getLogger(__name__)
 
@@ -177,8 +177,8 @@ class MarketingAnalysisAgent(BaseAgent):
         self.description = "AI-powered marketing intelligence and content generation"
 
         # Service integrations
-        self.cortex_service: ModernStackCortexService | None = None
-        self.hubspot_connector: ModernStackHubSpotConnector | None = None
+        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.hubspot_connector: HubSpotClient | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.knowledge_service: FoundationalKnowledgeService | None = None
 
@@ -195,7 +195,7 @@ class MarketingAnalysisAgent(BaseAgent):
         try:
             # Initialize services
             self.cortex_service = UnifiedMemoryServiceV2()
-            self.hubspot_connector = ModernStackHubSpotConnector()
+            self.hubspot_connector = HubSpotClient()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             self.knowledge_service = FoundationalKnowledgeService()
 
@@ -229,7 +229,7 @@ class MarketingAnalysisAgent(BaseAgent):
             await self.initialize()
 
         try:
-            # Get campaign data from ModernStack
+            # Get campaign data from Qdrant
             async with self.cortex_service as cortex:
                 campaign_data = await cortex.query_structured_data(
                     table="STG_MARKETING_CAMPAIGNS",
@@ -318,7 +318,7 @@ class MarketingAnalysisAgent(BaseAgent):
                     Format as a numbered list of concrete actions.
                     """
 
-                    recommendations_text = await # REMOVED: ModernStack dependency_text_with_cortex(
+                    recommendations_text = await 
                         prompt=recommendations_prompt, max_tokens=300
                     )
 
@@ -499,7 +499,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 Variations should maintain the same key message but use different approaches.
                 """
 
-                variations_text = await # REMOVED: ModernStack dependency_text_with_cortex(
+                variations_text = await 
                     prompt=variation_prompt, max_tokens=800
                 )
 
@@ -566,7 +566,7 @@ class MarketingAnalysisAgent(BaseAgent):
         try:
             segments = []
 
-            # Get customer data from HubSpot via ModernStack
+            # Get customer data from HubSpot via Qdrant
             async with self.hubspot_connector as connector:
                 customer_data = await connector.query_hubspot_contacts(limit=1000)
 
@@ -598,7 +598,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 - Decision-making factors
                 """
 
-                segmentation_analysis = await # REMOVED: ModernStack dependency_text_with_cortex(
+                segmentation_analysis = await 
                     prompt=segmentation_prompt, max_tokens=1000
                 )
 
@@ -742,7 +742,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 Focus on actionable intelligence for marketing strategy.
                 """
 
-                key_insights = await # REMOVED: ModernStack dependency_text_with_cortex(
+                key_insights = await 
                     prompt=insights_prompt, max_tokens=300
                 )
 
@@ -754,7 +754,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 Format as actionable recommendations for marketing team.
                 """
 
-                recommendations = await # REMOVED: ModernStack dependency_text_with_cortex(
+                recommendations = await 
                     prompt=strategic_recommendations_prompt, max_tokens=300
                 )
 
@@ -907,7 +907,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 Provide only a numeric score (0-100).
                 """
 
-                score_text = await # REMOVED: ModernStack dependency_text_with_cortex(
+                score_text = await 
                     prompt=quality_prompt, max_tokens=10
                 )
 

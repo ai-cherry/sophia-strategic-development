@@ -108,14 +108,14 @@ mcpServers:
       initialDelaySeconds: 30
       periodSeconds: 10
 
-  # ModernStack Admin MCP Server - Critical
-  modern_stackAdmin:
+  # ELIMINATED Admin MCP Server - Critical
+  ELIMINATEDAdmin:
     enabled: true
-    name: sophia-mcp-modern_stack-admin
+    name: sophia-mcp-ELIMINATED-admin
     replicas: 2
     port: 8080
     image:
-      repository: sophia-modern_stack-admin-mcp
+      repository: sophia-ELIMINATED-admin-mcp
       tag: ""
 
     resources:
@@ -128,7 +128,7 @@ mcpServers:
 
     env:
       - name: MCP_SERVER_TYPE
-        value: "modern_stack_admin"
+        value: "ELIMINATED_admin"
       - name: MULTI_ENVIRONMENT_ENABLED
         value: "true"
       - name: SQL_EXECUTION_ENABLED
@@ -421,7 +421,7 @@ environments:
     replicas:
       gateway: 3
       aiMemory: 2
-      modern_stackAdmin: 2
+      ELIMINATEDAdmin: 2
       linear: 2
       asana: 2
       gong: 2
@@ -438,7 +438,7 @@ environments:
     replicas:
       gateway: 2
       aiMemory: 1
-      modern_stackAdmin: 1
+      ELIMINATEDAdmin: 1
       linear: 1
       asana: 1
       gong: 1
@@ -455,7 +455,7 @@ environments:
     replicas:
       gateway: 1
       aiMemory: 1
-      modern_stackAdmin: 1
+      ELIMINATEDAdmin: 1
       linear: 1
       asana: 1
       gong: 1

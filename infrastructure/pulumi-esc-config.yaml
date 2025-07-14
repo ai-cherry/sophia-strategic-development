@@ -25,13 +25,13 @@ values:
         fn::secret: ${OPENROUTER_API_KEY}
 
   # Database Configuration
-  modern_stack:
+  ELIMINATED:
     account:
-      fn::secret: ${modern_stack_ACCOUNT}
+      fn::secret: ${ELIMINATED_ACCOUNT}
     user:
-      fn::secret: ${modern_stack_USER}
+      fn::secret: ${ELIMINATED_USER}
     password:
-      fn::secret: ${modern_stack_PASSWORD}
+      fn::secret: ${ELIMINATED_PASSWORD}
     database: "SOPHIA_AI_PRODUCTION"
     warehouse: "SOPHIA_AI_COMPUTE_WH"
 
@@ -82,11 +82,11 @@ environmentVariables:
   ANTHROPIC_API_KEY: ${ai_providers.anthropic.api_key}
   PORTKEY_API_KEY: ${ai_providers.portkey.api_key}
   OPENROUTER_API_KEY: ${ai_providers.openrouter.api_key}
-  modern_stack_ACCOUNT: ${modern_stack.account}
-  modern_stack_USER: ${modern_stack.user}
-  modern_stack_PASSWORD: ${modern_stack.password}
-  modern_stack_DATABASE: ${modern_stack.database}
-  modern_stack_WAREHOUSE: ${modern_stack.warehouse}
+  ELIMINATED_ACCOUNT: ${ELIMINATED.account}
+  ELIMINATED_USER: ${ELIMINATED.user}
+  ELIMINATED_PASSWORD: ${ELIMINATED.password}
+  ELIMINATED_DATABASE: ${ELIMINATED.database}
+  ELIMINATED_WAREHOUSE: ${ELIMINATED.warehouse}
   GONG_API_KEY: ${gong.api_key}
   GONG_API_SECRET: ${gong.api_secret}
   GONG_WEBHOOK_SECRET: ${gong.webhook_secret}

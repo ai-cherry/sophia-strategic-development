@@ -215,15 +215,15 @@
         "mixtral-8x7b"
       ],
       "data_analysis": [
-        "modern_stack-cortex",
+        "ELIMINATED",
         "gpt-4o"
       ],
       "sql_generation": [
-        "modern_stack-cortex",
+        "ELIMINATED",
         "deepseek-v3"
       ],
       "embeddings": [
-        "modern_stack-cortex"
+        "ELIMINATED"
       ]
     },
     "complexity_routing": {

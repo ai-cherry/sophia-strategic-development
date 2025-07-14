@@ -23,7 +23,7 @@ from backend.core.date_time_manager import date_manager
 from infrastructure.mcp_servers.gong_v2.handlers.memory_integration import (
     GongMemoryIntegration,
 )
-from infrastructure.services.modern_stack_cortex_service import ModernStackCortexService
+from infrastructure.services.qdrant_memory_service import QdrantUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +188,7 @@ class GongMultiPurposeIntelligence:
                 f"Extracting multi-purpose insights for last {timeframe_days} days"
             )
 
-            # Query Gong data using existing ModernStack integration
+            # Query Gong data using existing Qdrant integration
             gong_data = await self._fetch_gong_conversations(timeframe_days)
 
             # Process conversations through enhanced AI analysis
@@ -275,7 +275,7 @@ class GongMultiPurposeIntelligence:
                     ) as quality_intelligence,
 
                     -- Enhanced sentiment and urgency
-                    self.modern_stack.await self.lambda_gpu.analyze_sentiment(transcript_text) as sentiment_score,
+                    self.qdrant_service.await self.lambda_gpu.analyze_sentiment(transcript_text) as sentiment_score,
                     await self.lambda_gpu.CLASSIFY_TEXT(
                         transcript_text,
                         ['urgent', 'high_priority', 'normal', 'low_priority']
@@ -395,7 +395,7 @@ class GongMultiPurposeIntelligence:
             if not category:
                 category = GongIntelligenceCategory.PROJECT_MANAGEMENT  # Default
 
-            # Generate contextual ModernStack query based on natural language
+            # Generate contextual Qdrant query based on natural language
             contextual_query = f"""
             WITH relevant_conversations AS (
                 SELECT
@@ -409,7 +409,7 @@ class GongMultiPurposeIntelligence:
                         'Based on this conversation, answer the following question: {query}.
                          Provide specific details and context from the conversation.'
                     ) as extracted_answer,
-                    self.modern_stack.await self.lambda_gpu.analyze_sentiment(transcript_text) as sentiment_score
+                    self.qdrant_service.await self.lambda_gpu.analyze_sentiment(transcript_text) as sentiment_score
                 FROM GONG_CALLS_ENHANCED
                 WHERE call_date >= DATEADD(day, -30, CURRENT_TIMESTAMP())
                 AND await self.lambda_gpu.EXTRACT_ANSWER(transcript_text, '{query}') IS NOT NULL

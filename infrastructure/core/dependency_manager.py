@@ -49,11 +49,11 @@ class DependencyManager:
         """Initialize default dependencies based on platform relationships."""
         # Data flow dependencies
         self.add_dependency(
-            "modern_stack",
+            "qdrant",
             "estuary",
             DependencyType.DATA_FLOW,
             critical=True,
-            description="Estuary loads data into ModernStack",
+            description="Estuary loads data into Qdrant",
         )
         self.add_dependency(
             "gong",
@@ -88,16 +88,16 @@ class DependencyManager:
 
         # Configuration dependencies
         self.add_dependency(
-            "modern_stack",
+            "qdrant",
             "gong",
             DependencyType.CONFIGURATION,
-            description="Gong webhooks may send data to ModernStack",
+            description="Gong webhooks may send data to Qdrant",
         )
         self.add_dependency(
-            "modern_stack",
+            "qdrant",
             "hubspot",
             DependencyType.CONFIGURATION,
-            description="HubSpot integration may use ModernStack for analytics",
+            description="HubSpot integration may use Qdrant for analytics",
         )
 
         # Authentication dependencies

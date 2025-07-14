@@ -75,11 +75,11 @@ class WebhookProcessor:
     def __init__(
         self,
         gong_api_key: str,
-# REMOVED: ModernStack dependency: dict[str, str],
+
         redis_url: str = "redis://localhost:6379",
     ):
         self.gong_api_key = gong_api_key
-# REMOVED: ModernStack dependency
+
         self.redis_url = redis_url
         self.logger = logger
 

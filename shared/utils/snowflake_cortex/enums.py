@@ -18,7 +18,7 @@ class CortexModel(str, Enum):
 
     # Embedding models
     E5_BASE_V2 = "e5-base-v2"
-    # REMOVED: ModernStack dependency "modern_stack-arctic-embed-m"
+    
 
     # Specialized models
     MIXTRAL_7B_INSTRUCT = "mixtral-7b-instruct"

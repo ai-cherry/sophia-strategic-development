@@ -26,8 +26,8 @@ from infrastructure.services.foundational_knowledge_service import (
     FoundationalKnowledgeService,
 )
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-from shared.utils.modern_stack_gong_connector import ModernStackGongConnector
-from shared.utils.modern_stack_hubspot_connector import ModernStackHubSpotConnector
+from backend.integrations.gong_api_client import GongAPIClient
+from backend.integrations.hubspot_client import HubSpotClient
 
 from .sales_intelligence_agent_handlers import (
     CompetitorAnalysisHandler,
@@ -66,9 +66,9 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
         self.agent_role = AgentRole.ANALYZER  # Primary role in workflows
 
         # Service integrations
-        self.cortex_service: ModernStackCortexService | None = None
-        self.gong_connector: ModernStackGongConnector | None = None
-        self.hubspot_connector: ModernStackHubSpotConnector | None = None
+        self.cortex_service: QdrantUnifiedMemoryService | None = None
+        self.gong_connector: GongAPIClient | None = None
+        self.hubspot_connector: HubSpotClient | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.knowledge_service: FoundationalKnowledgeService | None = None
         # # self.sales_coach: SalesCoachAgent | None = None  # Temporarily disabled
@@ -89,8 +89,8 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
         try:
             # Initialize services
             self.cortex_service = UnifiedMemoryServiceV2()
-            self.gong_connector = ModernStackGongConnector()
-            self.hubspot_connector = ModernStackHubSpotConnector()
+            self.gong_connector = GongAPIClient()
+            self.hubspot_connector = HubSpotClient()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             self.knowledge_service = FoundationalKnowledgeService()
             # # self.sales_coach = SalesCoachAgent()  # Temporarily disabled
@@ -271,7 +271,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             data_sources=[
                 "hubspot_crm",
                 "gong_calls",
-                "modern_stack_data_warehouse",
+                "qdrant_data_warehouse",
                 "ai_memory",
                 "foundational_knowledge",
             ],
@@ -285,7 +285,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             integration_points=[
                 "multi_agent_workflows",
                 "llm_service",
-                "modern_stack_cortex",
+                "qdrant_cortex",
                 "ai_memory_storage",
             ],
             performance_metrics={

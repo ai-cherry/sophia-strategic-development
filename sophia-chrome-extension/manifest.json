@@ -3,7 +3,12 @@
   "name": "Sophia AI Platform Integration",
   "version": "1.0.0",
   "description": "Integrate Sophia AI with GitHub, Jira, Linear, and other platforms",
-  "permissions": ["activeTab", "storage", "contextMenus", "notifications"],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus",
+    "notifications"
+  ],
   "host_permissions": [
     "https://github.com/*",
     "https://*.atlassian.net/*",
@@ -20,7 +25,9 @@
         "https://linear.app/*",
         "https://app.linear.app/*"
       ],
-      "js": ["content.js"]
+      "js": [
+        "content.js"
+      ]
     }
   ],
   "background": {
