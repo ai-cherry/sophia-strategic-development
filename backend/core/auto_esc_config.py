@@ -3,7 +3,6 @@ Enhanced Auto ESC Config with ALL GitHub Secrets Mapped
 This loads ALL secrets from Pulumi ESC using the correct GitHub secret names
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 import os
 import subprocess
@@ -156,28 +155,31 @@ def set_config_value(key: str, value: Any) -> None:
     _config_cache[key] = value
 
 
-# REMOVED: ModernStack dependency() -> Dict[str, Any]:
+def get_modern_stack_config() -> Dict[str, Any]:
     """
-# REMOVED: ModernStack dependencyuration from Pulumi ESC - PERMANENT FIX
+    Get ModernStack configuration from Pulumi ESC - PERMANENT FIX
 
     Returns:
-# REMOVED: ModernStack dependencyuration dictionary with CORRECT account
+        ModernStack configuration dictionary with CORRECT account
     """
     # Check environment variables first (for immediate use)
-# REMOVED: ModernStack dependency_value(
-        "postgres_host", "UHDECNO-CVB64222"
-    )
-# REMOVED: ModernStack dependency_value(
-        "modern_stack_user", "SCOOBYJAVA15"
-    )
+    # REMOVED: ModernStack dependency_value(
+    #     "postgres_host", "UHDECNO-CVB64222"
+    # )
+    # REMOVED: ModernStack dependency_value(
+    #     "modern_stack_user", "SCOOBYJAVA15"
+    # )
 
     # Try PAT token first, then regular password
     pat_token = os.getenv("modern_stack_PAT")
     password = (
         pat_token
         if pat_token
-# REMOVED: ModernStack dependency_value("postgres_password"))
+        else get_config_value("postgres_password")
     )
+
+    account = get_config_value("postgres_host", "UHDECNO-CVB64222")
+    user = get_config_value("modern_stack_user", "SCOOBYJAVA15")
 
     return {
         "account": account,
@@ -454,7 +456,7 @@ class ConfigObject:
 config = ConfigObject()
 
 # Enhanced ModernStack connection optimization
-# REMOVED: ModernStack dependency {
+MODERN_STACK_CONNECTION_CONFIG = {
     "connection_pool_size": 10,
     "connection_timeout": 30,
     "query_timeout": 300,
@@ -465,7 +467,7 @@ config = ConfigObject()
 }
 
 
-def get_# REMOVED: ModernStack dependency None) -> str:
+def get_modern_stack_pat(default: Optional[str] = None) -> str:
     """
     Get ModernStack PAT (Programmatic Access Token) for MCP authentication
 
@@ -609,7 +611,7 @@ def validate_modern_stack_pat() -> bool:
 
 
 # Enhanced configuration constants
-# REMOVED: ModernStack dependency {
+MODERN_STACK_DEFAULT_CONFIG = {
     "account": "UHDECNO-CVB64222",
     "user": "SCOOBYJAVA15",
     "role": "ACCOUNTADMIN",

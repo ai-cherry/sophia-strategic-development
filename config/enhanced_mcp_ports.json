@@ -1,0 +1,39 @@
+{
+  "mcp_servers": {
+    "hubspot": {
+      "port": 9006,
+      "name": "HubSpot CRM",
+      "status": "failed"
+    },
+    "slack": {
+      "port": 9005,
+      "name": "Slack Team Communication",
+      "status": "failed"
+    },
+    "gong": {
+      "port": 9007,
+      "name": "Gong.io Call Intelligence",
+      "status": "failed"
+    },
+    "linear": {
+      "port": 9004,
+      "name": "Linear Project Management",
+      "status": "failed"
+    },
+    "asana": {
+      "port": 9008,
+      "name": "Asana Business Operations",
+      "status": "failed"
+    },
+    "notion": {
+      "port": 9009,
+      "name": "Notion Knowledge Management",
+      "status": "failed"
+    },
+    "salesforce": {
+      "port": 9010,
+      "name": "Salesforce Enterprise",
+      "status": "failed"
+    }
+  }
+}

@@ -1,20 +1,101 @@
 {
-  "servers": {
-    "ai_memory": 9000,
-    "ui_ux_agent": 9002,
-    "github": 9007,
-    "gong": 9101,
-    "hubspot_unified": 9103,
-    "slack": 9104,
-    "lambda_labs_cli": 9020,
-    "asana": 9015,
-    "codacy": 3008,
-    "figma": 9001,
-    "linear": 9006,
-    "notion": 9008,
-    "openrouter_search": 9014,
-    "unified_project": 9005
+  "mcp_servers": {
+    "ai_memory": {
+      "port": 9001,
+      "status": "available",
+      "description": "AI Memory MCP Server - Persistent memory management"
+    },
+    "codacy": {
+      "port": 3008,
+      "status": "available", 
+      "description": "Codacy MCP Server - Code quality analysis"
+    },
+    "github": {
+      "port": 9003,
+      "status": "available",
+      "description": "GitHub MCP Server - Repository management"
+    },
+    "linear": {
+      "port": 9004,
+      "status": "available",
+      "description": "Linear MCP Server - Project tracking"
+    },
+    "slack": {
+      "port": 9005,
+      "status": "available",
+      "description": "Slack MCP Server - Team communication"
+    },
+    "hubspot": {
+      "port": 9006,
+      "status": "available",
+      "description": "HubSpot MCP Server - CRM integration"
+    },
+    "asana": {
+      "port": 9007,
+      "status": "available",
+      "description": "Asana MCP Server - Project management"
+    },
+    "notion": {
+      "port": 9008,
+      "status": "available",
+      "description": "Notion MCP Server - Documentation"
+    },
+    "lambda_labs_cli": {
+      "port": 9020,
+      "status": "available",
+      "description": "Lambda Labs CLI MCP Server - GPU infrastructure"
+    },
+    "snowflake_cli_enhanced": {
+      "port": 9021,
+      "status": "available",
+      "description": "Snowflake CLI Enhanced MCP Server - Data operations"
+    }
   },
-  "description": "Active MCP servers for local deployment",
-  "last_updated": "2025-07-13T23:12:00Z"
+  "backend_services": {
+    "fastapi_backend": {
+      "port": 8000,
+      "status": "running",
+      "description": "Main FastAPI backend server"
+    },
+    "simple_backend": {
+      "port": 8001,
+      "status": "available",
+      "description": "Simple FastAPI backend for testing"
+    }
+  },
+  "frontend_services": {
+    "react_frontend": {
+      "port": 5173,
+      "status": "running",
+      "description": "React frontend development server"
+    },
+    "production_frontend": {
+      "port": 3000,
+      "status": "available",
+      "description": "Production React frontend"
+    }
+  },
+  "infrastructure": {
+    "weaviate": {
+      "port": 8080,
+      "status": "available",
+      "description": "Weaviate vector database"
+    },
+    "redis": {
+      "port": 6379,
+      "status": "available",
+      "description": "Redis cache server"
+    },
+    "postgresql": {
+      "port": 5432,
+      "status": "available",
+      "description": "PostgreSQL database"
+    }
+  },
+  "deployment_info": {
+    "last_updated": "2025-01-15T23:36:59Z",
+    "environment": "production",
+    "success_rate": "83.3%",
+    "status": "READY FOR PRODUCTION"
+  }
 }

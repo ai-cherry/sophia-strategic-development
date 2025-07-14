@@ -1,0 +1,70 @@
+{
+  "business_intelligence": {
+    "data_sources": {
+      "crm": {
+        "primary": "hubspot",
+        "secondary": "salesforce",
+        "sync_interval": "5m",
+        "real_time_webhooks": true
+      },
+      "communication": {
+        "primary": "slack",
+        "analysis": {
+          "sentiment": true,
+          "productivity": true,
+          "collaboration": true
+        }
+      },
+      "sales_intelligence": {
+        "primary": "gong",
+        "features": {
+          "call_analysis": true,
+          "competitive_intel": true,
+          "deal_scoring": true,
+          "coaching": true
+        }
+      },
+      "project_management": {
+        "development": "linear",
+        "business_ops": "asana",
+        "metrics": {
+          "velocity": true,
+          "quality": true,
+          "resource_allocation": true
+        }
+      },
+      "knowledge": {
+        "primary": "notion",
+        "features": {
+          "semantic_search": true,
+          "auto_categorization": true,
+          "knowledge_gaps": true
+        }
+      }
+    },
+    "ai_orchestration": {
+      "cross_platform_correlation": true,
+      "predictive_analytics": true,
+      "automated_insights": true,
+      "real_time_alerts": true,
+      "executive_reporting": true
+    },
+    "memory_integration": {
+      "weaviate": {
+        "business_patterns": true,
+        "customer_insights": true,
+        "sales_intelligence": true
+      },
+      "redis": {
+        "real_time_metrics": true,
+        "active_deals": true,
+        "team_status": true
+      },
+      "postgresql": {
+        "historical_analytics": true,
+        "performance_trends": true,
+        "roi_analysis": true
+      }
+    }
+  }
+}

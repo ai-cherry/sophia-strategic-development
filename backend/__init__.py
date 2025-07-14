@@ -3,7 +3,7 @@ Sophia AI Backend Package
 Centralized backend services with secure secret management
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+# Remove circular import - import these on demand instead
 from .core.auto_esc_config import (
     get_config_value,
     get_integration_config,
