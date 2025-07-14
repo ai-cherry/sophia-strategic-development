@@ -68,7 +68,7 @@ from backend.core.auto_esc_config import config
 
 # Access secrets
 openai_key = config.openai_api_key
-modern_stack_account = config.modern_stack_account
+ELIMINATED_account = config.ELIMINATED_account
 ```
 
 ## Code Quality Standards

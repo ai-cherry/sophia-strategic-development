@@ -16,7 +16,7 @@ const SCENARIOS = [
     endpoint: '/api/v2/memory/search_knowledge',
     method: 'POST',
     data: { query: 'test query', limit: 10 },
-    oldLatency: 800, // Old modern_stack-based
+    oldLatency: 800, // Old ELIMINATED-based
   },
   {
     name: 'Cache Metrics Fetch',

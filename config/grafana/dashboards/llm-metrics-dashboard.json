@@ -2,7 +2,11 @@
   "dashboard": {
     "title": "UnifiedLLMService Metrics",
     "uid": "unified-llm-metrics",
-    "tags": ["llm", "ai", "performance"],
+    "tags": [
+      "llm",
+      "ai",
+      "performance"
+    ],
     "timezone": "browser",
     "schemaVersion": 38,
     "version": 1,
@@ -11,7 +15,12 @@
       {
         "title": "LLM Request Rate by Provider",
         "type": "graph",
-        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        },
         "targets": [
           {
             "expr": "rate(llm_requests_total[5m])",
@@ -22,7 +31,12 @@
       {
         "title": "LLM Request Latency (p95)",
         "type": "graph",
-        "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+        "gridPos": {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        },
         "targets": [
           {
             "expr": "histogram_quantile(0.95, rate(llm_request_duration_seconds_bucket[5m]))",
@@ -33,7 +47,12 @@
       {
         "title": "Cost per Hour by Provider",
         "type": "graph",
-        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+        "gridPos": {
+          "x": 0,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        },
         "targets": [
           {
             "expr": "sum(rate(llm_cost_per_request_usd_sum[1h])) by (provider)",
@@ -44,7 +63,12 @@
       {
         "title": "Cache Hit Rate",
         "type": "stat",
-        "gridPos": { "x": 12, "y": 8, "w": 6, "h": 8 },
+        "gridPos": {
+          "x": 12,
+          "y": 8,
+          "w": 6,
+          "h": 8
+        },
         "targets": [
           {
             "expr": "sum(rate(llm_cache_hits_total[5m])) / sum(rate(llm_requests_total[5m])) * 100",
@@ -53,14 +77,21 @@
         ],
         "options": {
           "reduceOptions": {
-            "calcs": ["lastNotNull"]
+            "calcs": [
+              "lastNotNull"
+            ]
           }
         }
       },
       {
         "title": "Data Movement Avoided (GB)",
         "type": "stat",
-        "gridPos": { "x": 18, "y": 8, "w": 6, "h": 8 },
+        "gridPos": {
+          "x": 18,
+          "y": 8,
+          "w": 6,
+          "h": 8
+        },
         "targets": [
           {
             "expr": "sum(data_movement_avoided_kb) / 1024 / 1024",
@@ -69,14 +100,21 @@
         ],
         "options": {
           "reduceOptions": {
-            "calcs": ["lastNotNull"]
+            "calcs": [
+              "lastNotNull"
+            ]
           }
         }
       },
       {
         "title": "Error Rate by Provider",
         "type": "graph",
-        "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+        "gridPos": {
+          "x": 0,
+          "y": 16,
+          "w": 12,
+          "h": 8
+        },
         "targets": [
           {
             "expr": "rate(llm_requests_total{status=\"error\"}[5m])",
@@ -87,7 +125,12 @@
       {
         "title": "Task Type Distribution",
         "type": "piechart",
-        "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+        "gridPos": {
+          "x": 12,
+          "y": 16,
+          "w": 12,
+          "h": 8
+        },
         "targets": [
           {
             "expr": "sum(llm_requests_total) by (task_type)",

@@ -106,15 +106,15 @@ class MCPCapabilityRouter:
                 ServerCapability("linear", Capability.PROJECT_TRACKING, 0.93, 0.98),
                 ServerCapability("linear", Capability.ISSUE_TRACKING, 0.92, 0.98),
             ],
-            "modern_stack_admin": [
+            "qdrant_admin": [
                 ServerCapability(
-                    "modern_stack_admin", Capability.DATABASE_QUERY, 0.98, 0.99
+                    "qdrant_admin", Capability.DATABASE_QUERY, 0.98, 0.99
                 ),
                 ServerCapability(
-                    "modern_stack_admin", Capability.DATA_ANALYSIS, 0.95, 0.98
+                    "qdrant_admin", Capability.DATA_ANALYSIS, 0.95, 0.98
                 ),
                 ServerCapability(
-                    "modern_stack_admin", Capability.REVENUE_ANALYSIS, 0.93, 0.97
+                    "qdrant_admin", Capability.REVENUE_ANALYSIS, 0.93, 0.97
                 ),
             ],
             "slack": [

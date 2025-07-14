@@ -5,6 +5,12 @@ version: 2
 updates:
   # Python dependencies
   - package-ecosystem: "pip"
+  ignore:
+    # Weaviate exclusions - using Qdrant instead
+    - dependency-name: "weaviate-client"
+    - dependency-name: "weaviate-*"
+    - dependency-name: "*weaviate*"
+
     directory: "/"
     schedule:
       interval: "weekly"

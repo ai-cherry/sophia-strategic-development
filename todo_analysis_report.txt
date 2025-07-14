@@ -1,0 +1,155 @@
+TODO Analysis Report
+===================
+
+Total TODOs: 146
+Decomposition TODOs: 56
+Implementation TODOs: 74
+Deprecated TODOs: 4
+
+All TODOs:
+./core/infra/cortex_gateway.py:            # TODO: pull rolling totals from monitoring table and raise if limits exceeded
+./core/performance_monitor.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/workflows/intelligent_meta_orchestrator.py:    # TODO: Add agent health monitoring, performance metrics, and dynamic updates
+./core/workflows/intelligent_meta_orchestrator.py:    """TODO: Implement __init__"""
+./core/workflows/intelligent_meta_orchestrator.py:        # TODO: Implement adaptive workflow creation logic
+./core/workflows/intelligent_meta_orchestrator.py:    # TODO: Add analytics, trend detection, and feedback integration
+./core/workflows/intelligent_meta_orchestrator.py:        # TODO: Implement actual workflow execution logic
+./core/workflows/intelligent_meta_orchestrator.py:    # TODO: Add methods for agent registration, health checks, feedback loops, and integration with learning framework
+./core/workflows/multi_agent_workflow/multi_agent_workflow_core.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/workflows/multi_agent_workflow/utils/multi_agent_workflow_utils.py:# TODO: Extract actual utility functions from source
+./core/workflows/multi_agent_workflow/models/multi_agent_workflow_models.py:# TODO: Extract actual model classes from source
+./core/workflows/multi_agent_workflow/handlers/multi_agent_workflow_handlers.py:# TODO: Extract actual handler classes from source
+./core/workflows/langgraph_agent_orchestration.py:            # TODO: Initialize Qdrant services
+./core/workflows/langgraph_agent_orchestration.py:            # TODO: Initialize Qdrant services
+./core/workflows/enhanced_langgraph_orchestration/utils/enhanced_langgraph_orchestration_utils.py:# TODO: Extract actual utility functions from source
+./core/workflows/enhanced_langgraph_orchestration/models/enhanced_langgraph_orchestration_models.py:# TODO: Extract actual model classes from source
+./core/workflows/enhanced_langgraph_orchestration/enhanced_langgraph_orchestration_core.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/workflows/enhanced_langgraph_orchestration/handlers/enhanced_langgraph_orchestration_handlers.py:# TODO: Extract actual handler classes from source
+./core/agents/research/orchestration_research_agent.py:        # TODO: Implement actual memory storage call
+./core/agents/integrations/gong_data_integration.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/agents/infrastructure/sophia_infrastructure_agent.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/cross_platform_sync_orchestrator.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/integrated_performance_monitoring.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/use_cases/asana_project_intelligence_agent.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/use_cases/linear_project_health_agent.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/use_cases/interactive_sales_coach_agent.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/use_cases/sales_coach_agent.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/use_cases/ELIMINATED_admin_agent.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./core/services/knowledge_service.py:    """TODO: Implement __init__"""
+./core/services/analytics_service.py:    """TODO: Implement __init__"""
+./start_mcp_servers.py:            # TODO: Validate input before subprocess execution
+./start_mcp_servers.py:            # TODO: Validate input before subprocess execution
+./tests/ai_evals/framework.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./tests/infrastructure/run_all_tests.py:    # TODO: Validate input before subprocess execution
+./backend/core/auto_esc_config.decomposed/core.py:# TODO: Extract specific classes/functions from original file
+./backend/core/auto_esc_config.decomposed/utils.py:# TODO: Extract specific classes/functions from original file
+./backend/core/services/ELIMINATED_pool/core.py:# TODO: Extract specific classes/functions from original file
+./backend/core/services/ELIMINATED_pool/utils.py:# TODO: Extract specific classes/functions from original file
+./backend/core/services/ELIMINATED_pool/ELIMINATEDpoolmanager.py:# TODO: Extract specific classes/functions from original file
+./backend/core/services/ELIMINATED_cortex_adapter/cortexadapter.py:# TODO: Extract specific classes/functions from original file
+./backend/core/services/ELIMINATED_cortex_adapter/utils.py:# TODO: Extract specific classes/functions from original file
+./backend/security/pat_manager/ELIMINATEDpatmanager.py:# TODO: Extract specific classes/functions from original file
+./backend/security/pat_manager/core.py:# TODO: Extract specific classes/functions from original file
+./backend/security/pat_manager/utils.py:# TODO: Extract specific classes/functions from original file
+./backend/api/orchestrator_v4_routes.py:            # TODO: Implement true streaming in orchestrator
+./backend/api/orchestrator_v4_routes.py:        # TODO: Get MCP orchestrator health when connected
+./backend/services/qdrant_unified_memory_service.py:        # TODO: search matching and reranking
+./backend/services/qdrant_unified_memory_service.py:        # TODO: Enhance with Neo4j graph relationships
+./backend/services/qdrant_unified_memory_service.py:        return [0.0] * 768  # TODO: Implement based on actual router response format
+./backend/services/query_optimizer.py:                "actual_latency": None,  # TODO: Measure actual
+./backend/services/query_optimizer.py:                "cache_hit": False,  # TODO: Track cache hits
+./backend/services/unified_chat_service.py:            # TODO: Add specific initialization logic based on consolidated services
+./backend/services/unified_chat_service.py:            # TODO: Add consolidated processing logic
+./backend/services/optimization_service.py:            # TODO: Add specific initialization logic based on consolidated services
+./backend/services/optimization_service.py:            # TODO: Add consolidated processing logic
+./backend/services/hybrid_search_engine.py:        # TODO: Implement personalization based on user history
+./backend/services/hybrid_search_engine.py:        # TODO: Implement caching with RedisHelper
+./backend/services/hybrid_search_engine.py:        # TODO: Implement access pattern tracking
+./shared/security.py:    # TODO: Get user from database
+./shared/utils/ELIMINATED_cortex_service.py:TODO: Decompose this monolithic service into smaller, focused modules - COMPLETED
+./shared/utils/optimized_ELIMINATED_cortex_service.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./shared/utils/ELIMINATED_gong_connector.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./shared/dependencies.py:    """TODO: Implement __init__"""
+./scripts/execute_cleanup_plan.py:2. File decomposition TODO resolution
+./scripts/execute_cleanup_plan.py:            # 2. Update TODO markers with decomposition status
+./scripts/execute_cleanup_plan.py:                    logger.info(f"  ✅ Updated TODO status: {todo_file.name}")
+./scripts/execute_cleanup_plan.py:                    logger.info(f"  🚫 Dry-run: Would update TODO in {todo_file.name}")
+./scripts/execute_cleanup_plan.py:            # Check for TODO decomposition marker
+./scripts/execute_cleanup_plan.py:            has_decomposition_todo = "TODO: Implement file decomposition (Plan created: 2025-07-13)" in content
+./scripts/execute_cleanup_plan.py:        """Find files with decomposition TODOs"""
+./scripts/execute_cleanup_plan.py:        # Search for files with decomposition TODOs
+./scripts/execute_cleanup_plan.py:                if "TODO: Implement file decomposition (Plan created: 2025-07-13)" in content:
+./scripts/execute_cleanup_plan.py:        """Update TODO status in file"""
+./scripts/execute_cleanup_plan.py:            # Update TODO with plan reference
+./scripts/execute_cleanup_plan.py:                "TODO: Implement file decomposition (Plan created: 2025-07-13)",
+./scripts/execute_cleanup_plan.py:                f"TODO: Implement file decomposition (Plan created: 2025-07-13) (Plan created: {datetime.now().strftime('%Y-%m-%d')})"
+./scripts/execute_cleanup_plan.py:            logger.warning(f"Could not update TODO in {file_path}: {e}")
+./scripts/execute_cleanup_plan.py:                "Added file decomposition TODO detection",
+./scripts/execute_cleanup_plan.py:        score -= min(30, metrics["decomposition_todos"])       # Penalty for decomposition TODOs
+./scripts/comprehensive_dead_code_eliminator.py:                        new_impl = f"{async_prefix}def {func_name}(...):\\n    \"\"\"TODO: Implement {func_name}\"\"\"\\n    import logging\\n    logger = logging.getLogger(__name__)\\n    logger.warning(f\"{func_name} not yet implemented\")"
+./scripts/comprehensive_dead_code_eliminator.py:        """Phase 4: Resolve TODO markers and deprecated functions"""
+./scripts/comprehensive_dead_code_eliminator.py:        print("📋 Phase 4: TODO/Deprecated Cleanup")
+./scripts/comprehensive_dead_code_eliminator.py:        # Generate TODO analysis
+./scripts/comprehensive_dead_code_eliminator.py:        result = subprocess.run("grep -r 'TODO' . --include='*.py'", shell=True, capture_output=True, text=True)
+./scripts/comprehensive_dead_code_eliminator.py:        # Categorize TODOs
+./scripts/comprehensive_dead_code_eliminator.py:        print(f"Found {len(todos)} total TODOs:")
+./scripts/comprehensive_dead_code_eliminator.py:        print(f"  - {len(decomposition_todos)} decomposition TODOs")
+./scripts/comprehensive_dead_code_eliminator.py:        print(f"  - {len(implementation_todos)} implementation TODOs")
+./scripts/comprehensive_dead_code_eliminator.py:        print(f"  - {len(deprecated_todos)} deprecated TODOs")
+./scripts/comprehensive_dead_code_eliminator.py:            f.write("TODO Analysis Report\n")
+./scripts/comprehensive_dead_code_eliminator.py:            f.write(f"Total TODOs: {len(todos)}\n")
+./scripts/comprehensive_dead_code_eliminator.py:            f.write(f"Decomposition TODOs: {len(decomposition_todos)}\n")
+./scripts/comprehensive_dead_code_eliminator.py:            f.write(f"Implementation TODOs: {len(implementation_todos)}\n")
+./scripts/comprehensive_dead_code_eliminator.py:            f.write(f"Deprecated TODOs: {len(deprecated_todos)}\n\n")
+./scripts/comprehensive_dead_code_eliminator.py:            f.write("All TODOs:\n")
+./scripts/comprehensive_dead_code_eliminator.py:        print("✅ Phase 4 Complete: TODO analysis saved to todo_analysis_report.txt")
+./scripts/implement_file_decomposition.py:# TODO: Extract actual model classes from source
+./scripts/implement_file_decomposition.py:# TODO: Extract actual handler classes from source
+./scripts/implement_file_decomposition.py:# TODO: Extract actual utility functions from source
+./api/app/core/dependencies.py:    # TODO: auth validation
+./main.py:    """TODO: Implement main"""
+./mcp-servers/linear/server.py:    TODO = "todo"
+./infrastructure/core/comprehensive_ELIMINATED_config.py:            self.connection = None  # TODO: Replace with repository injection
+./infrastructure/core/comprehensive_ELIMINATED_config.py:                # TODO: Replace with repository method
+./infrastructure/core/comprehensive_ELIMINATED_config.py:            # TODO: Replace with repository method
+./infrastructure/core/optimized_connection_manager.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/core/enhanced_cache_manager.py:            # TODO: Implement actual semantic similarity with embeddings
+./infrastructure/core/enhanced_cache_manager.py:            # TODO: Implement actual pattern matching with Redis SCAN
+./infrastructure/core/hierarchical_cache.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/security/secret_management.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/security/rbac/service.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/security/rbac/dependencies.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/security/rbac/routes.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/security/audit_logger.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/etl/enhanced_unified_data_pipeline.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/etl/gong/ingest_gong_data.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/etl/estuary/estuary_configuration_manager.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/integrations/gong_api_client.py:    """TODO: Implement __init__"""
+./infrastructure/integrations/gong_api_client.py:    """TODO: Implement __aexit__"""
+./infrastructure/integrations/gong_api_client.py:    """TODO: Implement inc"""
+./infrastructure/integrations/enhanced_microsoft_gong_integration.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/integrations/gong_webhook_server.py:    """TODO: Implement __aexit__"""
+./infrastructure/integrations/gong_webhook_server.py:            "redis": {"status": "ok"},  # TODO: Implement actual health checks
+./infrastructure/integrations/gong_webhook_server.py:            # TODO: Implement ELIMINATED storage
+./infrastructure/integrations/advanced_estuary_flow_manager.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/integrations/estuary_flow_manager.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/integrations/gong_api_client_enhanced.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/monitoring/deployment_tracker.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/monitoring/mcp_metrics_collector.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/monitoring/gong_data_quality.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/monitoring/gong_data_quality.py:        # TODO: Send to alert manager for routing
+./infrastructure/services/enhanced_cortex_agent_service.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/services/enhanced_cortex_agent_service.py:    """TODO: Implement __init__"""
+./infrastructure/services/payready_business_intelligence.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/services/mcp_orchestration_service.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/services/foundational_knowledge_service.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/services/unified_ai_orchestration_service.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/services/unified_sophia_service.py:        # TODO: Implement feedback submission to the learning framework
+./infrastructure/services/sophia_ai_orchestrator.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/services/code_modification_service.py:        if "TODO" in modified and "TODO" not in original:
+./infrastructure/services/code_modification_service.py:            validation["warnings"].append("New TODO comments added")
+./infrastructure/services/cost_engineering_service.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/services/enhanced_ingestion_service/enhanced_ingestion_service_core.py:TODO: Implement file decomposition (Plan created: 2025-07-13)
+./infrastructure/services/enhanced_ingestion_service/utils/enhanced_ingestion_service_utils.py:# TODO: Extract actual utility functions from source
+./infrastructure/services/enhanced_ingestion_service/models/enhanced_ingestion_service_models.py:# TODO: Extract actual model classes from source
+./infrastructure/services/enhanced_ingestion_service/handlers/enhanced_ingestion_service_handlers.py:# TODO: Extract actual handler classes from source

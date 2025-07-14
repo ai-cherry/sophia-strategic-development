@@ -176,7 +176,7 @@ values:
   # Integration with Existing Infrastructure
   integration:
     # Lambda GPU hybrid routing
-    modern_stack_cortex:
+    ELIMINATED_cortex:
       enable_hybrid: true
       route_to_cortex: ["sql", "database", "analytics"]
       route_to_lambda: ["chat", "reasoning", "creative"]

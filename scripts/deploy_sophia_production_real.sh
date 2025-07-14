@@ -8,7 +8,7 @@ set -e  # Exit on any error
 # Configuration
 # Using sophia-production-instance (us-south-1)
 SERVER_IP="104.171.202.103"
-SSH_KEY="$HOME/.ssh/lambda_labs_private_key"
+SSH_KEY="$HOME/.ssh/sophia_final_key"
 DOMAIN="sophia-intel.ai"
 
 # Alternative servers if needed:
@@ -32,12 +32,12 @@ echo ""
 
 # Function to execute commands on server
 remote_exec() {
-    ssh -i "$SSH_KEY" ubuntu@$SERVER_IP "$@"
+    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP "$@"
 }
 
 # Function to copy files to server
 remote_copy() {
-    scp -i "$SSH_KEY" -r "$1" ubuntu@$SERVER_IP:"$2"
+    scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r "$1" ubuntu@$SERVER_IP:"$2"
 }
 
 # Check SSH connection
@@ -452,4 +452,4 @@ echo "  1. Set up SSL: sudo certbot --nginx -d $DOMAIN -d api.$DOMAIN"
 echo "  2. Configure API keys in Pulumi ESC"
 echo "  3. Monitor logs for any errors"
 echo ""
-echo -e "${YELLOW}SSH to server:${NC} ssh -i $SSH_KEY ubuntu@$SERVER_IP" 
+echo -e "${YELLOW}SSH to server:${NC} ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP" 

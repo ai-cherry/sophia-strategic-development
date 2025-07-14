@@ -6,13 +6,13 @@
       "title": "Server Health Status",
       "type": "health_matrix",
       "servers": [
-        "modern_stack_admin",
+        "ELIMINATED",
         "lambda_labs_cli",
         "ui_ux_agent",
         "ai_memory",
         "codacy",
         "portkey_admin",
-        "modern_stack_cortex"
+        "ELIMINATED"
       ],
       "metrics": [
         "status",

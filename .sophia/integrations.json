@@ -2,19 +2,29 @@
   "github": {
     "enabled": true,
     "webhook_url": "http://localhost:8000/webhooks/github",
-    "events": ["issues", "pull_request", "push"],
+    "events": [
+      "issues",
+      "pull_request",
+      "push"
+    ],
     "context_gathering": true
   },
   "linear": {
     "enabled": true,
     "webhook_url": "http://localhost:8000/webhooks/linear",
-    "events": ["issue.create", "issue.update"],
+    "events": [
+      "issue.create",
+      "issue.update"
+    ],
     "context_gathering": true
   },
   "slack": {
     "enabled": true,
     "webhook_url": "http://localhost:8000/webhooks/slack",
-    "events": ["message", "thread_reply"],
+    "events": [
+      "message",
+      "thread_reply"
+    ],
     "context_gathering": true
   }
 }

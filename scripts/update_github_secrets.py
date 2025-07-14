@@ -128,12 +128,12 @@ def main():
 
     # Secrets to update
     secrets_mapping = {
-        # ModernStack
-        "modern_stack_ACCOUNT": os.getenv("modern_stack_ACCOUNT"),
-        "modern_stack_USER": os.getenv("modern_stack_USER"),
-        "modern_stack_PASSWORD": os.getenv("modern_stack_PASSWORD"),
-        "modern_stack_PAT": os.getenv("modern_stack_PAT"),
-        "modern_stack_MASTER_TOKEN": os.getenv("modern_stack_MASTER_TOKEN"),
+        # Qdrant
+        "qdrant_ACCOUNT": os.getenv("qdrant_ACCOUNT"),
+        "qdrant_USER": os.getenv("qdrant_USER"),
+        "qdrant_PASSWORD": os.getenv("qdrant_PASSWORD"),
+        "qdrant_PAT": os.getenv("qdrant_PAT"),
+        "qdrant_MASTER_TOKEN": os.getenv("qdrant_MASTER_TOKEN"),
         # Docker Hub
         "DOCKER_HUB_USERNAME": os.getenv("DOCKER_USERNAME"),
         "DOCKER_HUB_ACCESS_TOKEN": os.getenv("DOCKER_PERSONAL_ACCESS_TOKEN"),

@@ -40,9 +40,9 @@ OPENAI_API_KEY: OpenAI API key
 ANTHROPIC_API_KEY: Anthropic API key
 
 # Database
-modern_stack_ACCOUNT: Your Modern Stack account
-modern_stack_USER: Modern Stack username
-modern_stack_PASSWORD: Modern Stack password
+ELIMINATED_ACCOUNT: Your Modern Stack account
+ELIMINATED_USER: Modern Stack username
+ELIMINATED_PASSWORD: Modern Stack password
 
 # Other Services
 GONG_ACCESS_KEY: Gong API access key
@@ -107,7 +107,7 @@ SERVICE_TYPE_ENVIRONMENT
 
 Examples:
 DOCKER_TOKEN_PROD
-modern_stack_PASSWORD_DEV
+ELIMINATED_PASSWORD_DEV
 OPENAI_API_KEY_STAGING
 ```
 

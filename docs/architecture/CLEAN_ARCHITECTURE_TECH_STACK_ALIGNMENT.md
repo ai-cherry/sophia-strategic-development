@@ -60,11 +60,11 @@ class AIService(ABC):
 
 #### Modern Stack Integration
 ```python
-# backend/infrastructure/persistence/repositories/modern_stack_call_repository.py
+# backend/infrastructure/persistence/repositories/ELIMINATED_call_repository.py
 class Modern StackCallRepository(CallRepository):
-    def __init__(self, modern_stack_service: Modern StackCortexService):
+    def __init__(self, ELIMINATED_service: Modern StackCortexService):
         # Reuses existing Lambda GPU service
-        self.modern_stack = modern_stack_service
+        self.ELIMINATED = ELIMINATED_service
 ```
 
 - Leverages Lambda GPU for AI operations

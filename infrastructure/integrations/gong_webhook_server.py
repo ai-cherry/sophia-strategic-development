@@ -1,11 +1,11 @@
 """
 Gong Webhook Server - Production-ready FastAPI webhook processor for Gong integrations.
 
-This server processes Gong webhooks, enhances data via API calls, stores in ModernStack,
+This server processes Gong webhooks, enhances data via API calls, stores in Qdrant,
 and notifies Sophia agents via Redis pub/sub.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from __future__ import annotations
 
 import asyncio
@@ -86,12 +86,12 @@ class WebhookServerConfig(BaseSettings):
     GONG_API_BURST_LIMIT: int = 10
 
     # Database settings
-    # REMOVED: ModernStack dependency"modern_stack_ACCOUNT")
-    # REMOVED: ModernStack dependency"modern_stack_USER")
-    # REMOVED: ModernStack dependency"modern_stack_PASSWORD")
-    # REMOVED: ModernStack dependency"modern_stack_WAREHOUSE")
-    # REMOVED: ModernStack dependency"modern_stack_DATABASE")
-    # REMOVED: ModernStack dependency"modern_stack_SCHEMA")
+    
+    
+    
+    
+    
+    
 
     # Redis settings
     REDIS_URL: str = Field(default="redis://localhost:6379", env="REDIS_URL")
@@ -292,8 +292,11 @@ class AsyncRateLimiter:
 
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        pass
+    async def __aexit__(...):
+    """TODO: Implement __aexit__"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"__aexit__ not yet implemented")
 
 
 # Retry Manager
@@ -483,13 +486,13 @@ def get_webhook_processor() -> WebhookProcessor:
         config = get_server_config()
         _webhook_processor = WebhookProcessor(
             gong_api_key=config.GONG_API_KEY,
-            # REMOVED: ModernStack dependency{
-                "account": config.modern_stack_ACCOUNT,
-                "user": config.modern_stack_USER,
-                "password": config.modern_stack_PASSWORD,
-                "warehouse": config.modern_stack_WAREHOUSE,
-                "database": config.modern_stack_DATABASE,
-                "schema": config.modern_stack_SCHEMA,
+            
+                "account": config.qdrant_ACCOUNT,
+                "user": config.qdrant_USER,
+                "password": config.qdrant_PASSWORD,
+                "warehouse": config.qdrant_WAREHOUSE,
+                "database": config.qdrant_DATABASE,
+                "schema": config.qdrant_SCHEMA,
             },
             redis_url=config.REDIS_URL,
         )
@@ -505,8 +508,8 @@ async def health_check():
         "timestamp": datetime.now(UTC).isoformat(),
         "version": "1.0.0",
         "checks": {
-            "redis": {"status": "ok"},  # TODO: Implement actual health checks
-            "modern_stack": {"status": "ok"},
+            "redis": {"status": "ok"},  # TODO: [ARCH-001] Implement placeholder functionality actual health checks
+            "qdrant": {"status": "ok"},
             "gong_api": {"status": "ok"},
         },
     }
@@ -546,7 +549,7 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
             )
 
             # Store raw webhook immediately (fast response)
-            # TODO: Implement ModernStack storage
+            # TODO: [ARCH-001] Implement placeholder functionality Qdrant storage
 
             # Queue background processing
             background_tasks.add_task(

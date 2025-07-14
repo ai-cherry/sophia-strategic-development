@@ -13,19 +13,27 @@ values:
       api_key:
         fn::secret: ${OPENROUTER_API_KEY}
   data_infrastructure:
-    modern_stack:
+    ELIMINATED:
       account:
-        fn::secret: ${modern_stack_ACCOUNT}
+        fn::secret: ${ELIMINATED_ACCOUNT}
       user:
-        fn::secret: ${modern_stack_USERNAME}
+        fn::secret: ${ELIMINATED_USERNAME}
       password:
-        fn::secret: ${modern_stack_PASSWORD}
+        fn::secret: ${ELIMINATED_PASSWORD}
       warehouse:
-        fn::secret: ${modern_stack_WAREHOUSE}
+        fn::secret: ${ELIMINATED_WAREHOUSE}
       database:
-        fn::secret: ${modern_stack_DATABASE}
+        fn::secret: ${ELIMINATED_DATABASE}
       role:
-        fn::secret: ${modern_stack_ROLE}
+        fn::secret: ${ELIMINATED_ROLE}
+    qdrant:
+      api_key:
+        fn::secret: ${QDRANT_API_KEY}
+      url:
+        fn::secret: ${QDRANT_URL}
+      cluster_name: "sophia-ai-production"
+      timeout: 30
+      prefer_grpc: false
     pinecone:
       api_key:
         fn::secret: ${PINECONE_API_KEY}
@@ -61,9 +69,9 @@ values:
 environmentVariables:
   OPENAI_API_KEY: ${ai_services.openai.api_key}
   ANTHROPIC_API_KEY: ${ai_services.anthropic.api_key}
-  modern_stack_ACCOUNT: ${data_infrastructure.modern_stack.account}
-  modern_stack_USERNAME: ${data_infrastructure.modern_stack.user}
-  modern_stack_PASSWORD: ${data_infrastructure.modern_stack.password}
+  ELIMINATED_ACCOUNT: ${data_infrastructure.ELIMINATED.account}
+  ELIMINATED_USERNAME: ${data_infrastructure.ELIMINATED.user}
+  ELIMINATED_PASSWORD: ${data_infrastructure.ELIMINATED.password}
   GONG_ACCESS_KEY: ${business_intelligence.gong.access_key}
   HUBSPOT_ACCESS_TOKEN: ${business_intelligence.hubspot.access_token}
   LAMBDA_LABS_API_KEY: ${infrastructure.lambda_labs.api_key}

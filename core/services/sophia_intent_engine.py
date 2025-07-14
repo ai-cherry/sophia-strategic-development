@@ -125,7 +125,7 @@ class SophiaIntentEngine:
         infra_keywords = [
             r"\b(deploy|scale|configure|restart|stop|start|monitor)\b",
             r"\b(server|service|container|kubernetes|k8s|docker|pulumi)\b",
-            r"\b(database|redis|postgres|modern_stack)\b",
+            r"\b(database|redis|postgres|qdrant)\b",
             r"\b(lambda|vercel|aws|gcp|azure)\b",
         ]
 

@@ -1,55 +1,55 @@
 # DEPRECATED – Use CortexGateway (core.infra.cortex_gateway). This module will be removed.
 raise ImportError(
-    "'shared.utils.modern_stack_cortex.pool' is deprecated. Use CortexGateway instead."
+    "'shared.utils.qdrant_cortex.pool' is deprecated. Use CortexGateway instead."
 )
 
-"""Async connection pool for ModernStack."""
+"""Async connection pool for Qdrant."""
 
 import asyncio
 from collections import deque
 from contextlib import asynccontextmanager
 from typing import Any
 
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import ModernStackConnection
+
+
 
 from .errors import CortexConnectionError
 
 
 class AsyncConnectionPool:
-    """Async connection pool for ModernStack connections."""
+    """Async connection pool for Qdrant connections."""
 
-    def __init__(self, maxsize: int = 8, minsize: int = 2, **modern_stack_kwargs: Any):
+    def __init__(self, maxsize: int = 8, minsize: int = 2, **qdrant_kwargs: Any):
         """Initialize connection pool.
 
         Args:
             maxsize: Maximum number of connections
             minsize: Minimum number of connections to maintain
-            **modern_stack_kwargs: Arguments for self.modern_stack_connection
+            **qdrant_kwargs: Arguments for self.qdrant_serviceection
         """
         self._maxsize = maxsize
         self._minsize = minsize
-        self._kwargs = modern_stack_kwargs
-        self._pool: deque[ModernStackConnection] = deque()
+        self._kwargs = qdrant_kwargs
+        self._pool: deque[QdrantConnection] = deque()
         self._lock = asyncio.Lock()
         self._created = 0
         self._closed = False
 
-    async def _create_connection(self) -> ModernStackConnection:
-        """Create a new ModernStack connection."""
+    async def _create_connection(self) -> QdrantConnection:
+        """Create a new Qdrant connection."""
         loop = asyncio.get_running_loop()
         try:
             conn = await loop.run_in_executor(
-                None, lambda: self.modern_stack_connection(**self._kwargs)
+                None, lambda: self.qdrant_serviceection(**self._kwargs)
             )
             self._created += 1
             return conn
         except Exception as e:
             raise CortexConnectionError(
-                f"Failed to create ModernStack connection: {e}", details={"error": str(e)}
+                f"Failed to create Qdrant connection: {e}", details={"error": str(e)}
             )
 
-    async def acquire(self) -> ModernStackConnection:
+    async def acquire(self) -> QdrantConnection:
         """Acquire a connection from the pool."""
         if self._closed:
             raise CortexConnectionError("Connection pool is closed")
@@ -79,7 +79,7 @@ class AsyncConnectionPool:
                 details={"maxsize": self._maxsize, "created": self._created},
             )
 
-    async def release(self, conn: ModernStackConnection) -> None:
+    async def release(self, conn: QdrantConnection) -> None:
         """Release a connection back to the pool."""
         if self._closed:
             conn.close()

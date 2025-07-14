@@ -1,4 +1,24 @@
 """
+DEPRECATED: This orchestrator has been consolidated into SophiaAIUnifiedOrchestrator
+Please use: from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+Date deprecated: 2025-07-14
+"""
+
+# Redirect to new unified orchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+
+# Backward compatibility
+"""
+DEPRECATED: This orchestrator has been consolidated into SophiaAIUnifiedOrchestrator
+Please use: from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+Date deprecated: 2025-07-14
+"""
+
+# Redirect to new unified orchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+
+# Backward compatibility
+"""
 Unified Chat Orchestrator v3 - Phase 3
 Integrates all Phase 2 enhancements into cohesive chat experience
 Multi-hop reasoning + personality + trends + n8n optimization
@@ -16,7 +36,7 @@ from backend.services.enhanced_multi_hop_orchestrator import enhanced_orchestrat
 from backend.services.n8n_alpha_optimizer import n8n_optimizer
 from backend.services.x_trends_injector import x_trends_injector
 from backend.services.personality_engine import personality_engine
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.services.portkey_gateway import PortkeyGateway
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
@@ -121,7 +141,7 @@ class UnifiedChatOrchestratorV3:
     
     def __init__(self):
         # Core services
-        self.memory_service = UnifiedMemoryServiceV2()
+        self.memory_service = UnifiedMemoryService()
         self.portkey = PortkeyGateway()
         
         # Phase 2 service integrations
@@ -641,3 +661,4 @@ class UnifiedChatOrchestratorV3:
 
 # Global instance for service injection
 unified_chat_orchestrator_v3 = UnifiedChatOrchestratorV3() 
+

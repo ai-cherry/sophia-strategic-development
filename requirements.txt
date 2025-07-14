@@ -1,32 +1,38 @@
 # Core framework
-fastapi
-uvicorn[standard]
-pydantic
-pydantic-settings
+fastapi==0.116.1
+uvicorn[standard]==0.34.0
+pydantic==2.11.7
+pydantic-settings==2.10.1
 
 # Vector and Database
-weaviate-client
-redis[hiredis]
-asyncpg
+weaviate-client==4.15.4
+redis==6.2.0
+asyncpg==0.30.0
 psycopg2-binary
 pgvector
 
 # AI & LLM - Basic versions
-openai
-anthropic
+openai==1.95.1
+anthropic==0.57.1
+portkey-ai==1.14.1
 
 # Utilities
-python-dotenv
+python-dotenv==1.1.1
 structlog
 httpx
-aiohttp
+aiohttp==3.12.14
 orjson
 
 # Data processing
 pandas
-numpy
+numpy==2.2.4
 sqlalchemy
 
 # Monitoring
 prometheus-client
-psutil
+psutil==7.0.0
+mcp==1.11.0
+python-multipart==0.0.20
+requests==2.32.4
+jinja2==3.1.4
+typing-extensions==4.14.1

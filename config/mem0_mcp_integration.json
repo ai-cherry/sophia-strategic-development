@@ -4,18 +4,20 @@
       "port": 9010,
       "name": "Mem0 Persistent Memory",
       "description": "Cross-session learning and adaptive intelligence",
-      "memory_integration": ["L3"],
+      "memory_integration": [
+        "L3"
+      ],
       "capabilities": [
         "persistent_store",
         "cross_session_recall",
         "adaptive_learning",
-        "modern_stack_sync"
+        "ELIMINATED"
       ],
       "health_check_endpoint": "/health",
       "environment_variables": [
         "MEM0_API_KEY",
         "MEM0_ENVIRONMENT",
-        "modern_stack_ACCOUNT",
+        "ELIMINATED",
         "ENVIRONMENT"
       ]
     }
@@ -25,11 +27,6 @@
       "provider": "redis",
       "ttl_seconds": 3600,
       "max_size_mb": 512
-    },
-    "L2_modern_stack_cortex": {
-      "provider": "modern_stack",
-      "embedding_model": "e5-base-v2",
-      "vector_dimension": 768
     },
     "L3_mem0_persistent": {
       "provider": "mem0",

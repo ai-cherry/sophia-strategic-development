@@ -2,7 +2,7 @@
 Enhanced Settings for Sophia AI Platform - 2025 Best Practices
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from pydantic_settings import BaseSettings
 
 
@@ -30,11 +30,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     pinecone_api_key: str = ""
 
-    # ModernStack
-    # REMOVED: ModernStack dependency ""
-    # REMOVED: ModernStack dependency ""
-    # REMOVED: ModernStack dependency ""
-    # REMOVED: ModernStack dependency "SOPHIA_AI"
+    # Qdrant
+    
+    
+    
+    
 
     # Rate Limiting
     rate_limit_per_minute: int = 60

@@ -388,7 +388,7 @@
         {
           "expr": "increase(mcp_fallback_triggered_total[5m])",
           "refId": "A",
-          "legendFormat": "Fallbacks - {{primary_server}} → {{fallback_server}}"
+          "legendFormat": "Fallbacks - {{primary_server}} \u2192 {{fallback_server}}"
         }
       ],
       "title": "Fallback Routing Activity",
@@ -398,7 +398,11 @@
   "refresh": "5s",
   "schemaVersion": 27,
   "style": "dark",
-  "tags": ["sophia-ai", "langchain", "monitoring"],
+  "tags": [
+    "sophia-ai",
+    "langchain",
+    "monitoring"
+  ],
   "templating": {
     "list": []
   },

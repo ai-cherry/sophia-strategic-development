@@ -32,16 +32,18 @@ GITHUB_TO_PULUMI_MAPPING = {
     "DOCKER_TOKEN": "docker_token",  # Map to same
     "DOCKERHUB_USERNAME": "docker_username",
     "DOCKERHUB_USERNAME": "docker_username",  # Map to same
-    # ModernStack
-    "modern_stack_ACCOUNT": "postgres_host",
-    "modern_stack_USER": "modern_stack_user",
-    "modern_stack_PASSWORD": "postgres_password",
-    "modern_stack_WAREHOUSE": "postgres_database",
-    "modern_stack_DATABASE": "postgres_database",
-    "modern_stack_SCHEMA": "postgres_schema",
-    "modern_stack_ROLE": "modern_stack_role",
-    "modern_stack_PAT": "modern_stack_pat",
-    "modern_stack_CONNECTION_URL": "modern_stack_connection_url",
+    # Qdrant
+    "QDRANT_API_KEY": "qdrant_api_key",
+    "QDRANT_URL": "qdrant_url",
+    "qdrant_ACCOUNT": "postgres_host",
+    "qdrant_USER": "qdrant_user",
+    "qdrant_PASSWORD": "postgres_password",
+    "qdrant_WAREHOUSE": "postgres_database",
+    "qdrant_DATABASE": "postgres_database",
+    "qdrant_SCHEMA": "postgres_schema",
+    "qdrant_ROLE": "qdrant_role",
+    "qdrant_PAT": "qdrant_pat",
+    "qdrant_CONNECTION_URL": "qdrant_serviceection_url",
     # Lambda Labs
     "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
     "LAMBDA_API_CLOUD_ENDPOINT": "lambda_api_cloud_endpoint",

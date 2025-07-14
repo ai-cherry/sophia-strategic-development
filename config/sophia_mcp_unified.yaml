@@ -27,7 +27,7 @@ mcp_servers:
         cpu: 2000m
         replicas: 2
       
-    modern_stack_unified:
+    ELIMINATED_unified:
       port: 9001
       status: active
       capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]

@@ -1,15 +1,15 @@
 {
   "updated_ports": [
     {
-      "file": "mcp-servers/modern_stack/modern_stack_mcp_server.py",
+      "file": "ELIMINATED",
       "port": 9010
     },
     {
-      "file": "mcp-servers/modern_stack/production_modern_stack_mcp_server.py",
+      "file": "ELIMINATED",
       "port": 9010
     },
     {
-      "file": "mcp-servers/modern_stack/enhanced_modern_stack_mcp_server.py",
+      "file": "ELIMINATED",
       "port": 9010
     },
     {
@@ -35,8 +35,8 @@
     "mcp-servers/lambda_labs_cli/__init__.py",
     "mcp-servers/overlays/__init__.py",
     "mcp-servers/linear/__init__.py",
-    "mcp-servers/modern_stack_admin/__init__.py",
-    "mcp-servers/modern_stack/__init__.py",
+    "ELIMINATED",
+    "ELIMINATED",
     "mcp-servers/__pycache__/__init__.py",
     "mcp-servers/playwright/__init__.py",
     "mcp-servers/sophia_infrastructure/__init__.py",
@@ -58,18 +58,18 @@
     "mcp-servers/slack/__init__.py",
     "mcp-servers/sophia_ai_intelligence/__init__.py",
     "mcp-servers/pulumi/__init__.py",
-    "mcp-servers/modern_stack_cli_enhanced/__init__.py",
+    "ELIMINATED",
     "mcp-servers/asana/__init__.py",
     "mcp-servers/figma_context/__init__.py",
-    "mcp-servers/modern_stack_cortex/__init__.py"
+    "ELIMINATED"
   ],
   "added_health": [
     "mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py",
     "mcp-servers/linear/linear_mcp_server.py",
-    "mcp-servers/modern_stack_admin/modern_stack_admin_mcp_server.py",
-    "mcp-servers/modern_stack/modern_stack_mcp_server.py",
-    "mcp-servers/modern_stack/production_modern_stack_mcp_server.py",
-    "mcp-servers/modern_stack/enhanced_modern_stack_mcp_server.py",
+    "ELIMINATED",
+    "ELIMINATED",
+    "ELIMINATED",
+    "ELIMINATED",
     "mcp-servers/graphiti/graphiti_mcp_server.py",
     "mcp-servers/notion/notion_mcp_server.py",
     "mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py",
@@ -82,8 +82,8 @@
     "mcp-servers/portkey_admin/portkey_admin_mcp_server.py",
     "mcp-servers/codacy/codacy_mcp_server.py",
     "mcp-servers/slack/slack_mcp_server.py",
-    "mcp-servers/modern_stack_cli_enhanced/modern_stack_cli_enhanced_mcp_server.py",
+    "ELIMINATED",
     "mcp-servers/asana/asana_mcp_server.py",
-    "mcp-servers/modern_stack_cortex/modern_stack_cortex_mcp_server.py"
+    "ELIMINATED"
   ]
 }

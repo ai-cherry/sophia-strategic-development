@@ -57,7 +57,7 @@ scripts/deploy_sophia_platform.sh  # The actual deployment method
 #### Migration Progress (56.25% Complete)
 **Migrated to Official SDK (9 servers):**
 - ✅ ai_memory (v2.0.0)
-- ✅ modern_stack_unified (v2.0.0)  
+- ✅ ELIMINATED_unified (v2.0.0)  
 - ✅ github (v1.0.0)
 - ✅ slack (v1.0.0)
 - ✅ codacy (v1.0.0)

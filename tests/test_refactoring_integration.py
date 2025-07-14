@@ -23,10 +23,10 @@ class TestServiceIntegration:
             from backend.services.unified_chat_service import UnifiedChatService
             
             # Test memory services  
-            from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+            from backend.services.unified_memory_service_primary import UnifiedMemoryService
             
             # Test orchestrator
-            from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator
+            from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
             
             # Test monitoring
             from backend.services.performance_monitoring_service import PerformanceMonitoringService
@@ -93,11 +93,11 @@ class TestServiceIntegration:
         ], capture_output=True)
         assert result.returncode == 0, "Personality engine has syntax errors"
         
-        # Test modern_stack connector
+        # Test qdrant connector
         result = subprocess.run([
-            "python", "-m", "py_compile", "shared/utils/modern_stack_gong_connector.py"  
+            "python", "-m", "py_compile", "shared/utils/qdrant_gong_connector.py"  
         ], capture_output=True)
-        assert result.returncode == 0, "ModernStack connector has syntax errors"
+        assert result.returncode == 0, "Qdrant connector has syntax errors"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -5,13 +5,13 @@ export ENVIRONMENT=dev
 export LOG_LEVEL=DEBUG
 export MCP_DEBUG=true
 
-# modern_stack configuration (already set by startup_config.py)
-export modern_stack_ACCOUNT=ZNB04675
-export modern_stack_USER=SCOOBYJAVA15
-export modern_stack_DATABASE=SOPHIA_AI
-export modern_stack_WAREHOUSE=SOPHIA_AI_WH
-export modern_stack_ROLE=ACCOUNTADMIN
-export modern_stack_SCHEMA=PROCESSED_AI
+# Qdrant Configuration (already set by startup_config.py)
+export QDRANT_URLZNB04675
+export QDRANT_API_KEYSCOOBYJAVA15
+export QDRANT_DBSOPHIA_AI
+export QDRANT_COLLECTIONSOPHIA_AI_WH
+export QDRANT_ROLEACCOUNTADMIN
+export QDRANT_SCHEMAPROCESSED_AI
 
 # Development shortcuts
 alias test-mcp="python test_mcp_servers.py"

@@ -6,7 +6,7 @@ replacing all deprecated chat services with a unified, intelligent orchestration
 
 Features:
 - Streaming responses for real-time interaction
-- Unified memory integration with ModernStack
+- Unified memory integration with Qdrant
 - Parallel MCP server orchestration
 - ML-based intent classification
 - Comprehensive monitoring and metrics
@@ -139,7 +139,7 @@ async def orchestrate_stream(
             start_time = datetime.utcnow()
 
             # For now, process normally and stream the result
-            # TODO: Implement true streaming in orchestrator
+            # TODO: [ARCH-001] Implement placeholder functionality true streaming in orchestrator
             result = await orchestrator.process_request(
                 query=request.query,
                 user_id=current_user["id"],

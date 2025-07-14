@@ -37,7 +37,7 @@ class PredictionResult:
 
 class PredictiveAnalyticsService:
     """
-    Advanced predictive analytics service using ModernStack ML.
+    Advanced predictive analytics service using Qdrant ML.
     Provides business forecasting and predictive insights.
     """
 
@@ -103,7 +103,7 @@ class PredictiveAnalyticsService:
             return False
 
     async def _create_ml_model(self, config: dict[str, Any]) -> bool:
-        """Create ML model using ModernStack ML functions (conceptual)."""
+        """Create ML model using Qdrant ML functions (conceptual)."""
         logger.info(f"Creating ML model: {config['model_id']}")
         try:
             # training_data_query = self._generate_training_data_query(config)
@@ -167,7 +167,7 @@ class PredictiveAnalyticsService:
     ) -> list[dict[str, Any]]:
         """Analyze factors contributing to prediction (conceptual)."""
         logger.info(f"Analyzing factors for {model_id}")
-        # Conceptual: In reality, this would use SHAP or feature importance from ModernStack
+        # Conceptual: In reality, this would use SHAP or feature importance from Qdrant
         return [{"factor": "sample_factor", "importance": 0.5, "value": "sample_value"}]
 
     async def _generate_prediction_recommendation(
@@ -182,7 +182,7 @@ class PredictiveAnalyticsService:
 
     async def health_check(self) -> dict[str, Any]:
         """Performs a health check on the predictive analytics service."""
-        # A real health check would query model status in ModernStack.
+        # A real health check would query model status in Qdrant.
         return {
             "status": "healthy",
             "active_models": len(self.active_models),

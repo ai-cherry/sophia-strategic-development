@@ -12,12 +12,12 @@ The MCP server configuration is maintained in `config/mcp/mcp_servers.yaml`:
 
 ```yaml
 servers:
-  - name: modern_stack-official
-    type: modern_stack
+  - name: ELIMINATED-official
+    type: ELIMINATED
     tier: PRIMARY
     port: 9130
     capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]
-    pat_secret: modern_stack_MCP_PAT_PROD
+    pat_secret: ELIMINATED_MCP_PAT_PROD
     health_endpoint: /health
     config:
       warehouse: SOPHIA_AI_WH
@@ -56,7 +56,7 @@ capabilities:
 
 ### 1. Modern Stack MCP Server
 
-**Repository**: modern_stack-labs/modern_stack-mcp
+**Repository**: ELIMINATED-labs/ELIMINATED-mcp
 **Tier**: PRIMARY
 **Port**: 9130
 
@@ -72,7 +72,7 @@ config:
   warehouse: SOPHIA_AI_WH
   database: SOPHIA_AI
   schema: PROCESSED_AI
-  pat_secret: modern_stack_MCP_PAT_PROD
+  pat_secret: ELIMINATED_MCP_PAT_PROD
 ```
 
 ### 2. Redis MCP Server
@@ -154,10 +154,10 @@ config:
 from infrastructure.mcp_servers.registry_v2 import get_registry
 
 registry = get_registry()
-modern_stack_server = registry.get_server("modern_stack-official")
+ELIMINATED_server = registry.get_server("ELIMINATED-official")
 
 # Use server directly
-client = MCPClient(modern_stack_server.url, modern_stack_server.pat_token)
+client = MCPClient(ELIMINATED_server.url, ELIMINATED_server.pat_token)
 ```
 
 ### 2. Capability-Based Discovery
@@ -226,7 +226,7 @@ PATs are stored in GitHub Organization Secrets and synced to Pulumi ESC:
 
 ```yaml
 # GitHub Secret → Pulumi ESC Mapping
-modern_stack_MCP_PAT_PROD → modern_stack_mcp_pat
+ELIMINATED_MCP_PAT_PROD → ELIMINATED_mcp_pat
 PULUMI_MCP_PAT_PROD → pulumi_mcp_pat
 ESTUARY_MCP_PAT_PROD → estuary_mcp_pat
 ```
@@ -284,12 +284,12 @@ mcp_registry_errors_total{operation="...", error_type="..."}
 # Old (v1)
 from infrastructure.mcp_servers.mcp_registry import MCPRegistry
 registry = MCPRegistry()
-server = registry.get_server_config("modern_stack")
+server = registry.get_server_config("ELIMINATED")
 
 # New (v2)
 from infrastructure.mcp_servers.registry_v2 import get_registry
 registry = get_registry()
-server = registry.get_server("modern_stack-official")
+server = registry.get_server("ELIMINATED-official")
 ```
 
 ### Configuration Migration
@@ -336,7 +336,7 @@ curl http://localhost:9090/api/mcp/registry/status
 curl -X POST http://localhost:9090/api/mcp/registry/health-check
 
 # View server details
-curl http://localhost:9090/api/mcp/servers/modern_stack-official
+curl http://localhost:9090/api/mcp/servers/ELIMINATED-official
 ```
 
 ## Future Enhancements

@@ -122,7 +122,7 @@ System: ✅ Got it! I've linked "Avalon Bay" → AvalonBay Communities and will 
 ### **Phase 1: Database Setup**
 ```sql
 -- Execute the entity resolution schema
-SOURCE infrastructure/modern_stack_setup/entity_resolution_schema.sql;
+SOURCE infrastructure/ELIMINATED_setup/entity_resolution_schema.sql;
 
 -- Populate from existing data sources
 CALL SOPHIA_ENTITY_RESOLUTION.POPULATE_ENTITIES_FROM_SOURCES();

@@ -46,12 +46,12 @@ spec:
               value: "prod"
             - name: PULUMI_ORG
               value: "scoobyjava-org"
-            - name: modern_stack_ACCOUNT
+            - name: ELIMINATED_ACCOUNT
               valueFrom:
                 secretKeyRef:
-                  name: sophia-modern_stack-secrets
+                  name: sophia-ELIMINATED-secrets
                   key: account
-            - name: modern_stack_DATABASE
+            - name: ELIMINATED_DATABASE
               value: "SOPHIA_AI"
             - name: PORTKEY_API_KEY
               valueFrom:
@@ -99,13 +99,13 @@ spec:
 
       # Init container to ensure dependencies are ready
       initContainers:
-        - name: wait-for-modern_stack
+        - name: wait-for-ELIMINATED
           image: busybox:1.35
           command:
             [
               "sh",
               "-c",
-              'echo "Waiting for ModernStack connection..." && sleep 5',
+              'echo "Waiting for ELIMINATED connection..." && sleep 5',
             ]
 
       # Volumes
@@ -179,7 +179,7 @@ data:
       port: 8000
       workers: 4
 
-    modern_stack:
+    ELIMINATED:
       warehouse: "SOPHIA_AI_WH"
       role: "SOPHIA_AI_ROLE"
       schema: "PRODUCTION"

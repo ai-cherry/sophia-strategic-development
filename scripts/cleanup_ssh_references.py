@@ -28,14 +28,14 @@ def clean_ssh_references():
     # Replacement patterns
     replacements = [
         # SSH key file references
-        (r'SSH_KEY="\$HOME/\.ssh/sophia2025\.pem"', 'SSH_KEY="$HOME/.ssh/lambda_labs_private_key"'),
-        (r'ssh_key_path = os\.path\.expanduser\("~/.ssh/sophia2025\.pem"\)', 'ssh_key_path = os.path.expanduser("~/.ssh/lambda_labs_private_key")'),
-        (r'~/.ssh/sophia2025\.pem', '~/.ssh/lambda_labs_private_key'),
+        (r'SSH_KEY="\$HOME/\.ssh/sophia2025\.pem"', 'SSH_KEY="$HOME/.ssh/sophia_final_key"'),
+        (r'ssh_key_path = os\.path\.expanduser\("~/.ssh/sophia2025\.pem"\)', 'ssh_key_path = os.path.expanduser("~/.ssh/sophia_final_key")'),
+        (r'~/.ssh/sophia2025\.pem', '~/.ssh/sophia_final_key'),
         (r'sophia2025\.pem', 'lambda_labs_private_key'),
         
         # SSH command updates
-        (r'ssh -i ~/.ssh/sophia2025\.pem', 'ssh -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'),
-        (r'scp -i ~/.ssh/sophia2025\.pem', 'scp -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'),
+        (r'ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 'ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'),
+        (r'scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 'scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'),
     ]
     
     # Process each file

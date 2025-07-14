@@ -1,10 +1,9 @@
+from __future__ import annotations
+
 """
 Unified Intent Engine for Sophia AI
 Provides centralized intent understanding with learning capabilities
 """
-
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
-from __future__ import annotations
 
 import json
 import logging
@@ -12,10 +11,12 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
-    EnhancedAiMemoryMCPServer,
+    UnifiedMemoryService,
 )
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -66,8 +67,8 @@ class UnifiedIntentEngine:
     """
 
     def __init__(self):
-        self.cortex_service = UnifiedMemoryServiceV2()
-        self.memory_service = EnhancedAiMemoryMCPServer()
+        self.cortex_service = UnifiedMemoryService()
+        self.memory_service = UnifiedMemoryService()
         self.intent_patterns: dict[str, list[dict]] = {}
         self.capability_mapping: dict[IntentCategory, list[AgentCapability]] = {
             IntentCategory.BUSINESS_INTELLIGENCE: [
@@ -147,11 +148,16 @@ class UnifiedIntentEngine:
         """
 
         try:
-            async with self.cortex_service as cortex:
-                intent_result = await # REMOVED: ModernStack dependency_text_with_cortex(
-                    prompt=analysis_prompt, max_tokens=500
-                )
-
+            # Use QdrantUnifiedMemoryService for intent analysis
+            qdrant_service = QdrantUnifiedMemoryService()
+            await qdrant_service.initialize()
+            
+            # Use the enhanced router for LLM calls
+            intent_result = await qdrant_service.router_service.complete_chat(
+                messages=[{"role": "user", "content": analysis_prompt}],
+                max_tokens=500
+            )
+            
             # Parse the analysis
             intent_data = json.loads(intent_result)
 
@@ -247,7 +253,7 @@ class UnifiedIntentEngine:
             "react",
             "docker",
             "kubernetes",
-            "modern_stack",
+            "qdrant",
             "langchain",
         ]
         message_lower = message.lower()

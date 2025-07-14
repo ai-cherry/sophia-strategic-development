@@ -1,112 +1,257 @@
 #!/usr/bin/env python3
 """
-Setup Lambda Labs SSH key for deployment
+Setup SSH Access to Lambda Labs Servers
+Configures SSH keys and access for deployment
 """
 
 import os
-import stat
+import subprocess
+import sys
 from pathlib import Path
 
-def setup_lambda_labs_ssh():
-    """Setup Lambda Labs SSH key for deployment"""
-    
-    # Lambda Labs SSH private key (provided by user)
-    private_key = """-----BEGIN RSA PRIVATE KEY-----
-MIIEogIBAAKCAQEAsctiuxhwWHR6Vw2MCEKFQTo0fDd0cDE4G2S7AexGvQZvTyqy
-Vl/bBqVE8k3ToTO1VzVynbX4UIv4jmtZ+f85uAkCfkW9xIhfrdMGLVIoMs7UN0rS
-iuFdyUD7pf41RDGah35+FfpxQWq+gL0ac9LCFwhE66YyeB2MzG6hrabsKVAAK7Tv
-GSYH2ApULQdSowZP0niIshBEy9Sq3px1Vylyon7RsY3UWwEgcrEpQens4s3aJDMe
-o/du4cUhbtMJf3RqcDrva9aL3ub0n1Xq5o57lju7umtqlfsJXP776Vyg2oobviaf
-LeLg3ZkRHNFgkUz6nWXSZkEyeeM0nSaKIbBoawIDAQABAoIBABvsIbbZeTdjH52R
-Wpcnf08FqZ2Chg5ipHmk4bvFFDz2iD+qKHTpO/g4t3HIaD6uZMHr+nKrU/KucNxJ
-Hsnk2/c7rwEOyeVWN5SQii1O9FI6ali+rv8xsq17P6pLmKj7k1XJN1sTSHsqHP4R
-9NgQ1vuQCGbr5Iw5s9WdYFXp27gG/cwCPcRmtbDwxWypNqBJXCuzryTcj12mXWxx
-KXyR1D2i64kYJvfX4XpdO2fHqCwy9OQe6XXCgfO8EmY16GEBA9OYFz7TWD05g/ag
-e4C3PhO/OJ8wdd6EUA8/DS8ycN8iAxrqJJ4O8ZRKhPWVTIWG++2b9AJlc+vy+lCo
-4PbAWKECgYEA4SZhKQnDAHzt6xuHkVZCxcFGDQPtEhdPc3B23SIFgRtCCss4h5NC
-20WoxjsULv+CWG6rlTxNojUS3dKwS/xZs7RZRVleV6Rd3nWikuRDTZTDXQBsxRfr
-mgrfdnRKhCkqBfvxEsiRz/dewUL4owkZYyr3B8T6NRDXuCNeWKHHlgsCgYEAyifp
-VmQ9aCS3PrZTVo9CwCz7vh0NHjrZ1LQpJzGWld/BKzwmqZeOe3EKlNI0BaYH43sb
-38uTq5A0TnjfD16hqeWhy7oIgAabnKUU894PkMZNt4xjk9iRFKvsJiCZxv4vN5MY
-MraJRj61jH/9BtXnLAhqsnH7tJYN2uAzufjB0yECgYAyalipStFKg672zWRO7ATp
-qTyZX36vZV7aF53WKG8ZGNRx/E19NkFrPi7rrID5gSdby/RJ54Xuw3mlCC+H5Erl
-zYWL3NYeQ+TtEmREBi736U7RvW2duJx+Et809BdXfqw1SNQTg6v66IZkOi3YvAne
-Rdmo+LeaOFpFlk3jBN7fPwKBgAhMLxWus56Ms0DNtwn8g17j+clJ4/nzrHFAm9fR
-/z5TmtgtdeDMKbsDXs3Q+vWoZPZ/XRuIfZ0zJBJ8f5tf5P7WQBfeoO6wVr7NP9jq
-qnTkztfT2Vp+LyZMEDtYZzd1w3ZigUHDoErT1BvaPQaEzSJPjiGY8B3vcs4jGbxu
-a3ZBAoGARVeKJRgiPHQTxguouBYLSpKr5kuF+sYp0TB3XvOPlMPjKMLIryOajRpd
-3ot+NheIx7IOO8nbRBjcdr1CsxvKVrC6K1iEyV1cOwrGo2JednJr5cY92oE3Q3BZ
-Si02dEz1jsNZT5IObnR+EZU3x3tUPVwobDfLiVIhf5iOHg48b/w=
------END RSA PRIVATE KEY-----"""
-    
-    # Lambda Labs SSH public key (provided by user)
-    public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKAPI0WU9UcB5vVnneP3oExytrPcD0PON5NeQxeNAJOWQSWi/fvkQ97dhAEtjyddmaCti7LFrp3CW+4gtGSiC+2/jOVqERLkmycbC8UZNpyqCiLIwO4MkIuxVNiRkg/ucPuf0DjakJh92xFDIyeDAR55OrpMWqX6O0+OZL0DFXE7jBDaloez+oLytM16CMHtlnx+5Br7O+RoPLEFvBz9RZyqlzs5144pvgHyRSwuvXBcYLKqT24kAPqvxc0SqGYLnNAD1q96BPqMwZONAFPDf3jTFGznmO+I3f+cyiR9Mai7Na9C2/21UJL/9APt7unjQhyQtCF++pwUXxhJX42tId SophiaSSH5"
-    
-    # Create .ssh directory if it doesn't exist
+def check_ssh_key():
+    """Check if SSH key exists, create if needed"""
     ssh_dir = Path.home() / ".ssh"
-    ssh_dir.mkdir(mode=0o700, exist_ok=True)
+    ssh_key = ssh_dir / "id_rsa"
+    ssh_pub = ssh_dir / "id_rsa.pub"
     
-    # Write private key
-    private_key_path = ssh_dir / "lambda_labs_private_key"
-    with open(private_key_path, 'w') as f:
-        f.write(private_key)
-    
-    # Set correct permissions for private key
-    private_key_path.chmod(0o600)
-    
-    # Write public key
-    public_key_path = ssh_dir / "lambda_labs_private_key.pub"
-    with open(public_key_path, 'w') as f:
-        f.write(public_key)
-    
-    # Set correct permissions for public key
-    public_key_path.chmod(0o644)
-    
-    print("✅ Lambda Labs SSH keys set up successfully!")
-    print(f"   Private key: {private_key_path}")
-    print(f"   Public key: {public_key_path}")
-    
-    # Test SSH connection to Lambda Labs instances
-    instances = [
-        ("master", "192.222.58.232", "GH200"),
-        ("mcp", "104.171.202.117", "A6000"),
-        ("data", "104.171.202.134", "A100"),
-        ("prod", "104.171.202.103", "RTX6000")
-    ]
-    
-    print("\n🔍 Testing SSH connections...")
-    for name, ip, gpu in instances:
+    if not ssh_key.exists():
+        print("🔑 Creating SSH key pair...")
         try:
-            import subprocess
+            subprocess.run([
+                "ssh-keygen", "-t", "rsa", "-b", "4096", 
+                "-f", str(ssh_key), "-N", "", "-C", "sophia-ai-deployment"
+            ], check=True)
+            print("✅ SSH key pair created")
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Failed to create SSH key: {e}")
+            return False
+    else:
+        print("✅ SSH key already exists")
+    
+    # Display public key
+    if ssh_pub.exists():
+        with open(ssh_pub, 'r') as f:
+            public_key = f.read().strip()
+        
+        print("\n🔑 Your SSH Public Key:")
+        print("=" * 80)
+        print(public_key)
+        print("=" * 80)
+        
+        return public_key
+    
+    return False
+
+def create_ssh_config():
+    """Create SSH config for Lambda Labs servers"""
+    ssh_config = """
+# Lambda Labs Sophia AI Infrastructure
+Host sophia-primary
+    HostName 192.222.58.232
+    User root
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+Host sophia-mcp
+    HostName 104.171.202.117
+    User root
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+Host sophia-data
+    HostName 104.171.202.134
+    User root
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+Host sophia-dev
+    HostName 155.248.194.183
+    User root
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+"""
+    
+    ssh_dir = Path.home() / ".ssh"
+    config_file = ssh_dir / "config"
+    
+    # Backup existing config
+    if config_file.exists():
+        backup_file = ssh_dir / "config.backup"
+        subprocess.run(["cp", str(config_file), str(backup_file)])
+        print("✅ Backed up existing SSH config")
+    
+    # Append or create config
+    with open(config_file, 'a') as f:
+        f.write(ssh_config)
+    
+    # Set proper permissions
+    os.chmod(config_file, 0o600)
+    print("✅ SSH config updated")
+
+def test_ssh_connections():
+    """Test SSH connections to all servers"""
+    servers = {
+        "sophia-primary": "192.222.58.232",
+        "sophia-mcp": "104.171.202.117", 
+        "sophia-data": "104.171.202.134",
+        "sophia-dev": "155.248.194.183"
+    }
+    
+    print("\n🧪 Testing SSH connections...")
+    
+    working_servers = []
+    failed_servers = []
+    
+    for alias, ip in servers.items():
+        try:
             result = subprocess.run([
-                "ssh", "-i", str(private_key_path), 
-                "-o", "ConnectTimeout=5",
-                "-o", "StrictHostKeyChecking=no", 
-                "-o", "UserKnownHostsFile=/dev/null",
-                f"ubuntu@{ip}", "echo 'OK'"
-            ], capture_output=True, text=True, timeout=10)
+                "ssh", "-o", "ConnectTimeout=10", "-o", "BatchMode=yes",
+                alias, "echo 'SSH connection successful'"
+            ], capture_output=True, text=True, timeout=15)
             
             if result.returncode == 0:
-                print(f"   ✅ {name} ({ip}) - {gpu} - Connected")
+                print(f"✅ {alias} ({ip}): Connected")
+                working_servers.append(alias)
             else:
-                print(f"   ❌ {name} ({ip}) - {gpu} - Failed: {result.stderr.strip()}")
+                print(f"❌ {alias} ({ip}): Failed - {result.stderr.strip()}")
+                failed_servers.append(alias)
                 
+        except subprocess.TimeoutExpired:
+            print(f"❌ {alias} ({ip}): Timeout")
+            failed_servers.append(alias)
         except Exception as e:
-            print(f"   ❌ {name} ({ip}) - {gpu} - Error: {e}")
+            print(f"❌ {alias} ({ip}): Error - {e}")
+            failed_servers.append(alias)
     
-    # Set environment variables
-    print("\n🔧 Setting environment variables...")
-    os.environ["LAMBDA_API_KEY"] = "secret_sophia5apikey_a404a99d985d41828d7020f0b9a122a2.PjbWZb0lLubKu1nmyWYLy9Ycl3vyL18o"
-    os.environ["LAMBDA_PRIVATE_SSH_KEY"] = private_key
-    os.environ["LAMBDA_SSH_KEY"] = public_key
+    return working_servers, failed_servers
+
+def create_manual_deployment_guide():
+    """Create manual deployment instructions"""
+    guide = """
+# 🚀 Manual Lambda Labs Deployment Guide
+
+## SSH Key Setup Required
+
+Your SSH public key needs to be added to each Lambda Labs server.
+
+### Step 1: Add SSH Key to Lambda Labs Console
+1. Go to Lambda Labs console: https://cloud.lambdalabs.com/
+2. Navigate to each instance
+3. Add your SSH public key to authorized_keys
+
+### Step 2: Alternative - Use Lambda Labs SSH Key
+If you have the Lambda Labs private key, use it:
+
+```bash
+# Copy your Lambda Labs private key to ~/.ssh/
+cp /path/to/lambda-labs-key ~/.ssh/lambda_labs_key
+chmod 600 ~/.ssh/lambda_labs_key
+
+# Update SSH config to use Lambda Labs key
+ssh-add ~/.ssh/lambda_labs_key
+```
+
+### Step 3: Manual Deployment Commands
+
+Once SSH access is working, run these commands:
+
+```bash
+# Deploy primary server
+ssh root@192.222.58.232 'bash -s' < scripts/deploy_primary_server.sh
+
+# Deploy MCP orchestrator  
+ssh root@104.171.202.117 'bash -s' < scripts/deploy_mcp_server.sh
+
+# Setup SSL certificates
+ssh root@192.222.58.232 'bash -s' < scripts/setup_ssl.sh
+
+# Setup monitoring
+ssh root@192.222.58.232 'bash -s' < scripts/setup_monitoring.sh
+```
+
+### Step 4: Test Deployment
+
+```bash
+# Test endpoints
+curl -s https://sophia-intel.ai/health
+curl -s https://api.sophia-intel.ai/health
+curl -s https://app.sophia-intel.ai/health
+```
+
+## Alternative: Direct Server Access
+
+If SSH keys are complex, you can also:
+
+1. SSH directly to each server
+2. Clone the repository: `git clone https://github.com/ai-cherry/sophia-main.git`
+3. Run deployment scripts locally on each server
+
+### Primary Server (192.222.58.232):
+```bash
+ssh root@192.222.58.232
+git clone https://github.com/ai-cherry/sophia-main.git
+cd sophia-main
+bash scripts/deploy_primary_server.sh
+```
+
+### MCP Server (104.171.202.117):
+```bash
+ssh root@104.171.202.117
+git clone https://github.com/ai-cherry/sophia-main.git
+cd sophia-main
+bash scripts/deploy_mcp_server.sh
+```
+"""
     
-    print("   ✅ Environment variables set")
-    print("   ✅ LAMBDA_API_KEY configured")
-    print("   ✅ LAMBDA_PRIVATE_SSH_KEY configured")
-    print("   ✅ LAMBDA_SSH_KEY configured")
+    with open("MANUAL_DEPLOYMENT_GUIDE.md", "w") as f:
+        f.write(guide.strip())
     
-    print("\n🚀 Lambda Labs SSH setup complete!")
-    print("   Ready for deployment with unified_deployment_orchestrator.py")
+    print("✅ Created MANUAL_DEPLOYMENT_GUIDE.md")
+
+def main():
+    """Main setup function"""
+    print("🔑 Setting up SSH access to Lambda Labs servers...")
+    
+    # Check/create SSH key
+    public_key = check_ssh_key()
+    if not public_key:
+        print("❌ Failed to setup SSH key")
+        sys.exit(1)
+    
+    # Create SSH config
+    create_ssh_config()
+    
+    # Test connections
+    working, failed = test_ssh_connections()
+    
+    # Create manual guide
+    create_manual_deployment_guide()
+    
+    print("\n" + "="*80)
+    print("🎯 SSH SETUP SUMMARY")
+    print("="*80)
+    
+    if working:
+        print(f"✅ Working servers: {', '.join(working)}")
+        print("🚀 You can now run: python3 scripts/master_deploy.py")
+    
+    if failed:
+        print(f"❌ Failed servers: {', '.join(failed)}")
+        print("📋 Manual setup required - see instructions below")
+        
+        print("\n🔑 NEXT STEPS:")
+        print("1. Add this SSH public key to your Lambda Labs servers:")
+        print("   " + public_key)
+        print("\n2. Or use your existing Lambda Labs SSH key")
+        print("\n3. Run deployment again: python3 scripts/master_deploy.py")
+        print("\n4. Or follow manual deployment guide: MANUAL_DEPLOYMENT_GUIDE.md")
+    
+    print("\n💡 TIP: You can also deploy directly on each server by SSH'ing in and running scripts locally")
 
 if __name__ == "__main__":
-    setup_lambda_labs_ssh() 
+    main() 

@@ -9,8 +9,8 @@ from collections.abc import AsyncGenerator
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
+
+
 
 from backend.core.auto_esc_config import get_config_value
 from shared.utils.custom_logger import logger
@@ -29,7 +29,7 @@ class CortexAdapter:
         self.executor = ThreadPoolExecutor(max_workers=5)
         self._connection = None
         self._connection_params = {
-            "user": get_config_value("modern_stack_user"),
+            "user": get_config_value("qdrant_user"),
             "password": get_config_value("postgres_password"),
             "account": get_config_value("postgres_host"),
             "warehouse": get_config_value("postgres_database", "COMPUTE_WH"),
@@ -38,7 +38,7 @@ class CortexAdapter:
         }
 
     async def _ensure_connection(self):
-        """Ensure ModernStack connection is established"""
+        """Ensure Qdrant connection is established"""
         if not self._connection or self._connection.is_closed():
             loop = asyncio.get_event_loop()
             self._connection = await loop.run_in_executor(
@@ -46,11 +46,11 @@ class CortexAdapter:
             )
 
     def _create_connection(self):
-        """Create ModernStack connection (sync)"""
+        """Create Qdrant connection (sync)"""
         try:
-            return self.modern_stack_connection(**self._connection_params)
+            return self.qdrant_serviceection(**self._connection_params)
         except Exception as e:
-            logger.error(f"Failed to connect to ModernStack: {e}")
+            logger.error(f"Failed to connect to Qdrant: {e}")
             raise
 
     async def complete(
@@ -88,7 +88,7 @@ class CortexAdapter:
         except Exception as e:
             logger.error(f"Lambda GPU error: {e}")
             llm_errors_total.labels(
-                provider="modern_stack", model="cortex", error_type=type(e).__name__
+                provider="qdrant", model="cortex", error_type=type(e).__name__
             ).inc()
             raise
 
@@ -101,10 +101,10 @@ class CortexAdapter:
         # Build appropriate query based on task
         if task == TaskType.SQL_GENERATION:
             query = """
-            SELECT self.modern_stack.await self.lambda_gpu.complete(
+            SELECT self.qdrant_service.await self.lambda_gpu.complete(
                 'mistral-large',
                 CONCAT(
-                    'You are a SQL expert. Generate optimized ModernStack SQL based on this request. ',
+                    'You are a SQL expert. Generate optimized Qdrant SQL based on this request. ',
                     'Return only the SQL query without explanation: ',
                     %s
                 ),
@@ -113,7 +113,7 @@ class CortexAdapter:
             """
         else:
             query = """
-            SELECT self.modern_stack.await self.lambda_gpu.complete(
+            SELECT self.qdrant_service.await self.lambda_gpu.complete(
                 'mistral-large',
                 %s,
                 {'temperature': %s, 'max_tokens': %s}
@@ -130,11 +130,11 @@ class CortexAdapter:
             output_tokens = len(result["response"].split())
 
             llm_tokens_total.labels(
-                provider="modern_stack", model="mistral-large", direction="input"
+                provider="qdrant", model="mistral-large", direction="input"
             ).inc(input_tokens)
 
             llm_tokens_total.labels(
-                provider="modern_stack", model="mistral-large", direction="output"
+                provider="qdrant", model="mistral-large", direction="output"
             ).inc(output_tokens)
 
             return result["response"]
@@ -146,7 +146,7 @@ class CortexAdapter:
         loop = asyncio.get_event_loop()
 
         query = """
-        SELECT self.modern_stack.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
+        SELECT self.qdrant_service.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
         """
 
         result = await loop.run_in_executor(
@@ -159,7 +159,7 @@ class CortexAdapter:
 
             # Track token usage
             llm_tokens_total.labels(
-                provider="modern_stack", model="e5-base-v2", direction="input"
+                provider="qdrant", model="e5-base-v2", direction="input"
             ).inc(len(text.split()))
 
             return embedding_data
@@ -167,7 +167,7 @@ class CortexAdapter:
             return []
 
     def _execute_query(self, query: str, params: tuple) -> dict[str, Any] | None:
-        """Execute ModernStack query (sync)"""
+        """Execute Qdrant query (sync)"""
         cursor = None
         try:
             cursor = self._connection.cursor(DictCursor)
@@ -227,7 +227,7 @@ class CortexAdapter:
             return {"status": "unhealthy", "error": str(e), "connected": False}
 
     async def close(self):
-        """Close ModernStack connection"""
+        """Close Qdrant connection"""
         if self._connection and not self._connection.is_closed():
             self._connection.close()
         self.executor.shutdown(wait=True)

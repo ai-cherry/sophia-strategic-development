@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import shlex
 from datetime import UTC, datetime
 
@@ -17,7 +17,6 @@ Recommended decomposition:
 - deployment_tracker_models.py - Data models
 - deployment_tracker_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import json
@@ -27,7 +26,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -112,12 +111,12 @@ class EnhancedDeploymentTracker:
     """Enhanced deployment tracking with monitoring and rollback capabilities."""
 
     def __init__(self):
-        self.memory_service_v3 = UnifiedMemoryServiceV2()
+        self.memory_service_v3 = UnifiedMemoryService()
         self.deployment_history: list[DeploymentEvent] = []
         self.active_deployments: dict[str, DeploymentEvent] = {}
 
     async def initialize_tracking_schema(self) -> bool:
-        """Initialize deployment tracking schema in ModernStack."""
+        """Initialize deployment tracking schema in Qdrant."""
         try:
             schema_sql = """
             -- Deployment Tracking Schema
@@ -232,7 +231,7 @@ class EnhancedDeploymentTracker:
         # Store in active deployments
         self.active_deployments[deployment_id] = deployment_event
 
-        # Store in ModernStack
+        # Store in Qdrant
         await self._store_deployment_event(deployment_event)
 
         # Send notification
@@ -269,7 +268,7 @@ class EnhancedDeploymentTracker:
             self.deployment_history.append(deployment)
             del self.active_deployments[deployment_id]
 
-        # Update in ModernStack
+        # Update in Qdrant
         await self._store_deployment_event(deployment)
 
         # Send notification
@@ -473,7 +472,7 @@ class EnhancedDeploymentTracker:
         }
 
     async def _store_deployment_event(self, event: DeploymentEvent) -> bool:
-        """Store deployment event in ModernStack."""
+        """Store deployment event in Qdrant."""
 
         try:
             query = """
@@ -624,13 +623,7 @@ class EnhancedDeploymentTracker:
                 "kubectl rollout status deployment/sophia-mcp-ai-memory -n sophia-mcp",
             ],
             ComponentType.FRONTEND: [
-                f"vercel env pull .env.{environment.value}",
-                (
-                    "vercel deploy --prod"
-                    if environment == Environment.PRODUCTION
-                    else "vercel deploy"
-                ),
-                "vercel alias set",
+                f"# Lambda Labs deployment - no Vercel commands needed",
             ],
         }
 

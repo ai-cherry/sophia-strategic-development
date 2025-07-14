@@ -13,8 +13,8 @@ export GONG_CLIENT_SECRET="$(gh secret get GONG_CLIENT_SECRET --org ai-cherry 2>
 export HUBSPOT_ACCESS_TOKEN="$(gh secret get HUBSPOT_ACCESS_TOKEN --org ai-cherry 2>/dev/null || echo 'loading_failed')"
 export LINEAR_API_KEY="$(gh secret get LINEAR_API_KEY --org ai-cherry 2>/dev/null || echo 'loading_failed')"
 export LAMBDA_API_KEY="$(gh secret get LAMBDA_API_KEY --org ai-cherry 2>/dev/null || echo 'loading_failed')"
-export modern_stack_ACCOUNT="$(gh secret get modern_stack_ACCOUNT --org ai-cherry 2>/dev/null || echo 'ZNB04675')"
-export modern_stack_PASSWORD="$(gh secret get modern_stack_PASSWORD --org ai-cherry 2>/dev/null || echo 'loading_failed')"
+export QDRANT_URL"$(gh secret get QDRANT_URL--org ai-cherry 2>/dev/null || echo 'ZNB04675')"
+export QDRANT_SECRET"$(gh secret get QDRANT_SECRET--org ai-cherry 2>/dev/null || echo 'loading_failed')"
 export PINECONE_API_KEY="$(gh secret get PINECONE_API_KEY --org ai-cherry 2>/dev/null || echo 'loading_failed')"
 export SLACK_BOT_TOKEN="$(gh secret get SLACK_BOT_TOKEN --org ai-cherry 2>/dev/null || echo 'loading_failed')"
 

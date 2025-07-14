@@ -91,13 +91,13 @@ servers:
       MAX_MEMORIES: "10000"
       CACHE_TTL: "3600"
   
-  modern_stack:
+  ELIMINATED:
     enabled: true
-    name: modern_stack-unified
+    name: ELIMINATED-unified
     tier: PRIMARY
     port: 9001
     replicas: 2
-    image: "sophia-mcp-modern_stack:latest"
+    image: "sophia-mcp-ELIMINATED:latest"
     capabilities:
       - ANALYTICS
       - EMBEDDING

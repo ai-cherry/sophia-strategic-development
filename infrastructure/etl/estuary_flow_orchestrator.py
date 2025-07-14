@@ -1,10 +1,10 @@
 """
 Estuary Flow Orchestrator for Sophia AI
 Replaces estuary with Estuary Flow for real-time data pipeline management
-Implements ELT pattern: Estuary Flow → PostgreSQL → Redis → ModernStack
+Implements ELT pattern: Estuary Flow → PostgreSQL → Redis → Qdrant
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import backend.utils.path_utils  # noqa: F401, must be before other imports
 
 import asyncio
@@ -21,7 +21,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(project_root))
 
-# REMOVED: ModernStack dependency
+
 
 logger = logging.getLogger(__name__)
 
@@ -412,15 +412,15 @@ class EstuaryFlowOrchestrator:
         )
         return await self._create_flow(flow_spec)
 
-    async def create_postgresql_to_modern_stack_flow(self) -> dict[str, Any]:
+    async def create_postgresql_to_qdrant_flow(self) -> dict[str, Any]:
         """
-        Create PostgreSQL → ModernStack data flow
-        ELT pattern: Transform and load processed data to ModernStack
+        Create PostgreSQL → Qdrant data flow
+        ELT pattern: Transform and load processed data to Qdrant
         """
-# REMOVED: ModernStack dependency()
+
 
         flow_spec = DataFlowSpec(
-            name="postgresql-to-modern_stack",
+            name="postgresql-to-qdrant",
             source_type="source-postgres",
             source_config={
                 "host": get_config_value("postgresql_host"),
@@ -432,14 +432,14 @@ class EstuaryFlowOrchestrator:
                 "ssl_mode": "require",
                 "replication_method": "CDC",  # Change Data Capture for real-time
             },
-            destination_type="destination-modern_stack",
+            destination_type="destination-qdrant",
             destination_config={
-                "host": f"{modern_stack_creds.get('account')}.modern_stackcomputing.com",
-                "role": modern_stack_creds.get("role"),
-                "warehouse": modern_stack_creds.get("warehouse"),
-                "database": modern_stack_creds.get("database"),
-                "username": modern_stack_creds.get("user"),
-                "password": modern_stack_creds.get("password"),
+                "host": f"{qdrant_creds.get('account')}.qdrantcomputing.com",
+                "role": qdrant_creds.get("role"),
+                "warehouse": qdrant_creds.get("warehouse"),
+                "database": qdrant_creds.get("database"),
+                "username": qdrant_creds.get("user"),
+                "password": qdrant_creds.get("password"),
                 "jdbc_url_params": "CLIENT_SESSION_KEEP_ALIVE=true",
             },
         )
@@ -489,7 +489,7 @@ class EstuaryFlowOrchestrator:
     async def setup_complete_pipeline(self) -> dict[str, Any]:
         """
         Set up the complete data pipeline:
-        HubSpot/Gong/Slack/Salesforce/Asana/Linear/Notion -> PostgreSQL -> ModernStack
+        HubSpot/Gong/Slack/Salesforce/Asana/Linear/Notion -> PostgreSQL -> Qdrant
         """
         results = {}
 
@@ -508,8 +508,8 @@ class EstuaryFlowOrchestrator:
             await asyncio.sleep(5)
 
             # Create destination flow
-            logger.info("Setting up ModernStack destination flow...")
-            results["# REMOVED: ModernStack dependency await self.create_postgresql_to_modern_stack_flow()
+            logger.info("Setting up Qdrant destination flow...")
+            results["
 
             # Start all flows
             logger.info("Starting all data flows...")
@@ -521,7 +521,7 @@ class EstuaryFlowOrchestrator:
                 "asana-to-postgresql",
                 "linear-to-postgresql",
                 "notion-to-postgresql",
-                "postgresql-to-modern_stack",
+                "postgresql-to-qdrant",
             ]:
                 await self.start_flow(flow_name)
 

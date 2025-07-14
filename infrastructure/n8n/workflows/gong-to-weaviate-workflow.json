@@ -11,7 +11,10 @@
       "name": "Gong Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [250, 300]
+      "position": [
+        250,
+        300
+      ]
     },
     {
       "parameters": {
@@ -21,7 +24,10 @@
       "name": "Prepare Call Data",
       "type": "n8n-nodes-base.functionItem",
       "typeVersion": 1,
-      "position": [450, 300]
+      "position": [
+        450,
+        300
+      ]
     },
     {
       "parameters": {
@@ -48,7 +54,10 @@
       "name": "Generate GPU Embedding",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 2,
-      "position": [650, 300]
+      "position": [
+        650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -58,7 +67,10 @@
       "name": "Merge Embedding",
       "type": "n8n-nodes-base.functionItem",
       "typeVersion": 1,
-      "position": [850, 300]
+      "position": [
+        850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -79,7 +91,10 @@
       "name": "Store in Weaviate",
       "type": "n8n-nodes-community.weaviate",
       "typeVersion": 1,
-      "position": [1050, 200],
+      "position": [
+        1050,
+        200
+      ],
       "credentials": {
         "weaviateApi": {
           "id": "1",
@@ -99,7 +114,10 @@
       "name": "Cache in Redis",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [1050, 400],
+      "position": [
+        1050,
+        400
+      ],
       "credentials": {
         "redis": {
           "id": "2",
@@ -118,7 +136,10 @@
       "name": "Store in PostgreSQL",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 1,
-      "position": [1050, 600],
+      "position": [
+        1050,
+        600
+      ],
       "credentials": {
         "postgres": {
           "id": "3",
@@ -128,18 +149,21 @@
     },
     {
       "parameters": {
-        "functionCode": "// Calculate performance metrics\nconst startTime = $items('webhook_trigger')[0].json.timestamp;\nconst endTime = new Date();\nconst totalMs = endTime - new Date(startTime);\n\n// Estimate ModernStack time (8x slower)\nconst modern_stackEstimateMs = totalMs * 8;\n\nreturn [{\n  json: {\n    success: true,\n    processingTimeMs: totalMs,\n    modern_stackEstimateMs: modern_stackEstimateMs,\n    speedup: (modern_stackEstimateMs / totalMs).toFixed(1) + 'x',\n    costSavings: '$' + (totalMs * 0.001).toFixed(2),\n    message: `Processed in ${totalMs}ms (ModernStack would have taken ${modern_stackEstimateMs}ms)`\n  }\n}];"
+        "functionCode": "ELIMINATED"
       },
       "id": "performance_metrics",
       "name": "Calculate Performance",
       "type": "n8n-nodes-base.functionItem",
       "typeVersion": 1,
-      "position": [1250, 300]
+      "position": [
+        1250,
+        300
+      ]
     },
     {
       "parameters": {
         "channel": "#sophia-monitoring",
-        "text": "=Gong Call Processed ✅\n\n*Call ID:* {{ $items('prepare_data')[0].json.id }}\n*Processing Time:* {{ $json.processingTimeMs }}ms\n*Speedup vs ModernStack:* {{ $json.speedup }}\n*Cost Savings:* {{ $json.costSavings }}\n\n_{{ $json.message }}_",
+        "text": "ELIMINATED",
         "attachments": [],
         "otherOptions": {}
       },
@@ -147,7 +171,10 @@
       "name": "Notify Slack",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 1,
-      "position": [1450, 200],
+      "position": [
+        1450,
+        200
+      ],
       "credentials": {
         "slackApi": {
           "id": "4",
@@ -165,7 +192,10 @@
       "name": "Webhook Response",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [1450, 400]
+      "position": [
+        1450,
+        400
+      ]
     }
   ],
   "connections": {
@@ -286,7 +316,7 @@
       "name": "gong"
     },
     {
-      "id": "2", 
+      "id": "2",
       "name": "gpu-powered"
     },
     {
@@ -296,4 +326,4 @@
   ],
   "updatedAt": "2025-07-11T20:00:00.000Z",
   "versionId": "v2.0"
-} 
+}

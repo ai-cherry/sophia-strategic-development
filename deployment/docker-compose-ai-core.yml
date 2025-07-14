@@ -81,7 +81,7 @@ services:
       retries: 3
 
   # Lambda GPU AI
-  modern_stack-cortex:
+
     image: ${DOCKER_REGISTRY:-scoobyjava15}/sophia-ai-cortex:${IMAGE_TAG:-latest}
     ports:
       - "8081:8081"
@@ -90,7 +90,7 @@ services:
       - PULUMI_ORG=scoobyjava-org
       - INSTANCE_NAME=ai-core
       - MCP_SERVER_PORT=8081
-      - modern_stack_CORTEX_ENABLED=true
+      - ELIMINATED_CORTEX_ENABLED=true
       - ENABLE_GPU_ACCELERATION=true
       - CUDA_VISIBLE_DEVICES=0
     deploy:
@@ -150,8 +150,7 @@ services:
       retries: 3
 
   # Enhanced Lambda GPU Processing
-  modern_stack-cortex-enhanced:
-    image: ${DOCKER_REGISTRY:-scoobyjava15}/sophia-modern_stack-cortex:${IMAGE_TAG:-latest}
+
     ports:
       - "8082:8082"
     environment:
@@ -159,7 +158,7 @@ services:
       - PULUMI_ORG=scoobyjava-org
       - INSTANCE_NAME=ai-core
       - MCP_SERVER_PORT=8082
-      - modern_stack_CORTEX_ENHANCED=true
+      - ELIMINATED_CORTEX_ENHANCED=true
       - ENABLE_GPU_ACCELERATION=true
       - CUDA_VISIBLE_DEVICES=0
     deploy:

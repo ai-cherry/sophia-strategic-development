@@ -11,7 +11,7 @@ The Sophia AI platform unification is underway to consolidate 8+ fragmented API 
 - ✅ Identified critical issues:
   - MCPServerEndpoint initialization errors
   - Missing dependencies (slowapi)
-  - Indentation errors in modern_stack_cortex_service.py
+  - Indentation errors in ELIMINATED_cortex_service.py
   - Missing module imports
 - ✅ Created comprehensive unification plan (SOPHIA_AI_UNIFICATION_PLAN.md)
 
@@ -41,7 +41,7 @@ The Sophia AI platform unification is underway to consolidate 8+ fragmented API 
 - Need to update imports to use correct MCP server package
 
 ### 2. Indentation Errors
-- `backend/utils/modern_stack_cortex_service.py` lines 799, 808
+- `backend/utils/ELIMINATED_cortex_service.py` lines 799, 808
 - Automated fix available in scripts
 
 ### 3. MCPServerEndpoint

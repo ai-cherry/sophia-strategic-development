@@ -9,7 +9,7 @@ from .errors import (
     CortexQuotaError,
     MCPServerError,
 )
-from .service import ModernStackCortexService
+from .service import QdrantUnifiedMemoryService
 
 __all__ = [
     "CortexAuthenticationError",
@@ -20,6 +20,6 @@ __all__ = [
     "CortexQuotaError",
     "MCPMode",
     "MCPServerError",
-    "ModernStackCortexService",
+    "QdrantUnifiedMemoryService",
     "TaskType",
 ]

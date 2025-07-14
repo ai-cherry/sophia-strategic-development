@@ -1,8 +1,8 @@
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 """
 Cortex AI Configuration for Sophia AI
 Generated: 2025-07-04T18:37:38.754393
-This configuration enables native AI capabilities in ModernStack
+This configuration enables native AI capabilities in Qdrant
 """
 
 CORTEX_CONFIG = {
@@ -17,12 +17,12 @@ CORTEX_CONFIG = {
         "embeddings": {"primary": "e5-base-v2", "dimension": 768},
     },
     "functions": {
-        "complete": "self.modern_stack.await self.lambda_gpu.complete",
-        "sentiment": "self.modern_stack.await self.lambda_gpu.analyze_sentiment",
-        "summarize": "self.modern_stack.await self.lambda_gpu.summarize",
-        "embed": "self.modern_stack.await self.lambda_gpu.embed_text",
+        "complete": "self.qdrant_service.await self.lambda_gpu.complete",
+        "sentiment": "self.qdrant_service.await self.lambda_gpu.analyze_sentiment",
+        "summarize": "self.qdrant_service.await self.lambda_gpu.summarize",
+        "embed": "self.qdrant_service.await self.lambda_gpu.embed_text",
         "extract": "await self.lambda_gpu.EXTRACT_ANSWER",
-        "translate": "self.modern_stack.await self.lambda_gpu.translate",
+        "translate": "self.qdrant_service.await self.lambda_gpu.translate",
     },
     "tables": {
         "ai_memory": "CORTEX_AI.AI_MEMORY_ENHANCED",

@@ -3,7 +3,7 @@ Centralized Settings Configuration
 Uses Pydantic for validation and environment variable loading
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from functools import lru_cache
 from typing import Any
 
@@ -40,14 +40,14 @@ class Settings(BaseSettings):
     openrouter_api_key: str | None = Field(None, env="OPENROUTER_API_KEY")
     portkey_api_key: str | None = Field(None, env="PORTKEY_API_KEY")
 
-    # ModernStack
-    # REMOVED: ModernStack dependency"modern_stack_ACCOUNT")
-    # REMOVED: ModernStack dependency"modern_stack_USER")
-    # REMOVED: ModernStack dependency"modern_stack_PASSWORD")
-    # REMOVED: ModernStack dependency"modern_stack_WAREHOUSE")
-    # REMOVED: ModernStack dependency"modern_stack_DATABASE")
-    # REMOVED: ModernStack dependency"modern_stack_SCHEMA")
-    # REMOVED: ModernStack dependency"modern_stack_ROLE")
+    # Qdrant
+    
+    
+    
+    
+    
+    
+    
 
     # Vector Databases
     pinecone_api_key: str | None = Field(None, env="PINECONE_API_KEY")

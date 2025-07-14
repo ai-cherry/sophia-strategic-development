@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3 import DictCursor
+
 
 logger = logging.getLogger(__name__)
 
@@ -74,14 +74,14 @@ class ContextWindow:
 class EnhancedChatContextService:
     """Enhanced chat service with large contextual windows and intelligent context management"""
 
-# REMOVED: ModernStack dependency: dict[str, str]):
-# REMOVED: ModernStack dependency
+
+
         self.connection = None
         self.context_window = ContextWindow()
 
     @performance_monitor.track_performance
     async def connect(self):
-        """Connect to ModernStack"""
+        """Connect to Qdrant"""
         try:
             self.connection = await connection_manager.get_connection()
             logger.info("✅ Enhanced Chat Context Service connected")

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from ..utils.enhanced_modern_stack_cortex_service import EnhancedModernStackCortexService
+from ..utils.enhanced_qdrant_memory_service import EnhancedQdrantUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class IntelligentQueryRouter:
     """AI-powered query router using Lambda GPU for intent analysis"""
 
     def __init__(self):
-        self.cortex_service = EnhancedUnifiedMemoryServiceV2()
+        self.cortex_service = EnhancedUnifiedMemoryService()
 
         # Business domain mappings
         self.domain_keywords = {
@@ -141,7 +141,7 @@ class IntelligentQueryRouter:
                     "real_time_monitoring",
                 ],
             },
-            "modern_stack_cortex": {
+            "qdrant_cortex": {
                 "response_time": 3.0,  # seconds
                 "strengths": [
                     "analytics",
@@ -194,7 +194,7 @@ class IntelligentQueryRouter:
 
             4. TARGET SYSTEMS (choose one or more):
                - mcp_servers: For real-time operations and immediate actions
-               - modern_stack_cortex: For analytics, trends, and complex analysis
+               - qdrant_cortex: For analytics, trends, and complex analysis
                - both: For queries requiring real-time data + analytics
 
             5. PROCESSING STRATEGY:
@@ -207,7 +207,7 @@ class IntelligentQueryRouter:
                 "query_type": "OPERATIONAL|ANALYTICAL|HYBRID|SYSTEM",
                 "urgency": "CRITICAL|HIGH|MEDIUM|LOW",
                 "confidence": 0.0-1.0,
-                "target_systems": ["mcp_servers", "modern_stack_cortex"],
+                "target_systems": ["mcp_servers", "qdrant_cortex"],
                 "processing_strategy": "sequential|parallel|conditional",
                 "business_domain": "domain_name",
                 "reasoning": "Brief explanation of routing decision",
@@ -238,13 +238,13 @@ class IntelligentQueryRouter:
                 urgency=UrgencyLevel(analysis_data.get("urgency", "MEDIUM").lower()),
                 confidence=float(analysis_data.get("confidence", 0.7)),
                 target_systems=analysis_data.get(
-                    "target_systems", ["modern_stack_cortex"]
+                    "target_systems", ["qdrant_cortex"]
                 ),
                 processing_strategy=analysis_data.get(
                     "processing_strategy", "sequential"
                 ),
                 estimated_response_time=self._estimate_response_time(
-                    analysis_data.get("target_systems", ["modern_stack_cortex"]),
+                    analysis_data.get("target_systems", ["qdrant_cortex"]),
                     analysis_data.get("processing_strategy", "sequential"),
                 ),
                 context_requirements=analysis_data.get("context_requirements", []),
@@ -296,12 +296,12 @@ class IntelligentQueryRouter:
             urgency = UrgencyLevel.HIGH
         elif any(keyword in query_lower for keyword in analytical_keywords):
             query_type = QueryType.ANALYTICAL
-            target_systems = ["modern_stack_cortex"]
+            target_systems = ["qdrant_cortex"]
             urgency = UrgencyLevel.MEDIUM
         else:
             # Default to hybrid for complex queries
             query_type = QueryType.HYBRID
-            target_systems = ["mcp_servers", "modern_stack_cortex"]
+            target_systems = ["mcp_servers", "qdrant_cortex"]
             urgency = UrgencyLevel.MEDIUM
 
         # Determine business domain
@@ -351,7 +351,7 @@ class IntelligentQueryRouter:
         try:
             recommendations = {
                 "customer_management": {
-                    "preferred_systems": ["mcp_servers", "modern_stack_cortex"],
+                    "preferred_systems": ["mcp_servers", "qdrant_cortex"],
                     "strategy": "hybrid",
                     "real_time_priority": [
                         "interaction_updates",
@@ -379,7 +379,7 @@ class IntelligentQueryRouter:
                     ],
                 },
                 "financial_analysis": {
-                    "preferred_systems": ["modern_stack_cortex"],
+                    "preferred_systems": ["qdrant_cortex"],
                     "strategy": "analytical_first",
                     "real_time_priority": ["deal_alerts", "revenue_milestones"],
                     "analytical_priority": [
@@ -403,7 +403,7 @@ class IntelligentQueryRouter:
             return recommendations.get(
                 business_domain,
                 {
-                    "preferred_systems": ["modern_stack_cortex"],
+                    "preferred_systems": ["qdrant_cortex"],
                     "strategy": "balanced",
                     "real_time_priority": [],
                     "analytical_priority": ["general_analysis"],
@@ -412,7 +412,7 @@ class IntelligentQueryRouter:
 
         except Exception as e:
             logger.exception(f"Error getting routing recommendations: {e}")
-            return {"preferred_systems": ["modern_stack_cortex"], "strategy": "balanced"}
+            return {"preferred_systems": ["qdrant_cortex"], "strategy": "balanced"}
 
     async def optimize_routing_performance(self) -> dict[str, Any]:
         """Analyze and optimize routing performance"""

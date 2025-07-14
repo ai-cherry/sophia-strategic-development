@@ -32,9 +32,9 @@ data:
   GONG_API_BURST_LIMIT: "10"
 
   # Database configuration
-  modern_stack_WAREHOUSE: "SOPHIA_AI_WH"
-  modern_stack_DATABASE: "SOPHIA_AI"
-  modern_stack_SCHEMA: "GONG_WEBHOOKS"
+  ELIMINATED_WAREHOUSE: "SOPHIA_AI_WH"
+  ELIMINATED_DATABASE: "SOPHIA_AI"
+  ELIMINATED_SCHEMA: "GONG_WEBHOOKS"
 
   # Redis configuration
   REDIS_URL: "redis://redis-service:6379"
@@ -70,9 +70,9 @@ stringData:
   # Populated by Pulumi ESC - these are placeholders
   GONG_API_KEY: "" # Will be injected by ESC
   GONG_WEBHOOK_SECRETS: "" # Will be injected by ESC
-  modern_stack_ACCOUNT: "" # Will be injected by ESC
-  modern_stack_USER: "" # Will be injected by ESC
-  modern_stack_PASSWORD: "" # Will be injected by ESC
+  ELIMINATED_ACCOUNT: "" # Will be injected by ESC
+  ELIMINATED_USER: "" # Will be injected by ESC
+  ELIMINATED_PASSWORD: "" # Will be injected by ESC
 
 ---
 # Deployment for Gong webhook service
@@ -159,21 +159,21 @@ spec:
                 configMapKeyRef:
                   name: gong-webhook-config
                   key: GONG_API_BURST_LIMIT
-            - name: modern_stack_WAREHOUSE
+            - name: ELIMINATED_WAREHOUSE
               valueFrom:
                 configMapKeyRef:
                   name: gong-webhook-config
-                  key: modern_stack_WAREHOUSE
-            - name: modern_stack_DATABASE
+                  key: ELIMINATED_WAREHOUSE
+            - name: ELIMINATED_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: gong-webhook-config
-                  key: modern_stack_DATABASE
-            - name: modern_stack_SCHEMA
+                  key: ELIMINATED_DATABASE
+            - name: ELIMINATED_SCHEMA
               valueFrom:
                 configMapKeyRef:
                   name: gong-webhook-config
-                  key: modern_stack_SCHEMA
+                  key: ELIMINATED_SCHEMA
             - name: REDIS_URL
               valueFrom:
                 configMapKeyRef:
@@ -225,21 +225,21 @@ spec:
                 secretKeyRef:
                   name: gong-webhook-secrets
                   key: GONG_WEBHOOK_SECRETS
-            - name: modern_stack_ACCOUNT
+            - name: ELIMINATED_ACCOUNT
               valueFrom:
                 secretKeyRef:
                   name: gong-webhook-secrets
-                  key: modern_stack_ACCOUNT
-            - name: modern_stack_USER
+                  key: ELIMINATED_ACCOUNT
+            - name: ELIMINATED_USER
               valueFrom:
                 secretKeyRef:
                   name: gong-webhook-secrets
-                  key: modern_stack_USER
-            - name: modern_stack_PASSWORD
+                  key: ELIMINATED_USER
+            - name: ELIMINATED_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: gong-webhook-secrets
-                  key: modern_stack_PASSWORD
+                  key: ELIMINATED_PASSWORD
           resources:
             requests:
               memory: "512Mi"
@@ -549,7 +549,7 @@ spec:
       ports:
         - protocol: TCP
           port: 6379
-    # Allow traffic to ModernStack (HTTPS)
+    # Allow traffic to ELIMINATED (HTTPS)
     - to: []
       ports:
         - protocol: TCP

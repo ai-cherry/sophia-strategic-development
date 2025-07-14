@@ -18,7 +18,7 @@
         "postgres",
         "sophia-data-intelligence",
         "sophia-infrastructure",
-        "modern_stack-admin",
+        "ELIMINATED",
         "portkey-admin",
         "openrouter-search",
         "sophia-business-intelligence",
@@ -33,7 +33,7 @@
     "strategic_enhancements": {
       "servers": [
         "lambda-labs-cli",
-        "modern_stack-cli-enhanced",
+        "ELIMINATED",
         "estuary-flow-cli",
         "pulumi",
         "docker"
@@ -57,10 +57,10 @@
     },
     "data_integrations": {
       "servers": [
-        "modern_stack",
-        "modern_stack-cortex",
+        "ELIMINATED",
+        "ELIMINATED",
         "estuary",
-        "modern_stack-unified"
+        "ELIMINATED"
       ],
       "port_range": "9200-9219",
       "description": "Data integration and processing services"
@@ -96,7 +96,7 @@
     "postgres",
     "sophia-data-intelligence",
     "sophia-infrastructure",
-    "modern_stack-admin",
+    "ELIMINATED",
     "portkey-admin",
     "openrouter-search",
     "sophia-business-intelligence",
@@ -105,7 +105,7 @@
     "bright-data",
     "graphiti",
     "lambda-labs-cli",
-    "modern_stack-cli-enhanced",
+    "ELIMINATED",
     "estuary-flow-cli",
     "pulumi",
     "docker",
@@ -117,10 +117,10 @@
     "slack-unified",
     "intercom",
     "salesforce",
-    "modern_stack",
-    "modern_stack-cortex",
+    "ELIMINATED",
+    "ELIMINATED",
     "estuary",
-    "modern_stack-unified",
+    "ELIMINATED",
     "prompt-optimizer",
     "mem0-bridge",
     "mem0-openmemory",

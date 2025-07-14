@@ -142,7 +142,7 @@ Ensure n8n has access to:
       "parameters": { "interval": "hourly" }
     },
     {
-      "type": "modern_stack",
+      "type": "ELIMINATED",
       "parameters": { 
         "query": "SELECT hour, revenue FROM metrics WHERE..."
       }

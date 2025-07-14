@@ -32,21 +32,15 @@ dns:
   records:
     - type: "A"
       name: "@"
-      value: "76.76.21.21"  # Vercel IP
-    - type: "A"
-      name: "www"
-      value: "76.76.21.21"  # Vercel IP
-    - type: "A"
-      name: "api"
+      value: "76.76.21.21"        name: "www"
+      value: "76.76.21.21"        name: "api"
       value: "192.222.58.232"  # Lambda Labs
     - type: "CNAME"
       name: "dashboard"
-      value: "cname.vercel-dns.com"
+      value: "192.222.58.232"
     - type: "A"
       name: "docs"
-      value: "76.76.21.21"  # Vercel IP
-
-services:
+      value: "76.76.21.21"  services:
   frontend:
     provider: "vercel"
     framework: "nextjs"
@@ -87,8 +81,7 @@ secrets:
   namecheap_api_key: "PULUMI_ESC"
   namecheap_api_user: "scoobyjava"
   namecheap_client_ip: "PULUMI_ESC"
-  vercel_token: "PULUMI_ESC"
-  openai_api_key: "PULUMI_ESC"
+    openai_api_key: "PULUMI_ESC"
   anthropic_api_key: "PULUMI_ESC"
   github_token: "PULUMI_ESC"
   

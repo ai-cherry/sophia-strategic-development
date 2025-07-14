@@ -176,17 +176,17 @@ spec:
       selectPolicy: Max
 
 ---
-# Weaviate HPA (Stateful)
+# Qdrant HPA (Stateful)
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: weaviate-hpa
+  name: qdrant-hpa
   namespace: sophia-ai-prod
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: StatefulSet
-    name: weaviate
+    name: qdrant
   minReplicas: 3
   maxReplicas: 5
   metrics:

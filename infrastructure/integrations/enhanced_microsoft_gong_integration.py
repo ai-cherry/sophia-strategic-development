@@ -14,7 +14,6 @@ Recommended decomposition:
 - enhanced_microsoft_gong_integration_models.py - Data models
 - enhanced_microsoft_gong_integration_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import logging
@@ -27,8 +26,8 @@ from infrastructure.services.enhanced_sentiment_analyzer import (
     EnhancedSentimentAnalyzer,
     SentimentChannel,
 )
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-from shared.utils.modern_stack_gong_connector import ModernStackGongConnector
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.integrations.gong_api_client import GongAPIClient
 
 logger = logging.getLogger(__name__)
 
@@ -85,8 +84,8 @@ class EnhancedMicrosoftGongIntegration:
     """
 
     def __init__(self):
-        self.gong_connector = ModernStackGongConnector()
-        self.cortex_service = UnifiedMemoryServiceV2()
+        self.gong_connector = GongAPIClient()
+        self.cortex_service = UnifiedMemoryService()
         self.sentiment_analyzer = EnhancedSentimentAnalyzer()
         self.initialized = False
 

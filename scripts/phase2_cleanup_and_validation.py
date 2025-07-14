@@ -44,7 +44,7 @@ class Phase2CleanupValidator:
     
     def __init__(self, project_root: str):
         self.project_root = Path(project_root)
-        self.deprecated_files = []
+        self.current_files = []
         self.import_conflicts = []
         self.dependency_issues = []
         self.validation_results = {}
@@ -53,12 +53,12 @@ class Phase2CleanupValidator:
         self.cleanup_targets = {
             "deprecated_services": [
                 "backend/services/unified_memory_service.py",  # V1 - deprecated
-                "backend/services/modern_stack_cortex_service.py",  # Replaced by V3
+                "backend/services/qdrant_memory_service.py",  # Replaced by V3
             ],
             "deprecated_imports": [
                 "from backend.services.unified_memory_service import",
-                "from backend.services.modern_stack_cortex_service import",
-                "import modern_stack_unified",
+                "from backend.services.qdrant_memory_service import",
+                "import qdrant_unified",
                 "await self.lambda_gpu.embed_text"
             ],
             "temporary_files": [
@@ -184,12 +184,12 @@ class Phase2CleanupValidator:
                 
                 # Update deprecated imports
                 replacements = {
-                    "from backend.services.unified_memory_service import": "from backend.services.unified_memory_service_v3 import",
-                    "UnifiedMemoryService": "UnifiedMemoryServiceV3",
+                    "from backend.services.unified_memory_service import": "from backend.services.unified_memory_service import",
+                    "UnifiedMemoryService": "UnifiedMemoryService",
                     "get_unified_memory_service()": "get_unified_memory_service_v3()",
-                    "from backend.services.modern_stack_cortex_service import": "# DEPRECATED - Use UnifiedMemoryServiceV3",
-                    "await self.lambda_gpu.embed_text": "# DEPRECATED - Use GPU embeddings via UnifiedMemoryServiceV3",
-                    "modern_stack_unified": "# DEPRECATED - Use UnifiedMemoryServiceV3"
+                    "from backend.services.qdrant_memory_service import": "# MIGRATED: Updated to current service version
+                    "await self.lambda_gpu.embed_text": "# MIGRATED: Updated to current service version
+                    "qdrant_unified": "# MIGRATED: Updated to current service version
                 }
                 
                 for old_pattern, new_pattern in replacements.items():
@@ -265,7 +265,7 @@ class Phase2CleanupValidator:
                         # Fix the conflict
                         content = content.replace(
                             "UnifiedMemoryService",
-                            "UnifiedMemoryServiceV3"
+                            "UnifiedMemoryService"
                         )
                         
                         with open(file_path, 'w') as f:
@@ -293,9 +293,9 @@ class Phase2CleanupValidator:
                 # Check for deprecated imports still being used
                 deprecated_patterns = [
                     r'from backend\.services\.unified_memory_service import',
-                    r'from backend\.services\.modern_stack_cortex_service import',
+                    r'from backend\.services\.qdrant_memory_service import',
                     r'CORTEX\.EMBED_TEXT_768',
-                    r'modern_stack_unified'
+                    r'qdrant_unified'
                 ]
                 
                 for pattern in deprecated_patterns:

@@ -3,7 +3,7 @@ Lambda GPU Metrics
 Comprehensive Prometheus metrics for monitoring Cortex operations.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Info
 
 # Create a registry for Cortex-specific metrics
@@ -37,7 +37,7 @@ cortex_tokens_used = Counter(
 
 cortex_credits_used = Counter(
     "cortex_credits_used",
-    "ModernStack credits consumed by Cortex",
+    "Qdrant credits consumed by Cortex",
     ["task", "model"],
     registry=cortex_registry,
 )
@@ -46,29 +46,29 @@ cortex_credits_used = Counter(
 # Pool Metrics
 # ===================================================================
 
-# REMOVED: ModernStack dependency Gauge(
-    "modern_stack_pool_size",
+qdrant_pool_size = Gauge(
+    "qdrant_pool_size",
     "Current connection pool size",
     ["mode"],
     registry=cortex_registry,
 )
 
-# REMOVED: ModernStack dependency Gauge(
-    "modern_stack_pool_in_use",
+qdrant_pool_in_use = Gauge(
+    "qdrant_pool_in_use",
     "Connections currently in use",
     ["mode"],
     registry=cortex_registry,
 )
 
-# REMOVED: ModernStack dependency Gauge(
-    "modern_stack_pool_wait_time_ms",
+qdrant_pool_wait_time_ms = Gauge(
+    "qdrant_pool_wait_time_ms",
     "Average wait time for connection acquisition in milliseconds",
     ["mode"],
     registry=cortex_registry,
 )
 
-# REMOVED: ModernStack dependency Counter(
-    "modern_stack_pool_timeouts",
+qdrant_pool_timeouts = Counter(
+    "qdrant_pool_timeouts",
     "Number of pool timeout errors",
     ["mode"],
     registry=cortex_registry,
@@ -202,15 +202,15 @@ cortex_model_errors = Counter(
 # PAT Metrics
 # ===================================================================
 
-# REMOVED: ModernStack dependency Gauge(
-    "modern_stack_pat_days_until_expiry",
+qdrant_pat_days_until_expiry = Counter(
+    "qdrant_pat_days_until_expiry",
     "Days until PAT expiration",
     ["environment"],
     registry=cortex_registry,
 )
 
-# REMOVED: ModernStack dependency Gauge(
-    "modern_stack_pat_rotation_alerts",
+qdrant_pat_rotation_alerts = Counter(
+    "qdrant_pat_rotation_alerts",
     "Number of PATs needing rotation",
     ["severity"],
     registry=cortex_registry,
@@ -226,7 +226,7 @@ cortex_info = Info("cortex", "Cortex integration information", registry=cortex_r
 cortex_info.info(
     {
         "version": "1.0.0",
-        "integration": "modern_stack_cortex_mcp",
+        "integration": "qdrant_cortex_mcp",
         "adapter_modes": "direct,mcp,auto",
     }
 )
@@ -234,7 +234,6 @@ cortex_info.info(
 # ===================================================================
 # Helper Functions
 # ===================================================================
-
 
 def record_cortex_call(
     mode: str,
@@ -256,13 +255,12 @@ def record_cortex_call(
         credits = tokens / 1000 * 0.001  # Example rate
         cortex_credits_used.labels(task=task, model=model).inc(credits)
 
-
 def record_pool_metrics(mode: str, size: int, in_use: int, avg_wait_ms: float):
     """Record connection pool metrics"""
-    # REMOVED: ModernStack dependencymode).set(size)
-    # REMOVED: ModernStack dependencymode).set(in_use)
-    # REMOVED: ModernStack dependencymode).set(avg_wait_ms)
-
+    
+    qdrant_pool_size.labels(mode=mode).set(size)
+    qdrant_pool_in_use.labels(mode=mode).set(in_use)
+    qdrant_pool_wait_time_ms.labels(mode=mode).set(avg_wait_ms)
 
 def record_mcp_health(
     server_id: str, tier: str, health_score: float, latency_ms: float, error_rate: float
@@ -272,12 +270,10 @@ def record_mcp_health(
     mcp_server_latency_ms.labels(server_id=server_id).set(latency_ms)
     mcp_server_error_rate.labels(server_id=server_id).set(error_rate)
 
-
 def set_circuit_breaker_state(mode: str, state: str):
     """Set circuit breaker state"""
     state_map = {"closed": 0, "open": 1, "half-open": 2}
     cortex_circuit_breaker_state.labels(mode=mode).set(state_map.get(state, -1))
-
 
 def record_cache_access(cache_type: str, task: str, hit: bool):
     """Record cache access"""
@@ -285,7 +281,6 @@ def record_cache_access(cache_type: str, task: str, hit: bool):
         cortex_cache_hits.labels(cache_type=cache_type, task=task).inc()
     else:
         cortex_cache_misses.labels(cache_type=cache_type, task=task).inc()
-
 
 # ===================================================================
 # Export all metrics
@@ -318,10 +313,10 @@ __all__ = [
     "record_mcp_health",
     "record_pool_metrics",
     "set_circuit_breaker_state",
-    "modern_stack_pat_days_until_expiry",
-    "modern_stack_pat_rotation_alerts",
-    "modern_stack_pool_in_use",
-    "modern_stack_pool_size",
-    "modern_stack_pool_timeouts",
-    "modern_stack_pool_wait_time_ms",
+    "qdrant_pat_days_until_expiry",
+    "qdrant_pat_rotation_alerts",
+    "qdrant_pool_in_use",
+    "qdrant_pool_size",
+    "qdrant_pool_timeouts",
+    "qdrant_pool_wait_time_ms",
 ]

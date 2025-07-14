@@ -70,7 +70,7 @@ export const DataFetchError: React.FC<DataFetchErrorProps> = ({
 }) => {
   const isNetworkError = error.message.toLowerCase().includes('network') ||
                         error.message.toLowerCase().includes('fetch');
-  const isDataSourceError = error.message.toLowerCase().includes('modern_stack') ||
+  const isDataSourceError = error.message.toLowerCase().includes('ELIMINATED') ||
                            error.message.toLowerCase().includes('gong') ||
                            error.message.toLowerCase().includes('hubspot');
 

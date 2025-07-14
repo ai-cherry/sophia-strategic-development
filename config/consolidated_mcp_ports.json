@@ -21,10 +21,6 @@
     "prompt_optimizer": 9030,
     "slack_integration": 9104,
     "slack_unified": 9105,
-    "modern_stack": 9200,
-    "modern_stack_admin": 9012,
-    "modern_stack_cli_enhanced": 9021,
-    "modern_stack_cortex": 9201,
     "sophia_ai_intelligence": 9016,
     "sophia_infrastructure": 9011,
     "sophia_intelligence_unified": 9037,
@@ -117,14 +113,6 @@
       "lambda_labs_cli": {
         "description": "Lambda Labs infrastructure management",
         "port": 9043
-      },
-      "modern_stack_admin": {
-        "description": "ModernStack administration",
-        "port": 9045
-      },
-      "modern_stack_cortex": {
-        "description": "Lambda GPU AI operations",
-        "port": 9044
       }
     }
   },
@@ -241,7 +229,6 @@
       9029
     ]
   },
-  "modern_stack_v2": 9001,
   "version": "5.0",
   "unified_mcp_servers": {
     "tier_1_primary": {
@@ -465,7 +452,7 @@
     "lambda_labs_unified",
     "lambda_labs_serverless",
     "various_v2_duplicates",
-    "modern_stack_unified"
+    "ELIMINATED"
   ],
   "consolidation": {
     "date": "2025-07-13T02:34:13.238328",

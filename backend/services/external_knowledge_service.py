@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 import hashlib
 
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 from backend.core.logging_config import get_logger
 
@@ -22,7 +22,7 @@ class ExternalKnowledgeService:
 
     def __init__(self):
         self.logger = get_logger(__name__)
-        self.memory = UnifiedMemoryServiceV2()
+        self.memory = UnifiedMemoryService()
 
         # API configs
         self.x_api_key = get_config_value("x_api_key")

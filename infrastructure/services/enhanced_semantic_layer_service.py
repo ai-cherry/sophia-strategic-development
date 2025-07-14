@@ -21,12 +21,12 @@ class EnhancedSemanticLayerService:
         self.fuzzy_threshold = 0.75
 
     async def _get_connection(self):
-        """Get ModernStack connection with entity resolution schema"""
+        """Get Qdrant connection with entity resolution schema"""
         if not self.connection:
-            # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+            
 
-            self.connection = self.modern_stack_connection(
-                user=get_config_value("modern_stack_user"),
+            self.connection = self.qdrant_serviceection(
+                user=get_config_value("qdrant_user"),
                 password=get_config_value("postgres_password"),
                 account=get_config_value("postgres_host"),
                 warehouse=get_config_value("postgres_database"),
@@ -371,7 +371,7 @@ class EnhancedSemanticLayerService:
                 [
                     event_id,
                     original_query,
-                    candidates,  # ModernStack will handle the array conversion
+                    candidates,  # Qdrant will handle the array conversion
                     len(candidates),
                     sum(c.get("similarity_score", 0) for c in candidates)
                     / max(len(candidates), 1),

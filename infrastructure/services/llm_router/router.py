@@ -3,7 +3,7 @@ LLM Router - Core routing engine
 Stateless, observable, and performance-optimized
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import time
 from collections.abc import AsyncGenerator
 from typing import Any
@@ -125,8 +125,8 @@ class LLMRouter:
                 TaskType.EMBEDDINGS,
             }:
                 # Use Lambda GPU for data operations
-                provider = Provider.modern_stack
-                async for chunk in self._# REMOVED: ModernStack dependency(
+                provider = Provider.qdrant
+                async for chunk in self._
                     prompt=prompt,
                     task=task,
                     temperature=temperature,
@@ -222,8 +222,8 @@ class LLMRouter:
             TaskType.EMBEDDINGS,
         }:
             return {
-                "provider": Provider.self.modern_stack.value,
-                "model": "modern_stack-cortex",
+                "provider": Provider.self.qdrant_service.value,
+                "model": "qdrant-cortex",
                 "estimated_cost": 0.0,  # Lambda GPU is free within platform
                 "reasoning": "Data operations use Lambda GPU (no additional cost)",
             }
@@ -240,7 +240,7 @@ class LLMRouter:
         await self._ensure_initialized()
 
         models = {
-            "modern_stack": await self._cortex.get_available_models(),
+            "qdrant": await self._cortex.get_available_models(),
             "gateway": await self._gateway.get_available_models(),
         }
 
@@ -254,7 +254,7 @@ class LLMRouter:
 
         # Check each component
         if self._cortex:
-            health["providers"]["modern_stack"] = await self._cortex.health_check()
+            health["providers"]["qdrant"] = await self._cortex.health_check()
 
         if self._gateway:
             health["providers"]["gateway"] = await self._gateway.health_check()

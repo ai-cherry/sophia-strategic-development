@@ -8,7 +8,6 @@ Recommended decomposition:
 - foundational_knowledge_service_models.py - Data models
 - foundational_knowledge_service_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 from core.services.knowledge_service import KnowledgeService
@@ -25,7 +24,7 @@ from enum import Enum
 from typing import Any
 
 from core.logger import logger
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 # logger = logging.getLogger(__name__)
 
@@ -59,13 +58,13 @@ class FoundationalKnowledgeService:
     """Service for managing foundational Pay Ready knowledge"""
 
     def __init__(self):
-        self.cortex_service = UnifiedMemoryServiceV2()
+        self.cortex_service = UnifiedMemoryService()
         self.knowledge_service = KnowledgeService()
         self.schema = "FOUNDATIONAL_KNOWLEDGE"
 
     async def sync_foundational_data_to_knowledge_base(self) -> dict[str, Any]:
         """
-        Sync all foundational data from ModernStack to the knowledge base system
+        Sync all foundational data from Qdrant to the knowledge base system
 
         Returns:
             Summary of sync operation
@@ -106,7 +105,7 @@ class FoundationalKnowledgeService:
     async def _sync_data_type(self, data_type: FoundationalDataType) -> dict[str, int]:
         """Sync a specific data type to knowledge base"""
 
-        # Get records from ModernStack
+        # Get records from Qdrant
         records = await self._get_foundational_records(data_type)
 
         result = {"total": len(records), "synced": 0, "failed": 0}
@@ -130,7 +129,7 @@ class FoundationalKnowledgeService:
     async def _get_foundational_records(
         self, data_type: FoundationalDataType
     ) -> list[FoundationalRecord]:
-        """Get foundational records from ModernStack by type"""
+        """Get foundational records from Qdrant by type"""
 
         queries = {
             FoundationalDataType.EMPLOYEE: """
@@ -451,7 +450,7 @@ class FoundationalKnowledgeService:
         self, record_id: str, data_type: FoundationalDataType, updates: dict[str, Any]
     ) -> bool:
         """
-        Update a foundational record in both ModernStack and knowledge base
+        Update a foundational record in both Qdrant and knowledge base
 
         Args:
             record_id: ID of the record to update
@@ -462,7 +461,7 @@ class FoundationalKnowledgeService:
             True if update successful, False otherwise
         """
         try:
-            # Update in ModernStack first
+            # Update in Qdrant first
             table_map = {
                 FoundationalDataType.EMPLOYEE: "EMPLOYEES",
                 FoundationalDataType.CUSTOMER: "CUSTOMERS",

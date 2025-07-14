@@ -1,5 +1,5 @@
 """
-ModernStack PAT (Programmatic Access Token) Manager
+Qdrant PAT (Programmatic Access Token) Manager
 Handles secure PAT lifecycle management with rotation alerts.
 """
 
@@ -18,11 +18,11 @@ logger = structlog.get_logger(__name__)
 
 # Prometheus metrics
 pat_days_until_expiry = Gauge(
-    "modern_stack_pat_days_until_expiry", "Days until PAT expiration", ["environment"]
+    "qdrant_pat_days_until_expiry", "Days until PAT expiration", ["environment"]
 )
 
 pat_rotation_alerts = Gauge(
-    "modern_stack_pat_rotation_alerts", "Number of PATs needing rotation", ["severity"]
+    "qdrant_pat_rotation_alerts", "Number of PATs needing rotation", ["severity"]
 )
 
 
@@ -64,13 +64,13 @@ class SecurityError(Exception):
     pass
 
 
-class ModernStackPATManager:
+class QdrantPATManager:
     """
-    Manages ModernStack PAT lifecycle including validation, rotation tracking, and alerts.
+    Manages Qdrant PAT lifecycle including validation, rotation tracking, and alerts.
     """
 
     def __init__(self):
-        self.rotation_days = 90  # ModernStack PAT expires after 90 days
+        self.rotation_days = 90  # Qdrant PAT expires after 90 days
         self.alert_days_before = 7  # Alert 7 days before expiry
         self.critical_days = 1  # Critical alert 1 day before expiry
 
@@ -78,7 +78,7 @@ class ModernStackPATManager:
         self._pat_metadata: dict[str, PATMetadata] = self._load_pat_metadata()
 
         logger.info(
-            "ModernStackPATManager initialized",
+            "QdrantPATManager initialized",
             rotation_days=self.rotation_days,
             alert_threshold=self.alert_days_before,
         )
@@ -100,10 +100,10 @@ class ModernStackPATManager:
             environment = get_config_value("environment", "prod")
 
         # Get PAT using auto_esc_config helper
-        from backend.core.auto_esc_config import get_modern_stack_pat
+        from backend.core.auto_esc_config import get_qdrant_pat
 
         try:
-            pat = get_modern_stack_pat(environment)
+            pat = get_qdrant_pat(environment)
         except ValueError as e:
             raise SecurityError(f"PAT not configured: {e}")
 
@@ -129,7 +129,7 @@ class ModernStackPATManager:
         """
         Validate PAT format
 
-        ModernStack PATs typically:
+        Qdrant PATs typically:
         - Start with specific prefix
         - Have minimum length
         - Contain only valid characters
@@ -137,7 +137,7 @@ class ModernStackPATManager:
         if not pat:
             return False
 
-        # Basic validation - adjust based on actual ModernStack PAT format
+        # Basic validation - adjust based on actual Qdrant PAT format
         if len(pat) < 32:
             return False
 
@@ -237,7 +237,7 @@ class ModernStackPATManager:
             raise SecurityError("Invalid new PAT format")
 
         # Store in configuration (would be Pulumi ESC in production)
-        pat_key = f"modern_stack_pat_{environment}"
+        pat_key = f"qdrant_pat_{environment}"
         set_config_value(pat_key, new_pat)
 
         # Update metadata
@@ -298,7 +298,7 @@ class ModernStackPATManager:
         metadata = {}
 
         # Try to load from configuration
-        metadata_json = get_config_value("modern_stack_pat_metadata")
+        metadata_json = get_config_value("qdrant_pat_metadata")
 
         if metadata_json:
             try:
@@ -324,9 +324,9 @@ class ModernStackPATManager:
             for env in ["prod", "staging"]:
                 # Check if PAT exists
                 try:
-                    from backend.core.auto_esc_config import get_modern_stack_pat
+                    from backend.core.auto_esc_config import get_qdrant_pat
 
-                    pat = get_modern_stack_pat(env)
+                    pat = get_qdrant_pat(env)
                     if pat:
                         # Assume PAT was created today (conservative)
                         metadata[env] = PATMetadata(
@@ -354,7 +354,7 @@ class ModernStackPATManager:
                 "created_by": metadata.created_by,
             }
 
-        set_config_value("modern_stack_pat_metadata", json.dumps(data))
+        set_config_value("qdrant_pat_metadata", json.dumps(data))
 
     async def generate_rotation_report(self) -> dict[str, Any]:
         """
@@ -413,12 +413,12 @@ class ModernStackPATManager:
 
 
 # Singleton instance
-_pat_manager: ModernStackPATManager | None = None
+_pat_manager: QdrantPATManager | None = None
 
 
-def get_pat_manager() -> ModernStackPATManager:
+def get_pat_manager() -> QdrantPATManager:
     """Get or create PAT manager instance"""
     global _pat_manager
     if _pat_manager is None:
-        _pat_manager = ModernStackPATManager()
+        _pat_manager = QdrantPATManager()
     return _pat_manager

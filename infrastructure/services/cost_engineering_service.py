@@ -28,10 +28,9 @@ Recommended decomposition:
 - cost_engineering_service_models.py - Data models
 - cost_engineering_service_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -44,7 +43,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.security.audit_logger import AuditLogger
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +86,7 @@ class ModelConfig:
     avg_latency_ms: float
     quality_score: float  # 0.0 to 1.0
     capabilities: list[str]
-    provider: str = "modern_stack_cortex"
+    provider: str = "qdrant_cortex"
 
 
 @dataclass
@@ -146,7 +145,7 @@ class CostEngineeringService:
     """
 
     def __init__(self):
-        self.cortex_service: ModernStackCortexService | None = None
+        self.cortex_service: QdrantUnifiedMemoryService | None = None
         self.cache_manager = EnhancedCacheManager()
         self.audit_logger = AuditLogger()
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
@@ -181,7 +180,7 @@ class CostEngineeringService:
 
         try:
             # Initialize services
-            self.cortex_service = UnifiedMemoryServiceV2()
+            self.cortex_service = UnifiedMemoryService()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()
 
@@ -204,7 +203,7 @@ class CostEngineeringService:
 
     async def _initialize_model_configs(self) -> None:
         """Initialize model configurations with cost and performance data"""
-# REMOVED: ModernStack dependencyurations)
+
         self.model_configs = {
             "mistral-7b": ModelConfig(
                 model_id="mistral-7b",
@@ -214,7 +213,7 @@ class CostEngineeringService:
                 avg_latency_ms=500,
                 quality_score=0.75,
                 capabilities=["text_generation", "simple_qa", "classification"],
-                provider="modern_stack_cortex",
+                provider="qdrant_cortex",
             ),
             "mixtral-8x7b": ModelConfig(
                 model_id="mixtral-8x7b",
@@ -229,7 +228,7 @@ class CostEngineeringService:
                     "reasoning",
                     "summarization",
                 ],
-                provider="modern_stack_cortex",
+                provider="qdrant_cortex",
             ),
             "llama2-70b-chat": ModelConfig(
                 model_id="llama2-70b-chat",
@@ -243,17 +242,17 @@ class CostEngineeringService:
                     "expert_analysis",
                     "creative_writing",
                 ],
-                provider="modern_stack_cortex",
+                provider="qdrant_cortex",
             ),
-# REMOVED: ModernStack dependency(
-                model_id="modern_stack-arctic",
+
+                model_id="qdrant-arctic",
                 tier=ModelTier.PREMIUM,
                 cost_per_token=0.0015,
                 max_tokens=4096,
                 avg_latency_ms=1500,
                 quality_score=0.95,
                 capabilities=["expert_reasoning", "specialized_analysis", "research"],
-                provider="modern_stack_cortex",
+                provider="qdrant_cortex",
             ),
         }
 
@@ -262,8 +261,8 @@ class CostEngineeringService:
         self.model_routing_rules = {
             TaskComplexity.SIMPLE: ["mistral-7b", "mixtral-8x7b"],
             TaskComplexity.MODERATE: ["mixtral-8x7b", "llama2-70b-chat"],
-            TaskComplexity.COMPLEX: ["llama2-70b-chat", "modern_stack-arctic"],
-            TaskComplexity.EXPERT: ["modern_stack-arctic", "llama2-70b-chat"],
+            TaskComplexity.COMPLEX: ["llama2-70b-chat", "qdrant-arctic"],
+            TaskComplexity.EXPERT: ["qdrant-arctic", "llama2-70b-chat"],
         }
 
     async def process_task(self, task_request: TaskRequest) -> TaskResponse:
@@ -445,7 +444,7 @@ class CostEngineeringService:
                 Return only the complexity level: SIMPLE, MODERATE, COMPLEX, or EXPERT
                 """
 
-                complexity_result = await # REMOVED: ModernStack dependency_text_with_cortex(
+                complexity_result = await 
                     prompt=complexity_prompt,
                     max_tokens=10,
                     model="mistral-7b",  # Use small model for analysis
@@ -627,7 +626,7 @@ class CostEngineeringService:
                 Return only the optimized prompt:
                 """
 
-                optimized = await # REMOVED: ModernStack dependency_text_with_cortex(
+                optimized = await 
                     prompt=optimization_prompt,
                     max_tokens=len(prompt) // 2,  # Target 50% reduction
                     model="mistral-7b",  # Use small model for optimization
@@ -653,7 +652,7 @@ class CostEngineeringService:
         """Execute the task using the selected model"""
         try:
             async with self.cortex_service as cortex:
-                response = await # REMOVED: ModernStack dependency_text_with_cortex(
+                response = await 
                     prompt=prompt,
                     max_tokens=max_tokens or 500,
                     temperature=temperature,

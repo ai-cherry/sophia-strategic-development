@@ -11,7 +11,7 @@ import pytest
 
 from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
 from backend.services.lambda_labs_service import LambdaLabsService
-from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
 from core.services.natural_language_infrastructure_controller import (
     NaturalLanguageInfrastructureController,
 )
@@ -217,11 +217,11 @@ class TestNaturalLanguageController:
             result = await controller.process_command("Analyze Lambda Labs costs")
             assert result["success"] is True
 
-        # ModernStack command
-        with patch.object(controller.modern_stack, "complete") as mock_complete:
+        # Qdrant command
+        with patch.object(controller.qdrant, "complete") as mock_complete:
             mock_complete.return_value = {"content": "Query executed"}
 
-            result = await controller.process_command("Query ModernStack for revenue")
+            result = await controller.process_command("Query Qdrant for revenue")
             assert result["success"] is True
 
     @pytest.mark.asyncio
@@ -230,12 +230,12 @@ class TestNaturalLanguageController:
         with patch.object(controller.lambda_router, "health_check") as mock_lambda:
             mock_lambda.return_value = {"status": "healthy"}
 
-            with patch.object(controller.modern_stack, "health_check") as mock_modern_stack:
-                mock_modern_stack.return_value = {"status": "healthy"}
+            with patch.object(controller.qdrant, "health_check") as mock_qdrant:
+                mock_qdrant.return_value = {"status": "healthy"}
 
                 health = await controller.check_health()
                 assert health["lambda_labs"]["status"] == "healthy"
-                assert health["modern_stack"]["status"] == "healthy"
+                assert health["qdrant"]["status"] == "healthy"
 
 
 class TestCostOptimization:
@@ -298,9 +298,9 @@ class TestEndToEndScenarios:
     @pytest.mark.asyncio
     async def test_natural_language_sql_flow(self):
         """Test natural language to SQL flow"""
-        from infrastructure.adapters.modern_stack_adapter import ModernStackAdapter
+        from infrastructure.adapters.qdrant_adapter import QdrantAdapter
 
-        adapter = ModernStackAdapter("modern_stack", None)
+        adapter = QdrantAdapter("qdrant", None)
 
         with patch.object(adapter, "natural_language_to_sql") as mock_nl_sql:
             mock_nl_sql.return_value = {

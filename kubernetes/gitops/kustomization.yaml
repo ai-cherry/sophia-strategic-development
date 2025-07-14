@@ -28,8 +28,8 @@ resources:
   - ../production/mcp-linear-service.yaml
   - ../production/mcp-slack-deployment.yaml
   - ../production/mcp-slack-service.yaml
-  - ../production/mcp-modern_stack-deployment.yaml
-  - ../production/mcp-modern_stack-service.yaml
+  - ../production/mcp-ELIMINATED-deployment.yaml
+  - ../production/mcp-ELIMINATED-service.yaml
 
 # Image transformations - automatically update these
 images:

@@ -194,9 +194,9 @@ config = get_docker_hub_config()
 from backend.core.auto_esc_config import get_docker_hub_config
 docker = get_docker_hub_config()
 
-# modern_stack
-from backend.core.auto_esc_config import get_modern_stack_config
-modern_stack = get_modern_stack_config()
+# qdrant
+from backend.core.auto_esc_config import get_qdrant_config
+qdrant = get_qdrant_config()
 
 # Lambda Labs
 from backend.core.auto_esc_config import get_lambda_labs_config
@@ -233,7 +233,7 @@ Services that use CLI-based authentication with secure credential storage:
 
 #### **Tier 2: Enhanced API Authentication**
 Services with enhanced security patterns:
-- **modern_stack**: Secure connection strings with role-based access
+- **qdrant**: Secure connection strings with role-based access
 - **Lambda Labs**: API key management with instance control
 - **Estuary Flow**: Service account authentication
 
@@ -273,7 +273,7 @@ Can perform data operations:
 # Execute database operations
 await auth_manager.execute_operation(
     agent_type="data_agent",
-    service="modern_stack",
+    service="qdrant",
     operation="query_execution",
     params={"query": "CREATE SCHEMA AI_AGENT_TEST", "warehouse": "SOPHIA_AI_COMPUTE_WH"}
 )
@@ -338,7 +338,7 @@ if confirmation.approved:
 #### **Infrastructure Operations**
 ```bash
 "Deploy the updated infrastructure to production"
-"Scale up the modern_stack warehouse for the analytics job"
+"Scale up the qdrant warehouse for the analytics job"
 "Create a new Docker service for the MCP gateway"
 "Update the Vercel deployment with latest frontend changes"
 ```
@@ -347,7 +347,7 @@ if confirmation.approved:
 ```bash
 "Create a new schema for the AI agent testing"
 "Run the quarterly revenue analysis query"
-"Set up a new data flow from HubSpot to modern_stack"
+"Set up a new data flow from HubSpot to qdrant"
 "Backup the production database before the migration"
 ```
 
@@ -417,10 +417,10 @@ Sophia AI leverages 11 strategic external repositories to provide world-class AI
 - **V0.dev Integration** (NEW): AI-powered UI generation with natural language commands
 
 #### **❄️ Data Intelligence**
-- **modern_stack_cortex_official**: Official modern_stack AI integration patterns
-- **davidamom_modern_stack**: Community modern_stack implementation approaches
-- **dynamike_modern_stack**: Performance-optimized modern_stack patterns
-- **isaacwasserman_modern_stack**: Specialized modern_stack operations
+- **qdrant_memory_official**: Official qdrant AI integration patterns
+- **davidamom_qdrant**: Community qdrant implementation approaches
+- **dynamike_qdrant**: Performance-optimized qdrant patterns
+- **isaacwasserman_qdrant**: Specialized qdrant operations
 
 #### **🚪 AI Gateway & Optimization**
 - **portkey_admin**: AI gateway optimization, cost reduction strategies
@@ -433,12 +433,12 @@ Sophia AI leverages 11 strategic external repositories to provide world-class AI
 ```bash
 # Repository discovery and pattern analysis
 "What browser automation patterns do we have from Microsoft Playwright?"
-"Show me modern_stack optimization strategies across our repositories"
+"Show me qdrant optimization strategies across our repositories"
 "Find design-to-code patterns from the Figma integration"
 
 # Implementation with community validation
 "Use Playwright patterns to implement comprehensive E2E testing"
-"Apply modern_stack optimization patterns from our 4 repository collection"
+"Apply qdrant optimization patterns from our 4 repository collection"
 "Generate components using GLips Figma design-to-code workflows"
 
 # Cross-repository intelligence
@@ -618,16 +618,16 @@ The external repository collection enables:
 **THE DATE IS JULY 10, 2025 - REMEMBER THIS!**
 
 1. **SUPPORTED VECTOR DATABASES:**
-   - ✅ **Weaviate** - Primary vector store for AI-native search
+   - ✅ **Qdrant** - Primary vector store for AI-native search
    - ✅ **PostgreSQL pgvector** - Hybrid SQL + vector queries
    - ✅ **Redis** - Sub-millisecond caching layer
-   - ✅ **modern_stack Cortex** - Legacy support during migration
+   - ✅ **qdrant Cortex** - Legacy support during migration
    - ✅ **Mem0** - Agent conversational memory
 
 2. **RECOMMENDED STACK:**
    - ✅ **UnifiedMemoryService** for ALL memory operations
    - ✅ **Lambda Labs GPU** for embeddings (<50ms latency)
-   - ✅ **Weaviate** for primary vector storage
+   - ✅ **Qdrant** for primary vector storage
    - ✅ **Redis** for hot data caching
    - ✅ **PostgreSQL pgvector** for hybrid queries
    - ✅ **Mem0** for conversational context
@@ -639,7 +639,7 @@ The external repository collection enables:
    L2: Weaviate (Vectors) - <50ms semantic search
    L3: PostgreSQL pgvector - <100ms hybrid queries
    L4: Mem0 (Conversations) - Agent memory
-   L5: modern_stack (Legacy) - Migration in progress
+   L5: qdrant (Legacy) - Migration in progress
    ```
 
 4. **IMPORT PATTERNS:**
@@ -680,7 +680,7 @@ The external repository collection enables:
 ### **🛡️ MIGRATION SUPPORT**
 
 1. **Dual-Mode Operation:**
-   - Services can use both old (modern_stack) and new (Weaviate) backends
+   - Services can use both old (qdrant) and new (Weaviate) backends
    - Gradual migration with feature flags
    - A/B testing for performance validation
 
@@ -690,7 +690,7 @@ The external repository collection enables:
    if memory.use_new_stack:
        return await memory.search_weaviate(query)
    else:
-       return await memory.search_modern_stack(query)
+       return await memory.search_qdrant(query)
    ```
 
 ### **📋 BEST PRACTICES**
@@ -700,7 +700,7 @@ The external repository collection enables:
    - Semantic search → Weaviate
    - Hybrid queries → PostgreSQL pgvector
    - Conversations → Mem0
-   - Analytics → modern_stack (legacy)
+   - Analytics → qdrant (legacy)
 
 2. **Optimize for Performance:**
    - Batch embeddings on GPU
@@ -749,7 +749,7 @@ pip install package  # ❌ FORBIDDEN
 
 ```toml
 [tool.uv.dependency-groups]
-core = ["fastapi==0.111.0", "redis==5.0.4", "modern_stack-connector-python==3.10.0"]
+core = ["fastapi==0.111.0", "redis==5.0.4", "qdrant-client==3.10.0"]
 mcp-servers = ["anthropic-mcp-python-sdk==1.2.4"]
 ai-enhanced = ["openai==1.30.0", "anthropic==0.25.6", "langchain==0.2.0"]
 automation = ["n8n-python-client==0.2.0", "temporal-sdk==1.5.0"]
@@ -844,7 +844,7 @@ triggers:
   - webhook: "/webhook/process"
   - event: "gong.call_completed"
 nodes:
-  - data: ["modern_stack_query", "api_fetch"]
+  - data: ["qdrant_query", "api_fetch"]
   - ai: ["llm_analysis", "embedding_generation"]
   - action: ["slack_notify", "linear_create_task"]
   - condition: ["if_threshold", "switch_sentiment"]
@@ -853,7 +853,7 @@ nodes:
 ### **🎯 PRE-BUILT WORKFLOWS**
 
 1. **Daily Business Intelligence**
-   - Query modern_stack metrics
+   - Query qdrant metrics
    - AI analysis and insights
    - Executive summary to Slack
 
@@ -903,7 +903,7 @@ Just type these commands naturally in the Cline chat (where you're typing now):
 
 #### **Business Tool Integration**
 - **Linear**: "Create Linear issue for [task]", "Show my Linear tasks"
-- **modern_stack**: "Query modern_stack for [data]", "Run large query with Gemini"
+- **qdrant**: "Query qdrant for [data]", "Run large query with Gemini"
 - **Slack**: "Analyze #[channel]", "Find messages about [topic]"
 - **Gong**: "Summarize recent calls", "Find calls discussing [keyword]"
 
@@ -1158,7 +1158,7 @@ frontend/
 external/              # 🆕 Strategic MCP repository collection
 ├── microsoft_playwright/    # Browser automation (13.4k stars)
 ├── glips_figma_context/    # Design-to-code (8.7k stars)
-├── modern_stack_cortex_official/ # Official modern_stack AI
+├── qdrant_memory_official/ # Official qdrant AI
 └── [8 additional strategic repos]
 ```
 
@@ -1225,7 +1225,7 @@ config/               # Centralized configurations
 
 ## When suggesting code:
 1. **FIRST**: Check AI memory for similar implementations
-2. **EXTERNAL REPOS**: Leverage patterns from 11 strategic external repositories (microsoft_playwright, glips_figma_context, modern_stack_cortex_official, etc.)
+2. **EXTERNAL REPOS**: Leverage patterns from 11 strategic external repositories (microsoft_playwright, glips_figma_context, qdrant_memory_official, etc.)
 3. Always include proper error handling
 4. Add type hints and docstrings
 5. Consider business context and Pay Ready needs
@@ -1262,7 +1262,7 @@ Remember: You're building an enterprise-grade AI orchestrator that will handle c
 - **Model Selection**: Automatic routing based on task complexity and context size
 - **Large Context**: Use Gemini for documents > 100K tokens (up to 1M)
 - **Complex Reasoning**: Claude 4 for architectural design and code generation
-- **Data Processing**: modern_stack Cortex for SQL and data operations
+- **Data Processing**: qdrant Cortex for SQL and data operations
 - **Cost Optimization**: Automatic routing to free Gemini CLI for large contexts
 
 #### Gemini CLI Integration (NEW)
@@ -1327,7 +1327,7 @@ When using Cursor AI for infrastructure operations, you can use natural language
 - **Query Data**: "Get recent Gong calls" → Uses Gong MCP server with model routing
 - **Deploy Apps**: "Deploy to Vercel" → Uses Vercel MCP server with improved diff
 - **Manage Data**: "Upload to Estuary" → Uses Estuary MCP server with WebFetch
-- **Database Operations**: "Query modern_stack" → Uses modern_stack MCP server with Cortex
+- **Database Operations**: "Query qdrant" → Uses qdrant MCP server with Cortex
 - **Store Memory**: "Remember this conversation" → Uses AI Memory MCP server with Claude 4
 - **Recall Context**: "What did we decide about X?" → Uses AI Memory with self-knowledge
 - **Fetch External Data**: "Get latest docs from [url]" → Uses WebFetch tool
@@ -1429,7 +1429,7 @@ ARCHITECTURE_PATTERNS: |
     - TailwindCSS for styling
 
   AI Integration:
-    - modern_stack Cortex for all LLM operations
+    - qdrant Cortex for all LLM operations
     - Model routing based on task complexity
     - Citation system for transparency
     - Memory system with Mem0
@@ -1573,8 +1573,8 @@ secret_value = get_config_value("secret_name")
 docker_config = get_docker_hub_config()
 # Returns: {"username": "scoobyjava15", "access_token": "real_token", "registry": "docker.io"}
 
-# For modern_stack
-modern_stack_config = get_modern_stack_config()
+# For qdrant
+qdrant_config = get_qdrant_config()
 
 # For Lambda Labs
 lambda_config = get_lambda_labs_config()
@@ -1754,8 +1754,8 @@ k8s/
 
 ### ❌ FORBIDDEN - Deprecated Systems
 - **NEVER** use `UnifiedMemoryService` (old version)
-- **NEVER** use modern_stack Cortex for new features
-- **NEVER** reference `modern_stack_unified` MCP server
+- **NEVER** use qdrant Cortex for new features
+- **NEVER** reference `qdrant_unified` MCP server
 - **NEVER** use `CORTEX.EMBED_TEXT_768()` - use GPU embeddings instead
 
 ### 🚀 Performance Targets
@@ -1790,7 +1790,7 @@ results = await memory_service.search_knowledge(
 ```python
 # WRONG - Using old services
 from backend.services.unified_memory_service import UnifiedMemoryService  # NO!
-from modern_stack.cortex import embed_text_768  # FORBIDDEN!
+from qdrant.cortex import embed_text_768  # FORBIDDEN!
 ```
 
 ### 🔧 MCP Server Integration

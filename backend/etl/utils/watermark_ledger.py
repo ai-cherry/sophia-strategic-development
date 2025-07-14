@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from shared.utils.modern_stack_cortex_service_core import ModernStackCortexService
+from shared.utils.qdrant_memory_service_core import QdrantUnifiedMemoryService
 
 LEDGER_TABLE = "OPS_MONITORING.DEDUPE_WATERMARKS"
 
@@ -10,7 +10,7 @@ LEDGER_TABLE = "OPS_MONITORING.DEDUPE_WATERMARKS"
 class WatermarkLedger:
     """Simple helper for reading/writing dedupe watermarks."""
 
-    def __init__(self, cortex: ModernStackCortexService):
+    def __init__(self, cortex: QdrantUnifiedMemoryService):
         self.cortex = cortex
 
     async def get(self, source: str, job: str) -> Any | None:

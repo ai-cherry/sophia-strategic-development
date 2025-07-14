@@ -97,7 +97,7 @@ SIMPLE_TASKS = [
 ### **Lambda GPU Integration**
 ```sql
 -- Task classification using Lambda GPU
-SELECT modern_stack.CORTEX.CLASSIFY_TEXT(
+SELECT ELIMINATED.CORTEX.CLASSIFY_TEXT(
     %s, -- user_input
     ['simple', 'moderate', 'complex', 'architecture']
 ) as task_complexity;

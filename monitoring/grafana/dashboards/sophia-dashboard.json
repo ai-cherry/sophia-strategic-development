@@ -3,7 +3,12 @@
     "title": "Sophia AI Platform Dashboard",
     "panels": [
       {
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
         "id": 1,
         "title": "API Request Rate",
         "type": "graph",
@@ -15,7 +20,12 @@
         ]
       },
       {
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
         "id": 2,
         "title": "Response Time",
         "type": "graph",
@@ -27,7 +37,12 @@
         ]
       },
       {
-        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 8
+        },
         "id": 3,
         "title": "CPU Usage",
         "type": "graph",
@@ -39,7 +54,12 @@
         ]
       },
       {
-        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 8
+        },
         "id": 4,
         "title": "Memory Usage",
         "type": "graph",
@@ -51,7 +71,12 @@
         ]
       },
       {
-        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 8
+        },
         "id": 5,
         "title": "Error Rate",
         "type": "graph",

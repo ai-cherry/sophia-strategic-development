@@ -50,15 +50,15 @@ CEO Query: {query}
 
 Response Structure:
 ## Executive Summary (2-3 sentences)
-## Key Metrics (from ModernStack data)
+## Key Metrics (from Qdrant data)
 ## Strategic Implications
 ## Recommended Actions
 ## Data Confidence: {confidence_level}%
 
-Sources: [ModernStack tables accessed]""",
+Sources: [Qdrant collections accessed]""",
             "business_intelligence": """Analyze business data for: {query}
 
-Available ModernStack Data:
+Available Qdrant Data:
 - HubSpot CRM: {hubspot_freshness}
 - Gong Calls: {gong_freshness}
 - Financial: {finance_freshness}

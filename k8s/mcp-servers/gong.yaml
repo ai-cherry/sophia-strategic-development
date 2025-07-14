@@ -27,8 +27,8 @@ spec:
           value: "9007"
         - name: ENABLE_V2_MEMORY
           value: "true"
-        - name: WEAVIATE_URL
-          value: "http://weaviate:8080"
+        - name: QDRANT_URL
+          value: "https://cloud.qdrant.io"
         - name: REDIS_URL
           value: "redis://redis-master:6379"
         resources:

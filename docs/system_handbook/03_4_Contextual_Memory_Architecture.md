@@ -79,7 +79,7 @@ graph TD
 
 1.  **User Query:** A user types a message (e.g., `"What was the outcome of our last call with ACME Corp?"`) into the **Unified Chat Interface**.
 
-2.  **Intent Detection (Gateway):** The query is sent to our central **N8N MCP Gateway**. The first step is an N8N workflow that performs initial Natural Language Understanding (NLU) to detect user intent (e.g., `recall_memory`, `query_modern_stack`) and key entities (e.g., `"ACME Corp"`).
+2.  **Intent Detection (Gateway):** The query is sent to our central **N8N MCP Gateway**. The first step is an N8N workflow that performs initial Natural Language Understanding (NLU) to detect user intent (e.g., `recall_memory`, `query_ELIMINATED`) and key entities (e.g., `"ACME Corp"`).
 
 3.  **L1 Cache Check (Redis):** The system first checks a high-speed Redis cache for an identical or very similar query from the current user's session. If a valid, recent result exists (cache hit), it is returned immediately for maximum performance.
 

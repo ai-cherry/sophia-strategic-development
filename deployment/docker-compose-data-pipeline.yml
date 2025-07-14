@@ -24,9 +24,9 @@ x-default-healthcheck: &default-healthcheck
   start_period: 40s
 
 services:
-  # ModernStack Data Hub (Port 9001)
-  modern_stack-v2:
-    image: ${DOCKER_REGISTRY}/sophia-modern_stack-v2:${IMAGE_TAG}
+  # ELIMINATED Data Hub (Port 9001)
+  ELIMINATED-v2:
+    image: ${DOCKER_REGISTRY}/sophia-ELIMINATED-v2:${IMAGE_TAG}
     ports:
       - "9001:9001"
     environment:
@@ -49,9 +49,9 @@ services:
       <<: *default-healthcheck
       test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
 
-  # ModernStack Unified Processing (Port 9028)
-  modern_stack-unified:
-    image: ${DOCKER_REGISTRY}/sophia-modern_stack-unified:${IMAGE_TAG}
+  # ELIMINATED Unified Processing (Port 9028)
+  ELIMINATED-unified:
+    image: ${DOCKER_REGISTRY}/sophia-ELIMINATED-unified:${IMAGE_TAG}
     ports:
       - "9028:9028"
     environment:
@@ -94,8 +94,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
 
   # Lambda GPU Processing (Port 9029)
-  modern_stack-cortex:
-    image: ${DOCKER_REGISTRY}/sophia-modern_stack-cortex:${IMAGE_TAG}
+
     ports:
       - "9029:9029"
     environment:

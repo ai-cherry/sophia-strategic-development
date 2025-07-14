@@ -1,4 +1,6 @@
 name: 🚀 Lambda Labs K3s Fortress Deployment
+# DISABLED: Weaviate contamination - use qdrant_production_deploy.yml instead
+if: false
 # Zero-touch GitOps deployment to Lambda Labs K3s cluster
 # Chaos-tested, GPU-optimized, 10M events/day ready
 

@@ -54,21 +54,21 @@ spec:
             secretKeyRef:
               name: sophia-secrets
               key: anthropic-api-key
-        - name: modern_stack_ACCOUNT
+        - name: ELIMINATED_ACCOUNT
           valueFrom:
             secretKeyRef:
               name: sophia-secrets
-              key: modern_stack-account
-        - name: modern_stack_USER
+              key: ELIMINATED-account
+        - name: ELIMINATED_USER
           valueFrom:
             secretKeyRef:
               name: sophia-secrets
-              key: modern_stack-user
-        - name: modern_stack_PASSWORD
+              key: ELIMINATED-user
+        - name: ELIMINATED_PASSWORD
           valueFrom:
             secretKeyRef:
               name: sophia-secrets
-              key: modern_stack-password
+              key: ELIMINATED-password
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:

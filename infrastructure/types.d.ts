@@ -288,7 +288,7 @@ declare module 'sophia-ai/components' {
         };
     }
 
-    export interface modern_stackCortexArgs {
+    export interface ELIMINATEDCortexArgs {
         account: string;
         user: string;
         password: string;
@@ -403,11 +403,11 @@ declare module 'sophia-ai/data' {
     export interface DataPipelineArgs {
         name: string;
         source: {
-            type: 'modern_stack' | 'postgres' | 'api' | 'file';
+            type: 'ELIMINATED' | 'postgres' | 'api' | 'file';
             connection: any;
         };
         destination: {
-            type: 'modern_stack' | 'pinecone' | 'weaviate' | 'file';
+            type: 'ELIMINATED' | 'pinecone' | 'weaviate' | 'file';
             connection: any;
         };
         transformations: Array<{

@@ -51,5 +51,5 @@ materializations:
     database: SOPHIA_AI_PROD
     schema: RAW_DATA
     warehouse: SOPHIA_AI_COMPUTE_WH
-  connector: modern_stack
-  name: sophia-ai/to-modern_stack
+  connector: ELIMINATED
+  name: sophia-ai/to-ELIMINATED

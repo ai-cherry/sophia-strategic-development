@@ -572,7 +572,7 @@ async def example_usage():
     # Record some example metrics
     metrics.record_request("GET", "/api/chat", 200, 0.5)
     metrics.record_ai_request("gpt-4", "openai", "chat", 1.2, 100, 150, 0.01)
-    metrics.record_business_query("revenue_analysis", "manager", True, "modern_stack")
+    metrics.record_business_query("revenue_analysis", "manager", True, "qdrant")
     metrics.update_mcp_server_status("ai_memory", 9000, True)
 
     # Record health check

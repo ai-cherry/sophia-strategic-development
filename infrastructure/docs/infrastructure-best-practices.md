@@ -246,10 +246,10 @@ const lambdaLabsConfig = {
 };
 
 // Modern Stack configuration
-const modern_stackConfig = {
-    account: getConfigValue("modern_stack_account"),
-    user: getConfigValue("modern_stack_user"),
-    password: getConfigValue("modern_stack_password"),
+const ELIMINATEDConfig = {
+    account: getConfigValue("ELIMINATED_account"),
+    user: getConfigValue("ELIMINATED_user"),
+    password: getConfigValue("ELIMINATED_password"),
     warehouse: "SOPHIA_AI_WH",
     database: "SOPHIA_AI_PROD",
 };
@@ -316,7 +316,7 @@ export class SecureSecretManager {
             docker_token: getConfigValue("docker_personal_access_token"),
 
             // Data infrastructure secrets
-            modern_stack_password: getConfigValue("modern_stack_password"),
+            ELIMINATED_password: getConfigValue("ELIMINATED_password"),
             estuary_access_token: getConfigValue("estuary_access_token"),
 
             // Business intelligence secrets
@@ -334,14 +334,14 @@ Complete elimination of hardcoded secrets throughout the codebase:
 
 ```typescript
 // CORRECT: Using centralized configuration
-const modern_stackConnection = {
-    account: getConfigValue("modern_stack_account"),
-    user: getConfigValue("modern_stack_user"),
-    password: getConfigValue("modern_stack_password"),
+const ELIMINATEDConnection = {
+    account: getConfigValue("ELIMINATED_account"),
+    user: getConfigValue("ELIMINATED_user"),
+    password: getConfigValue("ELIMINATED_password"),
 };
 
 // WRONG: Hardcoded secrets (eliminated)
-// const modern_stackPassword = "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0...";
+// const ELIMINATEDPassword = "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0...";
 ```
 
 ### Secret Rotation Automation
@@ -641,9 +641,9 @@ export class Modern StackCortexOptimizer {
 
     static createOptimizedConnection() {
         return {
-            account: getConfigValue("modern_stack_account"),
-            user: getConfigValue("modern_stack_user"),
-            password: getConfigValue("modern_stack_password"),
+            account: getConfigValue("ELIMINATED_account"),
+            user: getConfigValue("ELIMINATED_user"),
+            password: getConfigValue("ELIMINATED_password"),
             warehouse: "AI_COMPUTE_WH",
             database: "SOPHIA_AI_PROD",
             schema: "AI_INTELLIGENCE",
@@ -745,7 +745,7 @@ export class LambdaLabsMonitoring {
                     "lambda-labs-gpu-utilization",
                     "kubernetes-cluster-overview",
                     "sophia-ai-application-metrics",
-                    "modern_stack-cortex-performance",
+                    "ELIMINATED-cortex-performance",
                     "portkey-gateway-analytics",
                 ],
             },

@@ -1,3 +1,3 @@
-"""Decomposed modern_stack_pool module"""
+"""Decomposed qdrant_pool module"""
 
 __all__ = []

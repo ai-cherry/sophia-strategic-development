@@ -2,7 +2,7 @@
 Lambda Labs Cost Monitor
 ========================
 Comprehensive cost monitoring and alerting system for Lambda Labs Serverless
-with ModernStack integration, real-time alerts, and predictive cost analysis.
+with Qdrant integration, real-time alerts, and predictive cost analysis.
 """
 
 import asyncio
@@ -16,7 +16,7 @@ from typing import Any
 import aiohttp
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class LambdaLabsCostMonitor:
     - Predictive cost analysis
     - Model-specific cost optimization
     - Budget enforcement and recommendations
-    - ModernStack integration for historical analysis
+    - Qdrant integration for historical analysis
     - Slack/email notifications
     """
 
@@ -119,8 +119,8 @@ class LambdaLabsCostMonitor:
         self.cost_history: list[dict[str, Any]] = []
         self.model_analytics: dict[str, ModelCostAnalysis] = {}
 
-        # ModernStack integration
-        self.modern_stack = UnifiedMemoryServiceV2()
+        # Qdrant integration
+        self.qdrant_service = UnifiedMemoryService()
 
         # Monitoring task
         self.monitoring_task: asyncio.Task | None = None
@@ -176,7 +176,7 @@ class LambdaLabsCostMonitor:
             # Generate predictions
             prediction = await self._generate_cost_prediction()
 
-            # Store in ModernStack
+            # Store in Qdrant
             await self._store_cost_data(current_costs, prediction)
 
             # Check for anomalies
@@ -564,7 +564,7 @@ class LambdaLabsCostMonitor:
     async def _store_cost_data(
         self, costs: dict[str, Any], prediction: CostPrediction
     ) -> None:
-        """Store cost data in ModernStack for historical analysis"""
+        """Store cost data in Qdrant for historical analysis"""
         try:
             # Prepare cost record
             cost_record = {
@@ -584,7 +584,7 @@ class LambdaLabsCostMonitor:
                 "model_usage": json.dumps(costs.get("model_usage", {})),
             }
 
-            # Insert into ModernStack
+            # Insert into Qdrant
             insert_query = """
             INSERT INTO SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING
             (timestamp, daily_cost, hourly_cost, total_cost, total_requests,
@@ -598,15 +598,15 @@ class LambdaLabsCostMonitor:
                     %(model_usage)s)
             """
 
-            await self.modern_stack.execute_query(insert_query, cost_record)
+            await self.qdrant_service.execute_query(insert_query, cost_record)
 
         except Exception as e:
-            logger.error(f"Failed to store cost data in ModernStack: {e}")
+            logger.error(f"Failed to store cost data in Qdrant: {e}")
 
     async def _detect_cost_anomalies(self, costs: dict[str, Any]) -> None:
         """Detect cost anomalies using historical data"""
         try:
-            # Get historical data from ModernStack
+            # Get historical data from Qdrant
             historical_query = """
             SELECT daily_cost, hourly_cost, total_requests, average_response_time
             FROM SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING
@@ -614,7 +614,7 @@ class LambdaLabsCostMonitor:
             ORDER BY timestamp DESC
             """
 
-            historical_data = await self.modern_stack.execute_query(historical_query)
+            historical_data = await self.qdrant_service.execute_query(historical_query)
 
             if not historical_data or len(historical_data) < 10:
                 return  # Not enough data for anomaly detection
@@ -760,7 +760,7 @@ class LambdaLabsCostMonitor:
                 alert for alert in self.active_alerts if alert.timestamp > cutoff_time
             ]
 
-            # Clean up ModernStack data
+            # Clean up Qdrant data
             cleanup_query = (
                 """
             DELETE FROM SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING
@@ -769,7 +769,7 @@ class LambdaLabsCostMonitor:
                 % days_to_keep
             )
 
-            await self.modern_stack.execute_query(cleanup_query)
+            await self.qdrant_service.execute_query(cleanup_query)
 
             logger.info(f"Cleaned up data older than {days_to_keep} days")
 

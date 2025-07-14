@@ -15,7 +15,6 @@ Recommended decomposition:
 - enhanced_cortex_agent_service_models.py - Data models
 - enhanced_cortex_agent_service_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import json
@@ -23,7 +22,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+
 from pydantic import BaseModel
 
 from core.config_manager import get_config_value
@@ -70,8 +69,14 @@ class CortexTool(BaseModel):
 class CortexAgentService:
     """Base Cortex Agent Service for compatibility"""
 
-    def __init__(self):
-        pass
+    def __init__(...):
+"""Initialize service with configuration"""
+        self.config = config or {}
+        self.initialized = False
+        logger.info(f"✅ {self.__class__.__name__} initialized")
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"__init__ not yet implemented")
 
 
 # Enhanced Models for Multimodal Processing
@@ -137,18 +142,18 @@ class EnhancedCortexAgentService(CortexAgentService):
         self.processed_schema = "PROCESSED_AI"
         self.analytics_schema = "REAL_TIME_ANALYTICS"
 
-    async def get_advanced_connection(self) -> modern_stack.connector.ModernStackConnection:
-        """Get connection to advanced ModernStack database with PAT token as password"""
+    async def get_advanced_connection(self) -> qdrant.connector.QdrantConnection:
+        """Get connection to advanced Qdrant database with PAT token as password"""
         config = {
             "account": get_config_value("postgres_host"),
-            "user": get_config_value("modern_stack_user"),
+            "user": get_config_value("qdrant_user"),
             "password": get_config_value("postgres_password"),  # PAT token as password
             "role": "ACCOUNTADMIN",
             "warehouse": "AI_SOPHIA_AI_WH",
             "database": self.advanced_database,
             "schema": self.processed_schema,
         }
-        return self.modern_stack_connection(**config)
+        return self.qdrant_serviceection(**config)
 
     async def process_multimodal_request(
         self, request: MultimodalAgentRequest
@@ -184,9 +189,9 @@ class EnhancedCortexAgentService(CortexAgentService):
             )
             tools_used.append("cortex_ai_analysis")
 
-            # Store results in ModernStack for future reference
+            # Store results in Qdrant for future reference
             await self._store_multimodal_results(processing_results, ai_insights)
-            tools_used.append("modern_stack_storage")
+            tools_used.append("qdrant_storage")
 
             execution_time = (datetime.now() - start_time).total_seconds()
 
@@ -213,7 +218,7 @@ class EnhancedCortexAgentService(CortexAgentService):
         """Process audio files (Gong recordings)"""
         logger.info(f"Processing audio file: {file.file_id}")
 
-        # Store audio file in ModernStack stage
+        # Store audio file in Qdrant stage
         conn = await self.get_advanced_connection()
         cursor = conn.cursor()
 
@@ -222,7 +227,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             stage_path = f"@{self.advanced_database}.{self.multimodal_schema}.GONG_FILES/{file.file_id}"
 
             # For now, we'll simulate audio processing
-            # In production, this would integrate with ModernStack's audio processing capabilities
+            # In production, this would integrate with Qdrant's audio processing capabilities
             analysis_result = {
                 "file_id": file.file_id,
                 "duration_seconds": file.metadata.get("duration", 0),
@@ -236,7 +241,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             # Use Cortex AI for sentiment analysis if transcript available
             if analysis_result["transcript"]:
                 sentiment_query = f"""
-                SELECT self.modern_stack.await self.lambda_gpu.analyze_sentiment('{analysis_result["transcript"]}') as sentiment_score
+                SELECT self.qdrant_service.await self.lambda_gpu.analyze_sentiment('{analysis_result["transcript"]}') as sentiment_score
                 """
                 cursor.execute(sentiment_query)
                 result = cursor.fetchone()
@@ -277,7 +282,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             if text_content:
                 analysis_query = """
                 SELECT
-                    self.modern_stack.await self.lambda_gpu.complete(
+                    self.qdrant_service.await self.lambda_gpu.complete(
                         %s,
                         %s
                     ) as analysis
@@ -311,7 +316,7 @@ class EnhancedCortexAgentService(CortexAgentService):
         }
 
         # For now, we'll use metadata if available
-        # In production, this would integrate with ModernStack's image processing capabilities
+        # In production, this would integrate with Qdrant's image processing capabilities
         if "description" in file.metadata:
             analysis_result["description"] = file.metadata["description"]
 
@@ -364,7 +369,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             """
 
             ai_query = """
-            SELECT self.modern_stack.await self.lambda_gpu.complete(
+            SELECT self.qdrant_service.await self.lambda_gpu.complete(
                 %s,
                 %s
             ) as ai_insights
@@ -407,7 +412,7 @@ class EnhancedCortexAgentService(CortexAgentService):
     async def _store_multimodal_results(
         self, processing_results: dict[str, Any], ai_insights: dict[str, Any]
     ):
-        """Store multimodal processing results in ModernStack"""
+        """Store multimodal processing results in Qdrant"""
 
         conn = await self.get_advanced_connection()
         cursor = conn.cursor()
@@ -511,7 +516,7 @@ class EnhancedCortexAgentService(CortexAgentService):
 
             # Generate AI insights - SECURE VERSION with parameterized query
             insights_query = """
-            SELECT self.modern_stack.await self.lambda_gpu.complete(
+            SELECT self.qdrant_service.await self.lambda_gpu.complete(
                 %s,
                 %s
             ) as insights

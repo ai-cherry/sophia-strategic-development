@@ -24,6 +24,10 @@
   "error_handling": {
     "retry_without_ssl": true,
     "max_retries": 3,
-    "timeout_escalation": [10, 20, 30]
+    "timeout_escalation": [
+      10,
+      20,
+      30
+    ]
   }
 }

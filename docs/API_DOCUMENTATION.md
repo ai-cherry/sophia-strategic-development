@@ -27,7 +27,7 @@ related_docs: none
   - [**Code Analysis**](#**code-analysis**)
 - [📊 **Service-Specific Endpoints**](#📊-**service-specific-endpoints**)
   - [**Gong Integration**](#**gong-integration**)
-  - [**Modern Stack Integration**](#**modern_stack-integration**)
+  - [**Modern Stack Integration**](#**ELIMINATED-integration**)
   - [**Vercel Integration**](#**vercel-integration**)
 - [🔄 **Webhook Endpoints**](#🔄-**webhook-endpoints**)
   - [**GitHub Webhooks**](#**github-webhooks**)
@@ -40,7 +40,7 @@ related_docs: none
 - [📝 **Usage Examples**](#📝-**usage-examples**)
   - [**Natural Language Infrastructure Management**](#**natural-language-infrastructure-management**)
   - [**Code Generation with Claude**](#**code-generation-with-claude**)
-  - [**Data Analysis with Modern Stack**](#**data-analysis-with-modern_stack**)
+  - [**Data Analysis with Modern Stack**](#**data-analysis-with-ELIMINATED**)
 - [🔧 **SDK and Libraries**](#🔧-**sdk-and-libraries**)
   - [**Python SDK**](#**python-sdk**)
   - [**JavaScript SDK**](#**javascript-sdk**)
@@ -149,9 +149,9 @@ Access Gong CRM data and functionality.
 ### **Modern Stack Integration**
 Execute queries and manage Modern Stack resources.
 
-- `POST /api/modern_stack/query` - Execute SQL queries
-- `GET /api/modern_stack/tables` - List available tables
-- `GET /api/modern_stack/schema` - Get schema information
+- `POST /api/ELIMINATED/query` - Execute SQL queries
+- `GET /api/ELIMINATED/tables` - List available tables
+- `GET /api/ELIMINATED/schema` - Get schema information
 
 ### **Vercel Integration**
 Manage deployments and projects.

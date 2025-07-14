@@ -93,7 +93,7 @@ graph TB
 **📋 CURRENT MEMORY STRATEGY**
 
 1. **PRIMARY SYSTEMS:**
-   - ✅ Weaviate - Primary vector database for semantic search
+   - ✅ Qdrant - Primary vector database for semantic search
    - ✅ PostgreSQL pgvector - Hybrid SQL + vector queries  
    - ✅ Redis - High-performance caching layer
    - ✅ Mem0 - Conversational agent memory
@@ -118,7 +118,7 @@ graph TB
 |------|------------|---------|---------|--------|
 | L0 | GPU Cache | Hardware acceleration | <1ms | ✅ Automatic |
 | L1 | Redis | Session cache + metrics | <10ms | ✅ Enhanced |
-| L2 | Weaviate | Vector search + embeddings | <50ms | ✅ Primary |
+| L2 | Qdrant | Vector search + embeddings | <50ms | ✅ Primary |
 | L3 | PostgreSQL pgvector | Hybrid SQL + vectors | <100ms | ✅ Operational |
 | L4 | Mem0 | Conversational memory | <150ms | ✅ Integrated |
 | L5 | Modern Stack (Legacy) | Structured data backup | <500ms | ⚠️ Phasing out |
@@ -203,7 +203,7 @@ EMBEDDING: text-embedding-ada-002
 ```python
 # Capability-based routing
 capabilities_map = {
-    "data_analysis": ["modern_stack", "postgres"],
+    "data_analysis": ["ELIMINATED", "postgres"],
     "code_review": ["github", "codacy"],
     "project_status": ["linear", "asana", "notion"],
     "customer_intel": ["hubspot", "gong", "slack"],
@@ -386,7 +386,7 @@ triggers = {
 
 // Node types
 nodes = {
-    data: ["modern_stack_query", "api_fetch"],
+    data: ["ELIMINATED_query", "api_fetch"],
     ai: ["llm_analysis", "embedding_generation"],
     action: ["slack_notify", "linear_create_task"],
     condition: ["if_threshold", "switch_sentiment"]
@@ -416,7 +416,7 @@ name: Revenue Anomaly Detection
 schedule: "*/30 * * * *"  # Every 30 minutes
 nodes:
   - id: query_revenue
-    type: modern_stack
+    type: ELIMINATED
     query: SELECT * FROM revenue_metrics WHERE...
   - id: detect_anomaly
     type: ai_analysis

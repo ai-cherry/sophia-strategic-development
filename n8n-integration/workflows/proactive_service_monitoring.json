@@ -17,7 +17,10 @@
       "name": "Every 15 Minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [240, 300]
+      "position": [
+        240,
+        300
+      ]
     },
     {
       "parameters": {
@@ -29,7 +32,10 @@
       "name": "Execute Health Check",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
-      "position": [460, 300]
+      "position": [
+        460,
+        300
+      ]
     },
     {
       "parameters": {
@@ -39,7 +45,10 @@
       "name": "Parse Health Report",
       "type": "n8n-nodes-base.parseJson",
       "typeVersion": 1,
-      "position": [680, 300]
+      "position": [
+        680,
+        300
+      ]
     },
     {
       "parameters": {
@@ -56,18 +65,24 @@
       "name": "If Service Unhealthy",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [900, 300]
+      "position": [
+        900,
+        300
+      ]
     },
     {
       "parameters": {
         "channel": "C03T4G1PZ7S",
-        "text": "=🚨 **Sophia AI Service Alert** 🚨\n\nOne or more internal services are unhealthy. Please investigate immediately.\n\n*Report Time:* `{{$json.data.reportGeneratedAt}}`\n*Overall Status:* `{{$json.data.summary.overallStatus}}`\n\n*Details:*\n{{$json.data.unhealthyServices.map(s => `• *${s.name}* - Status: `${s.status}` - Details: _${s.details}_`).join('\\n')}}",
+        "text": "=\ud83d\udea8 **Sophia AI Service Alert** \ud83d\udea8\n\nOne or more internal services are unhealthy. Please investigate immediately.\n\n*Report Time:* `{{$json.data.reportGeneratedAt}}`\n*Overall Status:* `{{$json.data.summary.overallStatus}}`\n\n*Details:*\n{{$json.data.unhealthyServices.map(s => `\u2022 *${s.name}* - Status: `${s.status}` - Details: _${s.details}_`).join('\\n')}}",
         "options": {}
       },
       "name": "Post Alert to Slack",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 1,
-      "position": [1120, 300],
+      "position": [
+        1120,
+        300
+      ],
       "credentials": {
         "slackApi": {
           "id": "sophia-slack-prod",

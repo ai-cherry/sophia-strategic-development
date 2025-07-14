@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
 """
-🏔️ ModernStack Warehouse Optimization Script
+🏔️ Qdrant Warehouse Optimization Script
 ==========================================
 
-Optimizes ModernStack warehouses for AI workloads and cost efficiency.
+Optimizes Qdrant warehouses for AI workloads and cost efficiency.
 """
 
 import logging
 
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3
+
 
 logger = logging.getLogger(__name__)
 
 
-class ModernStackOptimizer:
-# REMOVED: ModernStack dependencyurations."""
+class QdrantOptimizer:
+
 
     def __init__(self, config: dict):
         self.config = config
         self.connection = None
 
     def connect(self):
-        """Connect to ModernStack."""
+        """Connect to Qdrant."""
         try:
-            self.connection = self.modern_stack_connection(**self.config)
-            logger.info("✅ Connected to ModernStack")
+            self.connection = self.qdrant_serviceection(**self.config)
+            logger.info("✅ Connected to Qdrant")
         except Exception as e:
-            logger.exception(f"❌ Failed to connect to ModernStack: {e}")
+            logger.exception(f"❌ Failed to connect to Qdrant: {e}")
             raise
 
     def optimize_ai_warehouses(self):
@@ -82,7 +82,7 @@ class ModernStackOptimizer:
         cursor.close()
 
     def close(self):
-        """Close ModernStack connection."""
+        """Close Qdrant connection."""
         if self.connection:
             self.connection.close()
 
@@ -96,12 +96,12 @@ def main():
         "role": "ACCOUNTADMIN",
     }
 
-# REMOVED: ModernStack dependency)
+
     try:
         optimizer.connect()
         optimizer.optimize_ai_warehouses()
         optimizer.create_resource_monitors()
-        logger.info("🎉 ModernStack optimization complete!")
+        logger.info("🎉 Qdrant optimization complete!")
     finally:
         optimizer.close()
 

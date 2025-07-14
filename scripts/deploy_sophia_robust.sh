@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 SERVER_IP="104.171.202.103"
-SSH_KEY="$HOME/.ssh/lambda_labs_private_key"
+SSH_KEY="$HOME/.ssh/sophia_final_key"
 DOMAIN="sophia-intel.ai"
 
 # Colors
@@ -24,7 +24,7 @@ echo "======================================${NC}"
 
 # SSH function with keepalive
 ssh_exec() {
-    ssh -i "$SSH_KEY" -o ServerAliveInterval=30 -o ServerAliveCountMax=10 ubuntu@$SERVER_IP "$@"
+    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=30 -o ServerAliveCountMax=10 ubuntu@$SERVER_IP "$@"
 }
 
 # Step 1: Fix Docker conflict
@@ -131,7 +131,7 @@ services:
 COMPOSE
 
 # Copy docker-compose file
-scp -i "$SSH_KEY" /tmp/docker-compose.yml ubuntu@$SERVER_IP:~/sophia-deployment/
+scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /tmp/docker-compose.yml ubuntu@$SERVER_IP:~/sophia-deployment/
 
 # Start services
 echo -e "\n${BLUE}Starting Docker services...${NC}"
@@ -149,4 +149,4 @@ echo ""
 echo "Next steps:"
 echo "1. Deploy backend: ./scripts/quick_backend_deploy.sh"
 echo "2. Deploy frontend: ./scripts/quick_frontend_deploy.sh"
-echo "3. Check status: ssh -i ~/.ssh/lambda_labs_private_key ubuntu@$SERVER_IP 'docker ps'" 
+echo "3. Check status: ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP 'docker ps'" 

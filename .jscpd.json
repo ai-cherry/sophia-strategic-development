@@ -1,6 +1,8 @@
 {
   "threshold": 0,
-  "reporters": ["json"],
+  "reporters": [
+    "json"
+  ],
   "ignore": [
     "**/.git/**",
     "**/node_modules/**",
@@ -37,11 +39,26 @@
   "silent": true,
   "maxSize": "100kb",
   "formatsExts": {
-    "python": [".py"],
-    "javascript": [".js", ".jsx"],
-    "typescript": [".ts", ".tsx"],
-    "json": [".json"],
-    "yaml": [".yml", ".yaml"],
-    "markdown": [".md"]
+    "python": [
+      ".py"
+    ],
+    "javascript": [
+      ".js",
+      ".jsx"
+    ],
+    "typescript": [
+      ".ts",
+      ".tsx"
+    ],
+    "json": [
+      ".json"
+    ],
+    "yaml": [
+      ".yml",
+      ".yaml"
+    ],
+    "markdown": [
+      ".md"
+    ]
   }
 }

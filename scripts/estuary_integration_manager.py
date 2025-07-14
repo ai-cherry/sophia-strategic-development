@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 
 """
 Sophia AI - Estuary Integration Configuration
 Configures Estuary connections for Gong and Slack data sources
-Integrates with ModernStack and secret management system
+Integrates with Qdrant and secret management system
 """
 
 import asyncio
@@ -26,7 +26,7 @@ sys.path.insert(0, str(project_root))
 class EstuaryIntegrationManager:
     """
     Manages Estuary integration configuration for Sophia AI data pipeline.
-    Handles Gong, Slack, and other data source connections to ModernStack.
+    Handles Gong, Slack, and other data source connections to Qdrant.
     """
 
     def __init__(self):
@@ -50,9 +50,9 @@ class EstuaryIntegrationManager:
                 "ESTUARY_ACCESS_TOKEN",
                 "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6Z1BPdmhDSC1Ic21OQnhhV3lnLU11dlF6dHJERTBDSEJHZDB2MVh0Vnk0In0.eyJleHAiOjE3NTAzNjI2NzAsImlhdCI6MTcxODgyNjY3MCwianRpIjoiNzJkNzE1YzQtNzI4Zi00YjU5LWI5YjMtMzQ4ZjNkNzNkNzI5IiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay5haXJieXRlLmlvL3JlYWxtcy9haXJieXRlIiwiYXVkIjoiYWlyYnl0ZS1zZXJ2ZXIiLCJzdWIiOiI5NjMwMTM0Yy0zNTlkLTRjOWMtYWE5Ny05NWFiM2EyZmY4ZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJhaXJieXRlLXNlcnZlciIsInNlc3Npb25fc3RhdGUiOiJhNzE5YjJhNy0yMzI5LTRhNzEtOTI4Ni0yNzY4ZjI3YzNkNzMiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRlZmF1bHQtcm9sZXMtYWlyYnl0ZSJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFpcmJ5dGUtc2VydmVyIjp7InJvbGVzIjpbIkVESVRPUiJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwic2lkIjoiYTcxOWIyYTctMjMyOS00YTcxLTkyODYtMjc2OGYyN2MzZDczIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJMeW5uIE11c2lsbG8iLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJtdXNpbGx5bm5AZ21haWwuY29tIiwiZ2l2ZW5fbmFtZSI6Ikx5bm4iLCJmYW1pbHlfbmFtZSI6Ik11c2lsbG8iLCJlbWFpbCI6Im11c2lsbHlubkBnbWFpbC5jb20ifQ.",
             ),
-            "modern_stack": {
+            "qdrant": {
                 "account": get_config_value("postgres_host", "UHDECNO-CVB64222"),
-                "user": get_config_value("modern_stack_user", "SCOOBYJAVA15"),
+                "user": get_config_value("qdrant_user", "SCOOBYJAVA15"),
                 "password": os.getenv(
                     "SOPHIA_AI_TOKEN", get_config_value("postgres_password")
                 ),
@@ -75,20 +75,20 @@ class EstuaryIntegrationManager:
             },
         }
 
-    async def create_modern_stack_destination(self) -> dict[str, Any]:
-        """Create ModernStack destination in Estuary."""
+    async def create_qdrant_destination(self) -> dict[str, Any]:
+        """Create Qdrant destination in Estuary."""
 
         destination_config = {
-            "name": "Sophia AI ModernStack",
-            "destinationType": "modern_stack",
+            "name": "Sophia AI Qdrant",
+            "destinationType": "qdrant",
             "configuration": {
-                "host": f"{self.config['modern_stack']['account']}.modern_stackcomputing.com",
-                "role": self.config["modern_stack"]["role"],
-                "warehouse": self.config["modern_stack"]["warehouse"],
-                "database": self.config["modern_stack"]["database"],
+                "host": f"{self.config['qdrant']['account']}.qdrantcomputing.com",
+                "role": self.config["qdrant"]["role"],
+                "warehouse": self.config["qdrant"]["warehouse"],
+                "database": self.config["qdrant"]["database"],
                 "schema": "PUBLIC",
-                "username": self.config["modern_stack"]["user"],
-                "password": self.config["modern_stack"]["password"],
+                "username": self.config["qdrant"]["user"],
+                "password": self.config["qdrant"]["password"],
                 "jdbc_url_params": "",
                 "raw_data_schema": "ESTUARY_INTERNAL",
             },
@@ -224,7 +224,7 @@ class EstuaryIntegrationManager:
 
         results = {
             "timestamp": datetime.now().isoformat(),
-            "modern_stack_destination": {},
+            "qdrant_destination": {},
             "gong_source": {},
             "slack_source": {},
             "connections": [],
@@ -233,27 +233,27 @@ class EstuaryIntegrationManager:
         }
 
         try:
-            # Create ModernStack destination
-            # REMOVED: ModernStack dependency await self.create_modern_stack_destination()
-            results["# REMOVED: ModernStack dependency modern_stack_result
+            # Create Qdrant destination
+            
+            results["
 
-            if not modern_stack_result["success"]:
-                results["errors"].append("Failed to create ModernStack destination")
+            if not qdrant_result["success"]:
+                results["errors"].append("Failed to create Qdrant destination")
                 results["success"] = False
                 return results
 
-            destination_id = modern_stack_result["destination_id"]
+            destination_id = qdrant_result["destination_id"]
 
             # Create Gong source
             gong_result = await self.create_gong_source()
             results["gong_source"] = gong_result
 
             if gong_result["success"]:
-                # Create Gong to ModernStack connection
+                # Create Gong to Qdrant connection
                 gong_connection = await self.create_connection(
                     gong_result["source_id"],
                     destination_id,
-                    "Sophia AI Gong to ModernStack",
+                    "Sophia AI Gong to Qdrant",
                 )
                 results["connections"].append(gong_connection)
             else:
@@ -264,11 +264,11 @@ class EstuaryIntegrationManager:
             results["slack_source"] = slack_result
 
             if slack_result["success"]:
-                # Create Slack to ModernStack connection
+                # Create Slack to Qdrant connection
                 slack_connection = await self.create_connection(
                     slack_result["source_id"],
                     destination_id,
-                    "Sophia AI Slack to ModernStack",
+                    "Sophia AI Slack to Qdrant",
                 )
                 results["connections"].append(slack_connection)
             else:

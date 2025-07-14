@@ -13,7 +13,6 @@ Recommended decomposition:
 - advanced_estuary_flow_manager_models.py - Data models
 - advanced_estuary_flow_manager_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 import logging
@@ -217,7 +216,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
         logger.info("🧠 Deploying AI-powered materializations...")
 
         materializations_config = {
-            "modern_stack_multimodal_materialization": await self._create_modern_stack_multimodal_materialization(),
+            "qdrant_multimodal_materialization": await self._create_qdrant_multimodal_materialization(),
             "real_time_analytics_materialization": await self._create_realtime_analytics_materialization(),
             "compliance_monitoring_materialization": await self._create_compliance_monitoring_materialization(),
         }
@@ -235,18 +234,18 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
 
         return deployment_results
 
-    async def _create_modern_stack_multimodal_materialization(self) -> dict[str, Any]:
-        """Create ModernStack materialization with multimodal support"""
+    async def _create_qdrant_multimodal_materialization(self) -> dict[str, Any]:
+        """Create Qdrant materialization with multimodal support"""
         return {
             "type": "materialization",
-            "name": "Pay_Ready/modern_stack-multimodal-ai",
+            "name": "Pay_Ready/qdrant-multimodal-ai",
             "endpoint": {
                 "connector": {
-                    "image": "ghcr.io/estuary/materialize-modern_stack:dev",
+                    "image": "ghcr.io/estuary/materialize-qdrant:dev",
                     "config": {
-                        "host": f"{get_config_value('postgres_host')}.modern_stackcomputing.com",
+                        "host": f"{get_config_value('postgres_host')}.qdrantcomputing.com",
                         "account": get_config_value("postgres_host"),
-                        "user": get_config_value("modern_stack_user"),
+                        "user": get_config_value("qdrant_user"),
                         "password": get_config_value("postgres_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "AI_SOPHIA_AI_WH",
@@ -296,11 +295,11 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             "name": "Pay_Ready/realtime-analytics",
             "endpoint": {
                 "connector": {
-                    "image": "ghcr.io/estuary/materialize-modern_stack:dev",
+                    "image": "ghcr.io/estuary/materialize-qdrant:dev",
                     "config": {
-                        "host": f"{get_config_value('postgres_host')}.modern_stackcomputing.com",
+                        "host": f"{get_config_value('postgres_host')}.qdrantcomputing.com",
                         "account": get_config_value("postgres_host"),
-                        "user": get_config_value("modern_stack_user"),
+                        "user": get_config_value("qdrant_user"),
                         "password": get_config_value("postgres_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "REALTIME_ANALYTICS_WH",
@@ -340,11 +339,11 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             "name": "Pay_Ready/compliance-monitoring",
             "endpoint": {
                 "connector": {
-                    "image": "ghcr.io/estuary/materialize-modern_stack:dev",
+                    "image": "ghcr.io/estuary/materialize-qdrant:dev",
                     "config": {
-                        "host": f"{get_config_value('postgres_host')}.modern_stackcomputing.com",
+                        "host": f"{get_config_value('postgres_host')}.qdrantcomputing.com",
                         "account": get_config_value("postgres_host"),
-                        "user": get_config_value("modern_stack_user"),
+                        "user": get_config_value("qdrant_user"),
                         "password": get_config_value("postgres_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "AI_SOPHIA_AI_WH",

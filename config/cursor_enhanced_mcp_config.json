@@ -21,26 +21,6 @@
       ],
       "health_endpoint": "/health"
     },
-    "modern_stack_unified": {
-      "command": "python",
-      "args": [
-        "mcp-servers/modern_stack_unified/unified_modern_stack_server.py"
-      ],
-      "env": {
-        "PORT": "9200",
-        "ENVIRONMENT": "prod",
-        "LAMBDA_LABS_HOST": "165.1.69.44"
-      },
-      "port": 9000,
-      "cwd": ".",
-      "capabilities": [
-        "data_operations",
-        "ai_agent_database_access",
-        "schema_management",
-        "real_infrastructure_changes"
-      ],
-      "health_endpoint": "/health"
-    },
     "codacy": {
       "command": "python",
       "args": [
@@ -132,30 +112,64 @@
     "description": "Revolutionary AI Agent Authentication System enabling real infrastructure changes",
     "security_tiers": {
       "tier_1_cli_auth": {
-        "services": ["github", "pulumi", "docker", "vercel"],
+        "services": [
+          "github",
+          "pulumi",
+          "docker",
+          "vercel"
+        ],
         "risk_level": "critical",
-        "agent_types": ["infrastructure_agent"]
+        "agent_types": [
+          "infrastructure_agent"
+        ]
       },
       "tier_2_enhanced_api": {
-        "services": ["modern_stack", "lambda_labs", "estuary_flow"],
+        "services": [
+          "ELIMINATED",
+          "lambda_labs",
+          "estuary_flow"
+        ],
         "risk_level": "high",
-        "agent_types": ["data_agent", "infrastructure_agent"]
+        "agent_types": [
+          "data_agent",
+          "infrastructure_agent"
+        ]
       },
       "tier_3_secure_api": {
-        "services": ["openai", "anthropic", "slack", "linear", "hubspot"],
+        "services": [
+          "openai",
+          "anthropic",
+          "slack",
+          "linear",
+          "hubspot"
+        ],
         "risk_level": "medium",
-        "agent_types": ["integration_agent", "data_agent", "infrastructure_agent"]
+        "agent_types": [
+          "integration_agent",
+          "data_agent",
+          "infrastructure_agent"
+        ]
       }
     },
     "audit_trail": {
       "enabled": true,
-      "storage": "modern_stack",
+      "storage": "ELIMINATED",
       "retention_days": 365,
-      "compliance": ["SOX", "GDPR", "enterprise_audit"]
+      "compliance": [
+        "SOX",
+        "GDPR",
+        "enterprise_audit"
+      ]
     },
     "confirmation_workflows": {
-      "critical_operations": ["pulumi:destroy", "lambda_labs:terminate_instance"],
-      "high_risk_operations": ["modern_stack:drop_table", "docker:push"],
+      "critical_operations": [
+        "pulumi:destroy",
+        "lambda_labs:terminate_instance"
+      ],
+      "high_risk_operations": [
+        "ELIMINATED",
+        "docker:push"
+      ],
       "confirmation_timeout_seconds": 300
     }
   },

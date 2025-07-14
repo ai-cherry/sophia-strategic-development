@@ -1,6 +1,6 @@
 #!/bin/bash
 # Deploy Sophia AI to Production
-# This script handles DNS, Vercel, and Kubernetes deployment
+# This script handles DNS, Lambda Labs deployment
 
 set -e
 
@@ -14,7 +14,7 @@ echo ""
 echo "📋 Checking prerequisites..."
 
 # Check for required tools
-tools=("vercel" "kubectl" "pulumi")
+tools=("lambda-labs"
 for tool in "${tools[@]}"; do
     if ! command -v $tool &> /dev/null; then
         echo "❌ $tool not found. Please install it first."
@@ -50,7 +50,7 @@ records = [
     {'Type': 'A', 'Name': '@', 'Address': '76.76.21.21', 'TTL': '1800'},
     {'Type': 'A', 'Name': 'www', 'Address': '76.76.21.21', 'TTL': '1800'},
     {'Type': 'A', 'Name': 'api', 'Address': '192.222.58.232', 'TTL': '1800'},
-    {'Type': 'CNAME', 'Name': 'dashboard', 'Address': 'cname.vercel-dns.com.', 'TTL': '1800'},
+    {'Type': 'CNAME', 'Name': 'dashboard', 'Address': '192.222.58.232.', 'TTL': '1800'},
     {'Type': 'A', 'Name': 'docs', 'Address': '76.76.21.21', 'TTL': '1800'},
     {'Type': 'A', 'Name': 'grafana', 'Address': '192.222.58.232', 'TTL': '1800'},
 ]
@@ -97,16 +97,16 @@ EOF
 # Run DNS configuration with Pulumi ESC
 pulumi env run sophia-ai/production -- python /tmp/configure_dns.py
 
-# Step 2: Deploy Frontend to Vercel
+# Step 2: Deploy Frontend (Lambda Labs)
 echo ""
-echo "🎨 Step 2: Deploying Frontend to Vercel"
+echo "🎨 Step 2: Deploying Frontend (Lambda Labs)
 echo "--------------------------------------"
 
 cd frontend
 
-# Create vercel.json if it doesn't exist
-if [ ! -f vercel.json ]; then
-    cat > vercel.json << EOF
+# Create nginx.conf if it doesn't exist
+if [ ! -f nginx.conf ]; then
+    cat > nginx.conf << EOF
 {
   "name": "sophia-intel-ai",
   "alias": ["sophia-intel.ai", "www.sophia-intel.ai", "dashboard.sophia-intel.ai"],
@@ -124,9 +124,9 @@ if [ ! -f vercel.json ]; then
 EOF
 fi
 
-# Deploy with Vercel
-echo "Deploying to Vercel..."
-pulumi env run sophia-ai/production -- vercel --prod --yes
+# Deploy to Lambda Labs
+echo "Deploy to Lambda Labs
+pulumi env run sophia-ai/production -- # Lambda Labs Deploy to Lambda Labs
 
 cd ..
 

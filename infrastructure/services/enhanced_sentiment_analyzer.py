@@ -4,7 +4,7 @@ Enhanced Sentiment Analyzer for Sophia AI
 Implements advanced multi-channel sentiment analysis with nuanced emotion detection
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -223,7 +223,7 @@ class EnhancedSentimentAnalyzer:
     ) -> float:
         """Analyze primary sentiment score"""
         # Placeholder for Lambda GPU integration
-        # In real implementation, this would call self.modern_stack.await self.lambda_gpu.analyze_sentiment()
+        # In real implementation, this would call self.qdrant_service.await self.lambda_gpu.analyze_sentiment()
 
         base_sentiment = 0.0
 

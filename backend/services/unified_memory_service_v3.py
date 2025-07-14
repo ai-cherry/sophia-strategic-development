@@ -55,18 +55,58 @@ except ImportError:
     DOCLING_AVAILABLE = False
     docling = None
 
-# Core imports
-import weaviate
-from redis.asyncio import Redis
-import asyncpg
-from portkey_ai import Portkey
-from tenacity import retry, stop_after_attempt, wait_exponential
-import prometheus_client
-from prometheus_client import Histogram, Counter, Gauge
+# Core imports - Pure Qdrant Architecture
+# Weaviate eliminated for pure Qdrant-centric design
+
+try:
+    from redis.asyncio import Redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    Redis = None
+
+try:
+    import asyncpg
+    ASYNCPG_AVAILABLE = True
+except ImportError:
+    ASYNCPG_AVAILABLE = False
+    asyncpg = None
+
+try:
+    from portkey_ai import Portkey
+    PORTKEY_AVAILABLE = True
+except ImportError:
+    PORTKEY_AVAILABLE = False
+    Portkey = None
+
+try:
+    from tenacity import retry, stop_after_attempt, wait_exponential
+    TENACITY_AVAILABLE = True
+except ImportError:
+    TENACITY_AVAILABLE = False
+    retry = lambda *args, **kwargs: lambda func: func
+    stop_after_attempt = lambda x: None
+    wait_exponential = lambda *args, **kwargs: None
+
+try:
+    import prometheus_client
+    from prometheus_client import Histogram, Counter, Gauge
+    PROMETHEUS_AVAILABLE = True
+except ImportError:
+    PROMETHEUS_AVAILABLE = False
+    prometheus_client = None
+    Histogram = Counter = Gauge = lambda *args, **kwargs: None
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+
+# Fallback for missing primary service
+try:
+    from backend.services.unified_memory_service_primary import UnifiedMemoryService as UnifiedMemoryServicePrimary
+    PRIMARY_SERVICE_AVAILABLE = True
+except ImportError:
+    PRIMARY_SERVICE_AVAILABLE = False
+    UnifiedMemoryServicePrimary = None
 
 logger = get_logger(__name__)
 
@@ -102,7 +142,7 @@ class RAGState(TypedDict):
 class MemoryTier:
     """Enhanced memory tier configuration"""
     name: str
-    storage_type: str  # redis, weaviate, qdrant, neo4j
+    storage_type: str  # redis, qdrant, neo4j
     ttl_seconds: int
     max_entries: int
     embedding_model: str
@@ -119,7 +159,7 @@ class ProcessingStage(Enum):
     HYPOTHETICAL_GENERATION = "hypothetical_generation"
     FINAL_SYNTHESIS = "final_synthesis"
 
-class UnifiedMemoryServiceV3:
+class UnifiedMemoryService:
     """
     Agentic RAG with LangGraph Multi-Actor Cycles
     
@@ -133,7 +173,7 @@ class UnifiedMemoryServiceV3:
     
     def __init__(self):
         # Inherit base functionality from V2
-        self.v2_service = UnifiedMemoryServiceV2()
+        self.v2_service = UnifiedMemoryServicePrimary()
         
         # Enhanced memory tiers with multimodal support
         self.memory_tiers = {
@@ -148,7 +188,7 @@ class UnifiedMemoryServiceV3:
             ),
             "semantic": MemoryTier(
                 name="Semantic Memory", 
-                storage_type="weaviate",
+                storage_type="qdrant",
                 ttl_seconds=86400 * 30,  # 30 days
                 max_entries=100000,
                 embedding_model="lambda-gpu",
@@ -913,10 +953,10 @@ class UnifiedMemoryServiceV3:
 # Singleton instance
 _memory_service_v3_instance = None
 
-async def get_unified_memory_service_v3() -> UnifiedMemoryServiceV3:
-    """Get the singleton UnifiedMemoryServiceV3 instance"""
+async def get_unified_memory_service_v3() -> UnifiedMemoryService:
+    """Get the singleton UnifiedMemoryService instance"""
     global _memory_service_v3_instance
     if _memory_service_v3_instance is None:
-        _memory_service_v3_instance = UnifiedMemoryServiceV3()
+        _memory_service_v3_instance = UnifiedMemoryService()
         await _memory_service_v3_instance.initialize()
     return _memory_service_v3_instance 

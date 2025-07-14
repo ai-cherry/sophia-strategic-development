@@ -19,9 +19,9 @@ Before starting the servers, set these environment variables:
 
 ```bash
 # Lambda GPU
-export modern_stack_ACCOUNT='your-modern_stack-account'
-export modern_stack_USER='your-username'
-export modern_stack_PASSWORD='your-password'
+export ELIMINATED_ACCOUNT='your-ELIMINATED-account'
+export ELIMINATED_USER='your-username'
+export ELIMINATED_PASSWORD='your-password'
 
 # Apollo.io (Get API key from https://app.apollo.io/#/settings/integrations/api)
 export APOLLO_IO_API_KEY='your-apollo-api-key'
@@ -68,8 +68,8 @@ Or manually add to your Cursor settings.
 
 #### Test Lambda GPU:
 ```bash
-cd mcp-servers/modern_stack_cortex
-python modern_stack_cortex_mcp_server.py
+cd mcp-servers/ELIMINATED_cortex
+python ELIMINATED_cortex_mcp_server.py
 ```
 
 #### Test Microsoft Playwright:
@@ -161,7 +161,7 @@ If servers don't start:
 - [Apollo.io API Docs](https://apolloio.github.io/apollo-api-docs/)
 - [Apify Platform Docs](https://docs.apify.com/platform/integrations/mcp)
 - [Figma API Reference](https://www.figma.com/developers/api)
-- [Lambda GPU Docs](https://docs.modern_stack.com/en/guides/modern_stack-cortex)
+- [Lambda GPU Docs](https://docs.ELIMINATED.com/en/guides/ELIMINATED-cortex)
 
 ---
 

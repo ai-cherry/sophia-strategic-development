@@ -71,21 +71,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: modern_stack-cortex-ai
+  name: ELIMINATED-cortex-ai
   namespace: sophia-gpu-workloads
   labels:
-    app: modern_stack-cortex-ai
+    app: ELIMINATED-cortex-ai
     workload-type: ai-processing
     gpu-required: "true"
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: modern_stack-cortex-ai
+      app: ELIMINATED-cortex-ai
   template:
     metadata:
       labels:
-        app: modern_stack-cortex-ai
+        app: ELIMINATED-cortex-ai
         workload-type: ai-processing
         gpu-required: "true"
     spec:
@@ -100,8 +100,8 @@ spec:
           effect: "NoSchedule"
 
       containers:
-        - name: modern_stack-cortex-ai
-          image: scoobyjava15/sophia-modern_stack-cortex:latest
+        - name: ELIMINATED-cortex-ai
+          image: scoobyjava15/sophia-ELIMINATED-cortex:latest
           imagePullPolicy: Always
 
           ports:
@@ -121,14 +121,14 @@ spec:
               value: "all"
             - name: PYTORCH_CUDA_ALLOC_CONF
               value: "max_split_size_mb:1024"
-            - name: modern_stack_CORTEX_ENABLED
+            - name: ELIMINATED_CORTEX_ENABLED
               value: "true"
             - name: GPU_MEMORY_FRACTION
               value: "0.8"
 
           envFrom:
             - secretRef:
-                name: sophia-modern_stack-secrets
+                name: sophia-ELIMINATED-secrets
 
           resources:
             requests:
@@ -167,7 +167,7 @@ spec:
       volumes:
         - name: model-cache
           persistentVolumeClaim:
-            claimName: modern_stack-cortex-models
+            claimName: ELIMINATED-cortex-models
         - name: tmp
           emptyDir: {}
 
@@ -370,7 +370,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: modern_stack-cortex-models
+  name: ELIMINATED-cortex-models
   namespace: sophia-gpu-workloads
 spec:
   accessModes:
@@ -404,7 +404,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: modern_stack-cortex-ai-service
+  name: ELIMINATED-cortex-ai-service
   namespace: sophia-gpu-workloads
 spec:
   type: ClusterIP
@@ -418,7 +418,7 @@ spec:
       targetPort: metrics
       protocol: TCP
   selector:
-    app: modern_stack-cortex-ai
+    app: ELIMINATED-cortex-ai
 
 ---
 # Local LLM Service
@@ -467,13 +467,13 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: modern_stack-cortex-ai-hpa
+  name: ELIMINATED-cortex-ai-hpa
   namespace: sophia-gpu-workloads
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: modern_stack-cortex-ai
+    name: ELIMINATED-cortex-ai
   minReplicas: 2
   maxReplicas: 6
   metrics:
@@ -695,11 +695,11 @@ spec:
 # SECRETS TEMPLATE (To be created via Pulumi ESC)
 # =============================================================================
 
-# ModernStack Secrets Template
+# ELIMINATED Secrets Template
 apiVersion: v1
 kind: Secret
 metadata:
-  name: sophia-modern_stack-secrets
+  name: sophia-ELIMINATED-secrets
   namespace: sophia-gpu-workloads
   annotations:
     pulumi.com/secret-source: "esc://scoobyjava-org/default/sophia-ai-production"

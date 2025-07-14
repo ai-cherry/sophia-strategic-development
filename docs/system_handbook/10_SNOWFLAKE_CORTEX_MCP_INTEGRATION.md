@@ -69,7 +69,7 @@ The CortexAdapter provides seamless switching between direct Modern Stack connec
 ### 1.2 Implementation Details
 
 ```python
-# File: backend/core/services/modern_stack_cortex_adapter.py
+# File: backend/core/services/ELIMINATED_cortex_adapter.py
 from enum import Enum
 from dataclasses import dataclass, field
 from typing import Optional, Union
@@ -91,7 +91,7 @@ class RetryConfig:
 @dataclass
 class CortexTask:
     type: str  # "complete", "search", "analyst"
-    model: str = "modern_stack-arctic"
+    model: str = "ELIMINATED-arctic"
     temperature: float = 0.7
     max_tokens: int = 2048
 
@@ -115,7 +115,7 @@ class CortexResult:
 ### 1.3 Connection Pool Management
 
 ```python
-# File: backend/core/services/modern_stack_pool.py
+# File: backend/core/services/ELIMINATED_pool.py
 class Modern StackPoolManager:
     """Manages connection pools for both direct and MCP modes"""
 
@@ -151,8 +151,8 @@ The MCP Registry provides centralized management of all MCP servers with tier-ba
 # File: config/mcp/registry.yaml
 version: "2.0"
 servers:
-  - id: modern_stack-cortex-primary
-    host: https://mcp-modern_stack.${CLUSTER_FQDN}
+  - id: ELIMINATED-cortex-primary
+    host: https://mcp-ELIMINATED.${CLUSTER_FQDN}
     tier: PRIMARY
     auth: PAT
     capabilities:
@@ -169,8 +169,8 @@ servers:
     metricsEndpoint: /metrics
     timeout_ms: 5000
 
-  - id: modern_stack-cortex-secondary
-    host: https://mcp-modern_stack-dr.${CLUSTER_FQDN}
+  - id: ELIMINATED-cortex-secondary
+    host: https://mcp-ELIMINATED-dr.${CLUSTER_FQDN}
     tier: SECONDARY
     auth: PAT
     capabilities:
@@ -272,20 +272,20 @@ class DynamicGraphBuilder:
                 adapter=self.cortex_adapter,
                 streaming_callback=self.streaming_callback
             )
-            graph.add_node("modern_stack_cortex", cortex_node)
+            graph.add_node("ELIMINATED_cortex", cortex_node)
 
             # Dynamic routing based on intent
             graph.add_conditional_edges(
                 "intent_classifier",
                 self._route_to_cortex,
                 {
-                    "needs_analysis": "modern_stack_cortex",
+                    "needs_analysis": "ELIMINATED_cortex",
                     "direct_response": "response_generator"
                 }
             )
 
             # Cortex output routing
-            graph.add_edge("modern_stack_cortex", "response_generator")
+            graph.add_edge("ELIMINATED_cortex", "response_generator")
 
         return graph.compile()
 ```
@@ -390,14 +390,14 @@ cortex_latency_seconds = Histogram(
 )
 
 # Pool metrics
-modern_stack_pool_size = Gauge(
-    'modern_stack_pool_size',
+ELIMINATED_pool_size = Gauge(
+    'ELIMINATED_pool_size',
     'Current pool size',
     ['mode']
 )
 
-modern_stack_pool_in_use = Gauge(
-    'modern_stack_pool_in_use',
+ELIMINATED_pool_in_use = Gauge(
+    'ELIMINATED_pool_in_use',
     'Connections currently in use',
     ['mode']
 )
@@ -441,7 +441,7 @@ cortex_credits_used = Counter(
       {
         "title": "Pool Utilization",
         "targets": [{
-          "expr": "modern_stack_pool_in_use / modern_stack_pool_size",
+          "expr": "ELIMINATED_pool_in_use / ELIMINATED_pool_size",
           "legendFormat": "{{mode}} pool"
         }]
       },
@@ -472,9 +472,9 @@ class Modern StackPATManager:
 
     async def get_current_pat(self, environment: str) -> str:
         """Retrieve current PAT with validation"""
-        pat_key = f"modern_stack_pat_{environment.lower()}"
+        pat_key = f"ELIMINATED_pat_{environment.lower()}"
         pat = await self.esc_client.get_secret(
-            f"values.sophia.infrastructure.modern_stack.{pat_key}"
+            f"values.sophia.infrastructure.ELIMINATED.{pat_key}"
         )
 
         if not pat:
@@ -525,7 +525,7 @@ class Modern StackAuditMiddleware:
             "user_id": getattr(request.state, "user_id", "anonymous"),
             "endpoint": request.url.path,
             "method": request.method,
-            "modern_stack_operation": self._extract_operation(request)
+            "ELIMINATED_operation": self._extract_operation(request)
         }
 
         # Execute request
@@ -551,7 +551,7 @@ class Modern StackAuditMiddleware:
 ### 7.1 Unit Test Suite
 
 ```python
-# File: backend/tests/services/test_modern_stack_cortex_adapter.py
+# File: backend/tests/services/test_ELIMINATED_cortex_adapter.py
 import pytest
 from unittest.mock import AsyncMock, patch
 from httpx import AsyncClient, Response
@@ -586,8 +586,8 @@ class TestCortexAdapter:
 
         # Mock appropriate response
         if mode == ExecutionMode.DIRECT:
-            adapter._modern_stack_conn = AsyncMock()
-            adapter._modern_stack_conn.execute.return_value = {
+            adapter._ELIMINATED_conn = AsyncMock()
+            adapter._ELIMINATED_conn.execute.return_value = {
                 "response": "Test response",
                 "usage": {"tokens": 100}
             }
@@ -612,8 +612,8 @@ class TestCortexAdapter:
         adapter.mcp_client.execute_cortex.side_effect = ConnectionError("MCP unavailable")
 
         # Configure direct mode to succeed
-        adapter._modern_stack_conn = AsyncMock()
-        adapter._modern_stack_conn.execute.return_value = {
+        adapter._ELIMINATED_conn = AsyncMock()
+        adapter._ELIMINATED_conn.execute.return_value = {
             "response": "Fallback response"
         }
 
@@ -634,7 +634,7 @@ class TestCortexAdapter:
                 mode="direct",
                 task="complete",
                 status="fallback",
-                model="modern_stack-arctic"
+                model="ELIMINATED-arctic"
             )
 ```
 
@@ -643,7 +643,7 @@ class TestCortexAdapter:
 ```python
 # File: backend/tests/integration/test_cortex_e2e.py
 @pytest.mark.e2e
-@pytest.mark.modern_stack
+@pytest.mark.ELIMINATED
 class TestCortexE2E:
     """End-to-end tests with real Modern Stack connection"""
 
@@ -750,7 +750,7 @@ on:
     branches: [main]
 
 env:
-  modern_stack_PAT: ${{ secrets.modern_stack_PAT_PROD }}
+  ELIMINATED_PAT: ${{ secrets.ELIMINATED_PAT_PROD }}
 
 jobs:
   deploy:
@@ -758,33 +758,33 @@ jobs:
     steps:
       - name: Validate Modern Stack PAT
         run: |
-          if [ -z "$modern_stack_PAT" ]; then
-            echo "::error::modern_stack_PAT_PROD secret not configured"
+          if [ -z "$ELIMINATED_PAT" ]; then
+            echo "::error::ELIMINATED_PAT_PROD secret not configured"
             exit 1
           fi
 
       - name: Build with PAT
         run: |
           docker build \
-            --build-arg modern_stack_PAT="${modern_stack_PAT}" \
+            --build-arg ELIMINATED_PAT="${ELIMINATED_PAT}" \
             --target production \
             -t sophia-ai:${{ github.sha }} .
 
       - name: Run Modern Stack MCP Smoke Tests
         run: |
           docker run --rm \
-            -e modern_stack_PAT="${modern_stack_PAT}" \
+            -e ELIMINATED_PAT="${ELIMINATED_PAT}" \
             sophia-ai:${{ github.sha }} \
-            python backend/scripts/smoke_test_modern_stack_mcp.py
+            python backend/scripts/smoke_test_ELIMINATED_mcp.py
 ```
 
 ### 8.2 Rollout Runbook
 
 ```markdown
-# File: docs/runbooks/modern_stack_MCP_ROLLOUT.md
+# File: docs/runbooks/ELIMINATED_MCP_ROLLOUT.md
 
 ## Pre-Deployment Checklist
-- [ ] modern_stack_PAT_PROD secret configured in GitHub
+- [ ] ELIMINATED_PAT_PROD secret configured in GitHub
 - [ ] Pulumi ESC sync completed
 - [ ] MCP server endpoints verified
 - [ ] Load test baseline captured
@@ -793,8 +793,8 @@ jobs:
 
 1. **Feature Branch Testing**
    ```bash
-   git checkout -b feat/modern_stack-mcp-integration
-   pytest -m "unit and modern_stack"
+   git checkout -b feat/ELIMINATED-mcp-integration
+   pytest -m "unit and ELIMINATED"
    ```
 
 2. **Preview Environment**
@@ -805,7 +805,7 @@ jobs:
 
 3. **E2E Validation**
    ```bash
-   pytest -m "e2e and modern_stack" --env=preview
+   pytest -m "e2e and ELIMINATED" --env=preview
    ```
 
 4. **Staging Deployment**
@@ -819,7 +819,7 @@ jobs:
    - Monitor Grafana dashboard "Lambda GPU MCP"
 
 ## Rollback Procedure
-1. Set environment variable: `MCP_modern_stack_ENABLED=false`
+1. Set environment variable: `MCP_ELIMINATED_ENABLED=false`
 2. Restart services: `kubectl rollout restart deployment/sophia-backend`
 3. Verify fallback to DIRECT mode in metrics
 ```

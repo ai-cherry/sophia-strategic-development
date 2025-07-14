@@ -8,7 +8,6 @@ Recommended decomposition:
 - asana_project_intelligence_agent_models.py - Data models
 - asana_project_intelligence_agent_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
 from __future__ import annotations
@@ -26,7 +25,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.services.llm_router import TaskType, llm_router
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +121,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
         """Initialize the Asana intelligence agent"""
         try:
             await super().initialize()
-            self.cortex_service = UnifiedMemoryServiceV2()
+            self.cortex_service = UnifiedMemoryService()
             await self.cortex_service.initialize()
             self.ai_memory_service = EnhancedAiMemoryMCPServer()
             await self.ai_memory_service.initialize()

@@ -9,7 +9,7 @@ This MCP server enables the AI to manage Estuary Flow pipelines for:
 - Data pipeline monitoring and management
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import logging
 
 # CRITICAL: Load environment before any other imports
@@ -97,7 +97,7 @@ class EstuaryMCPServer(StandardizedMCPServer):
         List all materialization pipelines.
 
         Materializations write data from Estuary collections to:
-        - ModernStack
+        - Qdrant
         - BigQuery
         - Redshift
         - ClickHouse
@@ -166,34 +166,34 @@ class EstuaryMCPServer(StandardizedMCPServer):
             return {"status": "error", "error": str(e)}
 
     @mcp_tool(
-        description="Create a ModernStack materialization pipeline", include_context=True
+        description="Create a Qdrant materialization pipeline", include_context=True
     )
-    async def create_modern_stack_materialization(
+    async def create_qdrant_materialization(
         self, name: str, collection_mappings: list[dict[str, str]], context: dict
     ) -> dict[str, Any]:
         """
-        Create a ModernStack materialization pipeline.
+        Create a Qdrant materialization pipeline.
 
         Args:
-            name: Name for the materialization (e.g., "sophia-to-modern_stack")
+            name: Name for the materialization (e.g., "sophia-to-qdrant")
             collection_mappings: List of dicts mapping collections to tables
                 Example: [{"collection": "sophia/cdc/users", "table": "STG_USERS"}]
         """
         try:
-# REMOVED: ModernStack dependency
-# REMOVED: ModernStack dependency()
+
+
 
             async with EstuaryService() as service:
-                success = await service.create_modern_stack_materialization(
+                success = await service.create_qdrant_materialization(
                     name=name,
-# REMOVED: ModernStack dependency,
+
                     collections=collection_mappings,
                 )
 
                 if success:
                     return {
                         "status": "success",
-                        "message": f"Created ModernStack materialization: {name}",
+                        "message": f"Created Qdrant materialization: {name}",
                         "materialization_name": name,
                         "mappings": collection_mappings,
                     }
@@ -204,7 +204,7 @@ class EstuaryMCPServer(StandardizedMCPServer):
                     }
 
         except Exception as e:
-            logger.error(f"Failed to create ModernStack materialization: {e}")
+            logger.error(f"Failed to create Qdrant materialization: {e}")
             return {"status": "error", "error": str(e)}
 
     @mcp_tool(

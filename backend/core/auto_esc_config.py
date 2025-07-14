@@ -3,7 +3,6 @@ Enhanced Auto ESC Config with ALL GitHub Secrets Mapped
 This loads ALL secrets from Pulumi ESC using the correct GitHub secret names
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import logging
 import os
 import subprocess
@@ -156,37 +155,14 @@ def set_config_value(key: str, value: Any) -> None:
     _config_cache[key] = value
 
 
-# REMOVED: ModernStack dependency() -> Dict[str, Any]:
-    """
-# REMOVED: ModernStack dependencyuration from Pulumi ESC - PERMANENT FIX
-
-    Returns:
-# REMOVED: ModernStack dependencyuration dictionary with CORRECT account
-    """
-    # Check environment variables first (for immediate use)
-# REMOVED: ModernStack dependency_value(
-        "postgres_host", "UHDECNO-CVB64222"
-    )
-# REMOVED: ModernStack dependency_value(
-        "modern_stack_user", "SCOOBYJAVA15"
-    )
-
-    # Try PAT token first, then regular password
-    pat_token = os.getenv("modern_stack_PAT")
-    password = (
-        pat_token
-        if pat_token
-# REMOVED: ModernStack dependency_value("postgres_password"))
-    )
-
+def get_qdrant_config() -> Dict[str, str]:
+    """Get Qdrant configuration from Pulumi ESC"""
     return {
-        "account": account,
-        "user": user,
-        "password": password,  # Will use PAT or password from ESC/env
-        "role": get_config_value("modern_stack_role", "ACCOUNTADMIN"),
-        "warehouse": get_config_value("postgres_database", "SOPHIA_AI_COMPUTE_WH"),
-        "database": get_config_value("postgres_database", "AI_MEMORY"),
-        "schema": get_config_value("postgres_schema", "VECTORS"),
+        "api_key": get_config_value("qdrant_api_key") or get_config_value("QDRANT_API_KEY"),
+        "url": get_config_value("qdrant_url") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
+        "cluster_name": get_config_value("qdrant_cluster_name", "sophia-ai-production"),
+        "timeout": int(get_config_value("qdrant_timeout", "30")),
+        "prefer_grpc": get_config_value("qdrant_prefer_grpc", "false").lower() == "true"
     }
 
 
@@ -204,7 +180,7 @@ def get_postgres_config() -> Dict[str, Any]:
         "user": get_config_value("postgres_user", "postgres"),
         "password": get_config_value(
             "postgres_password"
-        ),  # Separate password from ModernStack
+        ),  # Separate password from Qdrant
     }
 
 
@@ -269,10 +245,10 @@ def initialize_default_config():
         set_config_value(
             "postgres_host", "ZNB04675.us-east-1.us-east-1"
         )  # Fixed: Use correct account
-    if not get_config_value("modern_stack_user"):
-        set_config_value("modern_stack_user", "SCOOBYJAVA15")
-    if not get_config_value("modern_stack_role"):
-        set_config_value("modern_stack_role", "ACCOUNTADMIN")
+    if not get_config_value("qdrant_user"):
+        set_config_value("qdrant_user", "SCOOBYJAVA15")
+    if not get_config_value("qdrant_role"):
+        set_config_value("qdrant_role", "ACCOUNTADMIN")
     if not get_config_value("postgres_database"):
         set_config_value("postgres_database", "AI_SOPHIA_AI_WH")
     if not get_config_value("postgres_database"):
@@ -453,8 +429,8 @@ class ConfigObject:
 # Create backward compatibility config object
 config = ConfigObject()
 
-# Enhanced ModernStack connection optimization
-# REMOVED: ModernStack dependency {
+# Enhanced Qdrant connection optimization
+QDRANT_CONNECTION_CONFIG = {
     "connection_pool_size": 10,
     "connection_timeout": 30,
     "query_timeout": 300,
@@ -465,9 +441,9 @@ config = ConfigObject()
 }
 
 
-def get_# REMOVED: ModernStack dependency None) -> str:
+def get_qdrant_pat(default: Optional[str] = None) -> str:
     """
-    Get ModernStack PAT (Programmatic Access Token) for MCP authentication
+    Get Qdrant PAT (Programmatic Access Token) for MCP authentication
 
     Args:
         environment: Environment name (prod, staging). Defaults to current environment.
@@ -485,32 +461,32 @@ def get_# REMOVED: ModernStack dependency None) -> str:
     environment_str: str = str(environment)
 
     # Try environment-specific PAT first
-    pat_key = f"modern_stack_pat_{environment_str.lower()}"
+    pat_key = f"qdrant_pat_{environment_str.lower()}"
     pat = get_config_value(pat_key)
 
     if not pat:
         # Try generic PAT
-        pat = get_config_value("modern_stack_pat")
+        pat = get_config_value("qdrant_pat")
 
     if not pat:
         # Try with MCP prefix
-        pat = get_config_value("modern_stack_mcp_pat")
+        pat = get_config_value("qdrant_mcp_pat")
 
     if not pat:
         raise ValueError(
-# REMOVED: ModernStack dependencyured for environment: {environment_str}"
+
         )
 
     # Validate PAT format (basic check)
     if not pat.startswith("pat_") and len(pat) < 20:
-        logger.warning("ModernStack PAT format may be invalid")
+        logger.warning("Qdrant PAT format may be invalid")
 
     return pat
 
 
-# REMOVED: ModernStack dependency() -> Dict[str, Any]:
+
     """
-# REMOVED: ModernStack dependencyuration
+
 
     Returns:
         MCP configuration dictionary
@@ -519,26 +495,26 @@ def get_# REMOVED: ModernStack dependency None) -> str:
 
     return {
         "url": get_config_value(
-            "modern_stack_mcp_url", "https://mcp-modern_stack.sophia-ai.com"
+            "qdrant_mcp_url", "https://mcp-qdrant.sophia-ai.com"
         ),
-        "pat": get_modern_stack_pat(environment),
-        "timeout": int(get_config_value("modern_stack_mcp_timeout", "120")),
-        "max_retries": int(get_config_value("modern_stack_mcp_max_retries", "3")),
-        "pool_size": int(get_config_value("modern_stack_mcp_pool_size", "20")),
+        "pat": get_qdrant_pat(environment),
+        "timeout": int(get_config_value("qdrant_mcp_timeout", "120")),
+        "max_retries": int(get_config_value("qdrant_mcp_max_retries", "3")),
+        "pool_size": int(get_config_value("qdrant_mcp_pool_size", "20")),
     }
 
 
 # Add PAT rotation check function
 def check_pat_rotation_needed() -> bool:
     """
-    Check if ModernStack PAT needs rotation
+    Check if Qdrant PAT needs rotation
 
     Returns:
         True if rotation needed
     """
     # This is a placeholder - in production, would check PAT metadata
-    # from ModernStack or a secure metadata store
-    pat_created_date = get_config_value("modern_stack_pat_created_date")
+    # from Qdrant or a secure metadata store
+    pat_created_date = get_config_value("qdrant_pat_created_date")
 
     if not pat_created_date:
         logger.warning("PAT creation date not tracked")
@@ -562,44 +538,44 @@ def check_pat_rotation_needed() -> bool:
 # (This is already included in the existing mappings)
 
 
-def validate_modern_stack_pat() -> bool:
+def validate_qdrant_pat() -> bool:
     """
-    Validate ModernStack PAT token format
+    Validate Qdrant PAT token format
 
     Returns:
         True if PAT token appears valid
     """
     pat = get_config_value("postgres_password")
     if not pat:
-# REMOVED: ModernStack dependencyured")
+
         return False
 
     # PAT tokens are JWT tokens that typically start with 'eyJ'
     if pat.startswith("eyJ") and len(pat) > 100:
-        logger.info("ModernStack PAT token format validated")
+        logger.info("Qdrant PAT token format validated")
         return True
 
-    logger.warning("ModernStack password may not be a valid PAT token")
+    logger.warning("Qdrant password may not be a valid PAT token")
     return False
 
 
-# REMOVED: ModernStack dependency_enhanced() -> Dict[str, Any]:
+
     """
-# REMOVED: ModernStack dependencyuration with PAT support
+
 
     Returns:
-# REMOVED: ModernStack dependencyuration dictionary
+
     """
-# REMOVED: ModernStack dependency()
+
 
     # Add PAT-specific configuration
     enhanced_config = {
         **base_config,
-        "authenticator": "modern_stack",  # For PAT authentication
+        "authenticator": "qdrant",  # For PAT authentication
         "session_parameters": {
             "QUERY_TAG": "sophia_ai_unified",
         },
-        "pat_validated": validate_modern_stack_pat(),
+        "pat_validated": validate_qdrant_pat(),
     }
 
     # Use validated account format
@@ -609,14 +585,14 @@ def validate_modern_stack_pat() -> bool:
 
 
 # Enhanced configuration constants
-# REMOVED: ModernStack dependency {
+QDRANT_DEFAULT_CONFIG = {
     "account": "UHDECNO-CVB64222",
     "user": "SCOOBYJAVA15",
     "role": "ACCOUNTADMIN",
     "warehouse": "COMPUTE_WH",
     "database": "SOPHIA_AI_PROD",
     "schema": "PUBLIC",
-    "authenticator": "modern_stack",
+    "authenticator": "qdrant",
 }
 
 AI_OPTIMIZATION_CONFIG = {
@@ -706,7 +682,7 @@ def get_ai_orchestration_config() -> Dict[str, Any]:
         # Provider priorities
         "provider_priorities": {
             "lambda_labs": 1,
-            "modern_stack_cortex": 2,
+            "qdrant_cortex": 2,
             "portkey": 3,
             "openrouter": 4,
         },
@@ -751,3 +727,14 @@ def validate_lambda_labs_config() -> bool:
 
     logger.info("Lambda Labs configuration validated successfully")
     return True
+
+
+def get_qdrant_config() -> Dict[str, str]:
+    """Get Qdrant configuration from Pulumi ESC"""
+    return {
+        "api_key": get_config_value("qdrant_api_key") or get_config_value("QDRANT_API_KEY"),
+        "url": get_config_value("qdrant_url") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
+        "cluster_name": get_config_value("qdrant_cluster_name", "sophia-ai-production"),
+        "timeout": int(get_config_value("qdrant_timeout", "30")),
+        "prefer_grpc": get_config_value("qdrant_prefer_grpc", "false").lower() == "true"
+    }

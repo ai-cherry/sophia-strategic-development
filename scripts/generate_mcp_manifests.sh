@@ -4,7 +4,7 @@
 MCP_SERVERS=(
     "ai-memory:9000"
     "gong:9001"
-    "modern_stack:9002"
+    "qdrant:9002"
     "slack:9003"
     "linear:9004"
     "github:9005"

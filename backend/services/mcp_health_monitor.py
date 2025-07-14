@@ -68,7 +68,6 @@ class MCPHealthMonitor:
             MCPServerConfig(name="notion", port=9008),
             
             # Data stores
-            MCPServerConfig(name="weaviate", port=8080, health_endpoint="/v1/meta"),
             MCPServerConfig(name="redis", port=6379, critical=True),
             MCPServerConfig(name="postgresql", port=5432, critical=True),
         ]

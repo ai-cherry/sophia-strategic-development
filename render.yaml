@@ -9,11 +9,11 @@ services:
         value: 8001
       - key: ENVIRONMENT
         value: production
-      - key: modern_stack_ACCOUNT
+      - key: ELIMINATED_ACCOUNT
         sync: false
-      - key: modern_stack_USER
+      - key: ELIMINATED_USER
         sync: false
-      - key: modern_stack_PAT
+      - key: ELIMINATED_PAT
         sync: false
       - key: OPENAI_API_KEY
         sync: false

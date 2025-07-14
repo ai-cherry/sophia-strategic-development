@@ -20,9 +20,9 @@ from typing import Any
 import asyncpg
 import redis.asyncio as redis
 from prometheus_client import Counter, Gauge, Histogram
-# REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3.pool import ConnectionPool
 
-# REMOVED: ModernStack dependency
+
+
 from core.config_manager import get_config_value
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class ConnectionType(Enum):
     """Supported database connection types"""
 
-    modern_stack = "modern_stack"
+    qdrant = "qdrant"
     POSTGRES = "postgres"
     REDIS = "redis"
     MYSQL = "mysql"
@@ -112,10 +112,10 @@ class OptimizedDatabaseManager:
 
     def _initialize_configs(self):
         """Initialize database configurations"""
-        # ModernStack
+        # Qdrant
         self.configs[
             ConnectionType.POSTGRESQL
-# REMOVED: ModernStack dependency.get_connection_params()
+
 
         # PostgreSQL
         self.configs[ConnectionType.POSTGRES] = {
@@ -152,8 +152,8 @@ class OptimizedDatabaseManager:
         """Initialize all connection pools"""
         logger.info("🔌 Initializing optimized database connections...")
 
-        # Initialize ModernStack pool
-        await self._initialize_modern_stack_pool()
+        # Initialize Qdrant pool
+        await self._initialize_qdrant_pool()
 
         # Initialize PostgreSQL pool
         await self._initialize_postgres_pool()
@@ -163,19 +163,19 @@ class OptimizedDatabaseManager:
 
         logger.info("✅ All database connections initialized")
 
-    async def _initialize_modern_stack_pool(self):
-        """Initialize ModernStack connection pool"""
+    async def _initialize_qdrant_pool(self):
+        """Initialize Qdrant connection pool"""
         try:
-            # ModernStack uses synchronous connections, so we'll manage a pool manually
+            # Qdrant uses synchronous connections, so we'll manage a pool manually
             self.pools[ConnectionType.POSTGRESQL] = ConnectionPool(
-# REMOVED: ModernStack dependencys[ConnectionType.POSTGRESQL]
+
             )
 
-            self.metrics.connection_pool_size.labels(db_type="modern_stack").set(5)
-            logger.info("✅ ModernStack connection pool initialized")
+            self.metrics.connection_pool_size.labels(db_type="qdrant").set(5)
+            logger.info("✅ Qdrant connection pool initialized")
 
         except Exception as e:
-            logger.exception(f"Failed to initialize ModernStack pool: {e}")
+            logger.exception(f"Failed to initialize Qdrant pool: {e}")
             raise
 
     async def _initialize_postgres_pool(self):
@@ -219,7 +219,7 @@ class OptimizedDatabaseManager:
     async def get_connection(self, conn_type: ConnectionType) -> AsyncIterator[Any]:
         """Get a connection from the pool"""
         if conn_type == ConnectionType.POSTGRESQL:
-            # ModernStack uses synchronous connections
+            # Qdrant uses synchronous connections
             conn = self.pools[ConnectionType.POSTGRESQL].get_connection()
             try:
                 yield conn
@@ -263,9 +263,9 @@ class OptimizedDatabaseManager:
         try:
             async with self.get_connection(conn_type) as conn:
                 if conn_type == ConnectionType.POSTGRESQL:
-                    # ModernStack synchronous execution
+                    # Qdrant synchronous execution
                     result = await asyncio.to_thread(
-                        self._execute_modern_stack_query, conn, query, params
+                        self._execute_qdrant_query, conn, query, params
                     )
 
                 elif conn_type == ConnectionType.POSTGRES:
@@ -302,10 +302,10 @@ class OptimizedDatabaseManager:
             logger.exception(f"Query execution failed: {e}")
             raise
 
-    def _execute_modern_stack_query(
+    def _execute_qdrant_query(
         self, conn: Any, query: str, params: list[Any] | dict[str, Any] | None = None
     ) -> list[dict[str, Any]]:
-        """Execute ModernStack query (synchronous)"""
+        """Execute Qdrant query (synchronous)"""
         cursor = conn.cursor()
         try:
             if params:
@@ -345,7 +345,7 @@ class OptimizedDatabaseManager:
 
         try:
             if conn_type == ConnectionType.POSTGRESQL:
-                results = await self._execute_modern_stack_batch(operations, transaction)
+                results = await self._execute_qdrant_batch(operations, transaction)
 
             elif conn_type == ConnectionType.POSTGRES:
                 results = await self._execute_postgres_batch(operations, transaction)
@@ -367,10 +367,10 @@ class OptimizedDatabaseManager:
             results["errors"].append(str(e))
             return results
 
-    async def _execute_modern_stack_batch(
+    async def _execute_qdrant_batch(
         self, operations: list[BatchOperation], transaction: bool
     ) -> dict[str, Any]:
-        """Execute ModernStack batch operations"""
+        """Execute Qdrant batch operations"""
         results = {
             "success": True,
             "operations_count": len(operations),
@@ -496,15 +496,15 @@ class OptimizedDatabaseManager:
         """Check health of all database connections"""
         health_status = {"timestamp": datetime.now(UTC).isoformat(), "databases": {}}
 
-        # Check ModernStack
+        # Check Qdrant
         try:
             async with self.get_connection(ConnectionType.POSTGRESQL) as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1")
                 cursor.close()
-            health_status["databases"]["modern_stack"] = "healthy"
+            health_status["databases"]["qdrant"] = "healthy"
         except Exception as e:
-            health_status["databases"]["modern_stack"] = f"unhealthy: {e!s}"
+            health_status["databases"]["qdrant"] = f"unhealthy: {e!s}"
 
         # Check PostgreSQL
         try:
@@ -528,9 +528,9 @@ class OptimizedDatabaseManager:
         """Close all connection pools"""
         logger.info("Closing database connections...")
 
-        # Close ModernStack pool
+        # Close Qdrant pool
         if ConnectionType.POSTGRESQL in self.pools:
-            # ModernStack pool doesn't have async close
+            # Qdrant pool doesn't have async close
             pass
 
         # Close PostgreSQL pool

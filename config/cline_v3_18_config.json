@@ -30,7 +30,12 @@
       "enabled": true,
       "cache_enabled": true,
       "cache_ttl": 3600,
-      "supported_formats": ["html", "markdown", "text", "pdf"],
+      "supported_formats": [
+        "html",
+        "markdown",
+        "text",
+        "pdf"
+      ],
       "max_cache_size_mb": 100,
       "timeout_seconds": 30
     },
@@ -47,7 +52,12 @@
     },
     "improved_diff_editing": {
       "enabled": true,
-      "strategies": ["exact", "fuzzy", "context_aware", "auto"],
+      "strategies": [
+        "exact",
+        "fuzzy",
+        "context_aware",
+        "auto"
+      ],
       "auto_fallback": true,
       "success_threshold": 0.95,
       "max_attempts": 3
@@ -82,9 +92,9 @@
       },
       {
         "name": "data_processing",
-        "condition": "task_type == 'data' and has_modern_stack",
-        "model": "modern_stack_cortex",
-        "reason": "Native ModernStack integration"
+        "condition": "ELIMINATED",
+        "model": "ELIMINATED",
+        "reason": "ELIMINATED"
       }
     ],
     "fallback_model": "claude-3-5-sonnet"
@@ -97,8 +107,14 @@
       "sophia-ai-intelligence",
       "competitive_monitor"
     ],
-    "self_knowledge_servers": ["all"],
-    "improved_diff_servers": ["ai_memory", "codacy", "sophia-infrastructure"]
+    "self_knowledge_servers": [
+      "all"
+    ],
+    "improved_diff_servers": [
+      "ai_memory",
+      "codacy",
+      "sophia-infrastructure"
+    ]
   },
   "performance_optimizations": {
     "parallel_processing": true,

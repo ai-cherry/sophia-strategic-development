@@ -278,3 +278,10 @@ local.env
 
 # Cleanup archives
 archive/
+
+# Snowflake/modern_stack prevention
+*snowflake*
+*modern_stack*
+*.snowflake
+snowflake.config.*
+modern_stack.config.*

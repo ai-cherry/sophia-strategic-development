@@ -45,13 +45,13 @@ create_secret "pulumi_access_token" "$(get_secret '.pulumi_access_token')"
 create_secret "openai_api_key" "$(get_secret '.openai_api_key')"
 create_secret "anthropic_api_key" "$(get_secret '.anthropic_api_key')"
 
-# modern_stack secrets
-create_secret "modern_stack_account" "$(get_secret '.modern_stack_account')"
-create_secret "modern_stack_user" "$(get_secret '.modern_stack_user')"
-create_secret "modern_stack_password" "$(get_secret '.modern_stack_password')"
-create_secret "modern_stack_database" "$(get_secret '.modern_stack_database')"
-create_secret "modern_stack_warehouse" "$(get_secret '.modern_stack_warehouse')"
-create_secret "modern_stack_role" "$(get_secret '.modern_stack_role')"
+# Qdrant secrets
+create_secret "QDRANT_URL "$(get_secret '.QDRANT_URL)"
+create_secret "QDRANT_API_KEY "$(get_secret '.QDRANT_API_KEY)"
+create_secret "QDRANT_SECRET "$(get_secret '.QDRANT_SECRET)"
+create_secret "QDRANT_DB "$(get_secret '.QDRANT_DB)"
+create_secret "QDRANT_COLLECTION "$(get_secret '.QDRANT_COLLECTION)"
+create_secret "QDRANT_ROLE "$(get_secret '.QDRANT_ROLE)"
 
 # Database secrets
 create_secret "postgres_password" "$(get_secret '.postgres_password')"  # Use dedicated PostgreSQL password from ESC

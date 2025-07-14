@@ -1,4 +1,24 @@
 """
+DEPRECATED: This orchestrator has been consolidated into SophiaAIUnifiedOrchestrator
+Please use: from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+Date deprecated: 2025-07-14
+"""
+
+# Redirect to new unified orchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+
+# Backward compatibility
+"""
+DEPRECATED: This orchestrator has been consolidated into SophiaAIUnifiedOrchestrator
+Please use: from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+Date deprecated: 2025-07-14
+"""
+
+# Redirect to new unified orchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+
+# Backward compatibility
+"""
 Enhanced Multi-Agent Orchestrator for Sophia AI v3.0
 
 Builds on existing LangGraph orchestration with parallel execution,
@@ -24,4 +44,6 @@ from enum import Enum
 from typing import Any
 
 # DEPRECATION WARNING
+
+
 

@@ -13,9 +13,6 @@
       "asana": 9007
     },
     "data_infrastructure": {
-      "modern_stack": 9010,
-      "modern_stack_admin": 9011,
-      "modern_stack_cortex": 9012,
       "postgres": 9013
     },
     "development_tools": {

@@ -17,7 +17,10 @@
       "name": "At 3 AM Daily",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [240, 300]
+      "position": [
+        240,
+        300
+      ]
     },
     {
       "parameters": {
@@ -29,7 +32,10 @@
       "name": "Analyze Gaps (Cortex)",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
-      "position": [460, 300]
+      "position": [
+        460,
+        300
+      ]
     },
     {
       "parameters": {
@@ -39,7 +45,10 @@
       "name": "Parse Gap Report",
       "type": "n8n-nodes-base.parseJson",
       "typeVersion": 1,
-      "position": [680, 300]
+      "position": [
+        680,
+        300
+      ]
     },
     {
       "parameters": {
@@ -50,27 +59,28 @@
         "upsertKey": "topic",
         "options": {}
       },
-      "name": "Store Gaps in ModernStack",
-      "type": "n8n-nodes-base.modern_stack",
+      "name": "ELIMINATED",
+      "type": "ELIMINATED",
       "typeVersion": 1,
-      "position": [900, 300],
-      "credentials": {
-        "modern_stack": {
-          "id": "sophia-modern_stack-prod",
-          "name": "Sophia ModernStack Prod"
-        }
-      }
+      "position": [
+        900,
+        300
+      ],
+      "credentials": {}
     },
     {
       "parameters": {
         "channel": "C03T4G1PZ7S",
-        "text": "✅ **Daily Knowledge Gap Analysis Complete**\n\nIdentified `{{$json.data.length}}` new or updated potential training topics. Please review the AI Curation Dashboard.",
+        "text": "\u2705 **Daily Knowledge Gap Analysis Complete**\n\nIdentified `{{$json.data.length}}` new or updated potential training topics. Please review the AI Curation Dashboard.",
         "options": {}
       },
       "name": "Notify Admin Channel",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 1,
-      "position": [1120, 300]
+      "position": [
+        1120,
+        300
+      ]
     }
   ],
   "connections": {
@@ -100,14 +110,14 @@
       "main": [
         [
           {
-            "node": "Store Gaps in ModernStack",
+            "node": "ELIMINATED",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Store Gaps in ModernStack": {
+    "Store Gaps in ELIMINATED": {
       "main": [
         [
           {

@@ -6,7 +6,10 @@
       "name": "Start",
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
-      "position": [240, 300]
+      "position": [
+        240,
+        300
+      ]
     },
     {
       "parameters": {
@@ -16,7 +19,10 @@
       "name": "Webhook Trigger (Asana)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [440, 300],
+      "position": [
+        440,
+        300
+      ],
       "webhookId": "mcp-asana-create-task"
     },
     {
@@ -27,13 +33,18 @@
         "notes": "={{$json.body.notes}}",
         "workspace": "={{$json.body.workspaceId}}",
         "additionalFields": {
-          "projects": ["{{$json.body.projectId}}"]
+          "projects": [
+            "{{$json.body.projectId}}"
+          ]
         }
       },
       "name": "Create Asana Task",
       "type": "n8n-nodes-base.asana",
       "typeVersion": 1,
-      "position": [640, 300],
+      "position": [
+        640,
+        300
+      ],
       "credentials": {
         "asanaApi": {
           "id": "sophia-asana-prod",
@@ -54,7 +65,10 @@
       "name": "Return Task Result",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [840, 300]
+      "position": [
+        840,
+        300
+      ]
     }
   ],
   "connections": {

@@ -1,7 +1,7 @@
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 """\nCore functionality\n"""
 
 # TODO: Extract specific classes/functions from original file
 # Estimated lines: 332
 
-# REMOVED: ModernStack dependency_enhanced', 'get', 'redis_url', 'gong_api_base_url', 'hubspot_api_base_url', 'slack_webhook_url', 'linear_api_base_url', 'github_webhook_url', 'costar_api_base_url', 'apollo_api_base_url']
+

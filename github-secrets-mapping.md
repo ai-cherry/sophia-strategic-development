@@ -66,7 +66,7 @@
 ## Missing Secrets (Need to Continue Scrolling)
 - `HUBSPOT_*` secrets (not found yet)
 - `LAMBDA_LABS_*` secrets (not found yet)
-- `modern_stack_*` secrets (not found yet)
+- `ELIMINATED_*` secrets (not found yet)
 - `GONG_ACCESS_KEY_SECRET` (companion to GONG_ACCESS_KEY)
 
 ## Mapping Strategy
@@ -149,7 +149,7 @@
 4. **Lambda Labs**: `LAMBDA_API_KEY`, `LAMBDA_IP_ADDRESS`, `LAMBDA_SSH_PRIVATE_KEY`
 
 ### MISSING SECRETS (Need to check if they exist):
-- `modern_stack_*` secrets (continue scrolling to verify)
+- `ELIMINATED_*` secrets (continue scrolling to verify)
 - `VERCEL_*` secrets (for deployment)
 - `PULUMI_*` secrets (for ESC integration)
 

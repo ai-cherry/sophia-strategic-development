@@ -403,7 +403,7 @@ class BusinessProcessAutomation:
 ```json
 {
   "data_change": {
-    "servers": ["modern_stack_admin", "ai_memory", "sophia_data"],
+    "servers": ["ELIMINATED_admin", "ai_memory", "sophia_data"],
     "actions": ["analyze_impact", "store_insights", "orchestrate_processing"],
     "conditions": ["significant_volume", "business_critical"]
   },
@@ -425,7 +425,7 @@ class ProactiveIntelligence:
     patterns = {
         "cost_optimization": {
             "trigger": "cost_threshold_approaching",
-            "servers": ["lambda_labs_cli", "modern_stack_admin"],
+            "servers": ["lambda_labs_cli", "ELIMINATED_admin"],
             "action": "optimize_resources_proactively"
         },
         "quality_degradation": {

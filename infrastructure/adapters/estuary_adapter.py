@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 Sophia AI - Estuary Platform Adapter
 Optimal mix of API, CLI, and webhook integration for data pipeline management
@@ -186,7 +186,7 @@ class EstuaryAdapter(PlatformAdapter):
             }
 
             # Dependencies - Estuary depends on data sources and destinations
-            dependencies = ["modern_stack", "gong", "slack", "hubspot"]
+            dependencies = ["qdrant", "gong", "slack", "hubspot"]
 
             return PlatformStatus(
                 name=self.name,
@@ -527,25 +527,25 @@ class EstuaryAdapter(PlatformAdapter):
 
         return await self.configure({"create_source": slack_config})
 
-    async def execute_create_modern_stack_destination(
+    async def execute_create_qdrant_destination(
         self, parameters: dict[str, Any]
     ) -> dict[str, Any]:
-# REMOVED: ModernStack dependencyuration."""
-        # REMOVED: ModernStack dependency {
-            "name": "Sophia AI ModernStack",
-            "destination_type": "modern_stack",
+
+        
+            "name": "Sophia AI Qdrant",
+            "destination_type": "qdrant",
             "configuration": {
-                "host": f"{os.getenv('modern_stack_ACCOUNT')}.modern_stackcomputing.com",
+                "host": f"{os.getenv('qdrant_ACCOUNT')}.qdrantcomputing.com",
                 "role": "ACCOUNTADMIN",
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",
                 "schema": "PUBLIC",
-                "username": get_config_value("modern_stack_user"),
+                "username": get_config_value("qdrant_user"),
                 "password": os.getenv("SOPHIA_AI_TOKEN"),
             },
         }
 
-# REMOVED: ModernStack dependency})
+
 
 
 # CLI interface for testing

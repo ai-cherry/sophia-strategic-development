@@ -2,7 +2,7 @@
 """
 Pure Estuary Flow Data Pipeline for Sophia AI
 Comprehensive data pipeline orchestrator using only Estuary Flow
-Implements robust ELT pattern: Sources → PostgreSQL → Redis → ModernStack → Vector DBs
+Implements robust ELT pattern: Sources → PostgreSQL → Redis → Qdrant → Vector DBs
 """
 
 """
@@ -15,10 +15,9 @@ Recommended decomposition:
 - enhanced_unified_data_pipeline_models.py - Data models
 - enhanced_unified_data_pipeline_handlers.py - Request handlers
 
-TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -29,10 +28,10 @@ from typing import Any
 import asyncpg
 import redis.asyncio as redis
 
-# REMOVED: ModernStack dependency
+
 from core.config_manager import get_config_value
 from infrastructure.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +64,7 @@ class EstuaryPipelineConfig:
     )
     postgresql_config: dict[str, Any] = field(default_factory=dict)
     redis_config: dict[str, Any] = field(default_factory=dict)
-    # REMOVED: ModernStack dependencydict)
+    
     estuary_config: dict[str, Any] = field(default_factory=dict)
     monitoring_enabled: bool = True
     auto_retry: bool = True
@@ -99,7 +98,7 @@ class PureEstuaryDataPipeline:
         self.estuary_orchestrator: EstuaryFlowOrchestrator | None = None
         self.postgresql_pool: asyncpg.Pool | None = None
         self.redis_client: redis.Redis | None = None
-        self.memory_service_v3: ModernStackCortexService | None = None
+        self.memory_service_v3: QdrantUnifiedMemoryService | None = None
         self.status = PipelineStatus()
 
         # Initialize configurations
@@ -136,8 +135,8 @@ class PureEstuaryDataPipeline:
             "namespace": get_config_value("estuary_namespace", "sophia/ai"),
         }
 
-# REMOVED: ModernStack dependencyuration (aligned with actual setup)
-# REMOVED: ModernStack dependency.get_connection_params()
+
+
 
     async def __aenter__(self):
         """Async context manager entry"""
@@ -164,9 +163,9 @@ class PureEstuaryDataPipeline:
             await self.redis_client.ping()
             logger.info("✅ Redis connection initialized")
 
-            # Initialize ModernStack service
-            self.memory_service_v3 = UnifiedMemoryServiceV2()
-            logger.info("✅ ModernStack service initialized")
+            # Initialize Qdrant service
+            self.memory_service_v3 = UnifiedMemoryService()
+            logger.info("✅ Qdrant service initialized")
 
             # Initialize Estuary Flow orchestrator
             self.estuary_orchestrator = EstuaryFlowOrchestrator()
@@ -234,9 +233,9 @@ class PureEstuaryDataPipeline:
             await self._setup_data_transformations()
             results["destinations_configured"].append("data_transformations")
 
-            # Set up ModernStack integration
-            await self._setup_modern_stack_integration()
-            results["destinations_configured"].append("modern_stack")
+            # Set up Qdrant integration
+            await self._setup_qdrant_integration()
+            results["destinations_configured"].append("qdrant")
 
             # Set up Redis caching
             await self._setup_redis_caching()
@@ -713,24 +712,24 @@ class PureEstuaryDataPipeline:
 
         logger.info("✅ Data transformations configured successfully")
 
-    async def _setup_modern_stack_integration(self):
-        """Set up Estuary Flow materialization to ModernStack"""
-        logger.info("❄️ Setting up ModernStack integration...")
+    async def _setup_qdrant_integration(self):
+        """Set up Estuary Flow materialization to Qdrant"""
+        logger.info("❄️ Setting up Qdrant integration...")
 
-# REMOVED: ModernStack dependencyuration
-        # REMOVED: ModernStack dependency (
-# REMOVED: ModernStack dependency()
+
+        
+
         )
-        modern_stack_materialization[
+        qdrant_materialization[
             "name"
-        ] = f"{self.config.flow_prefix}/modern_stack_materialization"
+        ] = f"{self.config.flow_prefix}/qdrant_materialization"
 
         await self.estuary_orchestrator.create_materialization(
-            modern_stack_materialization
+            qdrant_materialization
         )
 
-        self.status.destinations_active["modern_stack"] = FlowStatus.ACTIVE
-# REMOVED: ModernStack dependencyured successfully")
+        self.status.destinations_active["qdrant"] = FlowStatus.ACTIVE
+
 
     async def _setup_redis_caching(self):
         """Set up Redis caching for real-time data access"""
@@ -790,7 +789,7 @@ class PureEstuaryDataPipeline:
             f"{self.config.flow_prefix}/slack_messages_capture",
             f"{self.config.flow_prefix}/unified_contacts",
             f"{self.config.flow_prefix}/deal_intelligence",
-            f"{self.config.flow_prefix}/modern_stack_materialization",
+            f"{self.config.flow_prefix}/qdrant_materialization",
         ]
 
         for flow_name in flows_to_enable:
