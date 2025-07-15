@@ -38,8 +38,15 @@ import {
   Video,
   Twitter,
   RefreshCw,
-  Zap
+  Zap,
+  Target
 } from 'lucide-react';
+
+// Import strategic project management panels
+import StrategicOverviewPanel from './panels/StrategicOverviewPanel';
+import DepartmentalKPIPanel from './panels/DepartmentalKPIPanel';
+import CrossPlatformIntelligencePanel from './panels/CrossPlatformIntelligencePanel';
+import UserManagementPanel from './panels/UserManagementPanel';
 
 // Mock data for charts
 const revenueData = [
@@ -74,6 +81,7 @@ interface ChatMessage {
 
 export default function UnifiedDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [strategicSubTab, setStrategicSubTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isPolling, setIsPolling] = useState(true);
@@ -134,7 +142,7 @@ export default function UnifiedDashboard() {
             Sophia AI Command Center
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Real-time Business Intelligence & Chat Analytics
+            Real-time Business Intelligence & Strategic Project Management
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -157,8 +165,10 @@ export default function UnifiedDashboard() {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="strategic">Strategic PM</TabsTrigger>
+          <TabsTrigger value="users">User Management</TabsTrigger>
           <TabsTrigger value="chat">Chat Analytics</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="search">AI Search</TabsTrigger>
@@ -201,38 +211,115 @@ export default function UnifiedDashboard() {
           </div>
 
           {/* Revenue Chart */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue Growth Trend</CardTitle>
+                <CardDescription>
+                  Monthly revenue with growth percentage
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={revenueData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip formatter={(value, name) => [
+                      name === 'revenue' ? `$${(value as number).toLocaleString()}` : `${value}%`,
+                      name === 'revenue' ? 'Revenue' : 'Growth %'
+                    ]} />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="revenue" fill="#8884d8" name="Monthly Revenue" />
+                    <Line yAxisId="right" type="monotone" dataKey="growth" stroke="#82ca9d" name="Growth %" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>System Health Overview</CardTitle>
+                <CardDescription>
+                  Real-time system performance metrics
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={performanceMetrics}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={(entry) => `${entry.name}: ${entry.value.toFixed(1)}${entry.unit}`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {performanceMetrics.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Strategic Project Management Tab */}
+        <TabsContent value="strategic" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Revenue Trends</CardTitle>
-              <CardDescription>Monthly revenue and growth rate</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Strategic Project Management
+                  </CardTitle>
+                  <CardDescription>
+                    Unified view across Notion OKRs, Linear Engineering, and Asana Product Management
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant={strategicSubTab === 'overview' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setStrategicSubTab('overview')}
+                  >
+                    Strategic Overview
+                  </Button>
+                  <Button
+                    variant={strategicSubTab === 'kpis' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setStrategicSubTab('kpis')}
+                  >
+                    Departmental KPIs
+                  </Button>
+                  <Button
+                    variant={strategicSubTab === 'intelligence' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setStrategicSubTab('intelligence')}
+                  >
+                    Cross-Platform Intelligence
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#8884d8"
-                    name="Revenue ($)"
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="growth"
-                    stroke="#82ca9d"
-                    name="Growth (%)"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
           </Card>
+
+          {/* Strategic Project Management Sub-panels */}
+          {strategicSubTab === 'overview' && <StrategicOverviewPanel />}
+          {strategicSubTab === 'kpis' && <DepartmentalKPIPanel />}
+          {strategicSubTab === 'intelligence' && <CrossPlatformIntelligencePanel />}
+        </TabsContent>
+
+        {/* User Management Tab */}
+        <TabsContent value="users" className="space-y-4">
+          <UserManagementPanel />
         </TabsContent>
 
         {/* Chat Analytics Tab */}
