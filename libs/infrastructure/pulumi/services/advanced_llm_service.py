@@ -214,47 +214,6 @@ Based *only* on the provided context and data, provide a comprehensive, actionab
             tokens = tokens[: self.token_limit]
         return self.tokenizer.decode(tokens)
 
-    async def _execute_with_quality_assurance(
-        self, request_data: dict[str, Any]
-    ) -> str:
-        """DEPRECATED: Use synthesize_response instead"""
-        logger.warning(
-            "_execute_with_quality_assurance is deprecated, use synthesize_response"
-        )
-        return await self.synthesize_response(
-            query=request_data.get("query", ""),
-            context=request_data.get("context", {}),
-            results=request_data.get("results", []),
-        )
-
-    async def _get_model_for_task(self, query: str, context: str | None) -> str:
-        """DEPRECATED: Model selection now handled by unified gateway"""
-        logger.warning(
-            "_get_model_for_task is deprecated, routing handled by unified gateway"
-        )
-        return "unified_gateway_routing"
-
-    def _get_provider_for_task(self, task: str, provider: str = "default") -> str:
-        """DEPRECATED: Provider selection now handled by unified gateway"""
-        logger.warning(
-            "_get_provider_for_task is deprecated, routing handled by unified gateway"
-        )
-        return "unified_gateway"
-
-    def _get_model_for_provider(self, provider: str, model: str = "default") -> str:
-        """DEPRECATED: Model selection now handled by unified gateway"""
-        logger.warning(
-            "_get_model_for_provider is deprecated, routing handled by unified gateway"
-        )
-        return "unified_gateway_routing"
-
-    def _get_llm_config(self, model: str) -> dict:
-        """DEPRECATED: Configuration now handled by unified gateway"""
-        logger.warning(
-            "_get_llm_config is deprecated, configuration handled by unified gateway"
-        )
-        return {"gateway": "unified", "model": "gateway_managed"}
-
     async def _validate_response_quality(self, response: str) -> bool:
         """Validate response quality against defined criteria"""
         # Basic quality checks
