@@ -821,8 +821,8 @@ class MCPOrchestrationService:
                     "monitoring",
                 ],
             ),
-            "qdrant_admin": MCPServerEndpoint(
-                server_name="qdrant_admin",
+            "QDRANT_admin": MCPServerEndpoint(
+                server_name="QDRANT_admin",
                 port=9012,
                 capabilities=[
                     "database_administration",
@@ -857,11 +857,11 @@ class MCPOrchestrationService:
                     "cost_tracking",
                 ],
             ),
-            "qdrant_cli_enhanced": MCPServerEndpoint(
-                server_name="qdrant_cli_enhanced",
+            "QDRANT_cli_enhanced": MCPServerEndpoint(
+                server_name="QDRANT_cli_enhanced",
                 port=9021,
                 capabilities=[
-                    "advanced_qdrant_ops",
+                    "advanced_QDRANT_ops",
                     "cortex_integration",
                     "cost_analysis",
                 ],
@@ -932,8 +932,8 @@ class MCPOrchestrationService:
                 ],
                 "server_sequence": [
                     "sophia_data",
-                    "qdrant_admin",
-                    "qdrant_cli_enhanced",
+                    "QDRANT_admin",
+                    "QDRANT_cli_enhanced",
                     "ai_memory",
                 ],
                 "synthesis_type": "data_optimization_report",
@@ -987,7 +987,7 @@ class MCPOrchestrationService:
                     "asana",
                     "linear",
                     "github",
-                    "qdrant_admin",
+                    "QDRANT_admin",
                 ],
                 "synthesis_type": "executive_business_intelligence",
                 "parallel_execution": True,

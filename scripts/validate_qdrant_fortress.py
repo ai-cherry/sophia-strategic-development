@@ -23,8 +23,8 @@ import sys
 from pathlib import Path
 
 # Core imports
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition
 import redis.asyncio as redis
 import asyncpg
 from prometheus_client import CollectorRegistry, Histogram, Counter, Gauge
@@ -64,7 +64,7 @@ class QdrantFortressValidator:
         self.results: List[ValidationResult] = []
         
         # Initialize clients
-        self.qdrant_client = None
+        self.QDRANT_client = None
         self.redis_client = None
         self.postgres_client = None
         
@@ -112,7 +112,7 @@ class QdrantFortressValidator:
         
         # Qdrant connection
         try:
-            self.qdrant_client = QdrantClient(
+            self.QDRANT_client = QdrantClient(
                 url=get_config_value("QDRANT_URL"),
                 api_key=get_config_value("QDRANT_API_KEY"),
                 timeout=30
@@ -147,9 +147,9 @@ class QdrantFortressValidator:
         
         # Test Qdrant connectivity
         try:
-            collections = self.qdrant_client.get_collections()
+            collections = self.QDRANT_client.get_collections()
             self.results.append(ValidationResult(
-                test_name="qdrant_connectivity",
+                test_name="QDRANT_connectivity",
                 status="PASS",
                 value=len(collections.collections),
                 details={"collections": [c.name for c in collections.collections]}
@@ -157,7 +157,7 @@ class QdrantFortressValidator:
             logger.info(f"✅ Qdrant connectivity: {len(collections.collections)} collections")
         except Exception as e:
             self.results.append(ValidationResult(
-                test_name="qdrant_connectivity",
+                test_name="QDRANT_connectivity",
                 status="ERROR",
                 error=str(e)
             ))
@@ -525,7 +525,7 @@ class QdrantFortressValidator:
         """Test authentication mechanisms"""
         try:
             # Test API key authentication
-            collections = self.qdrant_client.get_collections()
+            collections = self.QDRANT_client.get_collections()
             return True
         except Exception as e:
             logger.warning(f"Authentication test failed: {e}")

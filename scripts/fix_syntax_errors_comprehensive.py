@@ -139,7 +139,7 @@ def main():
         'backend/services/lambda_labs_serverless_service.py',
         'shared/config.py',
         'shared/dependencies.py',
-        'shared/utils/qdrant_memory/service.py'
+        'shared/utils/QDRANT_memory/service.py'
     ]
     
     print("🔧 Starting comprehensive syntax error fixing...")

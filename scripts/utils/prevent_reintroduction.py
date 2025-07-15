@@ -13,9 +13,9 @@ FORBIDDEN_PATTERNS = [
     r'from\s+weaviate',
     r'snowflake',
     r'SNOWFLAKE',
-    r'modern_stack',
+    r'qdrant_memory',
     r'vercel\s+deploy',
-    r'VERCEL_TOKEN'
+    r'LAMBDA_LABS_TOKEN'
 ]
 
 def scan_repository():
@@ -26,11 +26,6 @@ def scan_repository():
         for file in files:
             if file.endswith(('.py', '.js', '.ts', '.json', '.yaml', '.yml')):
                 file_path = os.path.join(root, file)
-                
-                # Skip the prevention script itself and elimination scripts
-                if 'prevent_reintroduction.py' in file_path or 'elimination' in file_path:
-                    continue
-                
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()

@@ -155,14 +155,14 @@ def set_config_value(key: str, value: Any) -> None:
     _config_cache[key] = value
 
 
-def get_qdrant_config() -> Dict[str, str]:
+def get_QDRANT_config() -> Dict[str, str]:
     """Get Qdrant configuration from Pulumi ESC"""
     return {
-        "api_key": get_config_value("qdrant_api_key") or get_config_value("QDRANT_API_KEY"),
-        "url": get_config_value("qdrant_url") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
-        "cluster_name": get_config_value("qdrant_cluster_name", "sophia-ai-production"),
-        "timeout": int(get_config_value("qdrant_timeout", "30")),
-        "prefer_grpc": get_config_value("qdrant_prefer_grpc", "false").lower() == "true"
+        "api_key": get_config_value("QDRANT_api_key") or get_config_value("QDRANT_API_KEY"),
+        "url": get_config_value("QDRANT_URL") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
+        "cluster_name": get_config_value("QDRANT_cluster_name", "sophia-ai-production"),
+        "timeout": int(get_config_value("QDRANT_timeout", "30")),
+        "prefer_grpc": get_config_value("QDRANT_prefer_grpc", "false").lower() == "true"
     }
 
 
@@ -245,10 +245,10 @@ def initialize_default_config():
         set_config_value(
             "postgres_host", "ZNB04675.us-east-1.us-east-1"
         )  # Fixed: Use correct account
-    if not get_config_value("qdrant_user"):
-        set_config_value("qdrant_user", "SCOOBYJAVA15")
-    if not get_config_value("qdrant_role"):
-        set_config_value("qdrant_role", "ACCOUNTADMIN")
+    if not get_config_value("QDRANT_user"):
+        set_config_value("QDRANT_user", "SCOOBYJAVA15")
+    if not get_config_value("QDRANT_role"):
+        set_config_value("QDRANT_role", "ACCOUNTADMIN")
     if not get_config_value("postgres_database"):
         set_config_value("postgres_database", "AI_SOPHIA_AI_WH")
     if not get_config_value("postgres_database"):
@@ -441,7 +441,7 @@ QDRANT_CONNECTION_CONFIG = {
 }
 
 
-def get_qdrant_pat(default: Optional[str] = None) -> str:
+def get_QDRANT_pat(default: Optional[str] = None) -> str:
     """
     Get Qdrant PAT (Programmatic Access Token) for MCP authentication
 
@@ -461,16 +461,16 @@ def get_qdrant_pat(default: Optional[str] = None) -> str:
     environment_str: str = str(environment)
 
     # Try environment-specific PAT first
-    pat_key = f"qdrant_pat_{environment_str.lower()}"
+    pat_key = f"QDRANT_pat_{environment_str.lower()}"
     pat = get_config_value(pat_key)
 
     if not pat:
         # Try generic PAT
-        pat = get_config_value("qdrant_pat")
+        pat = get_config_value("QDRANT_pat")
 
     if not pat:
         # Try with MCP prefix
-        pat = get_config_value("qdrant_mcp_pat")
+        pat = get_config_value("QDRANT_mcp_pat")
 
     if not pat:
         raise ValueError(
@@ -495,12 +495,12 @@ def get_qdrant_pat(default: Optional[str] = None) -> str:
 
     return {
         "url": get_config_value(
-            "qdrant_mcp_url", "https://mcp-qdrant.sophia-ai.com"
+            "QDRANT_mcp_url", "https://mcp-qdrant.sophia-ai.com"
         ),
-        "pat": get_qdrant_pat(environment),
-        "timeout": int(get_config_value("qdrant_mcp_timeout", "120")),
-        "max_retries": int(get_config_value("qdrant_mcp_max_retries", "3")),
-        "pool_size": int(get_config_value("qdrant_mcp_pool_size", "20")),
+        "pat": get_QDRANT_pat(environment),
+        "timeout": int(get_config_value("QDRANT_mcp_timeout", "120")),
+        "max_retries": int(get_config_value("QDRANT_mcp_max_retries", "3")),
+        "pool_size": int(get_config_value("QDRANT_mcp_pool_size", "20")),
     }
 
 
@@ -514,7 +514,7 @@ def check_pat_rotation_needed() -> bool:
     """
     # This is a placeholder - in production, would check PAT metadata
     # from Qdrant or a secure metadata store
-    pat_created_date = get_config_value("qdrant_pat_created_date")
+    pat_created_date = get_config_value("QDRANT_pat_created_date")
 
     if not pat_created_date:
         logger.warning("PAT creation date not tracked")
@@ -538,7 +538,7 @@ def check_pat_rotation_needed() -> bool:
 # (This is already included in the existing mappings)
 
 
-def validate_qdrant_pat() -> bool:
+def validate_QDRANT_pat() -> bool:
     """
     Validate Qdrant PAT token format
 
@@ -575,7 +575,7 @@ def validate_qdrant_pat() -> bool:
         "session_parameters": {
             "QUERY_TAG": "sophia_ai_unified",
         },
-        "pat_validated": validate_qdrant_pat(),
+        "pat_validated": validate_QDRANT_pat(),
     }
 
     # Use validated account format
@@ -682,7 +682,7 @@ def get_ai_orchestration_config() -> Dict[str, Any]:
         # Provider priorities
         "provider_priorities": {
             "lambda_labs": 1,
-            "qdrant_cortex": 2,
+            "QDRANT_cortex": 2,
             "portkey": 3,
             "openrouter": 4,
         },
@@ -729,12 +729,12 @@ def validate_lambda_labs_config() -> bool:
     return True
 
 
-def get_qdrant_config() -> Dict[str, str]:
+def get_QDRANT_config() -> Dict[str, str]:
     """Get Qdrant configuration from Pulumi ESC"""
     return {
-        "api_key": get_config_value("qdrant_api_key") or get_config_value("QDRANT_API_KEY"),
-        "url": get_config_value("qdrant_url") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
-        "cluster_name": get_config_value("qdrant_cluster_name", "sophia-ai-production"),
-        "timeout": int(get_config_value("qdrant_timeout", "30")),
-        "prefer_grpc": get_config_value("qdrant_prefer_grpc", "false").lower() == "true"
+        "api_key": get_config_value("QDRANT_api_key") or get_config_value("QDRANT_API_KEY"),
+        "url": get_config_value("QDRANT_URL") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
+        "cluster_name": get_config_value("QDRANT_cluster_name", "sophia-ai-production"),
+        "timeout": int(get_config_value("QDRANT_timeout", "30")),
+        "prefer_grpc": get_config_value("QDRANT_prefer_grpc", "false").lower() == "true"
     }

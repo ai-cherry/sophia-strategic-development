@@ -26,7 +26,7 @@ lambda_labs_config = {
 
 
     "account": config.require("postgres_host"),
-    "user": config.require("qdrant_user"),
+    "user": config.require("QDRANT_user"),
     "password": config.require_secret("postgres_password"),
     "warehouses": {
         "compute": "SOPHIA_AI_COMPUTE_WH",

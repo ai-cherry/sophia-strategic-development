@@ -12,8 +12,8 @@ from enum import Enum
 import json
 import uuid
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import (
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import (
     Distance, VectorParams, PointStruct, Filter, FieldCondition, 
     Range, MatchValue, UpdateStatus, ScoredPoint
 )
@@ -78,8 +78,8 @@ class CompetitorIntelligence:
 class CompetitorIntelligenceService:
     """Service for managing competitor intelligence with Qdrant vector storage"""
     
-    def __init__(self, qdrant_client: QdrantClient):
-        self.client = qdrant_client
+    def __init__(self, QDRANT_client: QdrantClient):
+        self.client = QDRANT_client
         self.profiles_collection = "competitor_profiles"
         self.intelligence_collection = "competitor_intelligence"
         self.embeddings_dimension = 768
@@ -536,7 +536,7 @@ def create_competitor_intelligence_service() -> CompetitorIntelligenceService:
     try:
         # For now, use a simple in-memory client for development
         # In production, this would use the cloud Qdrant configuration
-        from qdrant_client import QdrantClient
+        from QDRANT_client import QdrantClient
         
         # Try to create a simple client (this will work locally)
         client = QdrantClient(":memory:")

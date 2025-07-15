@@ -16,7 +16,7 @@ class ArchitectureValidator:
         self.results = {
             "timestamp": datetime.now().isoformat(),
             "weaviate_references": 0,
-            "qdrant_references": 0,
+            "QDRANT_references": 0,
             "architecture_conflicts": [],
             "files_with_weaviate": [],
             "files_with_qdrant": [],
@@ -48,7 +48,7 @@ class ArchitectureValidator:
             
             # Count references
             weaviate_count = content_lower.count('weaviate')
-            qdrant_count = content_lower.count('qdrant')
+            QDRANT_count = content_lower.count('qdrant')
             
             if weaviate_count > 0:
                 self.results["weaviate_references"] += weaviate_count
@@ -58,20 +58,20 @@ class ArchitectureValidator:
                     "lines": self.find_reference_lines(content, 'weaviate')
                 })
             
-            if qdrant_count > 0:
-                self.results["qdrant_references"] += qdrant_count
+            if QDRANT_count > 0:
+                self.results["QDRANT_references"] += QDRANT_count
                 self.results["files_with_qdrant"].append({
                     "file": file_path,
-                    "count": qdrant_count,
+                    "count": QDRANT_count,
                     "lines": self.find_reference_lines(content, 'qdrant')
                 })
             
             # Check for architecture conflicts
-            if weaviate_count > 0 and qdrant_count > 0:
+            if weaviate_count > 0 and QDRANT_count > 0:
                 self.results["architecture_conflicts"].append({
                     "file": file_path,
                     "weaviate_count": weaviate_count,
-                    "qdrant_count": qdrant_count,
+                    "QDRANT_count": QDRANT_count,
                     "severity": "HIGH"
                 })
             
@@ -88,7 +88,7 @@ class ArchitectureValidator:
         print("💡 Generating recommendations...")
         
         weaviate_files = len(self.results["files_with_weaviate"])
-        qdrant_files = len(self.results["files_with_qdrant"])
+        QDRANT_files = len(self.results["files_with_qdrant"])
         
         if weaviate_files > 0:
             self.results["recommendations"].append({
@@ -97,7 +97,7 @@ class ArchitectureValidator:
                 "description": f"Found {weaviate_files} files with Weaviate references (may be documentation or backups)"
             })
         
-        if weaviate_files == 0 and qdrant_files > 0:
+        if weaviate_files == 0 and QDRANT_files > 0:
             self.results["recommendations"].append({
                 "priority": "LOW",
                 "action": "Architecture validation complete",
@@ -111,7 +111,7 @@ class ArchitectureValidator:
         print("="*60)
         
         print(f"🔍 Total Weaviate references: {self.results['weaviate_references']}")
-        print(f"🔍 Total Qdrant references: {self.results['qdrant_references']}")
+        print(f"🔍 Total Qdrant references: {self.results['QDRANT_references']}")
         print(f"📁 Files with Weaviate: {len(self.results['files_with_weaviate'])}")
         print(f"📁 Files with Qdrant: {len(self.results['files_with_qdrant'])}")
         print(f"⚠️  Architecture conflicts: {len(self.results['architecture_conflicts'])}")

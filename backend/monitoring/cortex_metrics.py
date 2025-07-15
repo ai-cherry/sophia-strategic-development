@@ -46,29 +46,29 @@ cortex_credits_used = Counter(
 # Pool Metrics
 # ===================================================================
 
-qdrant_pool_size = Gauge(
-    "qdrant_pool_size",
+QDRANT_pool_size = Gauge(
+    "QDRANT_pool_size",
     "Current connection pool size",
     ["mode"],
     registry=cortex_registry,
 )
 
-qdrant_pool_in_use = Gauge(
-    "qdrant_pool_in_use",
+QDRANT_pool_in_use = Gauge(
+    "QDRANT_pool_in_use",
     "Connections currently in use",
     ["mode"],
     registry=cortex_registry,
 )
 
-qdrant_pool_wait_time_ms = Gauge(
-    "qdrant_pool_wait_time_ms",
+QDRANT_pool_wait_time_ms = Gauge(
+    "QDRANT_pool_wait_time_ms",
     "Average wait time for connection acquisition in milliseconds",
     ["mode"],
     registry=cortex_registry,
 )
 
-qdrant_pool_timeouts = Counter(
-    "qdrant_pool_timeouts",
+QDRANT_pool_timeouts = Counter(
+    "QDRANT_pool_timeouts",
     "Number of pool timeout errors",
     ["mode"],
     registry=cortex_registry,
@@ -202,15 +202,15 @@ cortex_model_errors = Counter(
 # PAT Metrics
 # ===================================================================
 
-qdrant_pat_days_until_expiry = Counter(
-    "qdrant_pat_days_until_expiry",
+QDRANT_pat_days_until_expiry = Counter(
+    "QDRANT_pat_days_until_expiry",
     "Days until PAT expiration",
     ["environment"],
     registry=cortex_registry,
 )
 
-qdrant_pat_rotation_alerts = Counter(
-    "qdrant_pat_rotation_alerts",
+QDRANT_pat_rotation_alerts = Counter(
+    "QDRANT_pat_rotation_alerts",
     "Number of PATs needing rotation",
     ["severity"],
     registry=cortex_registry,
@@ -226,7 +226,7 @@ cortex_info = Info("cortex", "Cortex integration information", registry=cortex_r
 cortex_info.info(
     {
         "version": "1.0.0",
-        "integration": "qdrant_cortex_mcp",
+        "integration": "QDRANT_cortex_mcp",
         "adapter_modes": "direct,mcp,auto",
     }
 )
@@ -258,9 +258,9 @@ def record_cortex_call(
 def record_pool_metrics(mode: str, size: int, in_use: int, avg_wait_ms: float):
     """Record connection pool metrics"""
     
-    qdrant_pool_size.labels(mode=mode).set(size)
-    qdrant_pool_in_use.labels(mode=mode).set(in_use)
-    qdrant_pool_wait_time_ms.labels(mode=mode).set(avg_wait_ms)
+    QDRANT_pool_size.labels(mode=mode).set(size)
+    QDRANT_pool_in_use.labels(mode=mode).set(in_use)
+    QDRANT_pool_wait_time_ms.labels(mode=mode).set(avg_wait_ms)
 
 def record_mcp_health(
     server_id: str, tier: str, health_score: float, latency_ms: float, error_rate: float
@@ -313,10 +313,10 @@ __all__ = [
     "record_mcp_health",
     "record_pool_metrics",
     "set_circuit_breaker_state",
-    "qdrant_pat_days_until_expiry",
-    "qdrant_pat_rotation_alerts",
-    "qdrant_pool_in_use",
-    "qdrant_pool_size",
-    "qdrant_pool_timeouts",
-    "qdrant_pool_wait_time_ms",
+    "QDRANT_pat_days_until_expiry",
+    "QDRANT_pat_rotation_alerts",
+    "QDRANT_pool_in_use",
+    "QDRANT_pool_size",
+    "QDRANT_pool_timeouts",
+    "QDRANT_pool_wait_time_ms",
 ]

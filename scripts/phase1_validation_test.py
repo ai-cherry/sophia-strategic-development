@@ -25,11 +25,11 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from backend.services.qdrant_foundation_service import (
+from backend.services.QDRANT_foundation_service import (
     QdrantFoundationService,
     QueryRequest,
     QueryType,
-    get_qdrant_foundation_service
+    get_QDRANT_foundation_service
 )
 from backend.utils.logger import get_logger
 
@@ -89,7 +89,7 @@ class Phase1ValidationTest:
         
         try:
             start_time = time.time()
-            self.foundation_service = await get_qdrant_foundation_service()
+            self.foundation_service = await get_QDRANT_foundation_service()
             init_time = (time.time() - start_time) * 1000
             
             # Verify services are initialized

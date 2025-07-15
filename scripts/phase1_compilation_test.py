@@ -31,7 +31,7 @@ def test_imports():
     # Test 1: Foundation Service Import
     tests_total += 1
     try:
-        from backend.services.qdrant_foundation_service import (
+        from backend.services.QDRANT_foundation_service import (
             QdrantFoundationService,
             QueryRequest,
             QueryResponse,
@@ -74,7 +74,7 @@ def test_imports():
     # Test 5: API Routes Import
     tests_total += 1
     try:
-        from backend.api.qdrant_foundation_routes import router
+        from backend.api.QDRANT_foundation_routes import router
         print("✅ QdrantFoundationRoutes imports successfully")
         tests_passed += 1
     except Exception as e:
@@ -91,7 +91,7 @@ def test_class_structures():
     tests_total = 0
     
     try:
-        from backend.services.qdrant_foundation_service import QdrantFoundationService
+        from backend.services.QDRANT_foundation_service import QdrantFoundationService
         
         # Test 1: Foundation Service Methods
         tests_total += 1
@@ -108,7 +108,7 @@ def test_class_structures():
         
         # Test 2: QueryRequest Structure
         tests_total += 1
-        from backend.services.qdrant_foundation_service import QueryRequest
+        from backend.services.QDRANT_foundation_service import QueryRequest
         test_request = QueryRequest(query="test", query_type="simple_search")
         
         required_attrs = ['query', 'query_type', 'user_id', 'session_id', 'context', 'metadata']
@@ -123,7 +123,7 @@ def test_class_structures():
         
         # Test 3: Enum Types
         tests_total += 1
-        from backend.services.qdrant_foundation_service import QueryType, MemoryTier
+        from backend.services.QDRANT_foundation_service import QueryType, MemoryTier
         
         query_types = list(QueryType)
         memory_tiers = list(MemoryTier)
@@ -150,7 +150,7 @@ def test_service_instantiation():
     # Test 1: Foundation Service Instantiation
     tests_total += 1
     try:
-        from backend.services.qdrant_foundation_service import QdrantFoundationService
+        from backend.services.QDRANT_foundation_service import QdrantFoundationService
         service = QdrantFoundationService()
         
         # Check basic attributes exist
@@ -205,7 +205,7 @@ def test_api_routes():
     
     tests_total += 1
     try:
-        from backend.api.qdrant_foundation_routes import router
+        from backend.api.QDRANT_foundation_routes import router
         
         # Check that router has routes
         if hasattr(router, 'routes') and len(router.routes) > 0:

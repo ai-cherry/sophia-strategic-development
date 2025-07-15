@@ -36,20 +36,20 @@ class QdrantIntegrationValidator:
         logger.info("🔍 Validating environment variables...")
         
         # Check QDRANT_API_KEY
-        qdrant_api_key = os.getenv("QDRANT_API_KEY")
-        if qdrant_api_key:
-            self.add_result("QDRANT_API_KEY Environment Variable", True, f"Found: {qdrant_api_key[:8]}...")
+        QDRANT_api_key = os.getenv("QDRANT_API_KEY")
+        if QDRANT_api_key:
+            self.add_result("QDRANT_API_KEY Environment Variable", True, f"Found: {QDRANT_api_key[:8]}...")
         else:
             self.add_result("QDRANT_API_KEY Environment Variable", False, "Not found in environment")
             
         # Check QDRANT_URL
-        qdrant_url = os.getenv("QDRANT_URL")
-        if qdrant_url:
-            self.add_result("QDRANT_URL Environment Variable", True, f"Found: {qdrant_url}")
+        QDRANT_URL = os.getenv("QDRANT_URL")
+        if QDRANT_URL:
+            self.add_result("QDRANT_URL Environment Variable", True, f"Found: {QDRANT_URL}")
         else:
             self.add_result("QDRANT_URL Environment Variable", False, "Not found in environment")
             
-        return bool(qdrant_api_key and qdrant_url)
+        return bool(QDRANT_api_key and QDRANT_URL)
     
     def validate_pulumi_esc_integration(self) -> bool:
         """Validate Pulumi ESC can access QDRANT secrets"""
@@ -64,26 +64,26 @@ class QdrantIntegrationValidator:
             
             self.add_result("Pulumi CLI", True, "Pulumi CLI available")
             
-            # Try to get qdrant_api_key from ESC
+            # Try to get QDRANT_api_key from ESC
             result = subprocess.run([
-                "pulumi", "env", "get", f"{self.pulumi_org}/{self.pulumi_env}", "qdrant_api_key"
+                "pulumi", "env", "get", f"{self.pulumi_org}/{self.pulumi_env}", "QDRANT_api_key"
             ], capture_output=True, text=True)
             
             if result.returncode == 0:
-                self.add_result("Pulumi ESC qdrant_api_key", True, "Successfully retrieved from ESC")
+                self.add_result("Pulumi ESC QDRANT_api_key", True, "Successfully retrieved from ESC")
             else:
-                self.add_result("Pulumi ESC qdrant_api_key", False, f"Failed to retrieve: {result.stderr}")
+                self.add_result("Pulumi ESC QDRANT_api_key", False, f"Failed to retrieve: {result.stderr}")
                 
-            # Try to get qdrant_url from ESC
+            # Try to get QDRANT_URL from ESC
             result = subprocess.run([
-                "pulumi", "env", "get", f"{self.pulumi_org}/{self.pulumi_env}", "qdrant_url"
+                "pulumi", "env", "get", f"{self.pulumi_org}/{self.pulumi_env}", "QDRANT_URL"
             ], capture_output=True, text=True)
             
             if result.returncode == 0:
-                self.add_result("Pulumi ESC qdrant_url", True, "Successfully retrieved from ESC")
+                self.add_result("Pulumi ESC QDRANT_URL", True, "Successfully retrieved from ESC")
                 return True
             else:
-                self.add_result("Pulumi ESC qdrant_url", False, f"Failed to retrieve: {result.stderr}")
+                self.add_result("Pulumi ESC QDRANT_URL", False, f"Failed to retrieve: {result.stderr}")
                 return False
                 
         except Exception as e:
@@ -97,40 +97,40 @@ class QdrantIntegrationValidator:
         try:
             # Import backend configuration
             sys.path.append('.')
-            from backend.core.auto_esc_config import get_qdrant_config, get_config_value
+            from backend.core.auto_esc_config import get_QDRANT_config, get_config_value
             
             # Test get_config_value for QDRANT_API_KEY
-            api_key = get_config_value("qdrant_api_key") or get_config_value("QDRANT_API_KEY")
+            api_key = get_config_value("QDRANT_api_key") or get_config_value("QDRANT_API_KEY")
             if api_key:
                 self.add_result("Backend get_config_value QDRANT_API_KEY", True, f"Retrieved: {api_key[:8]}...")
             else:
                 self.add_result("Backend get_config_value QDRANT_API_KEY", False, "Could not retrieve API key")
                 
             # Test get_config_value for QDRANT_URL
-            url = get_config_value("qdrant_url") or get_config_value("QDRANT_URL")
+            url = get_config_value("QDRANT_URL") or get_config_value("QDRANT_URL")
             if url:
                 self.add_result("Backend get_config_value QDRANT_URL", True, f"Retrieved: {url}")
             else:
                 self.add_result("Backend get_config_value QDRANT_URL", False, "Could not retrieve URL")
                 
-            # Test get_qdrant_config function
-            config = get_qdrant_config()
+            # Test get_QDRANT_config function
+            config = get_QDRANT_config()
             if config and config.get("api_key") and config.get("url"):
-                self.add_result("Backend get_qdrant_config", True, f"Complete config retrieved")
+                self.add_result("Backend get_QDRANT_config", True, f"Complete config retrieved")
                 logger.info(f"   API Key: {config['api_key'][:8]}...")
                 logger.info(f"   URL: {config['url']}")
                 logger.info(f"   Cluster: {config['cluster_name']}")
                 logger.info(f"   Timeout: {config['timeout']}")
                 return True
             else:
-                self.add_result("Backend get_qdrant_config", False, "Incomplete configuration")
+                self.add_result("Backend get_QDRANT_config", False, "Incomplete configuration")
                 return False
                 
         except Exception as e:
             self.add_result("Backend Configuration", False, f"Error: {e}")
             return False
     
-    def validate_qdrant_connectivity(self) -> bool:
+    def validate_QDRANT_connectivity(self) -> bool:
         """Validate actual connectivity to Qdrant"""
         logger.info("🔍 Validating Qdrant connectivity...")
         
@@ -139,8 +139,8 @@ class QdrantIntegrationValidator:
             
             # Get configuration
             sys.path.append('.')
-            from backend.core.auto_esc_config import get_qdrant_config
-            config = get_qdrant_config()
+            from backend.core.auto_esc_config import get_QDRANT_config
+            config = get_QDRANT_config()
             
             if not config.get("api_key") or not config.get("url"):
                 self.add_result("Qdrant Connectivity", False, "Missing API key or URL")
@@ -200,9 +200,9 @@ class QdrantIntegrationValidator:
         try:
             # Check if MCP servers can import and use configuration
             sys.path.append('.')
-            from backend.core.auto_esc_config import get_qdrant_config
+            from backend.core.auto_esc_config import get_QDRANT_config
             
-            config = get_qdrant_config()
+            config = get_QDRANT_config()
             
             # Test if configuration is suitable for MCP servers
             required_fields = ["api_key", "url", "cluster_name", "timeout"]
@@ -245,7 +245,7 @@ class QdrantIntegrationValidator:
             recommendations.append("Set QDRANT_API_KEY and QDRANT_URL in GitHub Organization Secrets")
             
         if any("Pulumi ESC" in test["test"] for test in failed_tests):
-            recommendations.append("Run: python scripts/sync_qdrant_secrets.py to sync secrets to Pulumi ESC")
+            recommendations.append("Run: python scripts/sync_QDRANT_secrets.py to sync secrets to Pulumi ESC")
             
         if any("Backend" in test["test"] for test in failed_tests):
             recommendations.append("Check backend/core/auto_esc_config.py configuration")
@@ -266,7 +266,7 @@ class QdrantIntegrationValidator:
         self.validate_environment_variables()
         self.validate_pulumi_esc_integration()
         self.validate_backend_configuration()
-        self.validate_qdrant_connectivity()
+        self.validate_QDRANT_connectivity()
         self.validate_github_actions_integration()
         self.validate_mcp_server_integration()
         

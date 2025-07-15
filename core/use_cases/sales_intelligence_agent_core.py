@@ -271,7 +271,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             data_sources=[
                 "hubspot_crm",
                 "gong_calls",
-                "qdrant_data_warehouse",
+                "QDRANT_data_warehouse",
                 "ai_memory",
                 "foundational_knowledge",
             ],
@@ -285,7 +285,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             integration_points=[
                 "multi_agent_workflows",
                 "llm_service",
-                "qdrant_cortex",
+                "QDRANT_cortex",
                 "ai_memory_storage",
             ],
             performance_metrics={

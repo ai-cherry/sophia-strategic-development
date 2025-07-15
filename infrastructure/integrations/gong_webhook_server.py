@@ -487,12 +487,12 @@ def get_webhook_processor() -> WebhookProcessor:
         _webhook_processor = WebhookProcessor(
             gong_api_key=config.GONG_API_KEY,
             
-                "account": config.qdrant_ACCOUNT,
-                "user": config.qdrant_USER,
-                "password": config.qdrant_PASSWORD,
-                "warehouse": config.qdrant_WAREHOUSE,
-                "database": config.qdrant_DATABASE,
-                "schema": config.qdrant_SCHEMA,
+                "account": config.QDRANT_ACCOUNT,
+                "user": config.QDRANT_USER,
+                "password": config.QDRANT_PASSWORD,
+                "warehouse": config.QDRANT_WAREHOUSE,
+                "database": config.QDRANT_DATABASE,
+                "schema": config.QDRANT_SCHEMA,
             },
             redis_url=config.REDIS_URL,
         )

@@ -34,7 +34,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         # Performance tracking
         self.performance_metrics = {
             "total_queries": 0,
-            "qdrant_queries": 0,
+            "QDRANT_queries": 0,
             "constitutional_violations": 0,
             "average_response_time": 0.0,
             "cost_savings": 0.0,
@@ -226,7 +226,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         query_lower = query.lower()
         has_business_keywords = any(
-            keyword in query_lower for keyword in qdrant_keywords
+            keyword in query_lower for keyword in QDRANT_keywords
         )
 
         # Check context preferences
@@ -239,14 +239,14 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         return has_business_keywords and prefer_qdrant
 
-    async def _execute_qdrant_intelligence(
+    async def _execute_QDRANT_intelligence(
         self, query: str, context: dict[str, Any]
     ) -> dict[str, Any]:
         """Execute Lambda GPU AI intelligence function"""
 
         try:
             # Check if we have Lambda GPU service
-            if hasattr(self, "qdrant_cortex") and self.qdrant_service_cortex:
+            if hasattr(self, "QDRANT_cortex") and self.QDRANT_service_cortex:
                 # Use the Qdrant function we created
                 sql = """
                 SELECT
@@ -257,7 +257,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 FROM TABLE(sophia_business_intelligence(?, ?, ?))
                 """
 
-                results = await self.qdrant_service_cortex.execute_query(
+                results = await self.QDRANT_service_cortex.execute_query(
                     sql,
                     [
                         query,
@@ -273,20 +273,20 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                         "confidence_score": row.get("CONFIDENCE_SCORE", 0.8),
                         "processing_cost": row.get("PROCESSING_COST", 0.001),
                         "optimization_insights": row.get("OPTIMIZATION_SUGGESTIONS"),
-                        "source": "qdrant_cortex_ai",
+                        "source": "QDRANT_cortex_ai",
                         "business_data": self._extract_business_data(
                             row.get("INSIGHTS")
                         ),
                     }
 
             # Fallback: simulate Qdrant response for now
-            return await self._simulate_qdrant_response(query, context)
+            return await self._simulate_QDRANT_response(query, context)
 
         except Exception as e:
             logger.exception(f"Qdrant intelligence execution failed: {e}")
             raise
 
-    async def _simulate_qdrant_response(
+    async def _simulate_QDRANT_response(
         self, query: str, context: dict[str, Any]
     ) -> dict[str, Any]:
         """Simulate Lambda GPU AI response until functions are deployed"""
@@ -304,7 +304,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 ],
                 "next_optimization_cycle": datetime.now(UTC).isoformat(),
             },
-            "source": "qdrant_cortex_ai_simulation",
+            "source": "QDRANT_cortex_ai_simulation",
             "business_data": {
                 "query_type": "business_intelligence",
                 "data_sources": ["ENRICHED_HUBSPOT_DEALS", "ENRICHED_GONG_CALLS"],
@@ -313,30 +313,30 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         }
 
     def _merge_intelligence_results(
-        self, qdrant_results: dict, external_results: dict
+        self, QDRANT_results: dict, external_results: dict
     ) -> dict[str, Any]:
         """Merge Qdrant and external AI results intelligently"""
 
         merged = {
             "unified_insights": {
-                "qdrant_analysis": qdrant_results.get("unified_insights"),
+                "QDRANT_analysis": QDRANT_results.get("unified_insights"),
                 "external_analysis": external_results.get("unified_insights"),
                 "synthesis": "Combined analysis from Lambda GPU AI and external services",
             },
             "confidence_score": max(
-                qdrant_results.get("confidence_score", 0),
+                QDRANT_results.get("confidence_score", 0),
                 external_results.get("confidence_score", 0),
             ),
             "processing_cost": (
-                qdrant_results.get("processing_cost", 0)
+                QDRANT_results.get("processing_cost", 0)
                 + external_results.get("processing_cost", 0)
             ),
             "business_data": {
-                **qdrant_results.get("business_data", {}),
+                **QDRANT_results.get("business_data", {}),
                 **external_results.get("business_data", {}),
             },
-            "optimization_insights": qdrant_results.get("optimization_insights"),
-            "sources": ["qdrant_cortex_ai", "external_ai_services"],
+            "optimization_insights": QDRANT_results.get("optimization_insights"),
+            "sources": ["QDRANT_cortex_ai", "external_ai_services"],
         }
 
         return merged
@@ -362,7 +362,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         sources = []
 
-        if "qdrant_cortex_ai" in results.get("source", ""):
+        if "QDRANT_cortex_ai" in results.get("source", ""):
             sources.append("Lambda GPU AI")
 
         if results.get("business_data", {}).get("data_sources"):
@@ -386,8 +386,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 "constitutional_ai": (
                     "operational" if self.constitutional_ai else "disabled"
                 ),
-                "qdrant_cortex": (
-                    "operational" if self.qdrant_service_integration else "disabled"
+                "QDRANT_cortex": (
+                    "operational" if self.QDRANT_service_integration else "disabled"
                 ),
                 "estuary_flow": (
                     "operational" if self.estuary_flow_enabled else "disabled"
@@ -419,10 +419,10 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         # Reward Qdrant usage (more efficient)
         
-            self.performance_metrics["qdrant_queries"]
+            self.performance_metrics["QDRANT_queries"]
             / self.performance_metrics["total_queries"]
         )
-        score += qdrant_rate * 0.1
+        score += QDRANT_rate * 0.1
 
         # Factor in response time (assume target is 200ms)
         if self.performance_metrics["average_response_time"] > 0:

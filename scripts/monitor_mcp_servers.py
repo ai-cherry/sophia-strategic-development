@@ -106,7 +106,7 @@ async def test_backend_api():
             print("  ❌ Orchestration endpoint failed")
 
 
-async def verify_qdrant_serviceection():
+async def verify_QDRANT_serviceection():
     """Verify Qdrant is receiving data"""
     print("\n❄️  qdrant VERIFICATION:")
 
@@ -116,14 +116,14 @@ async def verify_qdrant_serviceection():
 
         # Get Qdrant credentials
         account = get_config_value("postgres_host")
-        user = get_config_value("qdrant_user")
+        user = get_config_value("QDRANT_user")
         password = get_config_value("postgres_password")
         warehouse = get_config_value("postgres_database", "SOPHIA_AI_WH")
         database = get_config_value("postgres_database", "SOPHIA_AI")
 
         print(f"  Connecting to Qdrant as {user}@{account}...")
 
-        conn = self.qdrant_serviceection(
+        conn = self.QDRANT_serviceection(
             account=account,
             user=user,
             password=password,
@@ -207,7 +207,7 @@ async def main():
     await test_backend_api()
 
     # Verify Qdrant
-    await verify_qdrant_serviceection()
+    await verify_QDRANT_serviceection()
 
     print("\n" + "=" * 60)
     print("Monitoring complete!")

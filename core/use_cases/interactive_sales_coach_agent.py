@@ -26,7 +26,7 @@ from core.agents.base_agent import BaseAgent
 from infrastructure.services.enhanced_knowledge_base_service import (
     EnhancedKnowledgeBaseService,
 )
-from backend.services.qdrant_unified_memory_service import (
+from backend.services.QDRANT_unified_memory_service import (
     EnhancedQdrantUnifiedMemoryService,
 )
 

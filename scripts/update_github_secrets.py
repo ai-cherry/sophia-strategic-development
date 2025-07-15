@@ -129,11 +129,11 @@ def main():
     # Secrets to update
     secrets_mapping = {
         # Qdrant
-        "qdrant_ACCOUNT": os.getenv("qdrant_ACCOUNT"),
-        "qdrant_USER": os.getenv("qdrant_USER"),
-        "qdrant_PASSWORD": os.getenv("qdrant_PASSWORD"),
-        "qdrant_PAT": os.getenv("qdrant_PAT"),
-        "qdrant_MASTER_TOKEN": os.getenv("qdrant_MASTER_TOKEN"),
+        "QDRANT_ACCOUNT": os.getenv("QDRANT_ACCOUNT"),
+        "QDRANT_USER": os.getenv("QDRANT_USER"),
+        "QDRANT_PASSWORD": os.getenv("QDRANT_PASSWORD"),
+        "QDRANT_PAT": os.getenv("QDRANT_PAT"),
+        "QDRANT_MASTER_TOKEN": os.getenv("QDRANT_MASTER_TOKEN"),
         # Docker Hub
         "DOCKER_HUB_USERNAME": os.getenv("DOCKER_USERNAME"),
         "DOCKER_HUB_ACCESS_TOKEN": os.getenv("DOCKER_PERSONAL_ACCESS_TOKEN"),

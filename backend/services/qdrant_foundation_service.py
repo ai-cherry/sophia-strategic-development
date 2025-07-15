@@ -456,7 +456,7 @@ class QueryRouter:
 # Singleton instance
 _foundation_service = None
 
-async def get_qdrant_foundation_service() -> QdrantFoundationService:
+async def get_QDRANT_foundation_service() -> QdrantFoundationService:
     """Get singleton foundation service instance"""
     global _foundation_service
     if _foundation_service is None:

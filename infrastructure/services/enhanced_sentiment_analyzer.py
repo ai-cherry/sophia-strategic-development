@@ -223,7 +223,7 @@ class EnhancedSentimentAnalyzer:
     ) -> float:
         """Analyze primary sentiment score"""
         # Placeholder for Lambda GPU integration
-        # In real implementation, this would call self.qdrant_service.await self.lambda_gpu.analyze_sentiment()
+        # In real implementation, this would call self.QDRANT_service.await self.lambda_gpu.analyze_sentiment()
 
         base_sentiment = 0.0
 

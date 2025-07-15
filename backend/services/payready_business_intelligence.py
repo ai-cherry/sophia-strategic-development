@@ -15,10 +15,10 @@ from enum import Enum
 import json
 import numpy as np
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
 
-from ..core.truthful_config import get_real_qdrant_config
+from ..core.truthful_config import get_real_QDRANT_config
 from .advanced_hybrid_search_service import SearchResult, SearchContext, BusinessInsights
 from .adaptive_memory_system import AdaptiveMemorySystem
 
@@ -116,7 +116,7 @@ class PayReadyBusinessIntelligence:
     """
     
     def __init__(self, adaptive_memory: AdaptiveMemorySystem):
-        self.qdrant_config = get_real_qdrant_config()
+        self.QDRANT_config = get_real_QDRANT_config()
         self.client = None
         self.adaptive_memory = adaptive_memory
         self.logger = logging.getLogger(__name__)
@@ -139,9 +139,9 @@ class PayReadyBusinessIntelligence:
         """Initialize Pay Ready business intelligence"""
         try:
             self.client = QdrantClient(
-                url=self.qdrant_config["url"],
-                api_key=self.qdrant_config["api_key"],
-                timeout=self.qdrant_config["timeout"]
+                url=self.QDRANT_config["url"],
+                api_key=self.QDRANT_config["api_key"],
+                timeout=self.QDRANT_config["timeout"]
             )
             
             # Create business intelligence collections

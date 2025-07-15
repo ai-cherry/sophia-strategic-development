@@ -77,11 +77,11 @@ class DeadCodeEliminator:
         replacement_patterns = [
             ('from.*qdrant.*import.*', '# Replaced with Qdrant service'),
             ('QdrantUnifiedMemoryService', 'QdrantUnifiedMemoryService'),
-            ('qdrant_serviceection', 'qdrant_service'),
-            ('CORTEX\\.EMBED_TEXT_768', 'qdrant_service.add_knowledge'),
-            ('CORTEX\\.SEARCH_PREVIEW', 'qdrant_service.search_knowledge'),
-            ('get_qdrant_config', 'get_qdrant_config'),
-            ('qdrant\\.execute_query', 'qdrant_service.search_knowledge'),
+            ('QDRANT_serviceection', 'QDRANT_service'),
+            ('CORTEX\\.EMBED_TEXT_768', 'QDRANT_service.add_knowledge'),
+            ('CORTEX\\.SEARCH_PREVIEW', 'QDRANT_service.search_knowledge'),
+            ('get_QDRANT_config', 'get_QDRANT_config'),
+            ('qdrant\\.execute_query', 'QDRANT_service.search_knowledge'),
         ]
         
         for old_pattern, new_pattern in replacement_patterns:

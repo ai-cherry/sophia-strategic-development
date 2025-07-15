@@ -27,7 +27,7 @@ from api import (
     llm_strategy_routes,
     notion_integration_routes,
     slack_linear_knowledge_routes,
-    qdrant_intelligence_routes,
+    QDRANT_intelligence_routes,
     sophia_universal_chat_routes,
     unified_health_routes,
 )
@@ -80,7 +80,7 @@ def _setup_integration_routes(router: APIRouter) -> None:
 def _setup_data_routes(router: APIRouter) -> None:
     """Setup data and analytics routes"""
     router.include_router(
-        qdrant_intelligence_routes.router,
+        QDRANT_intelligence_routes.router,
         prefix="/api/v1/intelligence",
         tags=["intelligence", "analytics"],
     )

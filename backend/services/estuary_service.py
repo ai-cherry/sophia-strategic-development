@@ -200,7 +200,7 @@ class EstuaryService:
             logger.error(f"Failed to create PostgreSQL capture: {e}")
             return False
 
-    async def create_qdrant_materialization(
+    async def create_QDRANT_materialization(
         self,
         name: str,
 

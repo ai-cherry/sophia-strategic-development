@@ -234,14 +234,14 @@ class QdrantGongLoader:
     async def initialize(self) -> None:
         """Initialize Qdrant connection"""
         try:
-            self.connection = self.qdrant_serviceection(
-                user=config.get("qdrant_user"),
+            self.connection = self.QDRANT_serviceection(
+                user=config.get("QDRANT_user"),
                 password=config.get("postgres_password"),
                 account=config.get("postgres_host"),
                 warehouse=self.warehouse,
                 database=self.database,
                 schema=self.schema,
-                role=config.get("qdrant_role", "ACCOUNTADMIN"),
+                role=config.get("QDRANT_role", "ACCOUNTADMIN"),
             )
 
             # Ensure schema exists
@@ -607,11 +607,11 @@ class GongDataIngestionOrchestrator:
             )
 
             # Initialize connections
-            await self.qdrant_service_loader.initialize()
+            await self.QDRANT_service_loader.initialize()
 
             # Determine date range
             if not from_date:
-                state = await self.qdrant_service_loader.get_last_sync_state()
+                state = await self.QDRANT_service_loader.get_last_sync_state()
                 from_date = state.last_sync_timestamp
 
             if not to_date:
@@ -640,7 +640,7 @@ class GongDataIngestionOrchestrator:
                 sync_mode=self.sync_mode,
                 correlation_id=self.correlation_id,
             )
-            await self.qdrant_service_loader.save_sync_state(new_state)
+            await self.QDRANT_service_loader.save_sync_state(new_state)
 
             results["success"] = True
             results["end_time"] = datetime.now().isoformat()
@@ -664,7 +664,7 @@ class GongDataIngestionOrchestrator:
             )
 
         finally:
-            await self.qdrant_service_loader.close()
+            await self.QDRANT_service_loader.close()
 
         return results
 
@@ -685,7 +685,7 @@ class GongDataIngestionOrchestrator:
                         break
 
                     # Load batch into Qdrant
-                    loaded_count = await self.qdrant_service_loader.load_raw_calls(calls)
+                    loaded_count = await self.QDRANT_service_loader.load_raw_calls(calls)
                     total_calls += loaded_count
 
                     # Check for more data
@@ -709,7 +709,7 @@ class GongDataIngestionOrchestrator:
     async def _ingest_transcripts(self, from_date: datetime, to_date: datetime) -> int:
         """Ingest transcripts for calls in date range"""
         # Get call IDs from raw calls table
-        cursor = self.qdrant_service_loader.connection.cursor()
+        cursor = self.QDRANT_service_loader.connection.cursor()
         try:
             cursor.execute(
                 """
@@ -743,7 +743,7 @@ class GongDataIngestionOrchestrator:
 
                     # Process in batches of 50
                     if len(transcripts_data) >= 50:
-                        await self.qdrant_service_loader.load_call_transcripts(
+                        await self.QDRANT_service_loader.load_call_transcripts(
                             transcripts_data
                         )
                         transcripts_data = []
@@ -754,7 +754,7 @@ class GongDataIngestionOrchestrator:
 
         # Process remaining transcripts
         if transcripts_data:
-            await self.qdrant_service_loader.load_call_transcripts(transcripts_data)
+            await self.QDRANT_service_loader.load_call_transcripts(transcripts_data)
 
         return len(call_ids)
 

@@ -17,12 +17,12 @@ CORTEX_CONFIG = {
         "embeddings": {"primary": "e5-base-v2", "dimension": 768},
     },
     "functions": {
-        "complete": "self.qdrant_service.await self.lambda_gpu.complete",
-        "sentiment": "self.qdrant_service.await self.lambda_gpu.analyze_sentiment",
-        "summarize": "self.qdrant_service.await self.lambda_gpu.summarize",
-        "embed": "self.qdrant_service.await self.lambda_gpu.embed_text",
+        "complete": "self.QDRANT_service.await self.lambda_gpu.complete",
+        "sentiment": "self.QDRANT_service.await self.lambda_gpu.analyze_sentiment",
+        "summarize": "self.QDRANT_service.await self.lambda_gpu.summarize",
+        "embed": "self.QDRANT_service.await self.lambda_gpu.embed_text",
         "extract": "await self.lambda_gpu.EXTRACT_ANSWER",
-        "translate": "self.qdrant_service.await self.lambda_gpu.translate",
+        "translate": "self.QDRANT_service.await self.lambda_gpu.translate",
     },
     "tables": {
         "ai_memory": "CORTEX_AI.AI_MEMORY_ENHANCED",

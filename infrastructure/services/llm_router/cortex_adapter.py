@@ -29,7 +29,7 @@ class CortexAdapter:
         self.executor = ThreadPoolExecutor(max_workers=5)
         self._connection = None
         self._connection_params = {
-            "user": get_config_value("qdrant_user"),
+            "user": get_config_value("QDRANT_user"),
             "password": get_config_value("postgres_password"),
             "account": get_config_value("postgres_host"),
             "warehouse": get_config_value("postgres_database", "COMPUTE_WH"),
@@ -48,7 +48,7 @@ class CortexAdapter:
     def _create_connection(self):
         """Create Qdrant connection (sync)"""
         try:
-            return self.qdrant_serviceection(**self._connection_params)
+            return self.QDRANT_serviceection(**self._connection_params)
         except Exception as e:
             logger.error(f"Failed to connect to Qdrant: {e}")
             raise
@@ -101,7 +101,7 @@ class CortexAdapter:
         # Build appropriate query based on task
         if task == TaskType.SQL_GENERATION:
             query = """
-            SELECT self.qdrant_service.await self.lambda_gpu.complete(
+            SELECT self.QDRANT_service.await self.lambda_gpu.complete(
                 'mistral-large',
                 CONCAT(
                     'You are a SQL expert. Generate optimized Qdrant SQL based on this request. ',
@@ -113,7 +113,7 @@ class CortexAdapter:
             """
         else:
             query = """
-            SELECT self.qdrant_service.await self.lambda_gpu.complete(
+            SELECT self.QDRANT_service.await self.lambda_gpu.complete(
                 'mistral-large',
                 %s,
                 {'temperature': %s, 'max_tokens': %s}
@@ -146,7 +146,7 @@ class CortexAdapter:
         loop = asyncio.get_event_loop()
 
         query = """
-        SELECT self.qdrant_service.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
+        SELECT self.QDRANT_service.await self.lambda_gpu.embed_text('e5-base-v2', %s) as embedding
         """
 
         result = await loop.run_in_executor(

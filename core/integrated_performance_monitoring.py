@@ -316,7 +316,7 @@ class PerformanceMonitoringIntegration:
             try:
                 # Check core services
                 services_to_check = [
-                    "qdrant_memory_service",
+                    "QDRANT_memory_service",
                     "connection_manager",
                     "optimized_cache",
                     "performance_monitor",

@@ -22,8 +22,8 @@ class QdrantSecretIntegration:
         self.pulumi_org = "scoobyjava-org"
         self.pulumi_env = "default/sophia-ai-production"
         self.github_org = "ai-cherry"
-        self.qdrant_api_key = None
-        self.qdrant_url = None
+        self.QDRANT_api_key = None
+        self.QDRANT_URL = None
         
     def validate_environment(self) -> bool:
         """Validate required environment setup"""
@@ -60,21 +60,21 @@ class QdrantSecretIntegration:
         logger.info("🔑 Loading QDRANT secrets from environment...")
         
         # Load QDRANT_API_KEY
-        self.qdrant_api_key = os.getenv("QDRANT_API_KEY")
-        if not self.qdrant_api_key:
+        self.QDRANT_api_key = os.getenv("QDRANT_API_KEY")
+        if not self.QDRANT_api_key:
             logger.error("❌ QDRANT_API_KEY not found in environment")
             logger.info("💡 Please ensure QDRANT_API_KEY is set in GitHub Organization Secrets")
             return False
         
         # Load QDRANT_URL
-        self.qdrant_url = os.getenv("QDRANT_URL")
-        if not self.qdrant_url:
+        self.QDRANT_URL = os.getenv("QDRANT_URL")
+        if not self.QDRANT_URL:
             logger.error("❌ QDRANT_URL not found in environment")
             logger.info("💡 Please ensure QDRANT_URL is set in GitHub Organization Secrets")
             return False
             
-        logger.info(f"✅ QDRANT_API_KEY loaded: {self.qdrant_api_key[:8]}...")
-        logger.info(f"✅ QDRANT_URL loaded: {self.qdrant_url}")
+        logger.info(f"✅ QDRANT_API_KEY loaded: {self.QDRANT_api_key[:8]}...")
+        logger.info(f"✅ QDRANT_URL loaded: {self.QDRANT_URL}")
         
         return True
     
@@ -87,8 +87,8 @@ class QdrantSecretIntegration:
             result = subprocess.run([
                 "pulumi", "env", "set", 
                 f"{self.pulumi_org}/{self.pulumi_env}",
-                "qdrant_api_key",
-                self.qdrant_api_key,
+                "QDRANT_api_key",
+                self.QDRANT_api_key,
                 "--secret"
             ], capture_output=True, text=True)
             
@@ -102,8 +102,8 @@ class QdrantSecretIntegration:
             result = subprocess.run([
                 "pulumi", "env", "set", 
                 f"{self.pulumi_org}/{self.pulumi_env}",
-                "qdrant_url",
-                self.qdrant_url,
+                "QDRANT_URL",
+                self.QDRANT_URL,
                 "--secret"
             ], capture_output=True, text=True)
             
@@ -126,9 +126,9 @@ class QdrantSecretIntegration:
         try:
             # Import and test backend configuration
             sys.path.append('.')
-            from backend.core.auto_esc_config import get_qdrant_config
+            from backend.core.auto_esc_config import get_QDRANT_config
             
-            config = get_qdrant_config()
+            config = get_QDRANT_config()
             
             if not config.get("api_key"):
                 logger.error("❌ Backend cannot load QDRANT_API_KEY")
@@ -149,7 +149,7 @@ class QdrantSecretIntegration:
             logger.error(f"❌ Backend integration validation failed: {e}")
             return False
     
-    def test_qdrant_connectivity(self) -> bool:
+    def test_QDRANT_connectivity(self) -> bool:
         """Test actual connectivity to Qdrant"""
         logger.info("🌐 Testing Qdrant connectivity...")
         
@@ -158,9 +158,9 @@ class QdrantSecretIntegration:
             
             # Test collections endpoint
             response = requests.get(
-                f"{self.qdrant_url}/collections",
+                f"{self.QDRANT_URL}/collections",
                 headers={
-                    "Authorization": f"Bearer {self.qdrant_api_key}",
+                    "Authorization": f"Bearer {self.QDRANT_api_key}",
                     "Content-Type": "application/json"
                 },
                 timeout=30
@@ -183,16 +183,16 @@ class QdrantSecretIntegration:
     def generate_integration_report(self) -> Dict[str, Any]:
         """Generate comprehensive integration report"""
         return {
-            "qdrant_api_key_configured": bool(self.qdrant_api_key),
-            "qdrant_url_configured": bool(self.qdrant_url),
+            "QDRANT_api_key_configured": bool(self.QDRANT_api_key),
+            "QDRANT_URL_configured": bool(self.QDRANT_URL),
             "pulumi_esc_integration": "✅ COMPLETE",
             "backend_integration": "✅ COMPLETE",
             "github_org_secrets": "✅ COMPLETE",
             "deployment_ready": True,
             "next_steps": [
-                "Deploy Qdrant infrastructure with: python scripts/deploy_qdrant_fortress.py",
-                "Validate deployment with: python scripts/validate_qdrant_fortress.py",
-                "Test end-to-end integration with: python scripts/test_qdrant_integration.py"
+                "Deploy Qdrant infrastructure with: python scripts/deploy_QDRANT_fortress.py",
+                "Validate deployment with: python scripts/validate_QDRANT_fortress.py",
+                "Test end-to-end integration with: python scripts/test_QDRANT_integration.py"
             ]
         }
     
@@ -217,7 +217,7 @@ class QdrantSecretIntegration:
             return False
             
         # Step 5: Test connectivity
-        if not self.test_qdrant_connectivity():
+        if not self.test_QDRANT_connectivity():
             logger.warning("⚠️ Qdrant connectivity test failed (may be expected in some environments)")
             
         # Step 6: Generate report

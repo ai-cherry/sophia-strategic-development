@@ -222,7 +222,7 @@ class LLMRouter:
             TaskType.EMBEDDINGS,
         }:
             return {
-                "provider": Provider.self.qdrant_service.value,
+                "provider": Provider.self.QDRANT_service.value,
                 "model": "qdrant-cortex",
                 "estimated_cost": 0.0,  # Lambda GPU is free within platform
                 "reasoning": "Data operations use Lambda GPU (no additional cost)",

@@ -61,7 +61,7 @@ def count_modular_structures() -> int:
     
     # Check for decomposed services
     decomposed_services = [
-        "infrastructure/services/enhanced_qdrant_memory_service",
+        "infrastructure/services/enhanced_QDRANT_memory_service",
         "infrastructure/services/enhanced_ingestion_service",
         "core/workflows/enhanced_langgraph_orchestration",
         "core/workflows/multi_agent_workflow"

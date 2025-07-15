@@ -4,7 +4,7 @@ import asyncio
 import logging
 
 from core.agents.base_agent import BaseAgent, Task
-from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )

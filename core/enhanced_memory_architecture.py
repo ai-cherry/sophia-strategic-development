@@ -63,7 +63,7 @@ class EnhancedMemoryArchitecture:
         self.tier_configs = self._initialize_tier_configs()
         self.gpu_memory_pool = GPUMemoryPool()
         self.redis_client = self._initialize_redis()
-        self.qdrant_service = None
+        self.QDRANT_service = None
         self.gpu_memory_manager = None
         self.performance_metrics = {
             "l0_hits": 0,
@@ -171,14 +171,14 @@ class EnhancedMemoryArchitecture:
             logger.exception(f"❌ GPU memory manager initialization failed: {e}")
             raise
 
-    async def initialize_qdrant_connection(self):
+    async def initialize_QDRANT_connection(self):
         """Initialize Qdrant connection for L2-L5 tiers"""
         try:
             # Use QdrantUnifiedMemoryService for L2-L5 tiers
-            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+            from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
             
-            self.qdrant_service = QdrantUnifiedMemoryService()
-            await self.qdrant_service.initialize()
+            self.QDRANT_service = QdrantUnifiedMemoryService()
+            await self.QDRANT_service.initialize()
             
             logger.info("✅ Qdrant connection established for L2-L5 tiers")
         except Exception as e:
@@ -414,10 +414,10 @@ class EnhancedMemoryArchitecture:
     ) -> bool:
         """Store data in Lambda GPU cache (L2 tier)"""
         try:
-            if not self.qdrant_service:
+            if not self.QDRANT_service:
                 return False
 
-            cursor = self.qdrant_service.cursor()
+            cursor = self.QDRANT_service.cursor()
 
             # Insert or update cache entry
             insert_query = """
@@ -448,10 +448,10 @@ class EnhancedMemoryArchitecture:
     async def _retrieve_cortex_cache(self, key: str) -> Any | None:
         """Retrieve data from Lambda GPU cache (L2 tier)"""
         try:
-            if not self.qdrant_service:
+            if not self.QDRANT_service:
                 return None
 
-            cursor = self.qdrant_service.cursor()
+            cursor = self.QDRANT_service.cursor()
 
             # Query with TTL check
             select_query = """
@@ -482,10 +482,10 @@ class EnhancedMemoryArchitecture:
     ) -> bool:
         """Store data in Qdrant persistent memory (L3 tier)"""
         try:
-            if not self.qdrant_service:
+            if not self.QDRANT_service:
                 return False
 
-            cursor = self.qdrant_service.cursor()
+            cursor = self.QDRANT_service.cursor()
 
             # Insert into persistent memory table
             insert_query = """
@@ -517,10 +517,10 @@ class EnhancedMemoryArchitecture:
     async def _retrieve_persistent_memory(self, key: str) -> Any | None:
         """Retrieve data from Qdrant persistent memory (L3 tier)"""
         try:
-            if not self.qdrant_service:
+            if not self.QDRANT_service:
                 return None
 
-            cursor = self.qdrant_service.cursor()
+            cursor = self.QDRANT_service.cursor()
 
             select_query = """
             SELECT content, metadata
@@ -760,8 +760,8 @@ class EnhancedMemoryArchitecture:
 
         # Check L2-L5 (Qdrant)
         try:
-            if self.qdrant_service:
-                cursor = self.qdrant_service.cursor()
+            if self.QDRANT_service:
+                cursor = self.QDRANT_service.cursor()
                 cursor.execute("SELECT 1")
                 cursor.fetchone()
                 cursor.close()
@@ -822,7 +822,7 @@ async def initialize_enhanced_memory_architecture():
 
     try:
         await enhanced_memory_architecture.initialize_gpu_memory_manager()
-        await enhanced_memory_architecture.initialize_qdrant_connection()
+        await enhanced_memory_architecture.initialize_QDRANT_connection()
 
         logger.info("✅ Enhanced Memory Architecture initialized successfully")
         return enhanced_memory_architecture

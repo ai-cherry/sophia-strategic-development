@@ -240,7 +240,7 @@ class UnifiedConfig:
             "debug",
             "log_level",
             "postgres_host",
-            "qdrant_user",
+            "QDRANT_user",
             "postgres_password",
             "postgres_database",
             "postgres_database",

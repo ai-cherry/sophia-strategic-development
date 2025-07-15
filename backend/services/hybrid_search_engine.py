@@ -193,7 +193,7 @@ class HybridSearchEngine:
 
             search_sql += " ORDER BY relevance_score DESC LIMIT 100"
 
-            results = await self.memory_service.execute_qdrant_query(
+            results = await self.memory_service.execute_QDRANT_query(
                 search_sql, tuple(params)
             )
 

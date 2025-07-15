@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from shared.utils.qdrant_cortex import (
+from shared.utils.QDRANT_cortex import (
     CortexAuthenticationError,
     CortexModel,
     MCPMode,
@@ -16,7 +16,7 @@ from shared.utils.qdrant_cortex import (
 
 
 @pytest.fixture
-def mock_qdrant_serviceection():
+def mock_QDRANT_serviceection():
     """Mock Qdrant connection."""
     conn = MagicMock()
     cursor = MagicMock()
@@ -46,13 +46,13 @@ class TestQdrantUnifiedMemoryService:
     @pytest.mark.asyncio
     async def test_auto_mode_prefers_mcp(self):
         """Test that AUTO mode prefers MCP when PAT is available."""
-        with patch.dict(os.environ, {"qdrant_MCP_PAT": "test-pat"}):
+        with patch.dict(os.environ, {"QDRANT_MCP_PAT": "test-pat"}):
             with patch(
 
             ) as mock_config:
                 mock_config.side_effect = lambda key, default=None: {
-                    "qdrant_mcp_pat": "test-pat",
-                    "qdrant_user": "test-user",
+                    "QDRANT_mcp_pat": "test-pat",
+                    "QDRANT_user": "test-user",
                     "postgres_password": "test-pass",
                 }.get(key, default)
 
@@ -67,7 +67,7 @@ class TestQdrantUnifiedMemoryService:
 
             ) as mock_config:
                 mock_config.side_effect = lambda key, default=None: {
-                    "qdrant_user": "test-user",
+                    "QDRANT_user": "test-user",
                     "postgres_password": "test-pass",
                     "postgres_host": "test-account",
                 }.get(key, default)
@@ -93,8 +93,8 @@ class TestQdrantUnifiedMemoryService:
 
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "qdrant_mcp_pat": "test-pat",
-                "qdrant_mcp_url": "http://test-mcp:8080",
+                "QDRANT_mcp_pat": "test-pat",
+                "QDRANT_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
             service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
@@ -111,13 +111,13 @@ class TestQdrantUnifiedMemoryService:
                     assert all(v == 0.1 for v in result)
 
     @pytest.mark.asyncio
-    async def test_direct_mode_embedding(self, mock_qdrant_serviceection):
+    async def test_direct_mode_embedding(self, mock_QDRANT_serviceection):
         """Test embedding generation in DIRECT mode."""
         with patch(
 
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "qdrant_user": "test-user",
+                "QDRANT_user": "test-user",
                 "postgres_password": "test-pass",
                 "postgres_host": "test-account",
                 "postgres_database": "test-wh",
@@ -128,8 +128,8 @@ class TestQdrantUnifiedMemoryService:
             service = QdrantUnifiedMemoryService(mode=MCPMode.DIRECT)
 
             # Mock connection pool
-            with patch("self.qdrant_serviceection") as mock_connect:
-                mock_connect.return_value = mock_qdrant_serviceection
+            with patch("self.QDRANT_serviceection") as mock_connect:
+                mock_connect.return_value = mock_QDRANT_serviceection
 
                 # Mock query result
                 mock_
@@ -147,8 +147,8 @@ class TestQdrantUnifiedMemoryService:
 
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "qdrant_mcp_pat": "test-pat",
-                "qdrant_mcp_url": "http://test-mcp:8080",
+                "QDRANT_mcp_pat": "test-pat",
+                "QDRANT_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
             service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
@@ -166,13 +166,13 @@ class TestQdrantUnifiedMemoryService:
                     assert result == "Generated text"
 
     @pytest.mark.asyncio
-    async def test_direct_mode_completion(self, mock_qdrant_serviceection):
+    async def test_direct_mode_completion(self, mock_QDRANT_serviceection):
         """Test text completion in DIRECT mode."""
         with patch(
 
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "qdrant_user": "test-user",
+                "QDRANT_user": "test-user",
                 "postgres_password": "test-pass",
                 "postgres_host": "test-account",
                 "postgres_database": "test-wh",
@@ -183,8 +183,8 @@ class TestQdrantUnifiedMemoryService:
             service = QdrantUnifiedMemoryService(mode=MCPMode.DIRECT)
 
             # Mock connection pool
-            with patch("self.qdrant_serviceection") as mock_connect:
-                mock_connect.return_value = mock_qdrant_serviceection
+            with patch("self.QDRANT_serviceection") as mock_connect:
+                mock_connect.return_value = mock_QDRANT_serviceection
 
                 # Mock query result
                 mock_
@@ -204,15 +204,15 @@ class TestQdrantUnifiedMemoryService:
 
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "qdrant_mcp_pat": "test-pat",
-                "qdrant_mcp_url": "http://test-mcp:8080",
+                "QDRANT_mcp_pat": "test-pat",
+                "QDRANT_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
             service = QdrantUnifiedMemoryService(mode=MCPMode.MCP, enable_cache=True)
 
             # Mock cache
             with patch(
-                "shared.utils.qdrant_cortex.cache.CortexCache.get"
+                "shared.utils.QDRANT_cortex.cache.CortexCache.get"
             ) as mock_get:
                 mock_get.return_value = "Cached result"
 
@@ -227,8 +227,8 @@ class TestQdrantUnifiedMemoryService:
 
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "qdrant_mcp_pat": "test-pat",
-                "qdrant_mcp_url": "http://test-mcp:8080",
+                "QDRANT_mcp_pat": "test-pat",
+                "QDRANT_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
             service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
@@ -253,8 +253,8 @@ class TestQdrantUnifiedMemoryService:
 
         ) as mock_config:
             mock_config.side_effect = lambda key, default=None: {
-                "qdrant_mcp_pat": "test-pat",
-                "qdrant_mcp_url": "http://test-mcp:8080",
+                "QDRANT_mcp_pat": "test-pat",
+                "QDRANT_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
             service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)

@@ -441,28 +441,28 @@ const mcpGpuDeployment = new kubernetes.apps.v1.Deployment("sophia-mcp-gpu-clust
     }
 }, { provider: k8sProvider, dependsOn: [sophiaNamespace, gpuDevicePlugin] });
 
-// Weaviate GPU-accelerated Vector Database
-const weaviateGpu = new kubernetes.apps.v1.StatefulSet("weaviate-gpu", {
+// qdrant GPU-accelerated Vector Database
+const qdrantGpu = new kubernetes.apps.v1.StatefulSet("qdrant-gpu", {
     metadata: {
-        name: "weaviate-gpu",
+        name: "qdrant-gpu",
         namespace: namespace,
         labels: {
-            app: "weaviate-gpu",
+            app: "qdrant-gpu",
             tier: "database"
         }
     },
     spec: {
-        serviceName: "weaviate-gpu",
+        serviceName: "qdrant-gpu",
         replicas: 1,
         selector: {
             matchLabels: {
-                app: "weaviate-gpu"
+                app: "qdrant-gpu"
             }
         },
         template: {
             metadata: {
                 labels: {
-                    app: "weaviate-gpu",
+                    app: "qdrant-gpu",
                     tier: "database"
                 }
             },
@@ -472,7 +472,7 @@ const weaviateGpu = new kubernetes.apps.v1.StatefulSet("weaviate-gpu", {
                 },
                 containers: [
                     {
-                        name: "weaviate",
+                        name: "qdrant",
                         image: "qdrant/qdrant:v1.8.0
                         ports: [
                             {
@@ -524,7 +524,7 @@ const weaviateGpu = new kubernetes.apps.v1.StatefulSet("weaviate-gpu", {
                         },
                         volumeMounts: [
                             {
-                                name: "weaviate-data",
+                                name: "qdrant-data",
                                 mountPath: "/var/lib/qdrant/storage"
                             }
                         ],
@@ -551,7 +551,7 @@ const weaviateGpu = new kubernetes.apps.v1.StatefulSet("weaviate-gpu", {
         volumeClaimTemplates: [
             {
                 metadata: {
-                    name: "weaviate-data"
+                    name: "qdrant-data"
                 },
                 spec: {
                     accessModes: ["ReadWriteOnce"],
@@ -1036,7 +1036,7 @@ const networkPolicy = new kubernetes.networking.v1.NetworkPolicy("sophia-ai-netw
                     {
                         podSelector: {
                             matchLabels: {
-                                app: "weaviate-gpu"
+                                app: "qdrant-gpu"
                             }
                         }
                     }
@@ -1065,23 +1065,23 @@ export const deploymentSummary = pulumi.all([
     sophiaNamespace.metadata.name,
     sophiaBackend.metadata.name,
     mcpGpuDeployment.metadata.name,
-    weaviateGpu.metadata.name,
+    qdrantGpu.metadata.name,
     prometheusDeployment.metadata.name,
     grafanaDeployment.metadata.name
-]).apply(([ns, backend, mcp, weaviate, prometheus, grafana]) => ({
+]).apply(([ns, backend, mcp, qdrant, prometheus, grafana]) => ({
     message: "🎉 Sophia AI Lambda Labs K3s Fortress deployed successfully!",
     namespace: ns,
     services: {
         backend: backend,
         mcpGpu: mcp,
-        weaviate: weaviate,
+        qdrant: qdrant,
         prometheus: prometheus,
         grafana: grafana
     },
     endpoints: {
         api: `https://${lambdaLabsConfig.masterNode}:8000`,
         monitoring: `https://${lambdaLabsConfig.masterNode}:3000`,
-        weaviate: `https://${lambdaLabsConfig.masterNode}:6333`
+        qdrant: `https://${lambdaLabsConfig.masterNode}:6333`
     },
     capabilities: {
         maxEvents: "10M/day",

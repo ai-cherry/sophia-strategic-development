@@ -69,14 +69,14 @@ CONSOLIDATION_MAP = {
 KEEP_SERVERS = [
     "ai_memory",           # Core memory system
     "gong",               # Unique sales intelligence
-    "qdrant_unified",  # Primary data warehouse
+    "QDRANT_unified",  # Primary data warehouse
     "github",             # Essential for development
     "figma_context",      # Unique design integration
     "lambda_labs_cli",    # Infrastructure management
     "portkey_admin",      # LLM routing
     "ui_ux_agent",        # UI generation
     "estuary",            # ETL pipeline
-    "qdrant_cortex",   # AI operations
+    "QDRANT_cortex",   # AI operations
     "mem0_bridge",        # Memory bridge
     "cortex_aisql",       # SQL AI
     "prompt_optimizer",   # Prompt optimization
@@ -87,8 +87,8 @@ KEEP_SERVERS = [
     "openrouter_search",  # Model search
     "ag_ui",              # AG Grid UI
     "sophia_intelligence_unified", # Core orchestration
-    "qdrant_admin",    # Admin operations
-    "qdrant_cli_enhanced" # CLI operations
+    "QDRANT_admin",    # Admin operations
+    "QDRANT_cli_enhanced" # CLI operations
 ]
 
 

@@ -238,7 +238,7 @@ monitoring:
       type: histogram
       description: Time to generate embeddings (ms)
       
-    - name: qdrant_storage_success
+    - name: QDRANT_storage_success
       type: counter
       description: Successful Weaviate storage operations
       

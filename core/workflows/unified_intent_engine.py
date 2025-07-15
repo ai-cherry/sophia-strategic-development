@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     UnifiedMemoryService,
 )
@@ -149,11 +149,11 @@ class UnifiedIntentEngine:
 
         try:
             # Use QdrantUnifiedMemoryService for intent analysis
-            qdrant_service = QdrantUnifiedMemoryService()
-            await qdrant_service.initialize()
+            QDRANT_service = QdrantUnifiedMemoryService()
+            await QDRANT_service.initialize()
             
             # Use the enhanced router for LLM calls
-            intent_result = await qdrant_service.router_service.complete_chat(
+            intent_result = await QDRANT_service.router_service.complete_chat(
                 messages=[{"role": "user", "content": analysis_prompt}],
                 max_tokens=500
             )

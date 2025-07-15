@@ -412,7 +412,7 @@ class EstuaryFlowOrchestrator:
         )
         return await self._create_flow(flow_spec)
 
-    async def create_postgresql_to_qdrant_flow(self) -> dict[str, Any]:
+    async def create_postgresql_to_QDRANT_flow(self) -> dict[str, Any]:
         """
         Create PostgreSQL → Qdrant data flow
         ELT pattern: Transform and load processed data to Qdrant
@@ -434,12 +434,12 @@ class EstuaryFlowOrchestrator:
             },
             destination_type="destination-qdrant",
             destination_config={
-                "host": f"{qdrant_creds.get('account')}.qdrantcomputing.com",
-                "role": qdrant_creds.get("role"),
-                "warehouse": qdrant_creds.get("warehouse"),
-                "database": qdrant_creds.get("database"),
-                "username": qdrant_creds.get("user"),
-                "password": qdrant_creds.get("password"),
+                "host": f"{QDRANT_creds.get('account')}.qdrantcomputing.com",
+                "role": QDRANT_creds.get("role"),
+                "warehouse": QDRANT_creds.get("warehouse"),
+                "database": QDRANT_creds.get("database"),
+                "username": QDRANT_creds.get("user"),
+                "password": QDRANT_creds.get("password"),
                 "jdbc_url_params": "CLIENT_SESSION_KEEP_ALIVE=true",
             },
         )

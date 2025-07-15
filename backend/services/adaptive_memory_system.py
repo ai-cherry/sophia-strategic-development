@@ -16,10 +16,10 @@ import json
 import numpy as np
 from collections import defaultdict, deque
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue, UpdateStatus
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import Filter, FieldCondition, MatchValue, UpdateStatus
 
-from ..core.truthful_config import get_real_qdrant_config
+from ..core.truthful_config import get_real_QDRANT_config
 from .advanced_hybrid_search_service import SearchResult, SearchContext, BusinessInsights
 
 logger = logging.getLogger(__name__)
@@ -84,7 +84,7 @@ class AdaptiveMemorySystem:
     """
     
     def __init__(self):
-        self.qdrant_config = get_real_qdrant_config()
+        self.QDRANT_config = get_real_QDRANT_config()
         self.client = None
         self.user_profiles: Dict[str, UserProfile] = {}
         self.learning_insights: List[LearningInsight] = []
@@ -101,9 +101,9 @@ class AdaptiveMemorySystem:
         """Initialize the adaptive memory system"""
         try:
             self.client = QdrantClient(
-                url=self.qdrant_config["url"],
-                api_key=self.qdrant_config["api_key"],
-                timeout=self.qdrant_config["timeout"]
+                url=self.QDRANT_config["url"],
+                api_key=self.QDRANT_config["api_key"],
+                timeout=self.QDRANT_config["timeout"]
             )
             
             # Load existing user profiles

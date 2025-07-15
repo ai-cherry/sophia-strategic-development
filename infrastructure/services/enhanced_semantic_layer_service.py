@@ -25,8 +25,8 @@ class EnhancedSemanticLayerService:
         if not self.connection:
             
 
-            self.connection = self.qdrant_serviceection(
-                user=get_config_value("qdrant_user"),
+            self.connection = self.QDRANT_serviceection(
+                user=get_config_value("QDRANT_user"),
                 password=get_config_value("postgres_password"),
                 account=get_config_value("postgres_host"),
                 warehouse=get_config_value("postgres_database"),

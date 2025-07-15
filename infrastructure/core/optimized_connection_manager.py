@@ -262,7 +262,7 @@ class OptimizedConnectionPool:
 
         try:
             if self.connection_type == ConnectionType.POSTGRESQL:
-                connection = await self._create_qdrant_serviceection()
+                connection = await self._create_QDRANT_serviceection()
             elif self.connection_type == ConnectionType.POSTGRES:
                 connection = await self._create_postgres_connection()
             elif self.connection_type == ConnectionType.REDIS:
@@ -288,7 +288,7 @@ class OptimizedConnectionPool:
             self.circuit_breaker.record_failure()
             return None
 
-    async def _create_qdrant_serviceection(self):
+    async def _create_QDRANT_serviceection(self):
 
 
         # Get secure connection parameters using lazy initialization
@@ -307,7 +307,7 @@ class OptimizedConnectionPool:
 
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
-            conn = self.qdrant_serviceection(**connection_params)
+            conn = self.QDRANT_serviceection(**connection_params)
             # Set global query tag for cost tracking
             cursor = conn.cursor()
             cursor.execute("ALTER SESSION SET QUERY_TAG = 'sophia_ai_global'")
@@ -576,8 +576,8 @@ class OptimizedConnectionManager:
                 connection_timeout=30,
                 idle_timeout=600,
             )
-            await qdrant_pool.initialize()
-            self.pools[ConnectionType.POSTGRESQL] = qdrant_pool
+            await QDRANT_pool.initialize()
+            self.pools[ConnectionType.POSTGRESQL] = QDRANT_pool
 
             # Initialize Redis pool (caching)
             try:

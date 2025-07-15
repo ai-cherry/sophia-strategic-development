@@ -133,7 +133,7 @@ def validate_hybrid_search_design() -> Dict[str, Any]:
             "personalization": "_personalization_boost" in content,
             "ensemble_ranking": "_ensemble_ranking" in content,
             "business_intelligence": "intelligent_business_search" in content,
-            "qdrant_integration": "QdrantClient" in content
+            "QDRANT_integration": "QdrantClient" in content
         }
         
         implemented_features = sum(design_elements.values())
@@ -234,7 +234,7 @@ def validate_integration_design() -> Dict[str, Any]:
     """Validate integration architecture design"""
     
     integration_points = {
-        "qdrant_config": check_qdrant_integration(),
+        "QDRANT_config": check_QDRANT_integration(),
         "truthful_config": check_truthful_config_integration(),
         "adaptive_memory_integration": check_adaptive_memory_integration(),
         "business_intelligence_integration": check_business_intelligence_integration()
@@ -252,12 +252,12 @@ def validate_integration_design() -> Dict[str, Any]:
         "integration_details": integration_points
     }
 
-def check_qdrant_integration() -> bool:
+def check_QDRANT_integration() -> bool:
     """Check Qdrant integration"""
     try:
         with open("backend/services/advanced_hybrid_search_service.py", "r") as f:
             content = f.read()
-        return "get_real_qdrant_config" in content and "QdrantClient" in content
+        return "get_real_QDRANT_config" in content and "QdrantClient" in content
     except:
         return False
 
@@ -266,7 +266,7 @@ def check_truthful_config_integration() -> bool:
     try:
         with open("backend/core/truthful_config.py", "r") as f:
             content = f.read()
-        return "get_real_qdrant_config" in content and "QDRANT_API_KEY" in content
+        return "get_real_QDRANT_config" in content and "QDRANT_API_KEY" in content
     except:
         return False
 
@@ -501,7 +501,7 @@ def validate_config_integration() -> Dict[str, Any]:
                 with open(file_path, "r") as f:
                     content = f.read()
                 
-                if "get_real_qdrant_config" in content:
+                if "get_real_QDRANT_config" in content:
                     integration_found = True
                     break
         

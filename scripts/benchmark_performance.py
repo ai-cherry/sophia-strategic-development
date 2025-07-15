@@ -176,10 +176,10 @@ async def main():
     test_count = 0
 
     for test_name, result in results.items():
-        if "mean" in result and test_name in qdrant_baseline:
+        if "mean" in result and test_name in QDRANT_baseline:
             gpu_latency = result["mean"]
             
-            improvement = ((qdrant_latency - gpu_latency) / qdrant_latency) * 100
+            improvement = ((QDRANT_latency - gpu_latency) / QDRANT_latency) * 100
 
             color = (
                 Colors.GREEN
@@ -189,7 +189,7 @@ async def main():
                 else Colors.RED
             )
             print(
-                f"{test_name:<25} {gpu_latency:<15.2f} {qdrant_latency:<15.2f} {color}{improvement:>14.1f}%{Colors.ENDC}"
+                f"{test_name:<25} {gpu_latency:<15.2f} {QDRANT_latency:<15.2f} {color}{improvement:>14.1f}%{Colors.ENDC}"
             )
 
             total_improvement += improvement

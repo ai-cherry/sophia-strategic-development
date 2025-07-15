@@ -33,8 +33,8 @@ import numpy as np
 
 # Qdrant imports
 try:
-    from qdrant_client import QdrantClient, models
-    from qdrant_client.models import (
+    from QDRANT_client import QdrantClient, models
+    from QDRANT_client.models import (
         Distance, VectorParams, PointStruct, Filter, FieldCondition, 
         MatchValue, SearchRequest, ScoredPoint, UpdateResult,
         CollectionInfo, OptimizersConfigDiff, HnswConfigDiff
@@ -68,17 +68,17 @@ from backend.services.router_service import RouterService
 logger = get_logger(__name__)
 
 # Prometheus metrics
-qdrant_search_latency = Histogram(
-    'qdrant_search_latency_ms', 'Qdrant search latency (ms)', 
+QDRANT_search_latency = Histogram(
+    'QDRANT_search_latency_ms', 'Qdrant search latency (ms)', 
     buckets=(5, 10, 20, 30, 50, 100, 200, 500)
 )
-qdrant_upsert_latency = Histogram(
-    'qdrant_upsert_latency_ms', 'Qdrant upsert latency (ms)',
+QDRANT_upsert_latency = Histogram(
+    'QDRANT_upsert_latency_ms', 'Qdrant upsert latency (ms)',
     buckets=(10, 20, 50, 100, 200, 500, 1000)
 )
 hybrid_search_requests = Counter('hybrid_search_requests_total', 'Hybrid search requests')
-cache_hit_ratio = Gauge('qdrant_cache_hit_ratio', 'Cache hit ratio')
-collection_points_count = Gauge('qdrant_collection_points', 'Points in collection', ['collection'])
+cache_hit_ratio = Gauge('QDRANT_cache_hit_ratio', 'Cache hit ratio')
+collection_points_count = Gauge('QDRANT_collection_points', 'Points in collection', ['collection'])
 
 class SearchMode(Enum):
     """Search modes for different use cases"""
@@ -135,14 +135,14 @@ class QdrantUnifiedMemoryService:
     def __init__(self):
         # Configuration
         self.config = QdrantConfig(
-            url=get_config_value("qdrant_url", "https://xyz.qdrant.tech"),
-            api_key=get_config_value("qdrant_api_key"),
+            url=get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
+            api_key=get_config_value("QDRANT_api_key"),
             timeout=30,
             prefer_grpc=False
         )
         
         # Clients
-        self.qdrant_client: Optional[QdrantClient] = None
+        self.QDRANT_client: Optional[QdrantClient] = None
         self.redis_client: Optional[Redis] = None
         self.pg_pool: Optional[asyncpg.Pool] = None
         self.router_service: Optional[RouterService] = None
@@ -243,7 +243,7 @@ class QdrantUnifiedMemoryService:
             if not QDRANT_AVAILABLE:
                 raise ImportError("qdrant-client not available")
                 
-            self.qdrant_client = QdrantClient(
+            self.QDRANT_client = QdrantClient(
                 url=self.config.url,
                 api_key=self.config.api_key,
                 timeout=self.config.timeout,
@@ -251,7 +251,7 @@ class QdrantUnifiedMemoryService:
             )
             
             # Test connection
-            collections = await asyncio.to_thread(self.qdrant_client.get_collections)
+            collections = await asyncio.to_thread(self.QDRANT_client.get_collections)
             logger.info(f"✅ Qdrant connected: {len(collections.collections)} collections")
             
         except Exception as e:
@@ -329,7 +329,7 @@ class QdrantUnifiedMemoryService:
         """Create a single collection with configuration"""
         try:
             # Check if collection exists
-            collections = await asyncio.to_thread(self.qdrant_client.get_collections)
+            collections = await asyncio.to_thread(self.QDRANT_client.get_collections)
             existing_names = [c.name for c in collections.collections]
             
             if config.name in existing_names:
@@ -338,7 +338,7 @@ class QdrantUnifiedMemoryService:
                 
             # Create collection
             await asyncio.to_thread(
-                self.qdrant_client.create_collection,
+                self.QDRANT_client.create_collection,
                 collection_name=config.name,
                 vectors_config=VectorParams(
                     size=config.vector_size,
@@ -380,7 +380,7 @@ class QdrantUnifiedMemoryService:
         metadata = metadata or {}
         
         try:
-            with qdrant_upsert_latency.time():
+            with QDRANT_upsert_latency.time():
                 # Generate embedding using strategic router
                 if self.router_service:
                     embedding_result = await self.router_service.route_and_execute(
@@ -419,7 +419,7 @@ class QdrantUnifiedMemoryService:
                 
                 # Upsert to Qdrant
                 result = await asyncio.to_thread(
-                    self.qdrant_client.upsert,
+                    self.QDRANT_client.upsert,
                     collection_name=collection_name,
                     points=[point]
                 )
@@ -467,7 +467,7 @@ class QdrantUnifiedMemoryService:
         start_time = time.time()
         
         try:
-            with qdrant_search_latency.time():
+            with QDRANT_search_latency.time():
                 # Check cache first
                 cache_key = self._generate_cache_key(query, collection, limit, search_mode, metadata_filter)
                 cached_results = await self._get_cached_search(cache_key)
@@ -550,7 +550,7 @@ class QdrantUnifiedMemoryService:
         
         # Dense vector search
         dense_results = await asyncio.to_thread(
-            self.qdrant_client.search,
+            self.QDRANT_client.search,
             collection_name=collection_name,
             query_vector=query_embedding,
             query_filter=filter_condition,
@@ -594,7 +594,7 @@ class QdrantUnifiedMemoryService:
             filter_condition = Filter(must=conditions)
         
         results = await asyncio.to_thread(
-            self.qdrant_client.search,
+            self.QDRANT_client.search,
             collection_name=collection_name,
             query_vector=query_embedding,
             query_filter=filter_condition,
@@ -742,7 +742,7 @@ class QdrantUnifiedMemoryService:
         try:
             collection_name = self.collections[collection].name
             info = await asyncio.to_thread(
-                self.qdrant_client.get_collection,
+                self.QDRANT_client.get_collection,
                 collection_name
             )
             
@@ -773,7 +773,7 @@ class QdrantUnifiedMemoryService:
             collection_name = self.collections[collection].name
             
             result = await asyncio.to_thread(
-                self.qdrant_client.delete,
+                self.QDRANT_client.delete,
                 collection_name=collection_name,
                 points_selector=models.PointIdsList(points=point_ids)
             )
@@ -817,7 +817,7 @@ class QdrantUnifiedMemoryService:
         
         # Check Qdrant
         try:
-            await asyncio.to_thread(self.qdrant_client.get_collections)
+            await asyncio.to_thread(self.QDRANT_client.get_collections)
             health["services"]["qdrant"] = "healthy"
         except Exception as e:
             health["services"]["qdrant"] = f"unhealthy: {e}"
@@ -852,29 +852,29 @@ class QdrantUnifiedMemoryService:
             await self.redis_client.close()
         if self.pg_pool:
             await self.pg_pool.close()
-        if self.qdrant_client:
-            self.qdrant_client.close()
+        if self.QDRANT_client:
+            self.QDRANT_client.close()
             
         logger.info("✅ Qdrant Unified Memory Service cleaned up")
 
 # Global instance
-qdrant_memory_service = QdrantUnifiedMemoryService()
+QDRANT_memory_service = QdrantUnifiedMemoryService()
 
 # Convenience functions for backward compatibility
 async def add_knowledge(content: str, source: str, **kwargs) -> Dict[str, Any]:
     """Add knowledge to Qdrant"""
-    if not qdrant_memory_service.initialized:
-        await qdrant_memory_service.initialize()
-    return await qdrant_memory_service.add_knowledge(content, source, **kwargs)
+    if not QDRANT_memory_service.initialized:
+        await QDRANT_memory_service.initialize()
+    return await QDRANT_memory_service.add_knowledge(content, source, **kwargs)
 
 async def search_knowledge(query: str, **kwargs) -> List[SearchResult]:
     """Search knowledge in Qdrant"""
-    if not qdrant_memory_service.initialized:
-        await qdrant_memory_service.initialize()
-    return await qdrant_memory_service.search_knowledge(query, **kwargs)
+    if not QDRANT_memory_service.initialized:
+        await QDRANT_memory_service.initialize()
+    return await QDRANT_memory_service.search_knowledge(query, **kwargs)
 
 async def get_stats() -> Dict[str, Any]:
     """Get performance statistics"""
-    if not qdrant_memory_service.initialized:
-        await qdrant_memory_service.initialize()
-    return await qdrant_memory_service.get_performance_stats() 
+    if not QDRANT_memory_service.initialized:
+        await QDRANT_memory_service.initialize()
+    return await QDRANT_memory_service.get_performance_stats() 

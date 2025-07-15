@@ -298,7 +298,7 @@ class TestEndToEndScenarios:
     @pytest.mark.asyncio
     async def test_natural_language_sql_flow(self):
         """Test natural language to SQL flow"""
-        from infrastructure.adapters.qdrant_adapter import QdrantAdapter
+        from infrastructure.adapters.QDRANT_adapter import QdrantAdapter
 
         adapter = QdrantAdapter("qdrant", None)
 

@@ -17,7 +17,7 @@ class DataTransformer:
     """Transform and validate data from various sources"""
 
     @staticmethod
-    def transform_qdrant_results(results: list[dict]) -> pd.DataFrame:
+    def transform_QDRANT_results(results: list[dict]) -> pd.DataFrame:
         """Transform Qdrant results to standardized format"""
         if not results:
             raise EmptyResultError("Received empty results from Qdrant")

@@ -19,7 +19,7 @@ from collections import defaultdict, deque
 from ..services.advanced_hybrid_search_service import AdvancedHybridSearchService, SearchContext, BusinessInsights
 from ..services.adaptive_memory_system import AdaptiveMemorySystem, UserFeedback, FeedbackType
 from ..services.payready_business_intelligence import PayReadyBusinessIntelligence, BusinessContext, BusinessIntelligenceLayer
-from ..core.truthful_config import get_real_qdrant_config
+from ..core.truthful_config import get_real_QDRANT_config
 
 logger = logging.getLogger(__name__)
 

@@ -52,7 +52,7 @@ class EstuaryIntegrationManager:
             ),
             "qdrant": {
                 "account": get_config_value("postgres_host", "UHDECNO-CVB64222"),
-                "user": get_config_value("qdrant_user", "SCOOBYJAVA15"),
+                "user": get_config_value("QDRANT_user", "SCOOBYJAVA15"),
                 "password": os.getenv(
                     "SOPHIA_AI_TOKEN", get_config_value("postgres_password")
                 ),
@@ -75,7 +75,7 @@ class EstuaryIntegrationManager:
             },
         }
 
-    async def create_qdrant_destination(self) -> dict[str, Any]:
+    async def create_QDRANT_destination(self) -> dict[str, Any]:
         """Create Qdrant destination in Estuary."""
 
         destination_config = {
@@ -224,7 +224,7 @@ class EstuaryIntegrationManager:
 
         results = {
             "timestamp": datetime.now().isoformat(),
-            "qdrant_destination": {},
+            "QDRANT_destination": {},
             "gong_source": {},
             "slack_source": {},
             "connections": [],
@@ -237,12 +237,12 @@ class EstuaryIntegrationManager:
             
             results["
 
-            if not qdrant_result["success"]:
+            if not QDRANT_result["success"]:
                 results["errors"].append("Failed to create Qdrant destination")
                 results["success"] = False
                 return results
 
-            destination_id = qdrant_result["destination_id"]
+            destination_id = QDRANT_result["destination_id"]
 
             # Create Gong source
             gong_result = await self.create_gong_source()

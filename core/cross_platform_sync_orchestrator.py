@@ -29,7 +29,7 @@ from typing import Any
 from infrastructure.mcp_servers.base.standardized_mcp_server import (
     SyncPriority as ServerSyncPriority,
 )
-from backend.services.qdrant_unified_memory_service import (
+from backend.services.QDRANT_unified_memory_service import (
     EnhancedQdrantUnifiedMemoryService,
 )
 
@@ -439,7 +439,7 @@ class CrossPlatformSyncOrchestrator:
                 batch_size=1000,
             ),
             SyncConfiguration(
-                platform="qdrant_admin",
+                platform="QDRANT_admin",
                 data_type="query_history",
                 priority=ServerSyncPriority.LOW,
                 sync_interval_minutes=720,  # 12 hours

@@ -189,7 +189,7 @@ class EnhancedEstuaryManager:
 
         return {
             "host": f"{get_config_value('postgres_host')}.qdrantcomputing.com",
-            "username": get_config_value("qdrant_user", "SCOOBYJAVA15"),
+            "username": get_config_value("QDRANT_user", "SCOOBYJAVA15"),
             "password": get_config_value("postgres_password"),
             "warehouse": get_config_value(
                 "postgres_database", "WH_SOPHIA_ETL_TRANSFORM"
@@ -197,7 +197,7 @@ class EnhancedEstuaryManager:
             "database": get_config_value(
                 "postgres_database", f"SOPHIA_AI_{self.environment.upper()}"
             ),
-            "role": get_config_value("qdrant_role", "ROLE_SOPHIA_ESTUARY_INGEST"),
+            "role": get_config_value("QDRANT_role", "ROLE_SOPHIA_ESTUARY_INGEST"),
             "raw_schema": "RAW_ESTUARY",
         }
 
@@ -358,7 +358,7 @@ class EnhancedEstuaryManager:
                 error_message=str(e),
             )
 
-    async def configure_asana_qdrant_destination(self) -> EstuaryOperationResult:
+    async def configure_asana_QDRANT_destination(self) -> EstuaryOperationResult:
         """Configure Qdrant destination for Asana data"""
         try:
             logger.info("🔄 Configuring Qdrant destination for Asana")
@@ -395,7 +395,7 @@ class EnhancedEstuaryManager:
 
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.SUCCESS,
-                operation_type="configure_asana_qdrant_destination",
+                operation_type="configure_asana_QDRANT_destination",
                 resource_id=destination_id,
                 metadata={"destination_config": destination_config},
             )
@@ -406,7 +406,7 @@ class EnhancedEstuaryManager:
             )
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
-                operation_type="configure_asana_qdrant_destination",
+                operation_type="configure_asana_QDRANT_destination",
                 error_message=str(e),
             )
 
@@ -557,8 +557,8 @@ class EnhancedEstuaryManager:
 
             # Step 2: Configure Qdrant destination
             destination_result = await self.execute_with_retry(
-                self.configure_asana_qdrant_destination,
-                "configure_asana_qdrant_destination",
+                self.configure_asana_QDRANT_destination,
+                "configure_asana_QDRANT_destination",
             )
             results["destination"] = destination_result
 

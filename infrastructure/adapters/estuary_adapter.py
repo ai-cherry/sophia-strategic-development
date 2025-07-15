@@ -527,7 +527,7 @@ class EstuaryAdapter(PlatformAdapter):
 
         return await self.configure({"create_source": slack_config})
 
-    async def execute_create_qdrant_destination(
+    async def execute_create_QDRANT_destination(
         self, parameters: dict[str, Any]
     ) -> dict[str, Any]:
 
@@ -535,12 +535,12 @@ class EstuaryAdapter(PlatformAdapter):
             "name": "Sophia AI Qdrant",
             "destination_type": "qdrant",
             "configuration": {
-                "host": f"{os.getenv('qdrant_ACCOUNT')}.qdrantcomputing.com",
+                "host": f"{os.getenv('QDRANT_ACCOUNT')}.qdrantcomputing.com",
                 "role": "ACCOUNTADMIN",
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",
                 "schema": "PUBLIC",
-                "username": get_config_value("qdrant_user"),
+                "username": get_config_value("QDRANT_user"),
                 "password": os.getenv("SOPHIA_AI_TOKEN"),
             },
         }

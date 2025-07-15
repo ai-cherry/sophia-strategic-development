@@ -95,7 +95,7 @@ class TestServiceIntegration:
         
         # Test qdrant connector
         result = subprocess.run([
-            "python", "-m", "py_compile", "shared/utils/qdrant_gong_connector.py"  
+            "python", "-m", "py_compile", "shared/utils/QDRANT_gong_connector.py"  
         ], capture_output=True)
         assert result.returncode == 0, "Qdrant connector has syntax errors"
 

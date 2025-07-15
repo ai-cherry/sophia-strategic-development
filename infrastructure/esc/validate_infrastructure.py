@@ -174,7 +174,7 @@ class InfrastructureValidator:
 
         services = {
             "lambda_labs": ["lambda_api_key", "lambda_labs_ssh_public_key_base64"],
-            "qdrant": ["postgres_host", "qdrant_user", "postgres_password"],
+            "qdrant": ["postgres_host", "QDRANT_user", "postgres_password"],
             "estuary": ["estuary_access_token", "estuary_tenant"],
             "github": ["github_token"],
             "portkey": ["portkey_api_key"],

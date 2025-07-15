@@ -11,12 +11,12 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "OPENROUTER_API_KEY": "openrouter_api_key",
     "MEM0_API_KEY": "mem0_api_key",
     # Data Infrastructure
-    "qdrant_ACCOUNT": "postgres_host",
-    "qdrant_USER": "qdrant_user",
-    "qdrant_PASSWORD": "postgres_password",
-    "qdrant_WAREHOUSE": "postgres_database",
-    "qdrant_DATABASE": "postgres_database",
-    "qdrant_ROLE": "qdrant_role",
+    "QDRANT_ACCOUNT": "postgres_host",
+    "QDRANT_USER": "QDRANT_user",
+    "QDRANT_PASSWORD": "postgres_password",
+    "QDRANT_WAREHOUSE": "postgres_database",
+    "QDRANT_DATABASE": "postgres_database",
+    "QDRANT_ROLE": "QDRANT_role",
     # Business Intelligence
     "GONG_ACCESS_KEY": "gong_access_key",
     "GONG_ACCESS_KEY_SECRET": "gong_access_key_secret",

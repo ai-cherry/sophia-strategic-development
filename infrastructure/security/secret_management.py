@@ -256,7 +256,7 @@ class SecretManager:
 
         # Qdrant
 
-            results["qdrant"] = await self._validate_qdrant_credentials()
+            results["qdrant"] = await self._validate_QDRANT_credentials()
 
         # Redis
         if self.config.redis_password:
@@ -460,7 +460,7 @@ class SecretManager:
             self.logger.exception(f"Anthropic API validation failed: {e}")
             return False
 
-    async def _validate_qdrant_credentials(self) -> bool:
+    async def _validate_QDRANT_credentials(self) -> bool:
         """Validate Qdrant credentials."""
         try:
             # In production, this would use actual Qdrant connector

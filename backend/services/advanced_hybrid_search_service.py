@@ -14,11 +14,11 @@ from datetime import datetime, timedelta
 import numpy as np
 from enum import Enum
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
-from qdrant_client.models import ScoredPoint, SearchRequest, Batch
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
+from QDRANT_client.models import ScoredPoint, SearchRequest, Batch
 
-from ..core.truthful_config import get_real_qdrant_config
+from ..core.truthful_config import get_real_QDRANT_config
 from ..core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
@@ -74,7 +74,7 @@ class AdvancedHybridSearchService:
     """
     
     def __init__(self):
-        self.qdrant_config = get_real_qdrant_config()
+        self.QDRANT_config = get_real_QDRANT_config()
         self.client = None
         self.collections = [
             "sophia_knowledge",
@@ -90,9 +90,9 @@ class AdvancedHybridSearchService:
         """Initialize Qdrant client and validate collections"""
         try:
             self.client = QdrantClient(
-                url=self.qdrant_config["url"],
-                api_key=self.qdrant_config["api_key"],
-                timeout=self.qdrant_config["timeout"]
+                url=self.QDRANT_config["url"],
+                api_key=self.QDRANT_config["api_key"],
+                timeout=self.QDRANT_config["timeout"]
             )
             
             # Validate collections exist

@@ -95,9 +95,9 @@ class SystematicTODOCleaner:
         logger.info(f"✅ {self.__class__.__name__} initialized")'''
 # Initialize Qdrant services
         try:
-            from backend.services.qdrant_foundation_service import QdrantFoundationService
-            self.qdrant_service = QdrantFoundationService()
-            await self.qdrant_service.initialize()
+            from backend.services.QDRANT_foundation_service import QdrantFoundationService
+            self.QDRANT_service = QdrantFoundationService()
+            await self.QDRANT_service.initialize()
             logger.info("✅ Qdrant services initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize Qdrant services: {e}")
@@ -122,9 +122,9 @@ class SystematicTODOCleaner:
         except Exception as e:
             logger.error(f"❌ Memory storage failed: {e}")
             raise
-            from backend.services.qdrant_foundation_service import QdrantFoundationService
-            self.qdrant_service = QdrantFoundationService()
-            await self.qdrant_service.initialize()
+            from backend.services.QDRANT_foundation_service import QdrantFoundationService
+            self.QDRANT_service = QdrantFoundationService()
+            await self.QDRANT_service.initialize()
             logger.info("✅ Qdrant services initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize Qdrant services: {e}")

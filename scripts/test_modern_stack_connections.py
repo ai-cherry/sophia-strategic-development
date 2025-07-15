@@ -4,10 +4,10 @@
     report = await tester.run_all_tests()
     
     # Save report
-    with open("qdrant_test_report.json", "w") as f:
+    with open("QDRANT_test_report.json", "w") as f:
         json.dump(report, f, indent=2)
     
-    print(f"\n📄 Report saved to: qdrant_test_report.json")
+    print(f"\n📄 Report saved to: QDRANT_test_report.json")
     
     # Print detailed results
     print("\n📊 DETAILED RESULTS:")

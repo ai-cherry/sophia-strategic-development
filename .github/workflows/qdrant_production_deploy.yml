@@ -11,7 +11,7 @@ on:
       - 'infrastructure/**'
       - 'k8s/**'
       - 'mcp-servers/**'
-      - '.github/workflows/qdrant_production_deploy.yml'
+      - '.github/workflows/QDRANT_production_deploy.yml'
   pull_request:
     branches: [ main ]
     paths:
@@ -63,16 +63,16 @@ jobs:
         run: |
           pulumi login
           # Sync QDRANT_API_KEY to Pulumi ESC
-          pulumi env set scoobyjava-org/default/sophia-ai-production qdrant_api_key "${{ secrets.QDRANT_API_KEY }}" --secret
-          pulumi env set scoobyjava-org/default/sophia-ai-production qdrant_url "${{ secrets.QDRANT_URL }}" --secret
+          pulumi env set scoobyjava-org/default/sophia-ai-production QDRANT_api_key "${{ secrets.QDRANT_API_KEY }}" --secret
+          pulumi env set scoobyjava-org/default/sophia-ai-production QDRANT_URL "${{ secrets.QDRANT_URL }}" --secret
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
       - name: Validate Qdrant Configuration
         run: |
           python -c "
-          from backend.core.auto_esc_config import get_qdrant_config
-          config = get_qdrant_config()
+          from backend.core.auto_esc_config import get_QDRANT_config
+          config = get_QDRANT_config()
           print('✅ Qdrant configuration loaded successfully')
           print(f'URL: {config[\"url\"]}')
           print(f'API Key: {config[\"api_key\"][:8]}...')
@@ -89,7 +89,7 @@ jobs:
 
       - name: Deploy Qdrant Infrastructure
         run: |
-          python scripts/deploy_qdrant_fortress.py --environment production
+          python scripts/deploy_QDRANT_fortress.py --environment production
         env:
           QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
           QDRANT_URL: ${{ secrets.QDRANT_URL }}
@@ -97,7 +97,7 @@ jobs:
 
       - name: Validate Deployment
         run: |
-          python scripts/validate_qdrant_fortress.py --environment production
+          python scripts/validate_QDRANT_fortress.py --environment production
         env:
           QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
           QDRANT_URL: ${{ secrets.QDRANT_URL }}

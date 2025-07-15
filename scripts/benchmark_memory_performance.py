@@ -254,7 +254,7 @@ async def main():
         perf_stats = await service_v2.get_performance_stats()
         print("\n📊 V2 Internal Performance Stats:")
         print(f"  Cache Hit Rate: {perf_stats['searches']['cache_hit_rate']:.1f}%")
-        print(f"  Qdrant Status: {perf_stats['qdrant_status']}")
+        print(f"  Qdrant Status: {perf_stats['QDRANT_status']}")
 
     except Exception as e:
         logger.error(f"Benchmark failed: {e}")

@@ -71,7 +71,7 @@ class CriticalTODOResolver:
         self.metrics_collector = MetricsCollector()
         
         # Initialize service connections
-        self.qdrant_client = self.config.get('qdrant_client')
+        self.QDRANT_client = self.config.get('QDRANT_client')
         self.redis_client = self.config.get('redis_client')
         
         # Set up optimization parameters

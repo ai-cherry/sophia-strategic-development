@@ -120,7 +120,7 @@ class N8nWorkflowService:
                         position={"x": 250, "y": 300},
                     ),
                     WorkflowNode(
-                        id="qdrant_query",
+                        id="QDRANT_query",
                         type="n8n-nodes-base.qdrant",
                         name="Query Business Metrics",
                         parameters={

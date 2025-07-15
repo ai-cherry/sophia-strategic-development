@@ -216,7 +216,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
         logger.info("🧠 Deploying AI-powered materializations...")
 
         materializations_config = {
-            "qdrant_multimodal_materialization": await self._create_qdrant_multimodal_materialization(),
+            "QDRANT_multimodal_materialization": await self._create_QDRANT_multimodal_materialization(),
             "real_time_analytics_materialization": await self._create_realtime_analytics_materialization(),
             "compliance_monitoring_materialization": await self._create_compliance_monitoring_materialization(),
         }
@@ -234,7 +234,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
 
         return deployment_results
 
-    async def _create_qdrant_multimodal_materialization(self) -> dict[str, Any]:
+    async def _create_QDRANT_multimodal_materialization(self) -> dict[str, Any]:
         """Create Qdrant materialization with multimodal support"""
         return {
             "type": "materialization",
@@ -245,7 +245,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     "config": {
                         "host": f"{get_config_value('postgres_host')}.qdrantcomputing.com",
                         "account": get_config_value("postgres_host"),
-                        "user": get_config_value("qdrant_user"),
+                        "user": get_config_value("QDRANT_user"),
                         "password": get_config_value("postgres_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "AI_SOPHIA_AI_WH",
@@ -299,7 +299,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     "config": {
                         "host": f"{get_config_value('postgres_host')}.qdrantcomputing.com",
                         "account": get_config_value("postgres_host"),
-                        "user": get_config_value("qdrant_user"),
+                        "user": get_config_value("QDRANT_user"),
                         "password": get_config_value("postgres_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "REALTIME_ANALYTICS_WH",
@@ -343,7 +343,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     "config": {
                         "host": f"{get_config_value('postgres_host')}.qdrantcomputing.com",
                         "account": get_config_value("postgres_host"),
-                        "user": get_config_value("qdrant_user"),
+                        "user": get_config_value("QDRANT_user"),
                         "password": get_config_value("postgres_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "AI_SOPHIA_AI_WH",

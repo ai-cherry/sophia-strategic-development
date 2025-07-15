@@ -9,12 +9,12 @@ from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 from dataclasses import dataclass
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import (
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import (
     Distance, VectorParams, PointStruct, Filter, FieldCondition, 
     MatchValue, CollectionInfo, UpdateResult
 )
-from qdrant_client.http import models
+from QDRANT_client.http import models
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -86,13 +86,13 @@ class UnifiedMemoryServiceV3:
         
         try:
             # Get Qdrant configuration
-            qdrant_url = get_config_value("qdrant_url") or "http://localhost:6333"
-            qdrant_api_key = get_config_value("qdrant_api_key")
+            QDRANT_URL = get_config_value("QDRANT_URL") or "http://localhost:6333"
+            QDRANT_api_key = get_config_value("QDRANT_api_key")
             
             # Initialize client
             self.client = QdrantClient(
-                url=qdrant_url,
-                api_key=qdrant_api_key,
+                url=QDRANT_URL,
+                api_key=QDRANT_api_key,
                 timeout=60
             )
             

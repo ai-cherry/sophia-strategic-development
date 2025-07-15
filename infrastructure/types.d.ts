@@ -344,7 +344,7 @@ declare module 'sophia-ai/ml' {
     }
 
     export interface VectorDatabaseArgs {
-        provider: 'pinecone' | 'weaviate' | 'qdrant';
+        provider: 'pinecone' | 'qdrant' | 'qdrant';
         dimension: number;
         metric: 'cosine' | 'euclidean' | 'dotproduct';
         environment: string;
@@ -407,7 +407,7 @@ declare module 'sophia-ai/data' {
             connection: any;
         };
         destination: {
-            type: 'ELIMINATED' | 'pinecone' | 'weaviate' | 'file';
+            type: 'ELIMINATED' | 'pinecone' | 'qdrant' | 'file';
             connection: any;
         };
         transformations: Array<{

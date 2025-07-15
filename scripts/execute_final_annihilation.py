@@ -272,12 +272,12 @@ class FinalAnnihilationExecutor:
         service_files.extend(list(self.project_root.glob("core/services/*.py")))
         
         replacements = {
-            'import weaviate': '# ELIMINATED: import weaviate',
+            'from QDRANT_client import QdrantClient': '# ELIMINATED: from QDRANT_client import QdrantClient',
             'from weaviate': '# ELIMINATED: from weaviate',
-            'import snowflake': '# ELIMINATED: import snowflake',
-            'from snowflake': '# ELIMINATED: from snowflake',
-            'weaviate.Client()': 'QdrantClient()',
-            'weaviate_client': 'qdrant_client',
+            '# Snowflake eliminated - using Qdrant': '# ELIMINATED: # Snowflake eliminated - using Qdrant',
+            '# Snowflake eliminated - using Qdrant': '# ELIMINATED: # Snowflake eliminated - using Qdrant',
+            'QDRANT_client.Client()': 'QdrantClient()',
+            'weaviate_client': 'QDRANT_client',
             'snowflake.connector': '# ELIMINATED: snowflake.connector',
         }
         
@@ -291,8 +291,6 @@ class FinalAnnihilationExecutor:
     def _cleanup_configuration(self):
         """Clean up configuration files"""
         print("\n🧹 PHASE 5: Cleaning configuration...")
-        
-        # Remove eliminated environment variables
         config_files = [
             'infrastructure/esc/sophia-intel-ai-production.yaml',
             '.env',
@@ -333,10 +331,10 @@ class FinalAnnihilationExecutor:
         
         # Delete specific files
         specific_files = [
-            'vercel.json',
+            '# Vercel config eliminated',
             '.vercel',
             'snowflake.json',
-            'weaviate.json',
+            'QDRANT_client.json',
         ]
         
         for file_name in specific_files:
@@ -360,8 +358,6 @@ class FinalAnnihilationExecutor:
         if req_file.exists():
             with open(req_file, 'r') as f:
                 lines = f.readlines()
-            
-            # Remove eliminated packages
             new_lines = []
             for line in lines:
                 if not any(pkg in line.lower() for pkg in ['weaviate-client', 'snowflake-connector', 'vercel']):
@@ -505,7 +501,6 @@ if __name__ == "__main__":
         
         # Create pre-commit hook
         hook_content = '''#!/bin/bash
-# Pre-commit hook to prevent eliminated technologies
 
 echo "🔍 Scanning for eliminated technologies..."
 python scripts/elimination_scanner.py
@@ -568,8 +563,6 @@ echo "✅ No eliminated technologies found"
         if pyproject_file.exists():
             with open(pyproject_file, 'r') as f:
                 content = f.read()
-            
-            # Remove eliminated dependencies
             lines = content.split('\n')
             new_lines = []
             for line in lines:

@@ -86,7 +86,7 @@ class ModelConfig:
     avg_latency_ms: float
     quality_score: float  # 0.0 to 1.0
     capabilities: list[str]
-    provider: str = "qdrant_cortex"
+    provider: str = "QDRANT_cortex"
 
 
 @dataclass
@@ -213,7 +213,7 @@ class CostEngineeringService:
                 avg_latency_ms=500,
                 quality_score=0.75,
                 capabilities=["text_generation", "simple_qa", "classification"],
-                provider="qdrant_cortex",
+                provider="QDRANT_cortex",
             ),
             "mixtral-8x7b": ModelConfig(
                 model_id="mixtral-8x7b",
@@ -228,7 +228,7 @@ class CostEngineeringService:
                     "reasoning",
                     "summarization",
                 ],
-                provider="qdrant_cortex",
+                provider="QDRANT_cortex",
             ),
             "llama2-70b-chat": ModelConfig(
                 model_id="llama2-70b-chat",
@@ -242,7 +242,7 @@ class CostEngineeringService:
                     "expert_analysis",
                     "creative_writing",
                 ],
-                provider="qdrant_cortex",
+                provider="QDRANT_cortex",
             ),
 
                 model_id="qdrant-arctic",
@@ -252,7 +252,7 @@ class CostEngineeringService:
                 avg_latency_ms=1500,
                 quality_score=0.95,
                 capabilities=["expert_reasoning", "specialized_analysis", "research"],
-                provider="qdrant_cortex",
+                provider="QDRANT_cortex",
             ),
         }
 

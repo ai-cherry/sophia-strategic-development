@@ -38,7 +38,7 @@ from backend.infrastructure.adapters.portkey_adapter import PortkeyAdapter
 from backend.infrastructure.adapters.slack_adapter import SlackAdapter
 
 # Platform adapters
-from backend.infrastructure.adapters.qdrant_adapter import QdrantAdapter
+from backend.infrastructure.adapters.QDRANT_adapter import QdrantAdapter
 from backend.infrastructure.adapters.usergems_adapter import UserGemsAdapter
 from backend.infrastructure.adapters.vercel_adapter import VercelAdapter
 from backend.infrastructure.core.dependency_manager import DependencyManager

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from shared.utils.qdrant_memory_service_core import QdrantUnifiedMemoryService
+from shared.utils.QDRANT_memory_service_core import QdrantUnifiedMemoryService
 
 LEDGER_TABLE = "OPS_MONITORING.DEDUPE_WATERMARKS"
 

@@ -18,12 +18,12 @@ from typing import Dict, List, Any, Optional, Tuple
 import time
 import logging
 
-from backend.services.qdrant_foundation_service import (
+from backend.services.QDRANT_foundation_service import (
     QdrantFoundationService,
     QueryRequest,
     QueryResponse,
     QueryType,
-    get_qdrant_foundation_service
+    get_QDRANT_foundation_service
 )
 from backend.utils.logger import get_logger
 
@@ -94,7 +94,7 @@ async def unified_query(request: UnifiedQueryRequest):
     based on query content and type specification.
     """
     try:
-        foundation_service = await get_qdrant_foundation_service()
+        foundation_service = await get_QDRANT_foundation_service()
         
         # Convert string query type to enum
         try:
@@ -139,7 +139,7 @@ async def agentic_search(request: AgenticSearchRequest):
     multiple reasoning steps, tool usage, and iterative refinement.
     """
     try:
-        foundation_service = await get_qdrant_foundation_service()
+        foundation_service = await get_QDRANT_foundation_service()
         
         query_request = QueryRequest(
             query=request.query,
@@ -177,7 +177,7 @@ async def hypothetical_qa(request: HypotheticalQARequest):
     have direct matches in the knowledge base.
     """
     try:
-        foundation_service = await get_qdrant_foundation_service()
+        foundation_service = await get_QDRANT_foundation_service()
         
         query_request = QueryRequest(
             query=request.query,
@@ -213,7 +213,7 @@ async def visual_qa(request: VisualQARequest):
     diagrams, and other visual elements in documents.
     """
     try:
-        foundation_service = await get_qdrant_foundation_service()
+        foundation_service = await get_QDRANT_foundation_service()
         
         query_request = QueryRequest(
             query=request.question,
@@ -247,7 +247,7 @@ async def multimodal_search(request: MultimodalSearchRequest):
     embeddings and multimodal understanding.
     """
     try:
-        foundation_service = await get_qdrant_foundation_service()
+        foundation_service = await get_QDRANT_foundation_service()
         
         query_request = QueryRequest(
             query=request.query,
@@ -284,7 +284,7 @@ async def get_metrics():
     latency, accuracy, cache hit rates, and cost optimization.
     """
     try:
-        foundation_service = await get_qdrant_foundation_service()
+        foundation_service = await get_QDRANT_foundation_service()
         metrics = foundation_service.get_foundation_metrics()
         
         return {
@@ -306,7 +306,7 @@ async def health_check():
     overall system status.
     """
     try:
-        foundation_service = await get_qdrant_foundation_service()
+        foundation_service = await get_QDRANT_foundation_service()
         
         # Check service health
         services_status = {
@@ -353,7 +353,7 @@ async def trigger_optimization(background_tasks: BackgroundTasks):
     performance tuning across all services.
     """
     try:
-        foundation_service = await get_qdrant_foundation_service()
+        foundation_service = await get_QDRANT_foundation_service()
         
         async def run_optimization():
             """Background optimization task"""

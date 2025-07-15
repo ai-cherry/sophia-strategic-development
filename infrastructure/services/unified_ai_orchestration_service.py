@@ -54,7 +54,7 @@ class UnifiedAIOrchestrationService:
     async def initialize(self):
         """Initialize all connections and services"""
         try:
-            await self._initialize_qdrant_serviceection()
+            await self._initialize_QDRANT_serviceection()
             await self._initialize_estuary_client()
             await self._initialize_cortex_agents()
             await self._verify_data_pipelines()
@@ -64,7 +64,7 @@ class UnifiedAIOrchestrationService:
             logger.exception(f"❌ Failed to initialize service: {e}")
             return False
 
-    async def _initialize_qdrant_serviceection(self):
+    async def _initialize_QDRANT_serviceection(self):
 
         try:
 
@@ -93,7 +93,7 @@ class UnifiedAIOrchestrationService:
     async def _initialize_cortex_agents(self):
         """Initialize Cortex Agents configurations"""
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
 
             # Load agent configurations
             cursor.execute(
@@ -255,7 +255,7 @@ class UnifiedAIOrchestrationService:
     async def _get_customer_context(self, customer_id: str) -> dict[str, Any]:
         """Get comprehensive customer context from unified data"""
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
 
             # Get customer context from live data
             cursor.execute(
@@ -290,7 +290,7 @@ class UnifiedAIOrchestrationService:
     async def _get_deal_context(self, deal_id: str) -> dict[str, Any]:
         """Get comprehensive deal context from unified data"""
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
 
             # Get deal context from sales pipeline
             cursor.execute(
@@ -326,7 +326,7 @@ class UnifiedAIOrchestrationService:
     async def _get_compliance_context(self, time_range: str) -> dict[str, Any]:
         """Get compliance monitoring context"""
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
 
             # Get compliance metrics
             cursor.execute(
@@ -399,7 +399,7 @@ class UnifiedAIOrchestrationService:
     ) -> dict[str, Any]:
         """Get real-time customer insights"""
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
 
             # Get real-time insights
             cursor.execute(
@@ -430,7 +430,7 @@ class UnifiedAIOrchestrationService:
     async def _get_competitive_intelligence(self, deal_id: str) -> dict[str, Any]:
         """Get competitive intelligence for deal"""
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
 
             # Get competitive insights from Gong data
             cursor.execute(
@@ -464,7 +464,7 @@ class UnifiedAIOrchestrationService:
     async def _get_compliance_violations(self, time_range: str) -> list[dict[str, Any]]:
         """Get compliance violations"""
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
 
             # Get recent violations
             cursor.execute(
@@ -499,7 +499,7 @@ class UnifiedAIOrchestrationService:
     ):
         """Log agent interaction for monitoring and improvement"""
         try:
-            cursor = self.qdrant_service.cursor()
+            cursor = self.QDRANT_service.cursor()
 
             cursor.execute(
                 """
@@ -528,7 +528,7 @@ class UnifiedAIOrchestrationService:
     async def get_system_health_status(self) -> dict[str, Any]:
         """Get comprehensive system health status"""
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
 
             # Get system health metrics
             cursor.execute(
@@ -552,7 +552,7 @@ class UnifiedAIOrchestrationService:
             pipeline_status = await self._get_pipeline_health()
 
             return {
-                "qdrant_health": [dict(metric) for metric in health_metrics],
+                "QDRANT_health": [dict(metric) for metric in health_metrics],
                 "pipeline_health": pipeline_status,
                 "cortex_agents_status": len(self.cortex_agents),
                 "data_sources_status": self.data_sources,
@@ -586,8 +586,8 @@ class UnifiedAIOrchestrationService:
     async def close(self):
         """Close all connections"""
         try:
-            if self.qdrant_service:
-                self.qdrant_service.close()
+            if self.QDRANT_service:
+                self.QDRANT_service.close()
             if self.estuary_client:
                 await self.estuary_client.aclose()
             logger.info("✅ All connections closed")
@@ -601,6 +601,6 @@ unified_ai_service = UnifiedAIOrchestrationService()
 
 async def get_unified_ai_service() -> UnifiedAIOrchestrationService:
     """Get the global unified AI service instance"""
-    if not unified_ai_service.qdrant_service:
+    if not unified_ai_service.QDRANT_service:
         await unified_ai_service.initialize()
     return unified_ai_service

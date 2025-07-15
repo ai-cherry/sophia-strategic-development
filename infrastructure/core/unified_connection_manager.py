@@ -176,7 +176,7 @@ class ConnectionPool:
         """Create new connection based on type"""
         try:
             if self.connection_type == ConnectionType.POSTGRESQL:
-                return await self._create_qdrant_serviceection()
+                return await self._create_QDRANT_serviceection()
             elif self.connection_type == ConnectionType.POSTGRES:
                 return await self._create_postgres_connection()
             elif self.connection_type == ConnectionType.REDIS:
@@ -185,25 +185,25 @@ class ConnectionPool:
             logger.exception(f"Failed to create {self.connection_type} connection: {e}")
             return None
 
-    async def _create_qdrant_serviceection(self):
+    async def _create_QDRANT_serviceection(self):
         """Create Qdrant connection"""
-        if not qdrant_AVAILABLE:
+        if not QDRANT_AVAILABLE:
             raise ImportError("Qdrant connector not available")
 
         # Get configuration from environment or config
         config = {
             "account": get_config_value("postgres_host"),
-            "user": get_config_value("qdrant_user"),
+            "user": get_config_value("QDRANT_user"),
             "password": get_config_value("postgres_password"),
             "warehouse": get_config_value("postgres_database"),
             "database": get_config_value("postgres_database"),
             "schema": get_config_value("postgres_schema", "PUBLIC"),
-            "role": get_config_value("qdrant_role", "SYSADMIN"),
+            "role": get_config_value("QDRANT_role", "SYSADMIN"),
             "timeout": self.config.connection_timeout,
         }
 
         def _sync_connect():
-            return self.qdrant_serviceection(**config)
+            return self.QDRANT_serviceection(**config)
 
         return await asyncio.to_thread(_sync_connect)
 
@@ -357,7 +357,7 @@ class UnifiedConnectionManager:
         logger.info("🚀 Initializing Unified Connection Manager...")
 
         # Initialize Qdrant pool
-        if qdrant_AVAILABLE:
+        if QDRANT_AVAILABLE:
 
                 min_connections=5,
                 max_connections=25,

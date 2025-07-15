@@ -237,9 +237,9 @@ class TestMultimodalMemoryService:
     async def test_visual_search(self, multimodal_service):
         """Test visual element search functionality"""
         # Mock Qdrant client if not available
-        if not multimodal_service.qdrant_client:
-            multimodal_service.qdrant_client = Mock()
-            multimodal_service.qdrant_client.search.return_value = [
+        if not multimodal_service.QDRANT_client:
+            multimodal_service.QDRANT_client = Mock()
+            multimodal_service.QDRANT_client.search.return_value = [
                 Mock(
                     id="test_element_1",
                     score=0.9,
@@ -261,7 +261,7 @@ class TestMultimodalMemoryService:
             element_types=[VisualElementType.IMAGE]
         )
         
-        if multimodal_service.qdrant_client:
+        if multimodal_service.QDRANT_client:
             assert len(results) >= 0  # May be empty if no real data
             for result in results:
                 assert "id" in result
@@ -600,7 +600,7 @@ class TestPhase2Integration:
         assert is_multimodal
         
         # Test visual search capability
-        if multimodal.qdrant_client:
+        if multimodal.QDRANT_client:
             visual_results = await multimodal.search_visual_elements(
                 query="architecture diagram",
                 limit=5

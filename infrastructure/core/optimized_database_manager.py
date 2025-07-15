@@ -153,7 +153,7 @@ class OptimizedDatabaseManager:
         logger.info("🔌 Initializing optimized database connections...")
 
         # Initialize Qdrant pool
-        await self._initialize_qdrant_pool()
+        await self._initialize_QDRANT_pool()
 
         # Initialize PostgreSQL pool
         await self._initialize_postgres_pool()
@@ -163,7 +163,7 @@ class OptimizedDatabaseManager:
 
         logger.info("✅ All database connections initialized")
 
-    async def _initialize_qdrant_pool(self):
+    async def _initialize_QDRANT_pool(self):
         """Initialize Qdrant connection pool"""
         try:
             # Qdrant uses synchronous connections, so we'll manage a pool manually
@@ -265,7 +265,7 @@ class OptimizedDatabaseManager:
                 if conn_type == ConnectionType.POSTGRESQL:
                     # Qdrant synchronous execution
                     result = await asyncio.to_thread(
-                        self._execute_qdrant_query, conn, query, params
+                        self._execute_QDRANT_query, conn, query, params
                     )
 
                 elif conn_type == ConnectionType.POSTGRES:
@@ -302,7 +302,7 @@ class OptimizedDatabaseManager:
             logger.exception(f"Query execution failed: {e}")
             raise
 
-    def _execute_qdrant_query(
+    def _execute_QDRANT_query(
         self, conn: Any, query: str, params: list[Any] | dict[str, Any] | None = None
     ) -> list[dict[str, Any]]:
         """Execute Qdrant query (synchronous)"""
@@ -345,7 +345,7 @@ class OptimizedDatabaseManager:
 
         try:
             if conn_type == ConnectionType.POSTGRESQL:
-                results = await self._execute_qdrant_batch(operations, transaction)
+                results = await self._execute_QDRANT_batch(operations, transaction)
 
             elif conn_type == ConnectionType.POSTGRES:
                 results = await self._execute_postgres_batch(operations, transaction)
@@ -367,7 +367,7 @@ class OptimizedDatabaseManager:
             results["errors"].append(str(e))
             return results
 
-    async def _execute_qdrant_batch(
+    async def _execute_QDRANT_batch(
         self, operations: list[BatchOperation], transaction: bool
     ) -> dict[str, Any]:
         """Execute Qdrant batch operations"""

@@ -168,7 +168,7 @@ class EstuaryMCPServer(StandardizedMCPServer):
     @mcp_tool(
         description="Create a Qdrant materialization pipeline", include_context=True
     )
-    async def create_qdrant_materialization(
+    async def create_QDRANT_materialization(
         self, name: str, collection_mappings: list[dict[str, str]], context: dict
     ) -> dict[str, Any]:
         """
@@ -184,7 +184,7 @@ class EstuaryMCPServer(StandardizedMCPServer):
 
 
             async with EstuaryService() as service:
-                success = await service.create_qdrant_materialization(
+                success = await service.create_QDRANT_materialization(
                     name=name,
 
                     collections=collection_mappings,

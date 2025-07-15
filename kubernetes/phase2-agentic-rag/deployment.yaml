@@ -376,7 +376,7 @@ data:
         visual_search_recall: 0.90
         multimodal_latency_ms: 200
     
-    qdrant_config:
+    QDRANT_config:
       collection_names:
         visual_embeddings: visual_embeddings
         document_analysis: document_analysis
@@ -450,7 +450,7 @@ metadata:
   namespace: sophia-ai-phase2
 type: Opaque
 stringData:
-  qdrant_api_key: ""  # Will be populated by Pulumi ESC
+  QDRANT_api_key: ""  # Will be populated by Pulumi ESC
   openai_api_key: ""  # Will be populated by Pulumi ESC
   anthropic_api_key: ""  # Will be populated by Pulumi ESC
 ---

@@ -45,14 +45,14 @@ class MCPServerOrchestrator:
                 "health_endpoint": "/health",
             },
             # Data infrastructure (start second)
-            "qdrant_admin": {
-                "path": "qdrant_admin",
+            "QDRANT_admin": {
+                "path": "QDRANT_admin",
                 "port": self.port_registry["port_allocation"]["data_infrastructure"][
-                    "qdrant_admin"
+                    "QDRANT_admin"
                 ],
                 "priority": 2,
                 "dependencies": [],
-                "startup_command": ["python", "qdrant_admin_mcp_server.py"],
+                "startup_command": ["python", "QDRANT_admin_mcp_server.py"],
                 "health_endpoint": "/health",
             },
             # Business intelligence (start third)
@@ -72,7 +72,7 @@ class MCPServerOrchestrator:
                     "hubspot"
                 ],
                 "priority": 3,
-                "dependencies": ["qdrant_admin"],
+                "dependencies": ["QDRANT_admin"],
                 "startup_command": ["python", "hubspot_mcp_server.py"],
                 "health_endpoint": "/health",
             },

@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 
 // Import deployment configurations
-import * as weaviate from "./qdrant-deployment";
+import * as qdrant from "./qdrant-deployment";
 import * as redis from "./redis-deployment";
 import * as postgresql from "./postgresql-deployment";
 
@@ -23,11 +23,11 @@ const ns = new k8s.core.v1.Namespace("sophia-ai-namespace", {
 });
 
 // Create secrets from Pulumi ESC
-const weaviateAuthSecret = new k8s.core.v1.Secret("weaviate-auth", {
+const qdrantAuthSecret = new k8s.core.v1.Secret("qdrant-auth", {
     metadata: { namespace },
     stringData: {
         "oidc-issuer": config.requireSecret("QDRANT_OIDC_ISSUER"),
-        "client-id": config.requireSecret("QDRANT_CLIENT_ID"),
+        "client-id": config.requireSecret("QDRANT_client_ID"),
         "admin-users": config.requireSecret("QDRANT_ADMIN_USERS")
     }
 });
@@ -161,9 +161,9 @@ rule_files:
   - '/etc/prometheus/rules/*.yml'
 
 scrape_configs:
-  - job_name: 'weaviate'
+  - job_name: 'qdrant'
     static_configs:
-      - targets: ['weaviate-service:2112']
+      - targets: ['qdrant-service:2112']
     
   - job_name: 'postgresql'
     static_configs:
@@ -190,14 +190,14 @@ groups:
   - name: sophia-ai-alerts
     interval: 30s
     rules:
-      - alert: WeaviateHighQueryLatency
-        expr: weaviate_query_seconds_sum > 0.05
+      - alert: qdrantHighQueryLatency
+        expr: QDRANT_query_seconds_sum > 0.05
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Weaviate query latency is high"
-          description: "Weaviate queries are taking longer than 50ms"
+          summary: "qdrant query latency is high"
+          description: "qdrant queries are taking longer than 50ms"
       
       - alert: ETLLatencyHigh
         expr: etl_pipeline_duration_seconds > 0.15
@@ -221,7 +221,7 @@ groups:
 });
 
 // Export stack outputs
-export const qdrantEndpoint = pulumi.interpolate`http://${qdrant_client.qdrantService.metadata.name}.${namespace}.svc.cluster.local:6333`;
+export const qdrantEndpoint = pulumi.interpolate`http://${QDRANT_client.qdrantService.metadata.name}.${namespace}.svc.cluster.local:6333`;
 export const redisEndpoint = pulumi.interpolate`redis://${redis.redisService.metadata.name}.${namespace}.svc.cluster.local:6379`;
 export const postgresqlEndpoint = pulumi.interpolate`postgresql://${postgresql.postgresqlService.metadata.name}.${namespace}.svc.cluster.local:5432/sophia_vectors`;
 export const lambdaInferenceEndpoint = pulumi.interpolate`http://${lambdaInferenceService.metadata.name}.${namespace}.svc.cluster.local:6333`;
@@ -231,13 +231,13 @@ export const stackInfo = {
     namespace: namespace,
     stack: stack,
     deployments: {
-        weaviate: qdrant_client.qdrantDeployment.metadata.name,
+        qdrant: QDRANT_client.qdrantDeployment.metadata.name,
         redis: redis.redisStatefulSet.metadata.name,
         postgresql: postgresql.postgresqlDeployment.metadata.name,
         lambdaInference: lambdaInferenceDeployment.metadata.name
     },
     services: {
-        weaviate: qdrant_client.qdrantService.metadata.name,
+        qdrant: QDRANT_client.qdrantService.metadata.name,
         redis: redis.redisService.metadata.name,
         postgresql: postgresql.postgresqlService.metadata.name,
         lambdaInference: lambdaInferenceService.metadata.name

@@ -53,12 +53,12 @@ class Phase2CleanupValidator:
         self.cleanup_targets = {
             "deprecated_services": [
                 "backend/services/unified_memory_service.py",  # V1 - deprecated
-                "backend/services/qdrant_memory_service.py",  # Replaced by V3
+                "backend/services/QDRANT_memory_service.py",  # Replaced by V3
             ],
             "deprecated_imports": [
                 "from backend.services.unified_memory_service import",
-                "from backend.services.qdrant_memory_service import",
-                "import qdrant_unified",
+                "from backend.services.QDRANT_memory_service import",
+                "import QDRANT_unified",
                 "await self.lambda_gpu.embed_text"
             ],
             "temporary_files": [
@@ -187,9 +187,9 @@ class Phase2CleanupValidator:
                     "from backend.services.unified_memory_service import": "from backend.services.unified_memory_service import",
                     "UnifiedMemoryService": "UnifiedMemoryService",
                     "get_unified_memory_service()": "get_unified_memory_service_v3()",
-                    "from backend.services.qdrant_memory_service import": "# MIGRATED: Updated to current service version
+                    "from backend.services.QDRANT_memory_service import": "# MIGRATED: Updated to current service version
                     "await self.lambda_gpu.embed_text": "# MIGRATED: Updated to current service version
-                    "qdrant_unified": "# MIGRATED: Updated to current service version
+                    "QDRANT_unified": "# MIGRATED: Updated to current service version
                 }
                 
                 for old_pattern, new_pattern in replacements.items():
@@ -293,9 +293,9 @@ class Phase2CleanupValidator:
                 # Check for deprecated imports still being used
                 deprecated_patterns = [
                     r'from backend\.services\.unified_memory_service import',
-                    r'from backend\.services\.qdrant_memory_service import',
+                    r'from backend\.services\.QDRANT_memory_service import',
                     r'CORTEX\.EMBED_TEXT_768',
-                    r'qdrant_unified'
+                    r'QDRANT_unified'
                 ]
                 
                 for pattern in deprecated_patterns:

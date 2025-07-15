@@ -9,8 +9,8 @@ This script ensures the QDRANT_API_KEY is properly synchronized between:
 3. Backend configuration (auto_esc_config.py)
 
 Usage:
-    python scripts/ci/sync_qdrant_secrets.py
-    python scripts/ci/sync_qdrant_secrets.py --validate-only
+    python scripts/ci/sync_QDRANT_secrets.py
+    python scripts/ci/sync_QDRANT_secrets.py --validate-only
 
 Date: January 15, 2025
 """
@@ -26,7 +26,7 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from backend.core.auto_esc_config import get_config_value, get_qdrant_config
+from backend.core.auto_esc_config import get_config_value, get_QDRANT_config
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -41,19 +41,19 @@ class QdrantSecretsSync:
         
         # Secret mappings from GitHub Org Secrets to Pulumi ESC
         self.secret_mappings = {
-            "QDRANT_API_KEY": "qdrant_api_key",
-            "QDRANT_URL": "qdrant_url", 
-            "QDRANT_CLUSTER_NAME": "qdrant_cluster_name",
-            "QDRANT_TIMEOUT": "qdrant_timeout",
-            "QDRANT_PREFER_GRPC": "qdrant_prefer_grpc"
+            "QDRANT_API_KEY": "QDRANT_api_key",
+            "QDRANT_URL": "QDRANT_URL", 
+            "QDRANT_CLUSTER_NAME": "QDRANT_cluster_name",
+            "QDRANT_TIMEOUT": "QDRANT_timeout",
+            "QDRANT_PREFER_GRPC": "QDRANT_prefer_grpc"
         }
         
         # Default values for optional secrets
         self.default_values = {
-            "qdrant_url": "https://xyz.qdrant.tech",
-            "qdrant_cluster_name": "sophia-ai-production", 
-            "qdrant_timeout": "30",
-            "qdrant_prefer_grpc": "false"
+            "QDRANT_URL": "https://xyz.qdrant.tech",
+            "QDRANT_cluster_name": "sophia-ai-production", 
+            "QDRANT_timeout": "30",
+            "QDRANT_prefer_grpc": "false"
         }
         
     async def sync_all_secrets(self):
@@ -132,15 +132,15 @@ class QdrantSecretsSync:
         
         try:
             # Test Qdrant configuration loading
-            qdrant_config = get_qdrant_config()
-            validation_results["config"] = qdrant_config
+            QDRANT_config = get_QDRANT_config()
+            validation_results["config"] = QDRANT_config
             
             # Check each required secret
             required_secrets = ["api_key"]
             optional_secrets = ["url", "cluster_name", "timeout", "prefer_grpc"]
             
             for secret in required_secrets:
-                if qdrant_config.get(secret):
+                if QDRANT_config.get(secret):
                     validation_results["secrets_found"] += 1
                     logger.info(f"✅ Required secret '{secret}' found")
                 else:
@@ -149,14 +149,14 @@ class QdrantSecretsSync:
                     logger.error(f"❌ Required secret '{secret}' missing")
                     
             for secret in optional_secrets:
-                if qdrant_config.get(secret):
+                if QDRANT_config.get(secret):
                     validation_results["secrets_found"] += 1
-                    logger.info(f"✅ Optional secret '{secret}' found: {qdrant_config[secret]}")
+                    logger.info(f"✅ Optional secret '{secret}' found: {QDRANT_config[secret]}")
                 else:
                     logger.warning(f"⚠️ Optional secret '{secret}' not configured")
                     
             # Test API key format
-            api_key = qdrant_config.get("api_key")
+            api_key = QDRANT_config.get("api_key")
             if api_key:
                 if self._validate_api_key_format(api_key):
                     logger.info("✅ API key format validation passed")
@@ -190,7 +190,7 @@ class QdrantSecretsSync:
                 
         return False
         
-    async def test_qdrant_connection(self) -> Dict[str, Any]:
+    async def test_QDRANT_connection(self) -> Dict[str, Any]:
         """Test actual connection to Qdrant using the configured secrets"""
         logger.info("🔗 Testing Qdrant connection...")
         
@@ -204,13 +204,13 @@ class QdrantSecretsSync:
         
         try:
             # Import and test Qdrant service
-            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+            from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
             
-            qdrant_service = QdrantUnifiedMemoryService()
-            await qdrant_service.initialize()
+            QDRANT_service = QdrantUnifiedMemoryService()
+            await QDRANT_service.initialize()
             
             # Test health check
-            health = await qdrant_service.health_check()
+            health = await QDRANT_service.health_check()
             
             if health["status"] == "healthy":
                 test_results["status"] = "success"
@@ -224,13 +224,13 @@ class QdrantSecretsSync:
                 
             # Get cluster info
             try:
-                stats = await qdrant_service.get_performance_stats()
+                stats = await QDRANT_service.get_performance_stats()
                 test_results["cluster_info"] = stats
                 logger.info(f"📊 Cluster info: {len(stats.get('collections', {}))} collections")
             except Exception as e:
                 logger.warning(f"⚠️ Could not get cluster info: {e}")
                 
-            await qdrant_service.cleanup()
+            await QDRANT_service.cleanup()
             
         except ImportError as e:
             test_results["status"] = "error"
@@ -251,7 +251,7 @@ class QdrantSecretsSync:
         validation = await self.validate_secrets()
         
         # Test connection
-        connection_test = await self.test_qdrant_connection()
+        connection_test = await self.test_QDRANT_connection()
         
         report = {
             "timestamp": "2025-01-15T00:00:00Z",
@@ -331,7 +331,7 @@ async def main():
             if validation["status"] != "success":
                 sys.exit(1)
         elif args.test_connection:
-            test_result = await sync_service.test_qdrant_connection()
+            test_result = await sync_service.test_QDRANT_connection()
             if test_result["status"] != "success":
                 sys.exit(1)
         elif args.generate_report:

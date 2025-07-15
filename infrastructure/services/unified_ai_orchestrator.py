@@ -12,7 +12,7 @@ from typing import Any
 
 from backend.services.lambda_labs_service import LambdaLabsService
 from infrastructure.services.llm_router import TaskComplexity, TaskType
-from infrastructure.services.qdrant_pat_service import QdrantPATService
+from infrastructure.services.QDRANT_pat_service import QdrantPATService
 
 logger = logging.getLogger(__name__)
 
@@ -62,9 +62,9 @@ class IntelligentRouter:
     def __init__(self):
         self.routing_rules = {
             # Use case routing
-            "embedding": AIProvider.qdrant_CORTEX,
-            "sql": AIProvider.qdrant_CORTEX,
-            "data_analysis": AIProvider.qdrant_CORTEX,
+            "embedding": AIProvider.QDRANT_CORTEX,
+            "sql": AIProvider.QDRANT_CORTEX,
+            "data_analysis": AIProvider.QDRANT_CORTEX,
             "code_generation": AIProvider.LAMBDA_LABS,
             "creative": AIProvider.LAMBDA_LABS,
             "reasoning": AIProvider.LAMBDA_LABS,
@@ -101,7 +101,7 @@ class IntelligentRouter:
             "warehouse",
         ]
         if any(kw in request.prompt.lower() for kw in data_keywords):
-            return AIProvider.qdrant_CORTEX
+            return AIProvider.QDRANT_CORTEX
 
         # Complex reasoning prefers Lambda Labs
         if request.complexity == TaskComplexity.COMPLEX:
@@ -111,7 +111,7 @@ class IntelligentRouter:
         if request.cost_priority == "cost":
             # Small requests to Qdrant, large to Lambda
             if prompt_tokens < self.cost_thresholds["medium"]:
-                return AIProvider.qdrant_CORTEX
+                return AIProvider.QDRANT_CORTEX
             else:
                 return AIProvider.LAMBDA_LABS
 
@@ -123,7 +123,7 @@ class IntelligentRouter:
         if prompt_tokens < self.cost_thresholds["simple"]:
             return AIProvider.LAMBDA_LABS  # Fast for simple
         elif prompt_tokens > self.cost_thresholds["complex"]:
-            return AIProvider.qdrant_CORTEX  # Better for large context
+            return AIProvider.QDRANT_CORTEX  # Better for large context
         else:
             return AIProvider.LAMBDA_LABS  # Default
 
@@ -142,7 +142,7 @@ class UnifiedAIOrchestrator:
         # Performance tracking
         self.request_history = []
         self.provider_metrics = {
-            AIProvider.qdrant_CORTEX: {
+            AIProvider.QDRANT_CORTEX: {
                 "requests": 0,
                 "total_duration": 0,
                 "total_cost": 0,
@@ -286,11 +286,11 @@ class UnifiedAIOrchestrator:
             "total_tokens": len(request.prompt.split()) + len(response_text.split()),
         }
 
-        cost_estimate = self._calculate_qdrant_cost(usage)
+        cost_estimate = self._calculate_QDRANT_cost(usage)
 
         return AIResponse(
             response=response_text,
-            provider=AIProvider.qdrant_CORTEX.value,
+            provider=AIProvider.QDRANT_CORTEX.value,
             model=request.model or "mistral-large",
             duration=duration,
             cost_estimate=cost_estimate,
@@ -314,7 +314,7 @@ class UnifiedAIOrchestrator:
 
         return (total_tokens / 1_000_000) * cost_per_million
 
-    def _calculate_qdrant_cost(self, usage: dict[str, Any]) -> float:
+    def _calculate_QDRANT_cost(self, usage: dict[str, Any]) -> float:
         """Calculate Lambda GPU cost"""
 
         # Lambda GPU pricing (approximate)
@@ -408,8 +408,8 @@ Provide specific, actionable recommendations in JSON format with:
         try:
             
             health_status["providers"]["
-                "status": "healthy" if qdrant_health["connected"] else "unhealthy",
-                "details": qdrant_health,
+                "status": "healthy" if QDRANT_health["connected"] else "unhealthy",
+                "details": QDRANT_health,
             }
         except Exception as e:
             health_status["providers"]["

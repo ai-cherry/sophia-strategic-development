@@ -218,7 +218,7 @@ deprecated_servers:
     removal_date: "2025-08-01"
     migration_guide: "Use UnifiedMemoryService.search_knowledge() instead"
     
-  - name: qdrant_server
+  - name: QDRANT_server
     reason: "Replaced by Lambda GPU in UnifiedMemoryService"
     removal_date: "2025-08-01"
     migration_guide: "Use UnifiedMemoryService.search_knowledge() instead"

@@ -160,7 +160,7 @@ class DataTieringManager:
             LIMIT %s
             """
 
-            results = await self.memory_service.execute_qdrant_query(
+            results = await self.memory_service.execute_QDRANT_query(
                 query, (self.config.COLD_TIER_ACCESS_THRESHOLD, self.config.BATCH_SIZE)
             )
 
@@ -202,7 +202,7 @@ class DataTieringManager:
             LIMIT %s
             """
 
-            results = await self.memory_service.execute_qdrant_query(
+            results = await self.memory_service.execute_QDRANT_query(
                 query, (self.config.HOT_TIER_ACCESS_COUNT, self.config.BATCH_SIZE)
             )
 
@@ -255,7 +255,7 @@ class DataTieringManager:
             LIMIT %s
             """
 
-            results = await self.memory_service.execute_qdrant_query(
+            results = await self.memory_service.execute_QDRANT_query(
                 query, (self.config.BATCH_SIZE,)
             )
 
@@ -298,7 +298,7 @@ class DataTieringManager:
             LIMIT %s
             """
 
-            results = await self.memory_service.execute_qdrant_query(
+            results = await self.memory_service.execute_QDRANT_query(
                 query, (self.config.BATCH_SIZE,)
             )
 
@@ -336,7 +336,7 @@ class DataTieringManager:
         WHERE id = %s
         """
 
-        await self.memory_service.execute_qdrant_query(
+        await self.memory_service.execute_QDRANT_query(
             update_query, (json.dumps(metadata), doc_id)
         )
 
@@ -405,7 +405,7 @@ class DataTieringManager:
         WHERE id = %s
         """
 
-        await self.memory_service.execute_qdrant_query(
+        await self.memory_service.execute_QDRANT_query(
             update_query,
             (compressed_data["content_compressed"], json.dumps(metadata), doc_id),
         )
@@ -428,7 +428,7 @@ class DataTieringManager:
         GROUP BY tier
         """
 
-        results = await self.memory_service.execute_qdrant_query(stats_query)
+        results = await self.memory_service.execute_QDRANT_query(stats_query)
 
         stats = {
             "tiers": {},
@@ -475,7 +475,7 @@ class DataTieringManager:
             WHERE id = %s
             """
 
-            results = await self.memory_service.execute_qdrant_query(
+            results = await self.memory_service.execute_QDRANT_query(
                 query, (doc_id,)
             )
 

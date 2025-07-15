@@ -44,9 +44,9 @@ class LangGraphMCPOrchestrator:
                 "capabilities": ["memory", "storage", "retrieval", "semantic_search"],
                 "tier": ServerTier.PRIMARY,
                 "contexts": ["all"],
-                "fallback": "qdrant_unified",
+                "fallback": "QDRANT_unified",
             },
-            "qdrant_unified": {
+            "QDRANT_unified": {
                 "port": 8080,
                 "capabilities": ["query", "analysis", "data", "business_intelligence"],
                 "tier": ServerTier.PRIMARY,

@@ -194,7 +194,7 @@ values:
   # Security Configuration
   security:
     ssl:
-      provider: "vercel"
+      provider: "lambda-labs"
       auto_renewal: true
       force_https: true
       hsts_enabled: true
@@ -223,7 +223,7 @@ values:
       dashboards:
         - "sophia-ai-overview"
         - "lambda-labs-infrastructure"
-        - "vercel-deployments"
+        - "lambda-labs-deployments"
         - "cost-monitoring"
 
     alerts:
@@ -256,7 +256,7 @@ values:
 
     tracking:
       lambda_labs: "${cost_management.lambda_labs_cost_per_hour} * 24 * 30"  # Monthly estimate
-      vercel: 0  # Pro plan included
+      lambda-labs: 0  # Pro plan included
       namecheap: 1  # Annual domain cost amortized monthly
       total_monthly_estimate: "${cost_management.monthly_budget}"
 

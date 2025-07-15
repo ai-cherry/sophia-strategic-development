@@ -11,29 +11,29 @@ import logging
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
-from core.auto_esc_config import get_qdrant_config
+from core.auto_esc_config import get_QDRANT_config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def test_qdrant_connection():
+def test_QDRANT_connection():
     """Test Qdrant connection with debug info"""
     logger.info("🔍 Testing Qdrant Connection")
     
     try:
-        config = get_qdrant_config()
+        config = get_QDRANT_config()
         
         logger.info("📋 Qdrant Configuration:")
         logger.info(f"  URL: {config['url']}")
         logger.info(f"  API Key: {'*' * 20 if config['api_key'] else 'None'}")
         logger.info(f"  Timeout: {config['timeout']}")
         
-        # Test if we can import qdrant_client
+        # Test if we can import QDRANT_client
         try:
-            from qdrant_client import QdrantClient
+            from QDRANT_client import QdrantClient
             logger.info("✅ Qdrant client imported successfully")
         except ImportError as e:
-            logger.error(f"❌ Failed to import qdrant_client: {e}")
+            logger.error(f"❌ Failed to import QDRANT_client: {e}")
             return False
         
         # Test connection with a shorter timeout first
@@ -59,5 +59,5 @@ def test_qdrant_connection():
         return False
 
 if __name__ == "__main__":
-    success = test_qdrant_connection()
+    success = test_QDRANT_connection()
     sys.exit(0 if success else 1) 

@@ -20,7 +20,7 @@ import yaml
 from pydantic import BaseModel
 
 
-from core.config_manager import get_config_value, get_qdrant_serviceection
+from core.config_manager import get_config_value, get_QDRANT_serviceection
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ class CortexAgentService:
         """Create default agent configurations"""
         # Qdrant Operations Agent
 
-            name="qdrant_ops",
+            name="QDRANT_ops",
             model="mistral-large",
             temperature=0.1,
             tools=[
@@ -201,7 +201,7 @@ class CortexAgentService:
             self.
 
             # Initialize Cortex client
-            self.cortex_client = Cortex(self.qdrant_service)
+            self.cortex_client = Cortex(self.QDRANT_service)
 
             logger.info("✅ Cortex Agent Service initialized successfully")
 
@@ -326,7 +326,7 @@ class CortexAgentService:
         try:
             # Use Cortex Complete function
             query = f"""
-            SELECT self.qdrant_service.await self.lambda_gpu.complete(
+            SELECT self.QDRANT_service.await self.lambda_gpu.complete(
                 '{model}',
                 '{prompt.replace("'", "''")}',
                 {{
@@ -336,7 +336,7 @@ class CortexAgentService:
             ) as response
             """
 
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
             cursor.execute(query)
             result = cursor.fetchone()
 
@@ -357,7 +357,7 @@ class CortexAgentService:
         """Execute a tool for an agent"""
         # Tool handlers based on agent and tool name
         tool_handlers = {
-            "qdrant_ops": {
+            "QDRANT_ops": {
                 "execute_query": self._execute_query_tool,
                 "optimize_query": self._optimize_query_tool,
                 "manage_schema": self._manage_schema_tool,
@@ -388,7 +388,7 @@ class CortexAgentService:
         warehouse = params.get("warehouse", "SOPHIA_AI_WH")
 
         try:
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
             cursor.execute("USE WAREHOUSE " + self._validate_warehouse(warehouse))
             cursor.execute(query)
 
@@ -415,7 +415,7 @@ class CortexAgentService:
             ) as embedding
             """
 
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
             cursor.execute(embedding_query, (model, text_content))
             result = cursor.fetchone()
 
@@ -460,7 +460,7 @@ class CortexAgentService:
             LIMIT {limit}
             """
 
-            cursor = self.qdrant_service.cursor(DictCursor)
+            cursor = self.QDRANT_service.cursor(DictCursor)
             cursor.execute(search_query, (query_embedding, similarity_threshold, top_k))
             results = cursor.fetchall()
 
@@ -566,6 +566,6 @@ def get_cortex_service() -> CortexAgentService:
 async def get_cortex_agent_service() -> CortexAgentService:
     """FastAPI dependency for Cortex Agent Service"""
     service = get_cortex_service()
-    if not service.qdrant_service:
+    if not service.QDRANT_service:
         await service.initialize()
     return service

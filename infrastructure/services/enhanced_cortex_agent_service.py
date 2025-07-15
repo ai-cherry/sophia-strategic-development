@@ -146,14 +146,14 @@ class EnhancedCortexAgentService(CortexAgentService):
         """Get connection to advanced Qdrant database with PAT token as password"""
         config = {
             "account": get_config_value("postgres_host"),
-            "user": get_config_value("qdrant_user"),
+            "user": get_config_value("QDRANT_user"),
             "password": get_config_value("postgres_password"),  # PAT token as password
             "role": "ACCOUNTADMIN",
             "warehouse": "AI_SOPHIA_AI_WH",
             "database": self.advanced_database,
             "schema": self.processed_schema,
         }
-        return self.qdrant_serviceection(**config)
+        return self.QDRANT_serviceection(**config)
 
     async def process_multimodal_request(
         self, request: MultimodalAgentRequest
@@ -191,7 +191,7 @@ class EnhancedCortexAgentService(CortexAgentService):
 
             # Store results in Qdrant for future reference
             await self._store_multimodal_results(processing_results, ai_insights)
-            tools_used.append("qdrant_storage")
+            tools_used.append("QDRANT_storage")
 
             execution_time = (datetime.now() - start_time).total_seconds()
 
@@ -241,7 +241,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             # Use Cortex AI for sentiment analysis if transcript available
             if analysis_result["transcript"]:
                 sentiment_query = f"""
-                SELECT self.qdrant_service.await self.lambda_gpu.analyze_sentiment('{analysis_result["transcript"]}') as sentiment_score
+                SELECT self.QDRANT_service.await self.lambda_gpu.analyze_sentiment('{analysis_result["transcript"]}') as sentiment_score
                 """
                 cursor.execute(sentiment_query)
                 result = cursor.fetchone()
@@ -282,7 +282,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             if text_content:
                 analysis_query = """
                 SELECT
-                    self.qdrant_service.await self.lambda_gpu.complete(
+                    self.QDRANT_service.await self.lambda_gpu.complete(
                         %s,
                         %s
                     ) as analysis
@@ -369,7 +369,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             """
 
             ai_query = """
-            SELECT self.qdrant_service.await self.lambda_gpu.complete(
+            SELECT self.QDRANT_service.await self.lambda_gpu.complete(
                 %s,
                 %s
             ) as ai_insights
@@ -516,7 +516,7 @@ class EnhancedCortexAgentService(CortexAgentService):
 
             # Generate AI insights - SECURE VERSION with parameterized query
             insights_query = """
-            SELECT self.qdrant_service.await self.lambda_gpu.complete(
+            SELECT self.QDRANT_service.await self.lambda_gpu.complete(
                 %s,
                 %s
             ) as insights

@@ -8,21 +8,21 @@ import asyncio
 import os
 import sys
 import logging
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, CollectionConfig
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import Distance, VectorParams, CollectionConfig
 
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
-from core.auto_esc_config import get_qdrant_config
+from core.auto_esc_config import get_QDRANT_config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def create_qdrant_client():
+def create_QDRANT_client():
     """Create Qdrant client connection using auto ESC config"""
     try:
-        config = get_qdrant_config()
+        config = get_QDRANT_config()
         
         client = QdrantClient(
             url=config["url"],
@@ -67,7 +67,7 @@ def initialize_sophia_collections():
     logger.info("🚀 Initializing Qdrant Collections for Sophia AI")
     
     try:
-        client = create_qdrant_client()
+        client = create_QDRANT_client()
         
         # Define collections for Sophia AI
         collections = [

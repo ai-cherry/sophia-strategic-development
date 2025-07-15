@@ -80,18 +80,18 @@ class WeaviateEliminator:
             original_content = content
             
             # Replace Weaviate imports
-            content = re.sub(r'from qdrant_client.*?\n', '', content, flags=re.MULTILINE)
-            content = re.sub(r'from qdrant_client import QdrantClient.*?\n', '', content, flags=re.MULTILINE)
+            content = re.sub(r'from QDRANT_client.*?\n', '', content, flags=re.MULTILINE)
+            content = re.sub(r'from QDRANT_client import QdrantClient.*?\n', '', content, flags=re.MULTILINE)
             
             # Replace Weaviate client references
-            content = re.sub(r'qdrant_client', 'qdrant_client', content)
-            content = re.sub(r'self\.weaviate', 'self.qdrant_client', content)
-            content = re.sub(r'\.qdrant_client', '.qdrant_client', content)
+            content = re.sub(r'QDRANT_client', 'QDRANT_client', content)
+            content = re.sub(r'self\.weaviate', 'self.QDRANT_client', content)
+            content = re.sub(r'\.QDRANT_client', '.QDRANT_client', content)
             
             # Replace Weaviate URLs and configurations
             content = re.sub(r'QDRANT_URL', 'QDRANT_URL', content)
-            content = re.sub(r'QDRANT_URL', 'qdrant_url', content)
-            content = re.sub(r'http://.*qdrant_client.*:8080', 'http://localhost:6333', content)
+            content = re.sub(r'QDRANT_URL', 'QDRANT_URL', content)
+            content = re.sub(r'http://.*QDRANT_client.*:8080', 'http://localhost:6333', content)
             content = re.sub(r'weaviate:8080', 'qdrant:6333', content)
             
             # Replace Weaviate-specific method calls
@@ -101,7 +101,7 @@ class WeaviateEliminator:
             # Replace Weaviate collection references
             content = re.sub(r'"weaviate"', '"qdrant"', content)
             content = re.sub(r"'weaviate'", "'qdrant'", content)
-            content = re.sub(r'weaviate_gpu', 'qdrant_gpu', content)
+            content = re.sub(r'weaviate_gpu', 'QDRANT_gpu', content)
             content = re.sub(r'weaviate-gpu', 'qdrant-gpu', content)
             
             # Replace Weaviate in comments and strings
@@ -109,9 +109,9 @@ class WeaviateEliminator:
             content = re.sub(r'""".*[Ww]eaviate.*"""', '"""Qdrant vector database"""', content, flags=re.DOTALL)
             
             # Update function names
-            content = re.sub(r'_create_weaviate_collection', '_create_qdrant_collection', content)
-            content = re.sub(r'init_weaviate_schema', 'init_qdrant_schema', content)
-            content = re.sub(r'test_weaviate_', 'test_qdrant_', content)
+            content = re.sub(r'_create_weaviate_collection', '_create_QDRANT_collection', content)
+            content = re.sub(r'init_weaviate_schema', 'init_QDRANT_schema', content)
+            content = re.sub(r'test_weaviate_', 'test_QDRANT_', content)
             
             if content != original_content:
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -187,7 +187,7 @@ class WeaviateEliminator:
             elif file_path.endswith('.json'):
                 content = re.sub(r'"weaviate"', '"qdrant"', content)
                 content = re.sub(r'"WEAVIATE_', '"QDRANT_', content)
-                content = re.sub(r'weaviate_', 'qdrant_', content)
+                content = re.sub(r'weaviate_', 'QDRANT_', content)
             
             # Generic replacements
             content = re.sub(r'weaviate:8080', 'qdrant:6333', content)
@@ -250,7 +250,7 @@ class WeaviateEliminator:
                     self.files_modified.append(file_path)
                     print(f"  ✅ Updated: {file_path}")
     
-    def create_qdrant_init_script(self) -> None:
+    def create_QDRANT_init_script(self) -> None:
         """Create Qdrant initialization script to replace Weaviate schema"""
         print("\n🔧 Creating Qdrant initialization script...")
         
@@ -263,27 +263,27 @@ Replaces the old Weaviate schema initialization
 import asyncio
 import os
 import logging
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, CollectionConfig
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import Distance, VectorParams, CollectionConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def create_qdrant_client():
+def create_QDRANT_client():
     """Create Qdrant client connection"""
-    qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
-    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+    QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+    QDRANT_api_key = os.getenv("QDRANT_API_KEY")
     
     try:
         client = QdrantClient(
-            url=qdrant_url,
-            api_key=qdrant_api_key,
+            url=QDRANT_URL,
+            api_key=QDRANT_api_key,
             timeout=30
         )
         
         # Test connection
         client.get_collections()
-        logger.info(f"✅ Connected to Qdrant at {qdrant_url}")
+        logger.info(f"✅ Connected to Qdrant at {QDRANT_URL}")
         return client
         
     except Exception as e:
@@ -309,7 +309,7 @@ def initialize_sophia_collections():
     """Initialize all Sophia AI collections"""
     logger.info("🚀 Initializing Qdrant Collections for Sophia AI")
     
-    client = create_qdrant_client()
+    client = create_QDRANT_client()
     
     # Core collections
     collections = [
@@ -331,10 +331,10 @@ if __name__ == "__main__":
     initialize_sophia_collections()
 '''
         
-        with open("scripts/init_qdrant_collections.py", 'w') as f:
+        with open("scripts/init_QDRANT_collections.py", 'w') as f:
             f.write(script_content)
         
-        print("  ✅ Created: scripts/init_qdrant_collections.py")
+        print("  ✅ Created: scripts/init_QDRANT_collections.py")
         self.changes_made.append("Created Qdrant initialization script")
     
     def update_documentation(self) -> None:
@@ -432,7 +432,7 @@ if __name__ == "__main__":
         self.eliminate_config_files(references['config_files'])
         self.delete_weaviate_files()
         self.update_github_workflows()
-        self.create_qdrant_init_script()
+        self.create_QDRANT_init_script()
         self.update_documentation()
         
         # Generate report

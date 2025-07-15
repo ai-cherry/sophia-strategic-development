@@ -11,17 +11,17 @@ import os
 logger = logging.getLogger(__name__)
 
 
-def configure_qdrant_environment():
+def configure_QDRANT_environment():
     """Configure Qdrant environment variables at startup - PERMANENT FIX"""
 
 
     correct_config = {
-        "qdrant_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
-        "qdrant_USER": "SCOOBYJAVA15",
-        "qdrant_DATABASE": "SOPHIA_AI",
-        "qdrant_WAREHOUSE": "SOPHIA_AI_WH",
-        "qdrant_ROLE": "ACCOUNTADMIN",
-        "qdrant_SCHEMA": "PROCESSED_AI",
+        "QDRANT_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
+        "QDRANT_USER": "SCOOBYJAVA15",
+        "QDRANT_DATABASE": "SOPHIA_AI",
+        "QDRANT_WAREHOUSE": "SOPHIA_AI_WH",
+        "QDRANT_ROLE": "ACCOUNTADMIN",
+        "QDRANT_SCHEMA": "PROCESSED_AI",
     }
 
     for key, value in correct_config.items():
@@ -39,7 +39,7 @@ def apply_startup_configuration():
     logger.info("🚀 Applying Sophia AI startup configuration (PERMANENT qdrant FIX)")
 
     # Configure Qdrant with correct account
-    configure_qdrant_environment()
+    configure_QDRANT_environment()
 
     # Set other environment variables
     os.environ["ENVIRONMENT"] = "prod"

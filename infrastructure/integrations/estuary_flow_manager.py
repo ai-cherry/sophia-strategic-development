@@ -407,7 +407,7 @@ class EstuaryFlowManager:
             tenant=self.credentials.tenant,
         )
 
-    def create_qdrant_materialization(
+    def create_QDRANT_materialization(
 
     ) -> EstuaryMaterialization:
 
@@ -431,7 +431,7 @@ class EstuaryFlowManager:
 
         return EstuaryMaterialization(
             name="qdrant-sophia-ai",
-            connector_image=EstuaryConnectorType.self.qdrant_service.value,
+            connector_image=EstuaryConnectorType.self.QDRANT_service.value,
             config=config,
             bindings=bindings,
             tenant=self.credentials.tenant,
@@ -643,7 +643,7 @@ class EstuaryFlowManager:
             
                 "account": "ZNB04675.us-east-1",
                 "user": "SCOOBYJAVA15",
-                "password": "${qdrant_PAT_TOKEN}",  # Will be replaced with actual token
+                "password": "${QDRANT_PAT_TOKEN}",  # Will be replaced with actual token
                 "role": "ACCOUNTADMIN",
                 "warehouse": "CORTEX_SOPHIA_AI_WH",
                 "database": "SOPHIA_AI",

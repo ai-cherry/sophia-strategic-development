@@ -234,7 +234,7 @@ class PureEstuaryDataPipeline:
             results["destinations_configured"].append("data_transformations")
 
             # Set up Qdrant integration
-            await self._setup_qdrant_integration()
+            await self._setup_QDRANT_integration()
             results["destinations_configured"].append("qdrant")
 
             # Set up Redis caching
@@ -712,7 +712,7 @@ class PureEstuaryDataPipeline:
 
         logger.info("✅ Data transformations configured successfully")
 
-    async def _setup_qdrant_integration(self):
+    async def _setup_QDRANT_integration(self):
         """Set up Estuary Flow materialization to Qdrant"""
         logger.info("❄️ Setting up Qdrant integration...")
 
@@ -720,12 +720,12 @@ class PureEstuaryDataPipeline:
         
 
         )
-        qdrant_materialization[
+        QDRANT_materialization[
             "name"
-        ] = f"{self.config.flow_prefix}/qdrant_materialization"
+        ] = f"{self.config.flow_prefix}/QDRANT_materialization"
 
         await self.estuary_orchestrator.create_materialization(
-            qdrant_materialization
+            QDRANT_materialization
         )
 
         self.status.destinations_active["qdrant"] = FlowStatus.ACTIVE
@@ -789,7 +789,7 @@ class PureEstuaryDataPipeline:
             f"{self.config.flow_prefix}/slack_messages_capture",
             f"{self.config.flow_prefix}/unified_contacts",
             f"{self.config.flow_prefix}/deal_intelligence",
-            f"{self.config.flow_prefix}/qdrant_materialization",
+            f"{self.config.flow_prefix}/QDRANT_materialization",
         ]
 
         for flow_name in flows_to_enable:

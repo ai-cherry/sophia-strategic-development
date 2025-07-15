@@ -93,7 +93,7 @@ class MCPServerManager:
 
         # Get startup order if defined
         startup_order = [
-            "qdrant_admin",
+            "QDRANT_admin",
             "ai_memory",
             "codacy",
             "linear",

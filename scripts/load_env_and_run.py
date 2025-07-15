@@ -46,7 +46,7 @@ def main():
     load_local_env()
 
     # Ensure critical variables are set
-    critical_vars = ["qdrant_USER", "qdrant_ACCOUNT"]
+    critical_vars = ["QDRANT_USER", "QDRANT_ACCOUNT"]
     missing = [var for var in critical_vars if not os.getenv(var)]
 
     if missing:

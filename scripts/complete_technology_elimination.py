@@ -26,12 +26,12 @@ class TechnologyEliminator:
         self.forbidden_technologies = {
             'snowflake': [
                 'snowflake', 'SNOWFLAKE', 'Snowflake',
-                'qdrant_memory', 'qdrant_memory', 'ModernStack',
-                'qdrant_memory', 'qdrant_memory'
+                'QDRANT_memory', 'QDRANT_memory', 'ModernStack',
+                'QDRANT_memory', 'QDRANT_memory'
             ],
             'weaviate': [
                 'weaviate', 'WEAVIATE', 'Weaviate',
-                'qdrant_client', 'WeaviateClient'
+                'QDRANT_client', 'WeaviateClient'
             ],
             'vercel': [
                 'vercel', 'VERCEL', 'Vercel',
@@ -49,8 +49,8 @@ class TechnologyEliminator:
                 'configuration_backup/',
                 'backups/',
                 'backend/core/services/QDRANT_pool/',
-                'backend/core/services/qdrant_memory_adapter/',
-                'shared/utils/qdrant_memory/',
+                'backend/core/services/QDRANT_memory_adapter/',
+                'shared/utils/QDRANT_memory/',
                 'scripts/snowflake/',
                 'infrastructure/persistence/snowflake/',
                 'infrastructure/vercel/'
@@ -67,10 +67,10 @@ class TechnologyEliminator:
                 'docs/implementation/COMPREHENSIVE_QDRANT_ELIMINATION_STRATEGY.md',
                 'docs/implementation/QDRANT_ELIMINATION_EXECUTION_COMPLETE.md',
                 'docs/implementation/QDRANT_ELIMINATION_READY_FOR_EXECUTION.md',
-                'docs/architecture/qdrant_memory_REFACTORING_EXAMPLE.md',
-                'docs/04-deployment/qdrant_memory_DEPLOYMENT_SUMMARY.md',
-                'docs/03-architecture/qdrant_memory_LAYER.md',
-                'docs/system_handbook/10_qdrant_memory_MCP_INTEGRATION.md',
+                'docs/architecture/QDRANT_memory_REFACTORING_EXAMPLE.md',
+                'docs/04-deployment/QDRANT_memory_DEPLOYMENT_SUMMARY.md',
+                'docs/03-architecture/QDRANT_memory_LAYER.md',
+                'docs/system_handbook/10_QDRANT_memory_MCP_INTEGRATION.md',
                 'docs/deployment/VERCEL_DEPLOYMENT_STATUS.md',
                 'docs/deployment/LAMBDA_LABS_TOTAL_DEPLOYMENT_PLAN.md',
                 
@@ -204,18 +204,18 @@ class TechnologyEliminator:
         # Pattern replacements
         replacements = {
             # Weaviate to Qdrant
-            r'import\s+weaviate': 'from qdrant_client import QdrantClient',
-            r'from\s+weaviate\s+import': 'from qdrant_client import',
-            r'qdrant_client': 'qdrant_client',
+            r'import\s+weaviate': 'from QDRANT_client import QdrantClient',
+            r'from\s+weaviate\s+import': 'from QDRANT_client import',
+            r'QDRANT_client': 'QDRANT_client',
             r'QDRANT_URL': 'QDRANT_URL',
-            r'weaviate\.': 'qdrant_client.',
+            r'weaviate\.': 'QDRANT_client.',
             
             # Snowflake elimination
             r'import\s+snowflake': '# Snowflake eliminated - using Qdrant',
             r'from\s+snowflake': '# Snowflake eliminated - using Qdrant',
-            r'qdrant_memory': 'qdrant_memory',
+            r'QDRANT_memory': 'QDRANT_memory',
             r'QDRANT_': 'QDRANT_',
-            r'qdrant_memory': 'qdrant_memory',
+            r'QDRANT_memory': 'QDRANT_memory',
             
             # Vercel elimination
             r'vercel\s+deploy': '# Vercel eliminated - using Lambda Labs',
@@ -267,9 +267,9 @@ class TechnologyEliminator:
 *.weaviate
 *.vercel
 snowflake.config.*
-qdrant_client.config.*
+QDRANT_client.config.*
 vercel.config.*
-*qdrant_memory*
+*QDRANT_memory*
 QDRANT_*
 WEAVIATE_*
 VERCEL_*
@@ -300,7 +300,7 @@ FORBIDDEN_PATTERNS = [
     r'from\\s+weaviate',
     r'snowflake',
     r'SNOWFLAKE',
-    r'qdrant_memory',
+    r'QDRANT_memory',
     r'vercel\\s+deploy',
     r'LAMBDA_LABS_TOKEN'
 ]

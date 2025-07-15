@@ -18,11 +18,11 @@ logger = structlog.get_logger(__name__)
 
 # Prometheus metrics
 pat_days_until_expiry = Gauge(
-    "qdrant_pat_days_until_expiry", "Days until PAT expiration", ["environment"]
+    "QDRANT_pat_days_until_expiry", "Days until PAT expiration", ["environment"]
 )
 
 pat_rotation_alerts = Gauge(
-    "qdrant_pat_rotation_alerts", "Number of PATs needing rotation", ["severity"]
+    "QDRANT_pat_rotation_alerts", "Number of PATs needing rotation", ["severity"]
 )
 
 
@@ -100,10 +100,10 @@ class QdrantPATManager:
             environment = get_config_value("environment", "prod")
 
         # Get PAT using auto_esc_config helper
-        from backend.core.auto_esc_config import get_qdrant_pat
+        from backend.core.auto_esc_config import get_QDRANT_pat
 
         try:
-            pat = get_qdrant_pat(environment)
+            pat = get_QDRANT_pat(environment)
         except ValueError as e:
             raise SecurityError(f"PAT not configured: {e}")
 
@@ -237,7 +237,7 @@ class QdrantPATManager:
             raise SecurityError("Invalid new PAT format")
 
         # Store in configuration (would be Pulumi ESC in production)
-        pat_key = f"qdrant_pat_{environment}"
+        pat_key = f"QDRANT_pat_{environment}"
         set_config_value(pat_key, new_pat)
 
         # Update metadata
@@ -298,7 +298,7 @@ class QdrantPATManager:
         metadata = {}
 
         # Try to load from configuration
-        metadata_json = get_config_value("qdrant_pat_metadata")
+        metadata_json = get_config_value("QDRANT_pat_metadata")
 
         if metadata_json:
             try:
@@ -324,9 +324,9 @@ class QdrantPATManager:
             for env in ["prod", "staging"]:
                 # Check if PAT exists
                 try:
-                    from backend.core.auto_esc_config import get_qdrant_pat
+                    from backend.core.auto_esc_config import get_QDRANT_pat
 
-                    pat = get_qdrant_pat(env)
+                    pat = get_QDRANT_pat(env)
                     if pat:
                         # Assume PAT was created today (conservative)
                         metadata[env] = PATMetadata(
@@ -354,7 +354,7 @@ class QdrantPATManager:
                 "created_by": metadata.created_by,
             }
 
-        set_config_value("qdrant_pat_metadata", json.dumps(data))
+        set_config_value("QDRANT_pat_metadata", json.dumps(data))
 
     async def generate_rotation_report(self) -> dict[str, Any]:
         """

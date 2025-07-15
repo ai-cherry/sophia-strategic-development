@@ -120,7 +120,7 @@ class LambdaLabsCostMonitor:
         self.model_analytics: dict[str, ModelCostAnalysis] = {}
 
         # Qdrant integration
-        self.qdrant_service = UnifiedMemoryService()
+        self.QDRANT_service = UnifiedMemoryService()
 
         # Monitoring task
         self.monitoring_task: asyncio.Task | None = None
@@ -598,7 +598,7 @@ class LambdaLabsCostMonitor:
                     %(model_usage)s)
             """
 
-            await self.qdrant_service.execute_query(insert_query, cost_record)
+            await self.QDRANT_service.execute_query(insert_query, cost_record)
 
         except Exception as e:
             logger.error(f"Failed to store cost data in Qdrant: {e}")
@@ -614,7 +614,7 @@ class LambdaLabsCostMonitor:
             ORDER BY timestamp DESC
             """
 
-            historical_data = await self.qdrant_service.execute_query(historical_query)
+            historical_data = await self.QDRANT_service.execute_query(historical_query)
 
             if not historical_data or len(historical_data) < 10:
                 return  # Not enough data for anomaly detection
@@ -769,7 +769,7 @@ class LambdaLabsCostMonitor:
                 % days_to_keep
             )
 
-            await self.qdrant_service.execute_query(cleanup_query)
+            await self.QDRANT_service.execute_query(cleanup_query)
 
             logger.info(f"Cleaned up data older than {days_to_keep} days")
 

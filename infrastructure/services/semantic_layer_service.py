@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from core.performance_monitor import performance_monitor
-from backend.services.qdrant_unified_memory_service import (
+from backend.services.QDRANT_unified_memory_service import (
     EnhancedQdrantUnifiedMemoryService,
 )
 
@@ -60,9 +60,9 @@ class SemanticLayerService:
         try:
             # Execute semantic view creation scripts
             semantic_scripts = [
-                "backend/qdrant_setup/semantic_layer_foundation.sql",
-                "backend/qdrant_setup/business_vocabulary_definitions.sql",
-                "backend/qdrant_setup/entity_relationships.sql",
+                "backend/QDRANT_setup/semantic_layer_foundation.sql",
+                "backend/QDRANT_setup/business_vocabulary_definitions.sql",
+                "backend/QDRANT_setup/entity_relationships.sql",
             ]
 
             for script in semantic_scripts:
