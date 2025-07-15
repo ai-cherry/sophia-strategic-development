@@ -303,10 +303,10 @@ hardcoded_key = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         assert result["summary"]["total_size_mb"] > 0
     
     @pytest.mark.parametrize("secret_pattern,test_string,should_match", [
-        (r'sk-[a-zA-Z0-9]{48}', "sk-123456789012345678901234567890123456789012345678", True),
+        (r'sk-[a-zA-Z0-9]{48}', "sk-123456789012345678901234567890123456789012345678", True),  # FIXME: Use get_config_value("OPENAI_API_KEY")
         (r'sk-ant-[a-zA-Z0-9\-]{40,}', "sk-ant-1234567890123456789012345678901234567890", True),
         (r'pul-[a-f0-9]{40}', "pul-FAKE1234567890abcdefFAKE1234567890abcd", True),
-        (r'ghp_[a-zA-Z0-9]{36}', "ghp_123456789012345678901234567890123456", True),
+        (r'ghp_[a-zA-Z0-9]{36}', "ghp_123456789012345678901234567890123456", True),  # FIXME: Use get_config_value("GITHUB_TOKEN")
         (r'(?i)api_key', "API_KEY=secret", True),
         (r'(?i)api_key', "normal_variable=value", False),
     ])
