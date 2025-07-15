@@ -344,3 +344,14 @@ class SophiaAIUnifiedOrchestrator:
             "memory_service_health": await self.memory_service.get_health_status(),
             "portkey_health": await self.portkey.get_health_status()
         }
+
+
+# Global instance for shared access
+_orchestrator_instance = None
+
+def get_unified_orchestrator() -> SophiaAIUnifiedOrchestrator:
+    """Get the unified orchestrator singleton instance"""
+    global _orchestrator_instance
+    if _orchestrator_instance is None:
+        _orchestrator_instance = SophiaAIUnifiedOrchestrator()
+    return _orchestrator_instance

@@ -27,7 +27,7 @@ centralServices:
     name: mcp-orchestration
     port: 8080
     replicas: 2
-    image: "sophia-mcp-orchestration:latest"
+    image: "scoobyjava15/sophia-mcp-orchestration:latest"
     resources:
       requests:
         memory: "1Gi"
@@ -41,7 +41,7 @@ centralServices:
     name: registry-v2
     port: 8081
     replicas: 1
-    image: "sophia-mcp-registry:latest"
+    image: "scoobyjava15/sophia-mcp-registry:latest"
     resources:
       requests:
         memory: "512Mi"

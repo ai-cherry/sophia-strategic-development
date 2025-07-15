@@ -10,7 +10,7 @@ echo ""
 
 # Function to run SSH commands
 ssh_cmd() {
-    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 ubuntu@$SERVER_IP "$@" 2>&1
+    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 "ubuntu@${SERVER_IP}" "$@" 2>&1
 }
 
 # Check connection

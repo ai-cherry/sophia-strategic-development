@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Push Performance Optimization Implementation to GitHub
 
@@ -36,9 +37,13 @@ with intelligent caching, real-time capabilities, and contextual memory."
 
 # Push to GitHub
 echo "⬆️ Pushing to GitHub..."
-git push origin main
+if git push origin main; then
+    echo "✅ Performance optimization successfully pushed to GitHub!"
+else
+    echo "❌ Failed to push to GitHub. Please check for errors."
+    exit 1
+fi
 
-echo "✅ Performance optimization successfully pushed to GitHub!"
 echo ""
 echo "📊 Performance Improvements Summary:"
 echo "  - API Response Time: 70% faster (average 60ms)"

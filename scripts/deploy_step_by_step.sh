@@ -12,11 +12,16 @@ echo "---------------------------------------------"
 # Create DNS configuration script
 cat > /tmp/configure_dns.py << 'EOF'
 import requests
+import os
 
-# Namecheap credentials
-api_key = "d6913ec33b2c4d328be9cbb4db382eca"
-api_user = "scoobyjava"
+# Namecheap credentials from environment variables
+api_key = os.getenv('NAMECHEAP_API_KEY')
+api_user = os.getenv('NAMECHEAP_API_USER', 'scoobyjava')
 client_ip = requests.get('https://api.ipify.org').text
+
+if not api_key:
+    print("❌ NAMECHEAP_API_KEY environment variable required")
+    exit(1)
 
 # DNS records
 records = [

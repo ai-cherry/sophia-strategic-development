@@ -1,0 +1,129 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sophia-ai-ingress
+  namespace: sophia-ai-prod
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: "sophia-ai-prod-security-headers@kubernetescrd"
+    traefik.ingress.kubernetes.io/router.priority: "1000"
+  labels:
+    app.kubernetes.io/name: sophia-ai-ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: sophia-ai
+spec:
+  tls:
+  - hosts:
+    - sophia-intel.ai
+    - www.sophia-intel.ai
+    - api.sophia-intel.ai
+    - grafana.sophia-intel.ai
+    secretName: sophia-ai-tls
+  rules:
+  # Main Frontend (sophia-intel.ai)
+  - host: sophia-intel.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sophia-ai-frontend
+            port:
+              number: 3000
+  # WWW Redirect
+  - host: www.sophia-intel.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sophia-ai-frontend
+            port:
+              number: 3000
+  # API Backend (api.sophia-intel.ai)
+  - host: api.sophia-intel.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sophia-ai-backend
+            port:
+              number: 8000
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: sophia-ai-backend
+            port:
+              number: 8000
+      - path: /mcp
+        pathType: Prefix
+        backend:
+          service:
+            name: sophia-ai-mcp-orchestrator
+            port:
+              number: 8000
+  # Monitoring Dashboard (grafana.sophia-intel.ai)
+  - host: grafana.sophia-intel.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              number: 3000
+
+---
+# Security Headers Middleware
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+  namespace: sophia-ai-prod
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: "https"
+    customResponseHeaders:
+      X-Frame-Options: "SAMEORIGIN"
+      X-Content-Type-Options: "nosniff"
+      X-XSS-Protection: "1; mode=block"
+      Strict-Transport-Security: "max-age=31536000; includeSubDomains"
+      Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+
+---
+# Rate Limiting Middleware
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: rate-limit
+  namespace: sophia-ai-prod
+spec:
+  rateLimit:
+    burst: 100
+    average: 50
+
+---
+# Let's Encrypt ClusterIssuer
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@sophia-intel.ai
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: traefik 

@@ -294,4 +294,6 @@ jobs:
                 ]
               }]
             }' \
-            ${{ secrets.SLACK_WEBHOOK_URL }} 
+            ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+          echo "📱 Deployment failure notification sent to Slack" 

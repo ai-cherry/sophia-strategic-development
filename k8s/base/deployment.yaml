@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: sophia-backend:latest
+        image: scoobyjava15/sophia-backend:latest
         ports:
         - containerPort: 8000
           name: http

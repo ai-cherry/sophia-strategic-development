@@ -35,7 +35,7 @@ spec:
               value: "8000"
             - name: PULUMI_ORG
               value: scoobyjava-org
-          image: ghcr.io/ai-cherry/sophia-backend:latest
+          image: scoobyjava15/sophia-backend:latest
           livenessProbe:
             failureThreshold: 3
             httpGet:

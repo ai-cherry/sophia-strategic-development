@@ -33,7 +33,7 @@ log_error() {
 
 # Step 1: Test connectivity
 echo "🔗 Testing Lambda Labs connectivity..."
-if ssh -i ~/.ssh/sophia_correct_key -o ConnectTimeout=10 ubuntu@$LAMBDA_IP "echo 'Connection test successful'"; then
+if ssh -i ~/.ssh/sophia_correct_key -o ConnectTimeout=10 "ubuntu@${LAMBDA_IP}" "echo 'Connection test successful'"; then
     log_info "Successfully connected to Lambda Labs instance"
 else
     log_error "Failed to connect to Lambda Labs. Check SSH key and IP address."
@@ -54,10 +54,10 @@ echo "🔧 Installing K3s on Lambda Labs with GPU support..."
 
 # Get external IP
 MY_IP=$(curl -s ifconfig.me)
-echo "External IP: $MY_IP"
+echo "External IP: ${MY_IP}"
 
 # Install K3s with GPU support and external IP configuration
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-external-ip=$MY_IP --flannel-backend=wireguard-native --flannel-external-ip --tls-san $MY_IP --default-runtime=nvidia" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-external-ip=${MY_IP} --flannel-backend=wireguard-native --flannel-external-ip --tls-san ${MY_IP} --default-runtime=nvidia" sh -
 
 # Wait for K3s to be ready
 echo "⏳ Waiting for K3s to be ready..."
@@ -69,7 +69,7 @@ sudo systemctl status k3s --no-pager
 # Create kubeconfig for external access
 echo "🔑 Creating kubeconfig for external access..."
 sudo k3s kubectl config view --raw > /tmp/k3s-config.yaml
-sed -i "s/127.0.0.1/$MY_IP/g" /tmp/k3s-config.yaml
+sed -i "s/127.0.0.1/${MY_IP}/g" /tmp/k3s-config.yaml
 
 # Install NVIDIA Device Plugin
 echo "🎮 Installing NVIDIA Device Plugin..."
@@ -97,16 +97,16 @@ EOF
 
 # Step 3: Copy and execute installation script
 echo "📤 Copying installation script to Lambda Labs..."
-scp -i ~/.ssh/sophia_correct_key install_k3s_lambda.sh ubuntu@$LAMBDA_IP:/tmp/
+scp -i ~/.ssh/sophia_correct_key install_k3s_lambda.sh "ubuntu@${LAMBDA_IP}:/tmp/"
 
 log_info "Installation script copied successfully"
 
 echo "🚀 Executing K3s installation on Lambda Labs..."
-ssh -i ~/.ssh/sophia_correct_key ubuntu@$LAMBDA_IP "chmod +x /tmp/install_k3s_lambda.sh && sudo /tmp/install_k3s_lambda.sh"
+ssh -i ~/.ssh/sophia_correct_key "ubuntu@${LAMBDA_IP}" "chmod +x /tmp/install_k3s_lambda.sh && sudo /tmp/install_k3s_lambda.sh"
 
 # Step 4: Download kubeconfig
 echo "📥 Downloading kubeconfig..."
-scp -i ~/.ssh/sophia_correct_key ubuntu@$LAMBDA_IP:/tmp/k3s-config.yaml ~/.kube/config-lambda-labs
+scp -i ~/.ssh/sophia_correct_key "ubuntu@${LAMBDA_IP}:/tmp/k3s-config.yaml" ~/.kube/config-lambda-labs
 
 log_info "Kubeconfig downloaded to ~/.kube/config-lambda-labs"
 

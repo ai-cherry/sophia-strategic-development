@@ -221,7 +221,7 @@ groups:
 });
 
 // Export stack outputs
-export const qdrantEndpoint = pulumi.interpolate`http://${QDRANT_client.qdrantService.metadata.name}.${namespace}.svc.cluster.local:6333`;
+export const qdrantEndpoint = pulumi.interpolate`http://${qdrant.qdrantService.metadata.name}.${namespace}.svc.cluster.local:6333`;
 export const redisEndpoint = pulumi.interpolate`redis://${redis.redisService.metadata.name}.${namespace}.svc.cluster.local:6379`;
 export const postgresqlEndpoint = pulumi.interpolate`postgresql://${postgresql.postgresqlService.metadata.name}.${namespace}.svc.cluster.local:5432/sophia_vectors`;
 export const lambdaInferenceEndpoint = pulumi.interpolate`http://${lambdaInferenceService.metadata.name}.${namespace}.svc.cluster.local:6333`;
@@ -231,13 +231,13 @@ export const stackInfo = {
     namespace: namespace,
     stack: stack,
     deployments: {
-        qdrant: QDRANT_client.qdrantDeployment.metadata.name,
+        qdrant: qdrant.qdrantDeployment.metadata.name,
         redis: redis.redisStatefulSet.metadata.name,
         postgresql: postgresql.postgresqlDeployment.metadata.name,
         lambdaInference: lambdaInferenceDeployment.metadata.name
     },
     services: {
-        qdrant: QDRANT_client.qdrantService.metadata.name,
+        qdrant: qdrant.qdrantService.metadata.name,
         redis: redis.redisService.metadata.name,
         postgresql: postgresql.postgresqlService.metadata.name,
         lambdaInference: lambdaInferenceService.metadata.name

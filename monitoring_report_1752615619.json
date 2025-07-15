@@ -1,0 +1,185 @@
+{
+  "timestamp": "2025-07-15T21:40:18.091919",
+  "overall_health": 68.3,
+  "components": {
+    "dependencies": {
+      "installed": [
+        "fastapi",
+        "uvicorn",
+        "sqlalchemy",
+        "pyjwt",
+        "redis",
+        "anthropic",
+        "openai",
+        "aiohttp",
+        "asyncpg",
+        "qdrant-client"
+      ],
+      "missing": [],
+      "status": "healthy",
+      "install_coverage": 100.0
+    },
+    "environment": {
+      "status": "error",
+      "environment": "unknown",
+      "secrets_loaded": 0,
+      "error": "No module named 'core.auto_esc_config'"
+    },
+    "system_resources": {
+      "cpu_percent": 70.3,
+      "memory_percent": 80.5,
+      "disk_percent": 4.2,
+      "load_average": [
+        11.7421875,
+        6.1708984375,
+        5.41845703125
+      ],
+      "status": "healthy"
+    },
+    "backend": {
+      "port_active": true,
+      "process_info": {
+        "pid": 28587,
+        "name": "Python",
+        "cmdline": "/Library/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python -m uvicorn",
+        "cpu_percent": 0.0,
+        "memory_mb": 14.09375,
+        "status": "running"
+      },
+      "http_health": {
+        "status": "healthy",
+        "status_code": 200,
+        "response_time_ms": 109.31,
+        "content_length": 226,
+        "headers": {
+          "Date": "Tue, 15 Jul 2025 21:40:19 GMT",
+          "Server": "uvicorn",
+          "Content-Length": "226",
+          "Content-Type": "application/json"
+        },
+        "content_preview": "{\"status\":\"healthy\",\"timestamp\":\"2025-07-15T21:40:19.349702\",\"version\":\"1.0.0\",\"services\":{\"backend\":\"healthy\",\"system_resources\":\"healthy\",\"memory_service\":\"not_initialized\",\"database\":\"not_connected"
+      },
+      "critical": true,
+      "overall_status": "healthy"
+    },
+    "frontend_primary": {
+      "port_active": true,
+      "process_info": {
+        "pid": 12914,
+        "name": "node",
+        "cmdline": "node /Users/lynnmusil/sophia-main-2/frontend/node_modules/.bin/vite",
+        "cpu_percent": 0.2,
+        "memory_mb": 32.734375,
+        "status": "running"
+      },
+      "http_health": {
+        "status": "healthy",
+        "status_code": 200,
+        "response_time_ms": 4.22,
+        "content_length": 1826,
+        "headers": {
+          "Vary": "Origin",
+          "Content-Type": "text/html",
+          "Cache-Control": "no-cache",
+          "Etag": "W/\"722-9+ZmMjTYPCXp8HZCBu+oy0RCzKA\"",
+          "Date": "Tue, 15 Jul 2025 21:40:19 GMT",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Content-Length": "1826"
+        },
+        "content_preview": "<!DOCTYPE html>\n<html lang=\"en\" class=\"dark\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nw"
+      },
+      "critical": true,
+      "overall_status": "healthy"
+    },
+    "frontend_secondary": {
+      "port_active": true,
+      "process_info": {
+        "pid": 14537,
+        "name": "node",
+        "cmdline": "node /Users/lynnmusil/sophia-main-2/frontend/node_modules/.bin/vite",
+        "cpu_percent": 0.0,
+        "memory_mb": 21.46875,
+        "status": "running"
+      },
+      "http_health": {
+        "status": "healthy",
+        "status_code": 200,
+        "response_time_ms": 9.79,
+        "content_length": 1826,
+        "headers": {
+          "Vary": "Origin",
+          "Content-Type": "text/html",
+          "Cache-Control": "no-cache",
+          "Etag": "W/\"722-9+ZmMjTYPCXp8HZCBu+oy0RCzKA\"",
+          "Date": "Tue, 15 Jul 2025 21:40:19 GMT",
+          "Connection": "keep-alive",
+          "Keep-Alive": "timeout=5",
+          "Content-Length": "1826"
+        },
+        "content_preview": "<!DOCTYPE html>\n<html lang=\"en\" class=\"dark\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nw"
+      },
+      "critical": false,
+      "overall_status": "healthy"
+    },
+    "mcp_ai_memory": {
+      "port_active": false,
+      "process_info": null,
+      "http_health": {
+        "status": "connection_error",
+        "error": "Cannot connect to host localhost:9001 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 9001, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 9001)]"
+      },
+      "critical": true,
+      "overall_status": "degraded"
+    },
+    "mcp_ui_ux": {
+      "port_active": false,
+      "process_info": null,
+      "http_health": {
+        "status": "connection_error",
+        "error": "Cannot connect to host localhost:9002 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 9002, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 9002)]"
+      },
+      "critical": false,
+      "overall_status": "degraded"
+    },
+    "mcp_github": {
+      "port_active": false,
+      "process_info": null,
+      "http_health": {
+        "status": "connection_error",
+        "error": "Cannot connect to host localhost:9003 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 9003, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 9003)]"
+      },
+      "critical": false,
+      "overall_status": "degraded"
+    },
+    "mcp_linear": {
+      "port_active": false,
+      "process_info": null,
+      "http_health": {
+        "status": "connection_error",
+        "error": "Cannot connect to host localhost:9004 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 9004, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 9004)]"
+      },
+      "critical": false,
+      "overall_status": "degraded"
+    },
+    "mcp_slack": {
+      "port_active": false,
+      "process_info": null,
+      "http_health": {
+        "status": "connection_error",
+        "error": "Cannot connect to host localhost:9005 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 9005, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 9005)]"
+      },
+      "critical": false,
+      "overall_status": "degraded"
+    }
+  },
+  "business_readiness": 72.7,
+  "alerts": [
+    "\ud83d\udea8 Critical services down: mcp_ai_memory",
+    "\ud83d\udd10 Insufficient secrets loaded from Pulumi ESC"
+  ],
+  "recommendations": [
+    "Run: pulumi login && pulumi env open scoobyjava-org/default/sophia-ai-production",
+    "Priority: Fix backend and frontend connectivity for business operations"
+  ]
+}

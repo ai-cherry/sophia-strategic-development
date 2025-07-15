@@ -54,6 +54,12 @@ phase1_checks() {
         exit 1
     fi
     
+    # Check requirements.txt
+    if [ ! -f "requirements.txt" ]; then
+        log_error "requirements.txt not found"
+        exit 1
+    fi
+    
     # Check if we can SSH to server
     if ! ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 ubuntu@$SERVER_IP "echo 'SSH connection successful'" > /dev/null 2>&1; then
         log_error "Cannot connect to server via SSH"

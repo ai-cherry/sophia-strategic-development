@@ -14,7 +14,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ai-cherry/sophia-main
-    targetRevision: feature/full-prod-beast
+    targetRevision: main
     path: k8s/overlays/production
   destination:
     server: https://kubernetes.default.svc
@@ -47,7 +47,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ai-cherry/sophia-main
-    targetRevision: feature/full-prod-beast
+    targetRevision: main
     path: k8s/mcp-servers
   destination:
     server: https://kubernetes.default.svc

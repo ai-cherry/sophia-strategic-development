@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from backend.core.database import init_database, create_tables, check_database_health
 from backend.core.security import check_security_health
-from backend.core.auto_esc_config import get_config_value, validate_config_access
+from backend.core.auto_esc_config import get_config_value
 from backend.utils.logging import setup_logging, get_logger
 
 # Import route modules

@@ -21,6 +21,10 @@ import sys
 from datetime import datetime, timedelta
 import os
 import time
+
+# Add backend to path for imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from backend.core.auto_esc_config import get_config_value
 
 class DeploymentMetricsReporter:

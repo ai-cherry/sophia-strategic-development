@@ -14,14 +14,21 @@ spec:
         app: ai-memory-mcp
         mcp-server: "true"
     spec:
-      nodeSelector:
-        nvidia.com/gpu: "true"
       containers:
       - name: ai-memory
         image: scoobyjava15/sophia-mcp-base:latest
         command: ["python", "-m", "mcp_servers.ai_memory.server"]
         ports:
         - containerPort: 9001
+        resources:
+          requests:
+            nvidia.com/gpu: "1"
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            nvidia.com/gpu: "1"
+            memory: "8Gi"
+            cpu: "4"
         env:
         - name: ENVIRONMENT
           value: "prod"

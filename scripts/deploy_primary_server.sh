@@ -29,6 +29,17 @@ kubectl wait --for=condition=Ready pods --all -n cert-manager --timeout=300s
 # Create namespace
 kubectl create namespace sophia-ai-prod --dry-run=client -o yaml | kubectl apply -f -
 
+# Check for required files
+if [ ! -d "k8s/production" ]; then
+    echo "❌ Error: Directory k8s/production not found!"
+    exit 1
+fi
+
+if [ ! -f "k8s/production/sophia-deployment.yaml" ]; then
+    echo "❌ Error: Required file k8s/production/sophia-deployment.yaml not found!"
+    exit 1
+fi
+
 # Deploy Sophia AI
 kubectl apply -f k8s/production/sophia-deployment.yaml
 

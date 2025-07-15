@@ -26,7 +26,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from backend.services.sophia_unified_orchestrator import (
+from backend.services.sophia_ai_unified_orchestrator import (
     get_unified_orchestrator,
 )
 
@@ -138,45 +138,20 @@ async def orchestrate_stream(
             # Process with streaming updates
             start_time = datetime.utcnow()
 
-            # For now, process normally and stream the result
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
-# DELETED: Deprecated method removed
+            # Process the orchestration request
+            response = await orchestrator.orchestrate(request)
+            
+            # Stream the response
+            yield f"data: {json.dumps({'type': 'response', 'content': response.response})}\n\n"
+            
+            # Send completion
+            yield f"data: {json.dumps({'type': 'complete', 'citations': response.citations})}\n\n"
+            
+        except Exception as e:
+            logger.exception(f"Streaming orchestration failed: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+
+    return StreamingResponse(generate_stream(), media_type="text/plain")
 # DELETED: Deprecated method removed
 # DELETED: Deprecated method removed
 # DELETED: Deprecated method removed

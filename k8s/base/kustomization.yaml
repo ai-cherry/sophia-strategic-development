@@ -5,4 +5,6 @@ resources:
 - namespace.yaml
 - deployment.yaml
 - service.yaml
-- configmap.yaml 
+- secrets-esc.yaml
+- postgres-pvc.yaml
+- ingress-ssl.yaml 

@@ -46,40 +46,40 @@ docker_login() {
 
 # Build and push image function
 build_and_push() {
-    local service_name=$1
-    local dockerfile=$2
-    local context_dir=$3
+    local service_name="$1"
+    local dockerfile="$2"
+    local context_dir="$3"
     local build_args="${4:-}"
     
     local image_name="${DOCKER_REGISTRY}/${service_name}:${IMAGE_TAG}"
     
-    print_info "Building $service_name..."
+    print_info "Building ${service_name}..."
     
     # Build command
-    local build_cmd="docker build -f $dockerfile -t $image_name"
+    local build_cmd="docker build -f \"${dockerfile}\" -t \"${image_name}\""
     
     # Add build args if provided
     if [ -n "$build_args" ]; then
-        build_cmd="$build_cmd $build_args"
+        build_cmd="${build_cmd} ${build_args}"
     fi
     
     # Add context
-    build_cmd="$build_cmd $context_dir"
+    build_cmd="${build_cmd} \"${context_dir}\""
     
     # Execute build
     if eval "$build_cmd"; then
-        print_status "✅ Built $service_name"
+        print_status "✅ Built ${service_name}"
         
         # Push image
-        if docker push "$image_name"; then
-            print_status "✅ Pushed $service_name to registry"
+        if docker push "${image_name}"; then
+            print_status "✅ Pushed ${service_name} to registry"
             return 0
         else
-            print_error "❌ Failed to push $service_name"
+            print_error "❌ Failed to push ${service_name}"
             return 1
         fi
     else
-        print_error "❌ Failed to build $service_name"
+        print_error "❌ Failed to build ${service_name}"
         return 1
     fi
 }
@@ -153,8 +153,8 @@ build_mcp_services() {
     )
     
     for service in "${mcp_services[@]}"; do
-        IFS=':' read -r image_name dir_name <<< "$service"
-        build_and_push "sophia-$image_name" "mcp-servers/$dir_name/Dockerfile" "mcp-servers/$dir_name"
+        IFS=':' read -r image_name dir_name <<< "${service}"
+        build_and_push "sophia-${image_name}" "mcp-servers/${dir_name}/Dockerfile" "mcp-servers/${dir_name}"
     done
 }
 
@@ -200,8 +200,8 @@ main() {
     print_info "===================================================="
     print_info "SOPHIA AI DOCKER IMAGE BUILD & PUSH"
     print_info "===================================================="
-    print_info "Registry: $DOCKER_REGISTRY"
-    print_info "Tag: $IMAGE_TAG"
+    print_info "Registry: ${DOCKER_REGISTRY}"
+    print_info "Tag: ${IMAGE_TAG}"
     print_info "===================================================="
     
     # Docker login
@@ -239,12 +239,12 @@ main() {
     if [ ${#failed_builds[@]} -eq 0 ]; then
         print_status "🎉 ALL IMAGES BUILT AND PUSHED SUCCESSFULLY!"
         print_info "Total images: 57"
-        print_info "Registry: $DOCKER_REGISTRY"
-        print_info "Tag: $IMAGE_TAG"
+        print_info "Registry: ${DOCKER_REGISTRY}"
+        print_info "Tag: ${IMAGE_TAG}"
     else
         print_error "❌ SOME BUILDS FAILED:"
         for category in "${failed_builds[@]}"; do
-            print_error "  • $category"
+            print_error "  • ${category}"
         done
         exit 1
     fi

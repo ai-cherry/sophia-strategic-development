@@ -8,6 +8,7 @@ This script validates that the production deployment is working correctly.
 import asyncio
 import aiohttp
 import sys
+import time
 from typing import Dict, List, Tuple
 import os
 import argparse
@@ -198,9 +199,9 @@ async def validate_performance() -> bool:
     async with aiohttp.ClientSession() as session:
         for endpoint in endpoints:
             try:
-                start_time = asyncio.get_event_loop().time()
+                start_time = time.time()
                 async with session.get(f"{base_url}{endpoint}") as response:
-                    end_time = asyncio.get_event_loop().time()
+                    end_time = time.time()
                     
                     response_time = (end_time - start_time) * 1000  # Convert to ms
                     

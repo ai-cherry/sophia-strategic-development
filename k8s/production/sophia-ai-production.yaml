@@ -67,6 +67,7 @@ spec:
         - containerPort: 9090
           name: metrics
         env:
+        # Standard Environment Configuration
         - name: ENVIRONMENT
           valueFrom:
             configMapKeyRef:
@@ -77,11 +78,52 @@ spec:
             configMapKeyRef:
               name: sophia-ai-config
               key: PULUMI_ORG
-        - name: PULUMI_ACCESS_TOKEN
+        - name: PULUMI_STACK
+          valueFrom:
+            configMapKeyRef:
+              name: sophia-ai-config
+              key: PULUMI_STACK
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: sophia-ai-config
+              key: LOG_LEVEL
+        - name: DOMAIN
+          valueFrom:
+            configMapKeyRef:
+              name: sophia-ai-config
+              key: DOMAIN
+        # Secret References (Pulumi ESC Integration)
+        - name: OPENAI_API_KEY
           valueFrom:
             secretKeyRef:
               name: sophia-ai-secrets
-              key: pulumi-access-token
+              key: OPENAI_API_KEY
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: ANTHROPIC_API_KEY
+        - name: QDRANT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: QDRANT_API_KEY
+        - name: GONG_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: GONG_API_KEY
+        - name: HUBSPOT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: HUBSPOT_API_KEY
+        - name: SLACK_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: SLACK_WEBHOOK_URL
         resources:
           requests:
             memory: "512Mi"
@@ -146,16 +188,64 @@ spec:
         image: scoobyjava15/sophia-ai-mcp-orchestrator:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8001
+        - containerPort: 8000
           name: http
         env:
+        # Standard Environment Configuration
         - name: ENVIRONMENT
           valueFrom:
             configMapKeyRef:
               name: sophia-ai-config
               key: ENVIRONMENT
+        - name: PULUMI_ORG
+          valueFrom:
+            configMapKeyRef:
+              name: sophia-ai-config
+              key: PULUMI_ORG
+        - name: PULUMI_STACK
+          valueFrom:
+            configMapKeyRef:
+              name: sophia-ai-config
+              key: PULUMI_STACK
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: sophia-ai-config
+              key: LOG_LEVEL
+        - name: DOMAIN
+          valueFrom:
+            configMapKeyRef:
+              name: sophia-ai-config
+              key: DOMAIN
+        # Service Configuration
         - name: BACKEND_URL
           value: "http://sophia-ai-backend:8000"
+        # Secret References (Pulumi ESC Integration)
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: OPENAI_API_KEY
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: ANTHROPIC_API_KEY
+        - name: LINEAR_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: LINEAR_API_KEY
+        - name: ASANA_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: ASANA_API_TOKEN
+        - name: NOTION_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: NOTION_API_KEY
         resources:
           requests:
             memory: "256Mi"
@@ -166,13 +256,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 8001
+            port: 8000
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
-            port: 8001
+            port: 8000
           initialDelaySeconds: 5
           periodSeconds: 5
 
@@ -209,8 +299,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8001
-    targetPort: 8001
+  - port: 8000
+    targetPort: 8000
     protocol: TCP
     name: http
   selector:

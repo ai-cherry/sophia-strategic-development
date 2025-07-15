@@ -1,0 +1,186 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sophia-ai-metrics
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sophia-ai-metrics
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: sophia-ai
+spec:
+  namespaceSelector:
+    matchNames:
+    - sophia-ai-prod
+  selector:
+    matchLabels:
+      app: sophia-ai-backend
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    scrapeTimeout: 10s
+  - port: metrics
+    interval: 30s
+    path: /health
+    scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sophia-mcp-metrics
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sophia-mcp-metrics
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: sophia-ai
+spec:
+  namespaceSelector:
+    matchNames:
+    - sophia-ai-prod
+  selector:
+    matchLabels:
+      mcp-server: "true"
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    scrapeTimeout: 10s
+  - port: http
+    interval: 60s
+    path: /health
+    scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sophia-ai-mcp-orchestrator-metrics
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sophia-ai-mcp-orchestrator-metrics
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: sophia-ai
+spec:
+  namespaceSelector:
+    matchNames:
+    - sophia-ai-prod
+  selector:
+    matchLabels:
+      app: sophia-ai-mcp-orchestrator
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    scrapeTimeout: 10s
+  - port: http
+    interval: 60s
+    path: /health
+    scrapeTimeout: 10s
+
+---
+# Frontend Metrics ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sophia-ai-frontend-metrics
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sophia-ai-frontend-metrics
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: sophia-ai
+spec:
+  namespaceSelector:
+    matchNames:
+    - sophia-ai-prod
+  selector:
+    matchLabels:
+      app: sophia-ai-frontend
+  endpoints:
+  - port: http
+    interval: 60s
+    path: /health
+    scrapeTimeout: 10s
+
+---
+# Infrastructure Metrics ServiceMonitor (Redis, PostgreSQL, etc.)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sophia-ai-infrastructure-metrics
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sophia-ai-infrastructure-metrics
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: sophia-ai
+spec:
+  namespaceSelector:
+    matchNames:
+    - sophia-ai-prod
+  selector:
+    matchLabels:
+      component: database
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    scrapeTimeout: 10s
+
+---
+# PrometheusRule for Sophia AI Alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sophia-ai-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sophia-ai-alerts
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: sophia-ai
+spec:
+  groups:
+  - name: sophia-ai.rules
+    rules:
+    # High CPU Usage Alert
+    - alert: SophiaAIHighCPU
+      expr: rate(container_cpu_usage_seconds_total{namespace="sophia-ai-prod"}[5m]) > 0.8
+      for: 2m
+      labels:
+        severity: warning
+        service: "{{ $labels.pod }}"
+      annotations:
+        summary: "High CPU usage detected in Sophia AI"
+        description: "{{ $labels.pod }} is using {{ $value | humanizePercentage }} CPU"
+    
+    # High Memory Usage Alert  
+    - alert: SophiaAIHighMemory
+      expr: container_memory_usage_bytes{namespace="sophia-ai-prod"} / container_spec_memory_limit_bytes > 0.9
+      for: 2m
+      labels:
+        severity: warning
+        service: "{{ $labels.pod }}"
+      annotations:
+        summary: "High memory usage detected in Sophia AI"
+        description: "{{ $labels.pod }} is using {{ $value | humanizePercentage }} memory"
+    
+    # Service Down Alert
+    - alert: SophiaAIServiceDown
+      expr: up{namespace="sophia-ai-prod"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        service: "{{ $labels.job }}"
+      annotations:
+        summary: "Sophia AI service is down"
+        description: "Service {{ $labels.job }} has been down for more than 1 minute"
+    
+    # High Response Time Alert
+    - alert: SophiaAIHighResponseTime
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{namespace="sophia-ai-prod"}[5m])) > 2
+      for: 5m
+      labels:
+        severity: warning
+        service: "{{ $labels.job }}"
+      annotations:
+        summary: "High response time detected in Sophia AI"
+        description: "95th percentile response time is {{ $value }}s for {{ $labels.job }}" 

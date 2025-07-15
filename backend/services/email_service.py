@@ -1,8 +1,8 @@
 import smtplib
 import ssl
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
-from email.mime.base import MimeBase
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
 from email import encoders
 from typing import List, Optional, Dict, Any
 import logging
@@ -210,7 +210,7 @@ class EmailService:
             logger.error(f"Failed to send email to {to_email}: {e}")
             return False
 
-    async def _send_smtp_email(self, message: MimeMultipart, to_email: str):
+    async def _send_smtp_email(self, message: MIMEMultipart, to_email: str):
         """Send email via SMTP"""
         context = ssl.create_default_context()
         
