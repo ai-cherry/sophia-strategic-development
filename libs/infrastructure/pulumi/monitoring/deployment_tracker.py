@@ -623,7 +623,7 @@ class EnhancedDeploymentTracker:
                 "kubectl rollout status deployment/sophia-mcp-ai-memory -n sophia-mcp",
             ],
             ComponentType.FRONTEND: [
-                f"# Lambda Labs deployment - no Vercel commands needed",
+                f"# Lambda Labs deployment - no lambda_labs commands needed",
             ],
         }
 
@@ -662,7 +662,7 @@ class EnhancedDeploymentTracker:
                     text=True,
                     timeout=300,
                 )
-            elif step.startswith("vercel"):
+            elif step.startswith("lambda_labs"):
                 result = subprocess.run(
                     step.split(),
                     check=False,

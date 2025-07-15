@@ -7,7 +7,7 @@
         "type": "singlestat",
         "targets": [
           {
-            "expr": "qdrant_health_status"
+            "expr": "QDRANT_health_status"
           }
         ]
       },
@@ -16,7 +16,7 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "rate(qdrant_operations_total[5m])"
+            "expr": "rate(QDRANT_operations_total[5m])"
           }
         ]
       },
@@ -25,7 +25,7 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "histogram_quantile(0.95, qdrant_query_latency_seconds)"
+            "expr": "histogram_quantile(0.95, QDRANT_query_latency_seconds)"
           }
         ]
       },
@@ -34,7 +34,7 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "qdrant_service_uptime_seconds"
+            "expr": "QDRANT_service_uptime_seconds"
           }
         ]
       }

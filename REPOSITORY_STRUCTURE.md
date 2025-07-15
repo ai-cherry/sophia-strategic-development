@@ -127,7 +127,7 @@ infrastructure/
 ├── 📁 ELIMINATED_iac/                # Modern Stack infrastructure
 ├── 📁 ELIMINATED_setup/              # Modern Stack setup scripts
 ├── 📁 templates/                    # Infrastructure templates
-├── 📁 vercel/                       # Vercel deployment configs
+├── 📁 Lambda Labs/                       # Lambda Labs deployment configs
 └── 📁 websocket/                    # WebSocket infrastructure
 ```
 
@@ -149,7 +149,7 @@ mcp-servers/
 ├── 📁 slack/                        # Slack communication
 ├── 📁 ELIMINATED_unified/            # 🏔️ Lambda GPU AI
 ├── 📁 temporal/                     # Temporal workflow engine
-├── 📁 vercel/                       # Vercel deployment
+├── 📁 Lambda Labs/                       # Lambda Labs deployment
 └── 📁 ... (38 additional servers)   # Comprehensive integration suite
 ```
 

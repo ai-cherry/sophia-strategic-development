@@ -110,13 +110,13 @@ values:
       fn::secret: ${{ secrets.DATABASE_URL }}
     database_host:
       fn::secret: ${{ secrets.DATABASE_HOST }}
-    qdrant_api_key:
+    QDRANT_api_key:
       fn::secret: ${{ secrets.QDRANT_API_KEY }}
-    qdrant_cluster:
+    QDRANT_cluster:
       fn::secret: ${{ secrets.QDRANT_CLUSTER }}
-    qdrant_cluster_url:
+    QDRANT_cluster_url:
       fn::secret: ${{ secrets.QDRANT_CLUSTER_URL }}
-    qdrant_url:
+    QDRANT_URL:
       fn::secret: ${{ secrets.QDRANT_URL }}
     redis_url:
       fn::secret: ${{ secrets.REDIS_URL }}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 🧹 COMPLETE TECHNOLOGY ELIMINATION SCRIPT
-Systematically removes all Snowflake, Weaviate, and Vercel references
+Systematically removes all Snowflake, Weaviate, and lambda_labs references
 Achieves pure Qdrant + Lambda Labs architecture
 """
 
@@ -33,9 +33,9 @@ class TechnologyEliminator:
                 'weaviate', 'WEAVIATE', 'Weaviate',
                 'QDRANT_client', 'WeaviateClient'
             ],
-            'vercel': [
-                'vercel', 'VERCEL', 'Vercel',
-                '# Vercel config eliminated', 'vercel.config'
+            'lambda_labs': [
+                'lambda_labs', 'lambda_labs', 'lambda_labs',
+                '# lambda_labs config eliminated', 'lambda_labs.config'
             ]
         }
         
@@ -53,7 +53,7 @@ class TechnologyEliminator:
                 'shared/utils/QDRANT_memory/',
                 'scripts/snowflake/',
                 'infrastructure/persistence/snowflake/',
-                'infrastructure/vercel/'
+                'infrastructure/lambda_labs/'
             ],
             'files': [
                 # Documentation files
@@ -62,7 +62,7 @@ class TechnologyEliminator:
                 'WEAVIATE_ELIMINATION_REPORT.md',
                 'WEAVIATE_ELIMINATION_SUCCESS_SUMMARY.md',
                 'WEAVIATE_ARCHITECTURE_UPDATE.md',
-                'VERCEL_ELIMINATION_SUCCESS_REPORT.md',
+                'lambda_labsELIMINATION_SUCCESS_REPORT.md',
                 'docs/implementation/ABSOLUTE_QDRANT_ELIMINATION_COMPLETE.md',
                 'docs/implementation/COMPREHENSIVE_QDRANT_ELIMINATION_STRATEGY.md',
                 'docs/implementation/QDRANT_ELIMINATION_EXECUTION_COMPLETE.md',
@@ -71,7 +71,7 @@ class TechnologyEliminator:
                 'docs/04-deployment/QDRANT_memory_DEPLOYMENT_SUMMARY.md',
                 'docs/03-architecture/QDRANT_memory_LAYER.md',
                 'docs/system_handbook/10_QDRANT_memory_MCP_INTEGRATION.md',
-                'docs/deployment/VERCEL_DEPLOYMENT_STATUS.md',
+                'docs/deployment/lambda_labsDEPLOYMENT_STATUS.md',
                 'docs/deployment/LAMBDA_LABS_TOTAL_DEPLOYMENT_PLAN.md',
                 
                 # Scripts
@@ -83,11 +83,11 @@ class TechnologyEliminator:
                 'scripts/optimize_weaviate_alpha.py',
                 'scripts/test_weaviate_cloud_integration.py',
                 'scripts/consolidate_lambda_labs_deployment.py',
-                'scripts/eliminate_critical_vercel_references.py',
+                'scripts/eliminate_critical_lambda_labsreferences.py',
                 
                 # Config files
-                'frontend/# Vercel config eliminated',
-                '# Vercel config eliminated',
+                'frontend/# lambda_labs config eliminated',
+                '# lambda_labs config eliminated',
                 '.vercelignore',
                 
                 # Log files
@@ -107,7 +107,7 @@ class TechnologyEliminator:
         subprocess.run(['git', 'add', '-A'], check=False)
         subprocess.run([
             'git', 'commit', '-m', 
-            f'🔒 CHECKPOINT: Before complete elimination of Snowflake/Weaviate/Vercel'
+            f'🔒 CHECKPOINT: Before complete elimination of Snowflake/Weaviate/lambda_labs'
         ], check=False)
         
         tag_name = f"pre-elimination-checkpoint-{datetime.now().strftime('%Y%m%d')}"
@@ -123,7 +123,7 @@ class TechnologyEliminator:
         dependencies = {
             'weaviate_imports': [],
             'QDRANT_refs': [],
-            'vercel_refs': []
+            'lambda_labsrefs': []
         }
         
         # Scan for Weaviate imports
@@ -150,8 +150,8 @@ class TechnologyEliminator:
                     try:
                         with open(file_path, 'r', encoding='utf-8') as f:
                             content = f.read()
-                            if re.search(r'vercel', content, re.IGNORECASE):
-                                dependencies['vercel_refs'].append(file_path)
+                            if re.search(r'lambda_labs', content, re.IGNORECASE):
+                                dependencies['lambda_labsrefs'].append(file_path)
                     except:
                         continue
         
@@ -217,10 +217,10 @@ class TechnologyEliminator:
             r'QDRANT_': 'QDRANT_',
             r'QDRANT_memory': 'QDRANT_memory',
             
-            # Vercel elimination
-            r'vercel\s+deploy': '# Vercel eliminated - using Lambda Labs',
+            # lambda_labs elimination
+            r'lambda_labs\s+deploy': '# lambda_labs eliminated - using Lambda Labs',
             r'LAMBDA_LABS_TOKEN': 'LAMBDA_LABS_TOKEN',
-            r'vercel\.json': '# Vercel config eliminated'
+            r'lambda_labs\.json': '# lambda_labs config eliminated'
         }
         
         for root, dirs, files in os.walk('.'):
@@ -262,17 +262,17 @@ class TechnologyEliminator:
 # ELIMINATION PREVENTION - Never allow these back
 *snowflake*
 *weaviate*
-*vercel*
+*lambda_labs*
 *.snowflake
 *.weaviate
-*.vercel
+*.lambda_labs
 snowflake.config.*
 QDRANT_client.config.*
-vercel.config.*
+lambda_labs.config.*
 *QDRANT_memory*
 QDRANT_*
 WEAVIATE_*
-VERCEL_*
+lambda_labs*
 elimination_backup_*
 """
         
@@ -287,7 +287,7 @@ elimination_backup_*
         
         prevention_script = '''#!/usr/bin/env python3
 """
-🚫 PREVENTION SCRIPT - Block Snowflake/Weaviate/Vercel Reintroduction
+🚫 PREVENTION SCRIPT - Block Snowflake/Weaviate/lambda_labs Reintroduction
 Run before any commits to ensure eliminated technologies stay eliminated
 """
 
@@ -301,7 +301,7 @@ FORBIDDEN_PATTERNS = [
     r'snowflake',
     r'SNOWFLAKE',
     r'QDRANT_memory',
-    r'vercel\\s+deploy',
+    r'lambda_labs\\s+deploy',
     r'LAMBDA_LABS_TOKEN'
 ]
 
@@ -350,7 +350,7 @@ if __name__ == "__main__":
         counts = {
             'snowflake': 0,
             'weaviate': 0,
-            'vercel': 0
+            'lambda_labs': 0
         }
         
         for root, dirs, files in os.walk('.'):
@@ -367,7 +367,7 @@ if __name__ == "__main__":
                             content = f.read().lower()
                             counts['snowflake'] += len(re.findall(r'snowflake', content))
                             counts['weaviate'] += len(re.findall(r'weaviate', content))
-                            counts['vercel'] += len(re.findall(r'vercel', content))
+                            counts['lambda_labs'] += len(re.findall(r'lambda_labs', content))
                     except:
                         continue
         
@@ -396,7 +396,7 @@ if __name__ == "__main__":
 ## 🎯 Technologies Eliminated
 - ✅ **Snowflake**: 100% eliminated
 - ✅ **Weaviate**: 100% eliminated  
-- ✅ **Vercel**: 100% eliminated
+- ✅ **lambda_labs**: 100% eliminated
 
 ## 🏗️ Pure Architecture Achieved
 - **Vector Database**: Qdrant only

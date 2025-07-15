@@ -148,23 +148,23 @@ rm -rf *
 2. **Update the backend to serve static files:**
 The backend at port 8000 needs to be configured to serve static files from the `/` route instead of returning JSON.
 
-### Option 3: Deploy to Vercel (Recommended for Production)
+### Option 3: Deploy to Lambda Labs (Recommended for Production)
 
 For a production-grade deployment with CDN and automatic scaling:
 
-1. **Install Vercel CLI:**
+1. **Install Lambda Labs CLI:**
 ```bash
-npm i -g vercel
+npm i -g Lambda Labs
 ```
 
 2. **Deploy frontend:**
 ```bash
 cd frontend
-vercel --prod
+Lambda Labs --prod
 ```
 
 3. **Update DNS:**
-Point sophia-intel.ai to Vercel's servers while keeping api.sophia-intel.ai pointing to Lambda Labs.
+Point sophia-intel.ai to Lambda Labs's servers while keeping api.sophia-intel.ai pointing to Lambda Labs.
 
 ## What You'll See When It Works
 

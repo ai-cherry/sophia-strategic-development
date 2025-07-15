@@ -50,7 +50,7 @@ Found **71 files** with potential secrets:
 
 **High Priority Files**:
 - `lambda_inference.env`
-- `vercel-env-bulk-import.env`
+- `Lambda Labs-env-bulk-import.env`
 - `.env.template`
 - `.env.example`
 

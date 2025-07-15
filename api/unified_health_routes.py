@@ -39,9 +39,9 @@ async def get_system_alerts():
             "id": "alert-2",
             "severity": "info",
             "title": "Deployment Complete",
-            "message": "Frontend deployment to Vercel succeeded.",
+            "message": "Frontend deployment to lambda_labs succeeded.",
             "timestamp": "2025-07-07T09:30:00Z",
-            "server": "Vercel",
+            "server": "lambda_labs",
         },
     ]
     return alerts

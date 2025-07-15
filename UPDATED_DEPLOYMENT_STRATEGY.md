@@ -22,7 +22,7 @@ Sophia AI is deployed across 5 Lambda Labs GPU servers with a total monthly cost
 
 ### DNS Configuration
 - **Primary Domain**: sophia-intel.ai
-- **Frontend**: app.sophia-intel.ai → Vercel
+- **Frontend**: app.sophia-intel.ai → Lambda Labs
 - **API**: api.sophia-intel.ai → 104.171.202.103 (production)
 - **Wildcard**: *.sophia-intel.ai → 104.171.202.103
 
@@ -157,7 +157,7 @@ docker run -d \
 
 ### 6. **Frontend Deployment**
 
-Frontend is deployed to Vercel:
+Frontend is deployed to Lambda Labs:
 
 ```bash
 # Build frontend
@@ -165,8 +165,8 @@ cd frontend
 npm install
 npm run build
 
-# Deploy to Vercel (automated via GitHub)
-vercel --prod
+# Deploy to Lambda Labs (automated via GitHub)
+Lambda Labs --prod
 ```
 
 ## 📊 Monitoring & Health Checks
@@ -325,7 +325,7 @@ curl -X POST http://localhost:8080/v1/backups/filesystem \
 
 ### Current Monthly Costs
 - **Lambda Labs**: $3,635
-- **Vercel**: $20 (Pro plan)
+- **Lambda Labs**: $20 (Pro plan)
 - **Namecheap**: $15 (Domain + DNS)
 - **Total**: ~$3,670/month
 

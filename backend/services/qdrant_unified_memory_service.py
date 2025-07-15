@@ -33,8 +33,8 @@ import numpy as np
 
 # Qdrant imports
 try:
-    from qdrant_client import QdrantClient, models
-    from qdrant_client.models import (
+    from QDRANT_client import QdrantClient, models
+    from QDRANT_client.models import (
         Distance, VectorParams, PointStruct, Filter, FieldCondition, 
         MatchValue, SearchRequest, ScoredPoint, UpdateResult,
         CollectionInfo, OptimizersConfigDiff, HnswConfigDiff

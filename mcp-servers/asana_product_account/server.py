@@ -22,7 +22,7 @@ import logging
 import httpx
 from base.unified_standardized_base import ServerConfig, StandardizedMCPServer
 from backend.core.auto_esc_config import get_config_value
-from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
 from mcp.types import TextContent, Tool
 
 logger = logging.getLogger(__name__)

@@ -74,7 +74,6 @@ class MCPServerType(str, Enum):
     qdrant = "qdrant"
     SLACK = "slack"
     LINEAR = "linear"
-    VERCEL = "vercel"
     ESTUARY = "estuary"
     AI_MEMORY = "ai_memory"
     PROMPT_OPTIMIZER = "prompt_optimizer"

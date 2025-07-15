@@ -116,7 +116,7 @@
           "github",
           "pulumi",
           "docker",
-          "vercel"
+          "lambda_labs"
         ],
         "risk_level": "critical",
         "agent_types": [

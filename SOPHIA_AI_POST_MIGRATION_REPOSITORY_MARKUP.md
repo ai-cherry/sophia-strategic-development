@@ -165,7 +165,7 @@ memory = [
 16. **Estuary Flow** - ETL orchestration
 17. **Mem0** - Conversational memory
 18. **n8n Bridge** - Workflow automation
-19. **Vercel** - Frontend deployment
+19. **Lambda Labs** - Frontend deployment
 
 ## 📝 Documentation Updates
 

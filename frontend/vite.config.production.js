@@ -148,7 +148,7 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __COMMIT_HASH__: JSON.stringify(process.env.VERCEL_GIT_COMMIT_SHA || 'dev'),
+    __COMMIT_HASH__: JSON.stringify(process.env.lambda_labsGIT_COMMIT_SHA || 'dev'),
   },
 
   // Worker configuration

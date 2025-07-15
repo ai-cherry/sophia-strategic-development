@@ -316,3 +316,19 @@ QDRANT_*
 WEAVIATE_*
 VERCEL_*
 elimination_backup_*
+
+# ELIMINATION PREVENTION - Never allow these back
+*snowflake*
+*weaviate*
+*vercel*
+*.snowflake
+*.weaviate
+*.vercel
+snowflake.config.*
+QDRANT_client.config.*
+vercel.config.*
+*QDRANT_memory*
+QDRANT_*
+WEAVIATE_*
+VERCEL_*
+elimination_backup_*

@@ -266,7 +266,7 @@ requires-python = ">=3.12,<3.13"
 
 ### **Infrastructure (100+ files)**
 - **Status:** Comprehensive deployment setup
-- **Issues:** Multiple deployment strategies (Railway, Lambda Labs, Vercel)
+- **Issues:** Multiple deployment strategies (Railway, Lambda Labs, Lambda Labs)
 - **Recommendation:** Standardize on single deployment strategy
 
 ### **Configuration Files (20+ files)**

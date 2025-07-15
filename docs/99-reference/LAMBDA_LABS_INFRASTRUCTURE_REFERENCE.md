@@ -51,8 +51,8 @@ All secrets are managed through the unified pipeline:
 - **sophia-intel.ai** → 192.222.58.232
 - **api.sophia-intel.ai** → 192.222.58.232
 - **webhooks.sophia-intel.ai** → 192.222.58.232
-- **app.sophia-intel.ai** → Vercel CNAME
-- **dev.app.sophia-intel.ai** → Vercel CNAME
+- **app.sophia-intel.ai** → Lambda Labs CNAME
+- **dev.app.sophia-intel.ai** → Lambda Labs CNAME
 
 ### **SSL/TLS**
 - All domains secured with Let's Encrypt

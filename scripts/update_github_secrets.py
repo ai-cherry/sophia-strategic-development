@@ -151,7 +151,7 @@ def main():
         "SLACK_APP_TOKEN": get_config_value("SLACK_APP_TOKEN"),
         "SLACK_BOT_TOKEN": get_config_value("SLACK_BOT_TOKEN"),
         # Other Services
-        "VERCEL_API_TOKEN": get_config_value("VERCEL_API_TOKEN"),
+        "lambda_labsAPI_TOKEN": get_config_value("lambda_labsAPI_TOKEN"),
         "LINEAR_API_KEY": get_config_value("LINEAR_API_KEY"),
         "ESTUARY_API_KEY": get_config_value("ESTUARY_API_KEY"),
         "SENTRY_API_TOKEN": get_config_value("SENTRY_API_TOKEN"),

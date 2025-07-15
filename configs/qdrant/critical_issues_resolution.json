@@ -41,7 +41,7 @@
     "error": "No working URL - cannot restore collections"
   },
   "wrapper_fixes": {
-    "file_path": "backend/services/qdrant_wrapper.py",
+    "file_path": "backend/services/QDRANT_wrapper.py",
     "missing_classes": [
       "UpsertConfig"
     ],

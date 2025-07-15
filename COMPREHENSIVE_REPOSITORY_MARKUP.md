@@ -426,7 +426,7 @@ The backend is organized into specialized services following clean architecture 
 #### 🏗️ **Multi-Cloud Strategy**
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Lambda Labs   │    │     Vercel      │    │   GitHub        │
+│   Lambda Labs   │    │     Lambda Labs      │    │   GitHub        │
 │   (GPU/Backend) │    │   (Frontend)    │    │   (CI/CD)       │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
@@ -439,7 +439,7 @@ The backend is organized into specialized services following clean architecture 
 - **Dev**: `155.248.194.183` (Development)
 
 #### ☁️ **Cloud Services**
-- **Frontend**: Vercel (sophia-intel.ai)
+- **Frontend**: Lambda Labs (sophia-intel.ai)
 - **Backend**: Lambda Labs K3s cluster
 - **Database**: Modern Stack + PostgreSQL
 - **Cache**: Redis cluster
@@ -473,8 +473,8 @@ The backend is organized into specialized services following clean architecture 
 │   ├── 📄 security_setup.sql       # Security configuration
 │   └── [34 additional SQL files]
 │
-└── 📁 vercel/                      # Vercel deployment
-    ├── 📄 vercel.json               # Vercel configuration
+└── 📁 Lambda Labs/                      # Lambda Labs deployment
+    ├── 📄 Lambda Labs.json               # Lambda Labs configuration
     ├── 📄 deployment.py             # Deployment automation
     └── 📄 dns_setup.py              # DNS configuration
 ```
@@ -487,7 +487,7 @@ The backend is organized into specialized services following clean architecture 
 ├── deploy-sophia-platform.yml      # Main deployment
 ├── daily-debt-prevention.yml       # Technical debt prevention
 ├── uv-ci-cd.yml                    # Python CI/CD
-├── vercel-deployment.yml           # Frontend deployment
+├── Lambda Labs-deployment.yml           # Frontend deployment
 └── sync_secrets.yml                # Secret synchronization
 ```
 
@@ -497,7 +497,7 @@ The backend is organized into specialized services following clean architecture 
 kubectl apply -k k8s/overlays/production
 
 # Frontend deployment
-vercel --prod
+Lambda Labs --prod
 
 # Complete deployment
 python scripts/deploy_sophia_complete.py

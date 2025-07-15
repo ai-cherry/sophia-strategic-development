@@ -4681,7 +4681,7 @@
       "column": 62,
       "row": 45
     },
-    "message": "`qdrant_client.models.PointStruct` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "message": "`QDRANT_client.models.PointStruct` imported but unused; consider using `importlib.util.find_spec` to test for availability",
     "noqa_row": 45,
     "url": "https://docs.astral.sh/ruff/rules/unused-import"
   },
@@ -40848,7 +40848,7 @@
       "column": 37,
       "row": 10
     },
-    "message": "`weaviate.classes.config.Configure` imported but unused",
+    "message": "`QDRANT_client.classes.config.Configure` imported but unused",
     "noqa_row": 10,
     "url": "https://docs.astral.sh/ruff/rules/unused-import"
   },
@@ -40881,7 +40881,7 @@
       "column": 48,
       "row": 10
     },
-    "message": "`weaviate.classes.config.DataType` imported but unused",
+    "message": "`QDRANT_client.classes.config.DataType` imported but unused",
     "noqa_row": 10,
     "url": "https://docs.astral.sh/ruff/rules/unused-import"
   },
@@ -40914,7 +40914,7 @@
       "column": 58,
       "row": 10
     },
-    "message": "`weaviate.classes.config.Property` imported but unused",
+    "message": "`QDRANT_client.classes.config.Property` imported but unused",
     "noqa_row": 10,
     "url": "https://docs.astral.sh/ruff/rules/unused-import"
   },

@@ -6,7 +6,7 @@
 
 ## 🚀 DEPLOYMENT SUMMARY
 
-### ✅ Frontend - DEPLOYED ON VERCEL
+### ✅ Frontend - DEPLOYED ON Lambda Labs
 - **Production URL**: https://app.sophia-intel.ai
 - **Status**: Live and accessible globally
 - **Framework**: React + Vite + TypeScript  
@@ -39,7 +39,7 @@
 ## 📊 WHAT'S WORKING
 
 1. **Frontend Dashboard** ✅
-   - Deployed to Vercel
+   - Deployed to Lambda Labs
    - Accessible at https://app.sophia-intel.ai
    - React application with modern UI
 
@@ -139,7 +139,7 @@ redis-server
 
 3. **Infrastructure Foundation** ✅
    - Deployment pipeline established
-   - Vercel frontend deployment working
+   - Lambda Labs frontend deployment working
    - Database schema created
 
 ## 📊 DEPLOYMENT METRICS
@@ -176,4 +176,4 @@ redis-server
 
 ---
 
-**SUMMARY**: The Sophia AI system has a working frontend deployed to Vercel and a functional backend running locally. To achieve full deployment, the backend needs to be deployed to a cloud service and properly connected to the frontend. All core functionality is implemented and tested. 
+**SUMMARY**: The Sophia AI system has a working frontend deployed to Lambda Labs and a functional backend running locally. To achieve full deployment, the backend needs to be deployed to a cloud service and properly connected to the frontend. All core functionality is implemented and tested. 

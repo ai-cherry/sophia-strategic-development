@@ -122,7 +122,7 @@ cd frontend && npm run dev
 - **🔐 AI Agent Authentication**: Enterprise-grade security for real infrastructure changes
 
 ### 🤖 **Revolutionary AI Agent Capabilities**
-- **Infrastructure Agent**: Deploy via Pulumi, manage Docker containers, control Vercel deployments
+- **Infrastructure Agent**: Deploy via Pulumi, manage Docker containers, control Lambda Labs deployments
 - **Data Agent**: Execute Modern Stack queries, manage database schemas, control Estuary Flow pipelines
 - **Integration Agent**: Create Linear tickets, send Slack messages, update HubSpot records
 - **🛡️ Enterprise Security**: Zero Trust authentication, risk-based confirmations, complete audit trails

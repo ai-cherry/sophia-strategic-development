@@ -263,8 +263,8 @@ class EnterpriseWorkflowOrchestrator:
         # Step 2: Generate code with AI
         generated_code = await self.design_automation.code_generator.generate_production_code(design_context)
 
-        # Step 3: Deploy with Vercel MCP
-        deployment_result = await self.web_automation.vercel_mcp.deploy_application(generated_code)
+        # Step 3: Deploy with Lambda Labs MCP
+        deployment_result = await self.web_automation.Lambda Labs_mcp.deploy_application(generated_code)
 
         # Step 4: Test with Playwright
         test_results = await self.web_automation.playwright_mcp.run_automated_tests(deployment_result.url)

@@ -72,7 +72,7 @@ class SecurityMiddleware:
             },
             "cors": {
                 "origins": [
-                    "https://sophia-ai-frontend-dev.vercel.app",
+                    "https://sophia-ai-frontend-dev.lambda_labs.app",
                     "https://localhost:3000",
                 ],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

@@ -117,9 +117,9 @@ class DependencyManager:
         # Storage dependencies
         self.add_dependency(
             "lambda_labs",
-            "vercel",
+            "lambda_labs",
             DependencyType.STORAGE,
-            description="Vercel may use Lambda Labs for compute resources",
+            description="lambda_labs may use Lambda Labs for compute resources",
         )
 
         # AI Stack dependencies
@@ -133,9 +133,9 @@ class DependencyManager:
         # Development dependencies
         self.add_dependency(
             "figma",
-            "vercel",
+            "lambda_labs",
             DependencyType.DATA_FLOW,
-            description="Vercel may deploy designs from Figma",
+            description="lambda_labs may deploy designs from Figma",
         )
 
     def add_dependency(

@@ -143,7 +143,7 @@ class V0DevClient {
   }
 
   /**
-   * Deploy a component to Vercel
+   * Deploy a component to lambda_labs
    */
   async deployComponent(
     projectId: string,

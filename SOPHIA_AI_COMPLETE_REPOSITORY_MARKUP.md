@@ -8,7 +8,7 @@
 - **53 MCP (Model Context Protocol) servers** for comprehensive integrations
 - **11 strategic external repositories** (22k+ combined stars)
 - **Microservices architecture** with Kubernetes (K3s) deployment
-- **Multi-cloud infrastructure** (Lambda Labs, Vercel, AWS)
+- **Multi-cloud infrastructure** (Lambda Labs, Lambda Labs, AWS)
 
 ## 🏗️ Complete Repository Structure
 
@@ -77,7 +77,7 @@ sophia-main/
 ├── 📄 render.yaml                   # Render deployment config
 ├── 📄 requirements.txt              # Python dependencies
 ├── 📄 uv.lock                       # UV dependency lock (516KB)
-└── 📄 vercel.json                   # Vercel deployment config
+└── 📄 Lambda Labs.json                   # Lambda Labs deployment config
 ```
 
 ## 🔍 Detailed Directory Analysis
@@ -164,7 +164,7 @@ frontend/
 ├── 📄 package-lock.json             # Lock file
 ├── 📄 tsconfig.json                 # TypeScript config
 ├── 📄 vite.config.ts                # Vite configuration
-└── 📄 vercel.json                   # Vercel settings
+└── 📄 Lambda Labs.json                   # Lambda Labs settings
 ```
 
 ### 🔌 MCP Servers (`mcp-servers/`) - 53 Integration Points
@@ -202,7 +202,7 @@ mcp-servers/
 ├── 📁 sophia_intelligence/          # AI intelligence
 ├── 📁 temporal/                     # Temporal workflows
 ├── 📁 ui_ux_agent/                  # UI/UX automation
-├── 📁 vercel/                       # Vercel deployment
+├── 📁 Lambda Labs/                       # Lambda Labs deployment
 └── ... (21 additional servers)      # Various integrations
 ```
 
@@ -248,7 +248,7 @@ infrastructure/
 │   ├── 📁 schemas/                  # Database schemas
 │   └── 📁 procedures/               # Stored procedures
 ├── 📁 templates/                    # IaC templates
-├── 📁 vercel/                       # Vercel deployment
+├── 📁 Lambda Labs/                       # Lambda Labs deployment
 ├── 📁 websocket/                    # WebSocket infra
 ├── 📄 Pulumi.yaml                   # Pulumi project
 ├── 📄 Pulumi.prod.yaml              # Production stack
@@ -303,7 +303,7 @@ docs/
 ├── 📁 04-deployment/                # Deployment guides
 │   ├── 📄 LAMBDA_LABS_DEPLOYMENT.md # Lambda deployment
 │   ├── 📄 K3S_DEPLOYMENT_GUIDE.md   # K3s deployment
-│   ├── 📄 VERCEL_DEPLOYMENT.md      # Vercel deployment
+│   ├── 📄 Lambda Labs_DEPLOYMENT.md      # Lambda Labs deployment
 │   └── 📄 SERVERLESS_GUIDE.md       # Serverless guide
 ├── 📁 05-integrations/              # Integration docs
 ├── 📁 06-mcp-servers/               # MCP documentation
@@ -319,7 +319,7 @@ docs/
 ├── 📁 deployment/                   # Deployment details
 │   ├── 📄 BACKEND_DEPLOYMENT_OPTIONS.md
 │   ├── 📄 LAMBDA_LABS_DEPLOYMENT_SUCCESS.md
-│   └── 📄 VERCEL_DEPLOYMENT_STATUS.md
+│   └── 📄 Lambda Labs_DEPLOYMENT_STATUS.md
 ├── 📁 implementation/               # Implementation guides
 ├── 📁 monorepo/                     # Monorepo transition
 ├── 📁 sample_queries/               # Example queries
@@ -380,7 +380,7 @@ external/
 - `frontend/package.json` - Node.js dependencies
 - `frontend/tsconfig.json` - TypeScript configuration
 - `frontend/vite.config.ts` - Vite build settings
-- `frontend/vercel.json` - Vercel deployment
+- `frontend/Lambda Labs.json` - Lambda Labs deployment
 
 ### 🐳 Container Configuration
 - `Dockerfile` - Main container definition
@@ -429,7 +429,7 @@ external/
    - K3s Kubernetes cluster
    - IP: 104.171.202.103, 192.222.58.232, 104.171.202.117
 
-2. **Vercel** (Frontend)
+2. **Lambda Labs** (Frontend)
    - React application hosting
    - Domain: sophia-intel.ai
    - Automatic deployments

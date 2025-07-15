@@ -121,15 +121,15 @@
         "handler": "handle_estuary_webhook"
       },
       {
-        "path": "/webhook/vercel/deployment",
-        "platform": "vercel",
+        "path": "/webhook/lambda_labs/deployment",
+        "platform": "lambda_labs",
         "events": [
           "deployment.created",
           "deployment.ready",
           "deployment.error"
         ],
         "auth_type": "signature",
-        "handler": "handle_vercel_webhook"
+        "handler": "handle_lambda_labswebhook"
       },
       {
         "path": "/webhook/linear/issues",

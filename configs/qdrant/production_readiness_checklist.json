@@ -10,7 +10,7 @@
       "metrics_monitoring": "\u2705 Configured"
     },
     "infrastructure_issues": {
-      "qdrant_cloud_access": "\u274c BLOCKED - Auth failing",
+      "QDRANT_cloud_access": "\u274c BLOCKED - Auth failing",
       "api_key_verification": "\u274c BLOCKED - 401 errors",
       "collection_provisioning": "\u274c BLOCKED - No cloud access",
       "production_endpoint": "\u274c PENDING - Need valid URL"

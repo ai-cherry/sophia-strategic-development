@@ -70,7 +70,7 @@ Revolutionary three-tier security architecture enabling AI agents to make real i
 - **GitHub**: Secure token storage with `gh auth login`
 - **Pulumi**: Organization access with infrastructure deployment capabilities
 - **Docker**: Registry operations with container management
-- **Vercel**: Frontend deployment automation
+- **Lambda Labs**: Frontend deployment automation
 
 #### **Tier 2: Enhanced API Authentication**
 - **Modern Stack**: Role-based database access with query execution

@@ -26,15 +26,15 @@ docker build -f Dockerfile.backend -t sophia-backend .
 # ERROR: g++ compiler missing, asyncpg build fails
 ```
 
-### 2. Frontend Deployment to Vercel
+### 2. Frontend Deployment to Lambda Labs
 
-#### Successful Vercel Deployment Commands
+#### Successful Lambda Labs Deployment Commands
 ```bash
 cd frontend
-vercel --prod --yes
+Lambda Labs --prod --yes
 
 # Creates deployment at:
-# https://frontend-[hash]-lynn-musils-projects.vercel.app
+# https://frontend-[hash]-lynn-musils-projects.Lambda Labs.app
 ```
 
 #### Environment Variable Issues
@@ -142,7 +142,7 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
-#### Frontend (Vercel Environment Variables)
+#### Frontend (Lambda Labs Environment Variables)
 ```bash
 VITE_API_URL=https://[backend-public-url]
 VITE_APP_NAME=Sophia AI
@@ -154,8 +154,8 @@ VITE_ENVIRONMENT=production
 #### Namecheap DNS Settings Required
 ```
 Type    Host    Value
-A       @       76.76.21.21         (Vercel's IP)
-CNAME   www     cname.vercel-dns.com
+A       @       76.76.21.21         (Lambda Labs's IP)
+CNAME   www     cname.Lambda Labs-dns.com
 ```
 
 ### 9. Lambda Labs Server Status
@@ -180,7 +180,7 @@ LAMBDA_SSH_KEY
 ELIMINATED_PASSWORD
 DOCKER_HUB_USERNAME
 DOCKER_HUB_ACCESS_TOKEN
-VERCEL_TOKEN
+Lambda Labs_TOKEN
 ```
 
 ## Key Technical Decisions Needed

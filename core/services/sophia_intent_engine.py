@@ -126,7 +126,7 @@ class SophiaIntentEngine:
             r"\b(deploy|scale|configure|restart|stop|start|monitor)\b",
             r"\b(server|service|container|kubernetes|k8s|docker|pulumi)\b",
             r"\b(database|redis|postgres|qdrant)\b",
-            r"\b(lambda|vercel|aws|gcp|azure)\b",
+            r"\b(lambda|lambda_labs|aws|gcp|azure)\b",
         ]
 
         message_lower = message.lower()
@@ -370,5 +370,5 @@ class SophiaIntentEngine:
         return {
             "kubernetes": [r"k8s", r"kubernetes", r"kubectl", r"pod", r"deployment"],
             "docker": [r"docker", r"container", r"dockerfile", r"compose"],
-            "cloud": [r"aws", r"gcp", r"azure", r"lambda", r"vercel"],
+            "cloud": [r"aws", r"gcp", r"azure", r"lambda", r"lambda_labs"],
         }

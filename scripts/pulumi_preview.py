@@ -41,7 +41,7 @@ class PulumiPreview:
             "qdrant": 200,  # Vector DB hosting
             
             # External services
-            "vercel": 20,
+            "lambda_labs": 20,
             "cloudflare": 20,
             "docker_hub": 7,
             
@@ -188,7 +188,7 @@ class PulumiPreview:
         
         # External services
         monthly_costs.update({
-            "vercel": self.resource_costs["vercel"],
+            "lambda_labs": self.resource_costs["lambda_labs"],
             "cloudflare": self.resource_costs["cloudflare"],
             "docker_hub": self.resource_costs["docker_hub"],
             "s3_backup": self.resource_costs["s3_backup"]

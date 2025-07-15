@@ -1,6 +1,6 @@
 """
 Sophia AI Performance Optimization Configuration
-Optimized for Vercel serverless deployment with focus on performance, stability, and quality.
+Optimized for lambda_labs serverless deployment with focus on performance, stability, and quality.
 """
 
 import asyncio
@@ -68,7 +68,7 @@ class PerformanceOptimizer:
             "sophia_env": get_config_value("sophia_env", "production"),
             "debug": get_config_value("debug", "false").lower() == "true",
             "log_level": get_config_value("log_level", "INFO"),
-            "platform": get_config_value("platform", "vercel"),
+            "platform": get_config_value("platform", "lambda_labs"),
             "cache_ttl": int(os.getenv("CACHE_TTL", self.config.cache_ttl)),
             "max_concurrent": int(
                 os.getenv(

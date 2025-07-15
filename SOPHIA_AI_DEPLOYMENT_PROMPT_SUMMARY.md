@@ -33,7 +33,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
    - Schema: PAYREADY_SALESIQ
    - Authentication: Password/PAT token based
 
-3. **Vercel**: Pro account under lynn-musils-projects
+3. **Lambda Labs**: Pro account under lynn-musils-projects
 4. **Namecheap**: Domain sophia-intel.ai registered and ready for DNS configuration
 
 ## Tech Stack
@@ -81,13 +81,13 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 - **CI/CD**: GitHub Actions
 - **Secrets**: Pulumi ESC for secret management
 - **Monitoring**: Prometheus + Grafana
-- **Current Deployment**: Mix of Vercel (frontend) and local/ngrok (backend)
+- **Current Deployment**: Mix of Lambda Labs (frontend) and local/ngrok (backend)
 
 ## Current Issues & Blockers
 
 ### 1. Frontend-Backend Connection Issues
 - **Problem**: Frontend shows "Failed to process your request" when trying to communicate with backend
-- **Root Cause**: VITE_API_URL environment variable not properly set in Vercel deployment
+- **Root Cause**: VITE_API_URL environment variable not properly set in Lambda Labs deployment
 - **Symptoms**: 
   - Chat interface loads but can't send messages
   - System status shows as undefined causing `toUpperCase()` errors
@@ -103,9 +103,9 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 - **Status**: Partially resolved but still occurs intermittently
 
 ### 3. Environment Variable Configuration
-- **Problem**: Complex environment variable setup across local, Vercel, and Lambda Labs
+- **Problem**: Complex environment variable setup across local, Lambda Labs, and Lambda Labs
 - **Specific Issues**:
-  - VITE_API_URL not persisting in Vercel deployments
+  - VITE_API_URL not persisting in Lambda Labs deployments
   - Modern Stack credentials not loading correctly ("User is empty" errors)
   - Different variable prefixes (REACT_APP_ vs VITE_) causing confusion
 
@@ -127,7 +127,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 ## Deployment Attempts Summary
 
 ### Successful Elements:
-- Frontend deploys to Vercel successfully
+- Frontend deploys to Lambda Labs successfully
 - Backend runs locally on port 8001
 - Modern Stack connection works when environment is configured correctly
 - SSH access to all Lambda Labs servers confirmed
@@ -143,7 +143,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 
 1. **MCP Servers**: All 7 MCP servers running on 104.171.202.117 in K3s pods
 2. **Backend API**: Running on Lambda Labs with public endpoint
-3. **Frontend**: Deployed on Vercel with sophia-intel.ai domain pointing to it
+3. **Frontend**: Deployed on Lambda Labs with sophia-intel.ai domain pointing to it
 4. **Data Flow**: Frontend → Backend API → MCP Servers → Modern Stack/Redis
 5. **Monitoring**: Full observability with Prometheus/Grafana
 6. **Automation**: GitHub Actions deploying on push to main
@@ -151,11 +151,11 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 ## Key Questions for Troubleshooting
 
 1. Should we use K3s on Lambda Labs or stick with Docker Compose initially?
-2. How can we ensure VITE_API_URL persists in Vercel deployments?
+2. How can we ensure VITE_API_URL persists in Lambda Labs deployments?
 3. What's the best way to expose backend API (nginx, Traefik, ngrok permanent)?
 4. Should MCP servers be containerized individually or as a monolithic service?
 5. How to handle Modern Stack authentication in production (PAT token vs password)?
-6. Best practice for managing secrets across Vercel, Lambda Labs, and GitHub Actions?
+6. Best practice for managing secrets across Lambda Labs, Lambda Labs, and GitHub Actions?
 
 ## Deployment Script Requirements
 

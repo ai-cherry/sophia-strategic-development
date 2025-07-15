@@ -38,7 +38,7 @@ After implementing enhanced coding workflow capabilities inspired by **Zencoder*
 - **Pulumi Infrastructure as Code** management
 - **Docker & Kubernetes** orchestration
 - **Lambda Labs** compute management
-- **Vercel deployment** automation
+- **Lambda Labs deployment** automation
 - **DNS and domain** management
 
 ### **4. 📊 Executive-Grade Analytics**

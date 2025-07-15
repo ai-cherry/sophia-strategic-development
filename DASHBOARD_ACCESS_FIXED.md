@@ -146,18 +146,18 @@ cd backend && uv run python -c "from services.smart_ai_service import SmartAISer
 1. **Open the dashboard URL** in your browser
 2. **Explore the executive interface** with real-time KPIs
 3. **Use the chat interface** for AI-powered business queries
-4. **Deploy to Vercel** for production access (optional)
+4. **Deploy to Lambda Labs** for production access (optional)
 
 ---
 
-## 🚀 **VERCEL DEPLOYMENT (Optional):**
+## 🚀 **Lambda Labs DEPLOYMENT (Optional):**
 
 ### **Quick Deploy:**
 ```bash
 # Build for production
 cd frontend && npm run build
 
-# Deploy to Vercel
+# Deploy to Lambda Labs
 ```
 
 **Your dashboard IS working - both services are now operational!** 🎉

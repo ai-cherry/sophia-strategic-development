@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 🔥 FINAL ANNIHILATION EXECUTION SCRIPT
-Complete elimination of Vercel, Snowflake, and Weaviate from Sophia AI
+Complete elimination of lambda_labs, Snowflake, and Weaviate from Sophia AI
 
 This script executes the comprehensive annihilation plan to achieve:
 - Zero references to eliminated technologies
@@ -37,18 +37,18 @@ class FinalAnnihilationExecutor:
     # Forbidden patterns for comprehensive scanning
     FORBIDDEN_PATTERNS = [
         # Technology names (case-insensitive)
-        r'(?i)weaviate', r'(?i)vercel', r'(?i)snowflake',
+        r'(?i)weaviate', r'(?i)lambda_labs', r'(?i)snowflake',
         
         # Import statements
         r'import.*weaviate', r'from.*weaviate',
         r'import.*snowflake', r'from.*snowflake',
         
         # Configuration patterns
-        r'WEAVIATE_', r'VERCEL_', r'SNOWFLAKE_',
-        r'weaviate\.', r'vercel\.', r'snowflake\.',
+        r'WEAVIATE_', r'lambda_labs', r'SNOWFLAKE_',
+        r'weaviate\.', r'lambda_labs\.', r'snowflake\.',
         
         # Domain patterns
-        r'\.vercel\.app', r'vercel\.json',
+        r'\.lambda_labs\.app', r'lambda_labs\.json',
         r'snowflake\.com', r'weaviate\.io',
         
         # Docker images
@@ -57,18 +57,18 @@ class FinalAnnihilationExecutor:
         
         # Package names
         r'weaviate-client', r'snowflake-connector',
-        r'@vercel/', r'vercel-cli',
+        r'@lambda_labs/', r'lambda_labs-cli',
         
         # Service names
-        r'weaviate-service', r'vercel-service',
+        r'weaviate-service', r'lambda_labs-service',
         r'snowflake-service', r'cortex-aisql',
         
         # Environment variables
-        r'WEAVIATE_URL', r'VERCEL_TOKEN', r'SNOWFLAKE_ACCOUNT',
+        r'WEAVIATE_URL', r'lambda_labsTOKEN', r'SNOWFLAKE_ACCOUNT',
         
         # Kubernetes resources
         r'kind:\s*Weaviate', r'image:.*weaviate',
-        r'image:.*vercel', r'image:.*snowflake',
+        r'image:.*lambda_labs', r'image:.*snowflake',
     ]
     
     # File extensions to scan
@@ -89,13 +89,13 @@ class FinalAnnihilationExecutor:
     
     # Directories to completely remove
     DIRECTORIES_TO_REMOVE = [
-        'infrastructure/vercel/',
+        'infrastructure/lambda_labs/',
         'infrastructure/kubernetes/cortex-aisql/',
-        '.vercel/',
+        '.lambda_labs/',
         'docs/implementation/*ELIMINATION*',
         'docs/implementation/*SNOWFLAKE*',
         'docs/implementation/*WEAVIATE*',
-        'docs/implementation/*VERCEL*',
+        'docs/implementation/*lambda_labs*',
         'backup_*',
         '*_backup/',
         'elimination_backup/',
@@ -109,7 +109,7 @@ class FinalAnnihilationExecutor:
         
     def execute_annihilation(self) -> EliminationResult:
         """Execute the complete annihilation plan"""
-        print("🔥 STARTING FINAL ANNIHILATION OF VERCEL, SNOWFLAKE & WEAVIATE")
+        print("🔥 STARTING FINAL ANNIHILATION OF lambda_labs, SNOWFLAKE & WEAVIATE")
         print("=" * 70)
         
         if not self.confirm_destruction:
@@ -235,12 +235,12 @@ class FinalAnnihilationExecutor:
             'WEAVIATE_URL': 'QDRANT_URL',
             'WEAVIATE_API_KEY': 'QDRANT_API_KEY',
             
-            # Vercel → Lambda Labs
-            'vercel': 'lambda-labs',
-            'Vercel': 'Lambda-Labs',
-            'VERCEL': 'LAMBDA_LABS',
-            'vercel.app': 'lambda-labs.com',
-            'VERCEL_TOKEN': 'LAMBDA_LABS_TOKEN',
+            # lambda_labs → Lambda Labs
+            'lambda_labs': 'lambda-labs',
+            'lambda_labs': 'Lambda-Labs',
+            'lambda_labs': 'LAMBDA_LABS',
+            'lambda_labs.app': 'lambda-labs.com',
+            'lambda_labsTOKEN': 'LAMBDA_LABS_TOKEN',
             
             # Snowflake → PostgreSQL
             'snowflake': 'postgresql',
@@ -303,8 +303,8 @@ class FinalAnnihilationExecutor:
             file_path = self.project_root / config_file
             if file_path.exists():
                 self._remove_lines_with_patterns(file_path, [
-                    r'WEAVIATE_', r'VERCEL_', r'SNOWFLAKE_',
-                    r'weaviate:', r'vercel:', r'snowflake:',
+                    r'WEAVIATE_', r'lambda_labs', r'SNOWFLAKE_',
+                    r'weaviate:', r'lambda_labs:', r'snowflake:',
                 ])
                 self.results.files_modified += 1
         
@@ -331,8 +331,8 @@ class FinalAnnihilationExecutor:
         
         # Delete specific files
         specific_files = [
-            '# Vercel config eliminated',
-            '.vercel',
+            '# lambda_labs config eliminated',
+            '.lambda_labs',
             'snowflake.json',
             'QDRANT_client.json',
         ]
@@ -360,7 +360,7 @@ class FinalAnnihilationExecutor:
                 lines = f.readlines()
             new_lines = []
             for line in lines:
-                if not any(pkg in line.lower() for pkg in ['weaviate-client', 'snowflake-connector', 'vercel']):
+                if not any(pkg in line.lower() for pkg in ['weaviate-client', 'snowflake-connector', 'lambda_labs']):
                     new_lines.append(line)
             
             # Add Qdrant client if not present
@@ -376,12 +376,12 @@ class FinalAnnihilationExecutor:
             with open(pkg_file, 'r') as f:
                 pkg_data = json.load(f)
             
-            # Remove Vercel dependencies
+            # Remove lambda_labs dependencies
             for dep_type in ['dependencies', 'devDependencies']:
                 if dep_type in pkg_data:
                     pkg_data[dep_type] = {
                         k: v for k, v in pkg_data[dep_type].items()
-                        if 'vercel' not in k.lower()
+                        if 'lambda_labs' not in k.lower()
                     }
             
             with open(pkg_file, 'w') as f:
@@ -442,17 +442,17 @@ import sys
 from pathlib import Path
 
 FORBIDDEN_PATTERNS = [
-    r'(?i)weaviate', r'(?i)vercel', r'(?i)snowflake',
+    r'(?i)weaviate', r'(?i)lambda_labs', r'(?i)snowflake',
     r'import.*weaviate', r'from.*weaviate',
     r'import.*snowflake', r'from.*snowflake',
-    r'WEAVIATE_', r'VERCEL_', r'SNOWFLAKE_',
-    r'weaviate\.', r'vercel\.', r'snowflake\.',
-    r'\.vercel\.app', r'vercel\.json',
+    r'WEAVIATE_', r'lambda_labs', r'SNOWFLAKE_',
+    r'weaviate\.', r'lambda_labs\.', r'snowflake\.',
+    r'\.lambda_labs\.app', r'lambda_labs\.json',
     r'snowflake\.com', r'weaviate\.io',
     r'semitechnologies/weaviate',
     r'snowflake/snowflake',
     r'weaviate-client', r'snowflake-connector',
-    r'@vercel/', r'vercel-cli',
+    r'@lambda_labs/', r'lambda_labs-cli',
 ]
 
 def scan_for_violations():
@@ -566,7 +566,7 @@ echo "✅ No eliminated technologies found"
             lines = content.split('\n')
             new_lines = []
             for line in lines:
-                if not any(pkg in line.lower() for pkg in ['weaviate-client', 'snowflake-connector', 'vercel']):
+                if not any(pkg in line.lower() for pkg in ['weaviate-client', 'snowflake-connector', 'lambda_labs']):
                     new_lines.append(line)
             
             with open(pyproject_file, 'w') as f:
@@ -607,7 +607,7 @@ def main():
     
     if results.success:
         print("\n🎉 ANNIHILATION COMPLETE!")
-        print("🔥 Vercel, Snowflake, and Weaviate have been eliminated!")
+        print("🔥 lambda_labs, Snowflake, and Weaviate have been eliminated!")
         print("🚀 Sophia AI now runs on pure Qdrant + Lambda Labs architecture!")
         print("\n📋 NEXT STEPS:")
         print("1. Test the system thoroughly")

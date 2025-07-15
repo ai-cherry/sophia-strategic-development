@@ -9,12 +9,12 @@ from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 from dataclasses import dataclass
 
-from qdrant_client import QdrantClient
-from qdrant_client.models import (
+from QDRANT_client import QdrantClient
+from QDRANT_client.models import (
     Distance, VectorParams, PointStruct, Filter, FieldCondition, 
     MatchValue, CollectionInfo, UpdateResult
 )
-from qdrant_client.http import models
+from QDRANT_client.http import models
 
 from backend.core.auto_esc_config import get_config_value
 

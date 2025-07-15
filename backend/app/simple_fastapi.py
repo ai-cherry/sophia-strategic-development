@@ -31,7 +31,7 @@ from backend.api.project_management_routes import router as project_router
 
 # Import services for health checks
 try:
-    from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+    from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False

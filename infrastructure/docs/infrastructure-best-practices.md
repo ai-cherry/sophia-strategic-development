@@ -56,7 +56,7 @@ Lambda Labs Infrastructure/
 ├── Modern Stack Integration      # Data warehouse and AI
 ├── Portkey AI Gateway         # LLM orchestration
 ├── Estuary Flow              # Real-time data streaming
-└── Vercel Frontend           # Frontend deployment
+└── Lambda Labs Frontend           # Frontend deployment
 ```
 
 ### Directory Structure

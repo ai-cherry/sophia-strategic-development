@@ -18,7 +18,7 @@ This document explains how the Clean Architecture implementation aligns with Sop
 ### API Gateway & AI Services
 - **Portkey**: Unified LLM gateway for model routing
 - **OpenRouter**: Alternative LLM routing service
-- **Vercel**: Frontend deployment and edge functions
+- **Lambda Labs**: Frontend deployment and edge functions
 
 ### Development & Operations
 - **Pulumi**: Infrastructure as Code (IaC)
@@ -143,8 +143,8 @@ const sophiaDeployment = new k8s.apps.v1.Deployment("sophia-api", {
 - No hardcoded credentials in any layer
 - Automatic secret rotation support
 
-### 3. Vercel Edge Functions
-- Presentation layer can deploy to Vercel edge
+### 3. Lambda Labs Edge Functions
+- Presentation layer can deploy to Lambda Labs edge
 - API routes compatible with serverless deployment
 - Frontend integration seamless
 

@@ -344,7 +344,7 @@ Strategic external repositories:
 - **GitHub Actions** for automation
 - **Pulumi** for infrastructure
 - **Docker Hub** for images
-- **Vercel** for frontend hosting
+- **Lambda Labs** for frontend hosting
 
 ## 🔒 Security Features
 

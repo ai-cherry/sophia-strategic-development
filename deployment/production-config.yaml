@@ -22,7 +22,7 @@ infrastructure:
     cluster: "k3s"
     namespace: "sophia-ai-prod"
     
-  vercel:
+  lambda_labs:
     project: "sophia-intel-ai"
     team: "scoobyjava"
     
@@ -42,7 +42,7 @@ dns:
       name: "docs"
       value: "76.76.21.21"  services:
   frontend:
-    provider: "vercel"
+    provider: "lambda_labs"
     framework: "nextjs"
     build_command: "npm run build"
     output_directory: ".next"

@@ -150,14 +150,14 @@
     "\ud83d\udcca QUANTIZE: Enable ScalarQuantization for large collections",
     "\ud83d\udd0d HYBRID: Implement dense+sparse+metadata search",
     "\ud83d\udccb SCHEMA: Create strict PointStruct validation",
-    "\ud83d\udd04 WRAPPER: Build centralized qdrant_wrapper.py",
+    "\ud83d\udd04 WRAPPER: Build centralized QDRANT_wrapper.py",
     "\ud83d\udcc8 METRICS: Add Prometheus monitoring",
     "\ud83d\udd10 RBAC: Implement scoped API keys",
     "\ud83d\udcbe BACKUP: Configure automated snapshots"
   ],
   "next_steps": [
     "Step 3: Define & Enforce Collection Schemas with PointStruct validation",
-    "Step 4: Refactor & Centralize Integrations via qdrant_wrapper.py",
+    "Step 4: Refactor & Centralize Integrations via QDRANT_wrapper.py",
     "Step 5: Instrument Metrics & Health Checks with Prometheus",
     "Fix cloud configuration: Update QDRANT_URL to cluster endpoint"
   ]

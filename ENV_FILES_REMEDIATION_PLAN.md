@@ -26,10 +26,10 @@ These contain real secrets and need immediate attention:
    - Action: Migrate to Pulumi ESC immediately
    - Command: `pulumi config set lambda_labs.api_key --secret`
 
-2. **`vercel-env-bulk-import.env`** (1,265 bytes, 7 patterns)
-   - Contains: Multiple Vercel deployment secrets
+2. **`Lambda Labs-env-bulk-import.env`** (1,265 bytes, 7 patterns)
+   - Contains: Multiple Lambda Labs deployment secrets
    - Action: Already in Pulumi ESC, delete file
-   - Verify: `get_config_value("vercel_token")`
+   - Verify: `get_config_value("Lambda Labs_token")`
 
 ### Remediation Script:
 ```bash
@@ -38,7 +38,7 @@ These contain real secrets and need immediate attention:
 
 # Backup critical files first
 mkdir -p .env_backup_20250113
-cp lambda_inference.env vercel-env-bulk-import.env .env_backup_20250113/
+cp lambda_inference.env Lambda Labs-env-bulk-import.env .env_backup_20250113/
 
 # Migrate lambda_inference.env to Pulumi ESC
 echo "Migrating Lambda inference credentials..."
@@ -48,7 +48,7 @@ python scripts/migrate_env_to_esc.py lambda_inference.env
 python -c "from backend.core.auto_esc_config import get_config_value; print(get_config_value('lambda_inference_url'))"
 
 # If successful, remove files
-rm -f lambda_inference.env vercel-env-bulk-import.env
+rm -f lambda_inference.env Lambda Labs-env-bulk-import.env
 ```
 
 ## 📝 Phase 2: Templates Update (Day 1 Afternoon)
@@ -237,7 +237,7 @@ git commit -m "Complete environment file remediation - migrated to Pulumi ESC"
 | File | Category | Secrets | Status | Notes |
 |------|----------|---------|--------|-------|
 | lambda_inference.env | Critical | 1 | ⏳ Pending | Migrate to ESC |
-| vercel-env-bulk-import.env | Critical | 7 | ⏳ Pending | Delete (already in ESC) |
+| Lambda Labs-env-bulk-import.env | Critical | 7 | ⏳ Pending | Delete (already in ESC) |
 | .env.template | Template | 0 | ⏳ Pending | Update placeholders |
 | ... | ... | ... | ... | ... |
 

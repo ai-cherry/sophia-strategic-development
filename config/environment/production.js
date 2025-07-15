@@ -5,7 +5,7 @@
 
 /**
  * Production Environment Variables Configuration
- * These should be set in Vercel/deployment platform
+ * These should be set in lambda_labs/deployment platform
  */
 const productionConfig = {
   // ===========================================
@@ -71,9 +71,9 @@ const productionConfig = {
   deployment: {
     environment: process.env.VITE_DEPLOYMENT_ENV || 'production',
     buildVersion: process.env.VITE_BUILD_VERSION || '1.0.0',
-    deploymentId: process.env.VERCEL_DEPLOYMENT_ID,
-    commitSha: process.env.VERCEL_GIT_COMMIT_SHA,
-    branch: process.env.VERCEL_GIT_COMMIT_REF
+    deploymentId: process.env.lambda_labsDEPLOYMENT_ID,
+    commitSha: process.env.lambda_labsGIT_COMMIT_SHA,
+    branch: process.env.lambda_labsGIT_COMMIT_REF
   }
 };
 

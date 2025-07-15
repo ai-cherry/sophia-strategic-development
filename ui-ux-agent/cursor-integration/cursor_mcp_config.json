@@ -63,7 +63,7 @@
     "sophia_ai": {
       "dashboard_integration": true,
       "enhanced_ceo_dashboard": true,
-      "vercel_deployment": true
+      "lambda_labsdeployment": true
     }
   }
 }

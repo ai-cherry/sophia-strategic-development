@@ -25,7 +25,7 @@
     "infrastructure": {
       "lambda_labs_cli": 9020,
       "pulumi": 9021,
-      "vercel": 9022,
+      "lambda_labs": 9022,
       "docker": 9023
     }
   },

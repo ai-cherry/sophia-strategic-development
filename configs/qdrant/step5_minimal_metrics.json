@@ -17,7 +17,7 @@
     "status": "healthy"
   },
   "monitoring_files": [
-    "monitoring/prometheus/qdrant_metrics_minimal.txt",
+    "monitoring/prometheus/QDRANT_metrics_minimal.txt",
     "monitoring/prometheus/alert_rules.yaml",
     "monitoring/prometheus/grafana_dashboard_minimal.json"
   ],

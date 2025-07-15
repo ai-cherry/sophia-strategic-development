@@ -183,7 +183,7 @@ class SecurityConfig:
             key="LAMBDA_LABS_TOKEN",
             secret_type=SecretType.OAUTH_TOKEN,
             required=False,
-            description="# Vercel eliminated - using Lambda Labsment token",
+            description="# lambda_labs eliminated - using Lambda Labsment token",
             rotation_enabled=True,
             rotation_days=90,
         ),

@@ -12,7 +12,7 @@
 ├──────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
 │  ┌──────────────────┐              ┌──────────────────────────────────┐ │
-│  │   VERCEL (CDN)   │              │   LAMBDA LABS K3S CLUSTER       │ │
+│  │   Lambda Labs (CDN)   │              │   LAMBDA LABS K3S CLUSTER       │ │
 │  │                  │              │                                  │ │
 │  │ ┌──────────────┐ │              │ ┌─────────┐┌─────────┐┌──────┐ │ │
 │  │ │sophia-intel.ai│ │◄────────────►│ │Master-01││Worker-01││Worker│ │ │
@@ -28,8 +28,8 @@
 │  ┌──────────────────────────────────────────────────────────────────┐  │
 │  │                        DNS CONFIGURATION                          │  │
 │  ├──────────────────────────────────────────────────────────────────┤  │
-│  │ sophia-intel.ai      → Vercel (Frontend)                         │  │
-│  │ app.sophia-intel.ai  → Vercel (Frontend)                         │  │
+│  │ sophia-intel.ai      → Lambda Labs (Frontend)                         │  │
+│  │ app.sophia-intel.ai  → Lambda Labs (Frontend)                         │  │
 │  │ api.sophia-intel.ai  → Lambda Labs (Backend API)                 │  │
 │  │ mcp.sophia-intel.ai  → Lambda Labs (MCP Gateway)                 │  │
 │  │ monitor.sophia-intel.ai → Lambda Labs (Prometheus/Grafana)       │  │
@@ -39,9 +39,9 @@
 
 ## 🏗️ Infrastructure Components
 
-### **1. Frontend - Vercel**
+### **1. Frontend - Lambda Labs**
 - **Technology**: React + Vite + TypeScript
-- **Deployment**: Vercel Edge Network
+- **Deployment**: Lambda Labs Edge Network
 - **Features**:
   - Global CDN distribution
   - Automatic HTTPS/SSL
@@ -96,11 +96,11 @@ cd frontend
 npm install
 npm run build
 
-# 2. Deploy to Vercel
-vercel --prod --token=$VERCEL_API_TOKEN
+# 2. Deploy to Lambda Labs
+Lambda Labs --prod --token=$Lambda Labs_API_TOKEN
 
 # 3. Configure custom domain
-vercel domains add sophia-intel.ai
+Lambda Labs domains add sophia-intel.ai
 ```
 
 ### **Phase 3: Backend Deployment**
@@ -125,7 +125,7 @@ python configure_dns.py
 ## 🔐 Security Configuration
 
 ### **SSL/TLS**
-- **Frontend**: Automatic SSL via Vercel
+- **Frontend**: Automatic SSL via Lambda Labs
 - **Backend**: Let's Encrypt via cert-manager
 - **All traffic**: Forced HTTPS redirect
 
@@ -137,7 +137,7 @@ python configure_dns.py
 ### **Network Security**
 - **Firewall**: Only required ports open
 - **Private networking**: K3s internal communication
-- **DDoS protection**: Via Vercel and Cloudflare
+- **DDoS protection**: Via Lambda Labs and Cloudflare
 
 ## 📊 Monitoring & Observability
 
@@ -200,7 +200,7 @@ Workflow:
 
 ### **Environment Variables**
 ```bash
-# Frontend (Vercel)
+# Frontend (Lambda Labs)
 VITE_API_URL=https://api.sophia-intel.ai
 VITE_ENVIRONMENT=production
 
@@ -282,4 +282,4 @@ kubectl set image deployment/sophia-backend sophia-backend=scoobyjava15/sophia-b
 kubectl rollout restart deployment/sophia-backend -n sophia-ai
 ```
 
-This architecture provides a production-grade, scalable platform for Sophia AI with global reach via Vercel's CDN and powerful GPU computing via Lambda Labs.
+This architecture provides a production-grade, scalable platform for Sophia AI with global reach via Lambda Labs's CDN and powerful GPU computing via Lambda Labs.

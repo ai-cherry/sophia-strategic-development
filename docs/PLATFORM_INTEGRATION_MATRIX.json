@@ -15,7 +15,7 @@
       "hubspot"
     ],
     "dev_stack": [
-      "vercel",
+      "lambda_labs",
       "lambda_labs",
       "figma"
     ],
@@ -85,7 +85,7 @@
       },
       "justification": "HubSpot's API covers all CRM operations. Webhooks provide real-time CRM updates. LangChain analyzes customer data patterns."
     },
-    "vercel": {
+    "lambda_labs": {
       "primary": "CLI + API",
       "secondary": "Git-based deployments",
       "webhooks": "Deployment status, build events",
@@ -96,7 +96,7 @@
         "automation": "LangChain for optimization suggestions",
         "real_time": "Webhook deployment notifications"
       },
-      "justification": "Vercel CLI provides best deployment control. API enables monitoring. LangChain can optimize deployment configurations."
+      "justification": "lambda_labs CLI provides best deployment control. API enables monitoring. LangChain can optimize deployment configurations."
     },
     "lambda_labs": {
       "primary": "API + CLI",
@@ -249,7 +249,7 @@
       "priority": "Medium",
       "platforms": [
         "lambda_labs",
-        "vercel",
+        "lambda_labs",
         "portkey",
         "openrouter"
       ]

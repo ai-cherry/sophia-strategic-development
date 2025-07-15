@@ -373,16 +373,16 @@ Continuous Learning Loop:
 
 ## 🚀 DEPLOYMENT ARCHITECTURE FOR FRONTEND, BACKEND, AND MCP SERVERS
 
-### **Frontend Deployment (Vercel Edge)**
+### **Frontend Deployment (Lambda Labs Edge)**
 ```yaml
-Platform: Vercel Edge Network
+Platform: Lambda Labs Edge Network
 Technology: Next.js with global distribution
 Integration: API calls to Lambda Labs backend
 
 Deployment Flow:
 1. Code Push → GitHub
 2. GitHub Actions → Build Process
-3. Automatic Deployment → Vercel Edge
+3. Automatic Deployment → Lambda Labs Edge
 4. Global CDN Distribution
 5. API Routing → Lambda Labs K3s Cluster
 
@@ -535,7 +535,7 @@ Adaptive Behavior:
 Monthly Costs:
 - Lambda Labs GPU Fleet: $3,549/month
 - Weaviate Cloud: ~$50/month
-- Vercel Pro: ~$20/month
+- Lambda Labs Pro: ~$20/month
 - Total Infrastructure: ~$3,619/month
 
 Performance Metrics:

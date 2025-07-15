@@ -7,8 +7,8 @@ Successfully merged PR #184 on July 11, 2025, which addresses critical deploymen
 
 ### 1. **Frontend Deployment Clarification**
 - ✅ **Removed** `kubernetes/production/frontend-deployment.yaml`
-- This eliminates confusion between Vercel and Kubernetes deployment strategies
-- Frontend remains on Vercel as per current architecture
+- This eliminates confusion between Lambda Labs and Kubernetes deployment strategies
+- Frontend remains on Lambda Labs as per current architecture
 
 ### 2. **CI/CD Pipeline Enhancement**
 - ✅ **Updated** `.github/workflows/deploy-k3s.yml`
@@ -39,7 +39,7 @@ Successfully merged PR #184 on July 11, 2025, which addresses critical deploymen
 3. **Frontend Clarity**: Removed conflicting Kubernetes frontend deployment
 
 ### ⚠️ Remaining Misalignments
-1. **Frontend Platform**: Still on Vercel, not Lambda Labs
+1. **Frontend Platform**: Still on Lambda Labs, not Lambda Labs
 2. **"Serverless" Terminology**: Backend uses K3s containers, not true serverless functions
 3. **Node Labeling Required**: Must run `scripts/label_mcp_node.sh` to label the MCP node
 
@@ -65,7 +65,7 @@ Successfully merged PR #184 on July 11, 2025, which addresses critical deploymen
 
 ### Future Considerations
 1. **Frontend Migration**: If truly want all components on Lambda Labs, need to:
-   - Remove Vercel configuration
+   - Remove Lambda Labs configuration
    - Setup Nginx on Lambda Labs frontend server
    - Update all documentation
 
@@ -77,6 +77,6 @@ Successfully merged PR #184 on July 11, 2025, which addresses critical deploymen
 PR #184 successfully addresses 2 of the 3 major deployment misalignments:
 - ✅ MCP servers now target correct node (104.171.202.117)
 - ✅ CI/CD pipeline deploys all services
-- ⚠️ Frontend remains on Vercel (requires strategic decision)
+- ⚠️ Frontend remains on Lambda Labs (requires strategic decision)
 
 The deployment is now significantly more aligned with the stated Lambda Labs strategy, with clear paths forward for remaining items. 

@@ -10,7 +10,7 @@
         "documents_count": 5,
         "processed_count": 0,
         "errors": [
-          "cannot import name 'UpsertConfig' from 'backend.services.qdrant_wrapper' (/Users/lynnmusil/sophia-main-2/backend/services/qdrant_wrapper.py)"
+          "cannot import name 'UpsertConfig' from 'backend.services.QDRANT_wrapper' (/Users/lynnmusil/sophia-main-2/backend/services/QDRANT_wrapper.py)"
         ],
         "processing_time": 0.0878908634185791,
         "status": "failed"
@@ -21,7 +21,7 @@
         "documents_count": 10,
         "processed_count": 0,
         "errors": [
-          "cannot import name 'UpsertConfig' from 'backend.services.qdrant_wrapper' (/Users/lynnmusil/sophia-main-2/backend/services/qdrant_wrapper.py)"
+          "cannot import name 'UpsertConfig' from 'backend.services.QDRANT_wrapper' (/Users/lynnmusil/sophia-main-2/backend/services/QDRANT_wrapper.py)"
         ],
         "processing_time": 0.00043582916259765625,
         "status": "failed"

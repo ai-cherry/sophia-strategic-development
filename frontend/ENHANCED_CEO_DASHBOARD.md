@@ -62,11 +62,11 @@ pnpm run build
 
 ### Production Deployment
 
-The dashboard is designed for deployment via Vercel with proper environment variable injection through Pulumi ESC.
+The dashboard is designed for deployment via Lambda Labs with proper environment variable injection through Pulumi ESC.
 
 ```bash
-# Deploy to Vercel
-vercel --prod
+# Deploy to Lambda Labs
+Lambda Labs --prod
 ```
 
 ## 📊 Components

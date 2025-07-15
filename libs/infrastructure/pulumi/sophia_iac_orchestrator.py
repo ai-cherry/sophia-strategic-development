@@ -40,7 +40,7 @@ from backend.infrastructure.adapters.slack_adapter import SlackAdapter
 # Platform adapters
 from backend.infrastructure.adapters.QDRANT_adapter import QdrantAdapter
 from backend.infrastructure.adapters.usergems_adapter import UserGemsAdapter
-from backend.infrastructure.adapters.vercel_adapter import VercelAdapter
+lambda_labs_adapter lambda_labsAdapter
 from backend.infrastructure.core.dependency_manager import DependencyManager
 from backend.infrastructure.core.policy_engine import PolicyEngine
 
@@ -175,8 +175,8 @@ class SophiaIaCOrchestrator:
         )
 
         # Dev Stack
-        self.platform_adapters["vercel"] = VercelAdapter(
-            "vercel", PlatformType.DEV_STACK
+        self.platform_adapters["lambda_labs"] = VercelAdapter(
+            "lambda_labs", PlatformType.DEV_STACK
         )
         self.platform_adapters["lambda_labs"] = LambdaLabsAdapter(
             "lambda_labs", PlatformType.DEV_STACK
@@ -225,7 +225,7 @@ Your capabilities include:
 
 Platforms you manage:
 Data Stack: Qdrant, Estuary, HubSpot, Gong, UserGems, Apollo.io
-Dev Stack: Vercel, Lambda Labs, Figma
+Dev Stack: lambda_labs, Lambda Labs, Figma
 AI Stack: Portkey, OpenRouter
 Ops Stack: Slack, Linear, Asana
 

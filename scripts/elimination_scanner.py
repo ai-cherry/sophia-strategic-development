@@ -9,17 +9,17 @@ import sys
 from pathlib import Path
 
 FORBIDDEN_PATTERNS = [
-    r'(?i)weaviate', r'(?i)vercel', r'(?i)snowflake',
+    r'(?i)weaviate', r'(?i)lambda_labs', r'(?i)snowflake',
     r'import.*weaviate', r'from.*weaviate',
     r'import.*snowflake', r'from.*snowflake',
-    r'WEAVIATE_', r'VERCEL_', r'SNOWFLAKE_',
-    r'weaviate\.', r'vercel\.', r'snowflake\.',
-    r'\.vercel\.app', r'vercel\.json',
+    r'WEAVIATE_', r'lambda_labs', r'SNOWFLAKE_',
+    r'weaviate\.', r'lambda_labs\.', r'snowflake\.',
+    r'\.lambda_labs\.app', r'lambda_labs\.json',
     r'snowflake\.com', r'weaviate\.io',
     r'semitechnologies/weaviate',
     r'snowflake/snowflake',
     r'weaviate-client', r'snowflake-connector',
-    r'@vercel/', r'vercel-cli',
+    r'@lambda_labs/', r'lambda_labs-cli',
 ]
 
 def scan_for_violations():

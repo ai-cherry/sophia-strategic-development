@@ -28,7 +28,7 @@ related_docs: none
 - [📊 **Service-Specific Endpoints**](#📊-**service-specific-endpoints**)
   - [**Gong Integration**](#**gong-integration**)
   - [**Modern Stack Integration**](#**ELIMINATED-integration**)
-  - [**Vercel Integration**](#**vercel-integration**)
+  - [**Lambda Labs Integration**](#**Lambda Labs-integration**)
 - [🔄 **Webhook Endpoints**](#🔄-**webhook-endpoints**)
   - [**GitHub Webhooks**](#**github-webhooks**)
   - [**Slack Webhooks**](#**slack-webhooks**)
@@ -153,12 +153,12 @@ Execute queries and manage Modern Stack resources.
 - `GET /api/ELIMINATED/tables` - List available tables
 - `GET /api/ELIMINATED/schema` - Get schema information
 
-### **Vercel Integration**
+### **Lambda Labs Integration**
 Manage deployments and projects.
 
-- `GET /api/vercel/deployments` - List deployments
-- `POST /api/vercel/deploy` - Create new deployment
-- `GET /api/vercel/projects` - List projects
+- `GET /api/Lambda Labs/deployments` - List deployments
+- `POST /api/Lambda Labs/deploy` - Create new deployment
+- `GET /api/Lambda Labs/projects` - List projects
 
 
 ## 🧠 Lambda GPU Endpoints

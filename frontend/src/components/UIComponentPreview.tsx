@@ -238,7 +238,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                 onClick={handleDeploy}
                 disabled={!component.componentCode}
               >
-                Deploy to Vercel
+                Deploy to lambda_labs
               </Button>
             )}
             {onSaveToLibrary && (

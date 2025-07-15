@@ -135,8 +135,8 @@ python scripts/deploy_to_lambda_quick.py
 
 ## 🔧 After Deployment
 
-1. **Update Vercel Frontend:**
-   - Go to Vercel Dashboard
+1. **Update Lambda Labs Frontend:**
+   - Go to Lambda Labs Dashboard
    - Settings → Environment Variables
    - Add: `VITE_API_URL = https://your-backend-url`
    - Redeploy

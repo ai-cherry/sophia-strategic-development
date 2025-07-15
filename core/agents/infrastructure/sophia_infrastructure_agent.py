@@ -135,7 +135,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         """Initialize resource utilization tracking"""
         self.resource_utilization = {
             "lambda_labs": {"status": "unknown", "instances": []},
-            "vercel": {"status": "unknown", "deployments": []},
+            "lambda_labs": {"status": "unknown", "deployments": []},
             "qdrant": {"status": "unknown", "warehouses": []},
             "github_actions": {"status": "unknown", "workflows": []},
         }
@@ -341,7 +341,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
 ### Monthly Cost Breakdown:
 - **Compute (Lambda Labs)**: ${cost_analysis.get("compute_cost", 0):.2f}
 - **Storage (Qdrant)**: ${cost_analysis.get("storage_cost", 0):.2f}
-- **Hosting (Vercel)**: ${cost_analysis.get("hosting_cost", 0):.2f}
+- **Hosting (lambda_labs)**: ${cost_analysis.get("hosting_cost", 0):.2f}
 - **Other Services**: ${cost_analysis.get("other_cost", 0):.2f}
 
 **Total Monthly Cost**: ${cost_analysis.get("total_cost", 0):.2f}
@@ -438,7 +438,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         """Perform comprehensive infrastructure health check"""
         return {
             "lambda_labs": {"healthy": True, "status": "All instances running"},
-            "vercel": {"healthy": True, "status": "Deployments active"},
+            "lambda_labs": {"healthy": True, "status": "Deployments active"},
             "qdrant": {"healthy": True, "status": "Warehouses operational"},
             "github_actions": {"healthy": True, "status": "Workflows functioning"},
             "mcp_servers": {"healthy": True, "status": "All servers responding"},

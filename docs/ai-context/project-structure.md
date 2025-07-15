@@ -150,7 +150,7 @@ GitHub Organization Secrets → Pulumi ESC → Backend Auto-Loading
 ```
 
 ### **Authentication Layers**
-- **Tier 1**: CLI-based (GitHub, Pulumi, Docker, Vercel)
+- **Tier 1**: CLI-based (GitHub, Pulumi, Docker, Lambda Labs)
 - **Tier 2**: Enhanced API (Modern Stack, Lambda Labs, Estuary)
 - **Tier 3**: Secure API Keys (OpenAI, Anthropic, Slack, etc.)
 
@@ -159,7 +159,7 @@ GitHub Organization Secrets → Pulumi ESC → Backend Auto-Loading
 ## 🚀 Deployment Architecture
 
 ### **Infrastructure Stack**
-- **Frontend**: Vercel (React deployment)
+- **Frontend**: Lambda Labs (React deployment)
 - **Backend**: Lambda Labs (GPU compute + Docker Swarm)
 - **Database**: Modern Stack (Single source of truth)
 - **Secrets**: Pulumi ESC (Centralized configuration)
@@ -186,7 +186,7 @@ ELIMINATED_WAREHOUSE: "SOPHIA_AI_COMPUTE_WH"
 
 ### **Frontend Stack**
 - **Framework**: React 18 + TypeScript
-- **Build**: Vite + Vercel deployment
+- **Build**: Vite + Lambda Labs deployment
 - **Styling**: Tailwind CSS + Glassmorphism
 - **State**: Context API + React Query
 - **UI Generation**: V0.dev integration

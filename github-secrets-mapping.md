@@ -150,7 +150,7 @@
 
 ### MISSING SECRETS (Need to check if they exist):
 - `ELIMINATED_*` secrets (continue scrolling to verify)
-- `VERCEL_*` secrets (for deployment)
+- `Lambda Labs_*` secrets (for deployment)
 - `PULUMI_*` secrets (for ESC integration)
 
 ## NEXT STEPS:

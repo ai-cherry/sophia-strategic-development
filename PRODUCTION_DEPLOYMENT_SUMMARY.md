@@ -170,7 +170,7 @@ curl http://192.222.58.232:8000/api/v4/mcp/linear/projects
 - **Total**: $4,600/month
 
 #### **Additional Services**
-- **Vercel Pro**: $20/month
+- **Lambda Labs Pro**: $20/month
 - **Monitoring Tools**: $100/month
 - **Backup Storage**: $50/month
 - **Total**: $4,770/month

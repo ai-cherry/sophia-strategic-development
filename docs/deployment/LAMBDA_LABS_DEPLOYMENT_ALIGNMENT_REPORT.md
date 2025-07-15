@@ -10,16 +10,16 @@ A comprehensive review of the Sophia AI codebase reveals significant misalignmen
 
 | Aspect | Current State | Required State | Misalignment Level |
 |--------|--------------|----------------|-------------------|
-| Platform | Vercel (3rd party) | Lambda Labs | **CRITICAL** |
+| Platform | Lambda Labs (3rd party) | Lambda Labs | **CRITICAL** |
 | Type | Serverless SaaS | Lambda Labs VPS | Major |
-| Configuration | `frontend/vercel.json` | Nginx on Lambda Labs | Major |
-| CI/CD | Manual/Vercel GitHub App | GitHub Actions to Lambda Labs | Major |
+| Configuration | `frontend/Lambda Labs.json` | Nginx on Lambda Labs | Major |
+| CI/CD | Manual/Lambda Labs GitHub App | GitHub Actions to Lambda Labs | Major |
 
 **Evidence of Misalignment:**
-- `frontend/vercel.json` exists and is actively used
-- Multiple Vercel deployment scripts in `scripts/`
-- Documentation references Vercel throughout
-- `.cursorrules` explicitly states frontend uses Vercel
+- `frontend/Lambda Labs.json` exists and is actively used
+- Multiple Lambda Labs deployment scripts in `scripts/`
+- Documentation references Lambda Labs throughout
+- `.cursorrules` explicitly states frontend uses Lambda Labs
 - No active CI/CD pipeline for frontend to Lambda Labs
 
 ### 2. Backend Deployment
@@ -56,20 +56,20 @@ A comprehensive review of the Sophia AI codebase reveals significant misalignmen
 
 ### Frontend Misalignments
 1. **Configuration Files:**
-   - `frontend/vercel.json` - Vercel-specific config
-   - `frontend/.env.production` - References Vercel URLs
-   - `infrastructure/vercel/` - Entire directory for Vercel
+   - `frontend/Lambda Labs.json` - Lambda Labs-specific config
+   - `frontend/.env.production` - References Lambda Labs URLs
+   - `infrastructure/Lambda Labs/` - Entire directory for Lambda Labs
 
 2. **Deployment Scripts:**
-   - `scripts/deploy_to_vercel.py`
-   - `scripts/deploy_frontend_vercel.py`
-   - `scripts/deploy_backend_serverless_vercel.py`
-   - Multiple scripts reference Vercel deployment
+   - `scripts/deploy_to_Lambda Labs.py`
+   - `scripts/deploy_frontend_Lambda Labs.py`
+   - `scripts/deploy_backend_serverless_Lambda Labs.py`
+   - Multiple scripts reference Lambda Labs deployment
 
 3. **Documentation:**
-   - `docs/04-deployment/VERCEL_DEPLOYMENT_GUIDE.md`
-   - `docs/deployment/DEPLOYMENT_GUIDE.md` - References Vercel
-   - `docs/04-deployment/PRODUCTION_DEPLOYMENT_ARCHITECTURE.md` - States Vercel
+   - `docs/04-deployment/Lambda Labs_DEPLOYMENT_GUIDE.md`
+   - `docs/deployment/DEPLOYMENT_GUIDE.md` - References Lambda Labs
+   - `docs/04-deployment/PRODUCTION_DEPLOYMENT_ARCHITECTURE.md` - States Lambda Labs
 
 ### Backend Misalignments
 1. **Terminology Issues:**
@@ -100,11 +100,11 @@ A comprehensive review of the Sophia AI codebase reveals significant misalignmen
 ## Corrective Actions Required
 
 ### 1. Frontend Migration to Lambda Labs
-- Remove all Vercel dependencies and configurations
+- Remove all Lambda Labs dependencies and configurations
 - Setup Nginx on Lambda Labs instance (104.171.202.103)
 - Create deployment pipeline to Lambda Labs
 - Update all environment variables and documentation
-- Remove `frontend/vercel.json`
+- Remove `frontend/Lambda Labs.json`
 
 ### 2. Backend Alignment
 - Clarify "serverless" requirement:
@@ -143,7 +143,7 @@ I've created `scripts/deploy_lambda_labs_aligned.py` that:
 |------|--------|------------|
 | Frontend migration breaking changes | High | Gradual migration with testing |
 | MCP server network isolation | Medium | Proper K3s multi-node setup |
-| Loss of Vercel features | Medium | Implement equivalent on Lambda Labs |
+| Loss of Lambda Labs features | Medium | Implement equivalent on Lambda Labs |
 | Increased operational complexity | High | Comprehensive automation |
 
 ## Recommendations
@@ -151,7 +151,7 @@ I've created `scripts/deploy_lambda_labs_aligned.py` that:
 1. **Immediate Actions:**
    - Run `scripts/deploy_lambda_labs_aligned.py` to test aligned deployment
    - Update all documentation to reflect Lambda Labs strategy
-   - Remove Vercel configurations
+   - Remove Lambda Labs configurations
 
 2. **Short-term (1 week):**
    - Enhance CI/CD pipeline for full automation
@@ -165,4 +165,4 @@ I've created `scripts/deploy_lambda_labs_aligned.py` that:
 
 ## Conclusion
 
-The current deployment strategy has significant misalignments with the requested "all Lambda Labs serverless" approach. The frontend is on Vercel (wrong platform), the backend is on Lambda Labs but not serverless (terminology issue), and MCP servers are not targeted to the correct instance (configuration issue). The provided alignment script addresses these issues, but careful migration planning is required to avoid service disruption. 
+The current deployment strategy has significant misalignments with the requested "all Lambda Labs serverless" approach. The frontend is on Lambda Labs (wrong platform), the backend is on Lambda Labs but not serverless (terminology issue), and MCP servers are not targeted to the correct instance (configuration issue). The provided alignment script addresses these issues, but careful migration planning is required to avoid service disruption. 

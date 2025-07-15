@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚫 PREVENTION SCRIPT - Block Snowflake/Weaviate/Vercel Reintroduction
+🚫 PREVENTION SCRIPT - Block Snowflake/Weaviate/lambda_labs Reintroduction
 Run before any commits to ensure eliminated technologies stay eliminated
 """
 
@@ -13,8 +13,8 @@ FORBIDDEN_PATTERNS = [
     r'from\s+weaviate',
     r'snowflake',
     r'SNOWFLAKE',
-    r'qdrant_memory',
-    r'vercel\s+deploy',
+    r'QDRANT_memory',
+    r'lambda_labs\s+deploy',
     r'LAMBDA_LABS_TOKEN'
 ]
 
