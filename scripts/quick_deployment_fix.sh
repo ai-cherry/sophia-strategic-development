@@ -44,15 +44,14 @@ pkill -f "npm" 2>/dev/null || log_warning "No npm processes to kill"
 pkill -f "vite" 2>/dev/null || log_warning "No vite processes to kill"
 sleep 3
 
-# Backend fixes
-log_info "🔧 Fixing Backend Issues..."
-cd backend
+# Backend fixes for current ModuleNotFoundError issues
+log_info "🔧 Fixing Backend Issues (sqlalchemy, jwt, passlib errors)..."
 
-# Install missing Python dependencies
-log_info "📦 Installing Python dependencies..."
+# Install missing Python dependencies with correct package names
+log_info "📦 Installing Python dependencies (fixing current import errors)..."
 pip3 install -q \
     sqlalchemy \
-    pyjwt \
+    PyJWT \
     passlib[bcrypt] \
     aiofiles \
     python-multipart \
@@ -62,41 +61,55 @@ pip3 install -q \
     fastapi \
     redis \
     psycopg2-binary \
-    asyncpg 2>/dev/null || log_warning "Some dependencies may have failed to install"
+    asyncpg \
+    python-dotenv \
+    httpx \
+    pydantic[email] 2>/dev/null || log_warning "Some dependencies may have failed to install"
 
 log_success "✅ Backend dependencies updated"
 
-# Start backend
-log_info "🚀 Starting Backend..."
-nohup python3 -m uvicorn app.simple_fastapi:app --host 0.0.0.0 --port 8000 --reload > ../backend.log 2>&1 &
+# Start backend with correct uvicorn path (from root directory)
+log_info "🚀 Starting Backend (using correct module path)..."
+# Use backend.app.simple_fastapi:app not app.simple_fastapi:app
+nohup python3 -m uvicorn backend.app.simple_fastapi:app --host 0.0.0.0 --port 8000 --reload > backend.log 2>&1 &
 BACKEND_PID=$!
 
-cd ..
-
-# Frontend fixes
-log_info "🔧 Fixing Frontend Issues..."
+# Frontend fixes for 'Invalid package config ms/package.json' error
+log_info "🔧 Fixing Frontend Issues (ms package.json corruption)..."
 cd frontend
 
-# Clear npm cache and reinstall
-log_info "🧹 Clearing npm cache..."
+# Clear npm cache and remove all cached data
+log_info "🧹 Clearing npm cache completely..."
 npm cache clean --force 2>/dev/null || log_warning "npm cache clean failed"
+rm -rf ~/.npm 2>/dev/null || log_warning "Could not clear user npm cache"
 
-log_info "🗑️ Removing node_modules..."
-rm -rf node_modules package-lock.json 2>/dev/null || log_warning "Cleanup had issues"
+log_info "🗑️ Removing corrupted node_modules..."
+rm -rf node_modules package-lock.json yarn.lock 2>/dev/null || log_warning "Cleanup had issues"
 
-log_info "📦 Reinstalling npm dependencies..."
-npm install --no-package-lock --silent 2>/dev/null || {
+log_info "📦 Fresh installation of npm dependencies..."
+npm install 2>/dev/null || {
     log_warning "npm install failed, trying with legacy peer deps..."
-    npm install --legacy-peer-deps --silent 2>/dev/null || log_error "npm install failed completely"
+    npm install --legacy-peer-deps 2>/dev/null || log_error "npm install failed completely"
 }
 
-log_info "🔍 Fixing package vulnerabilities..."
+# Specific fix for ms package corruption
+if [[ -f "node_modules/ms/package.json" ]]; then
+    log_info "🔍 Checking ms package.json integrity..."
+    if ! python3 -c "import json; json.load(open('node_modules/ms/package.json'))" 2>/dev/null; then
+        log_warning "⚠️ ms package corrupted, reinstalling..."
+        npm uninstall ms && npm install ms
+    else
+        log_success "✅ ms package.json is valid"
+    fi
+fi
+
+log_info "🔍 Fixing any remaining vulnerabilities..."
 npm audit fix --force --silent 2>/dev/null || log_warning "npm audit fix had issues"
 
 log_success "✅ Frontend dependencies updated"
 
-# Start frontend
-log_info "🚀 Starting Frontend..."
+# Start frontend (ensuring we're in frontend directory)
+log_info "🚀 Starting Frontend from correct directory..."
 nohup npm run dev > ../frontend.log 2>&1 &
 FRONTEND_PID=$!
 
