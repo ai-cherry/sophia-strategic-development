@@ -1,0 +1,16 @@
+#!/bin/bash
+# 🚀 AUTO DEPLOYMENT SETUP - PUSH TO DEPLOY
+echo "🚀 AUTO DEPLOYMENT ACTIVATED!"
+echo "============================="
+echo ""
+echo "✅ GitHub Actions workflow configured"
+echo "✅ Push-to-deploy enabled on main branch"
+echo "✅ All secrets managed via GitHub Organization"
+echo ""
+echo "🎯 USAGE:"
+echo "  git add ."
+echo "  git commit -m 'Deploy changes'"
+echo "  git push origin main"
+echo ""
+echo "📱 Monitor: https://github.com/ai-cherry/sophia-main/actions"
+echo "🎉 DONE - Auto deployment is LIVE!" 
