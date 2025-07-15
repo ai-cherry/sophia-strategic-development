@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  cuda_version: "12.2"
+  gpu_memory_fraction: "0.125"
+  gpu_sharing_strategy: time-slicing
+  max_shared_clients: "8"
+  nvidia_driver_version: 535.86.10
+kind: ConfigMap
+metadata:
+  name: sophia-gpu-config
+  namespace: sophia-ai

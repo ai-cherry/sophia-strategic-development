@@ -1,0 +1,25 @@
+environments:
+  development:
+    imports:
+      - scoobyjava-org/default/sophia-ai-development
+    values:
+      alerts:
+        channel: "#sophia-dev"
+      aws:
+        region: us-east-1
+      kubernetes:
+        namespace: sophia-dev
+      monitoring:
+        enabled: false
+  production:
+    imports:
+      - scoobyjava-org/default/sophia-ai-production
+    values:
+      alerts:
+        channel: "#sophia-alerts"
+      aws:
+        region: us-east-1
+      kubernetes:
+        namespace: sophia-production
+      monitoring:
+        enabled: true

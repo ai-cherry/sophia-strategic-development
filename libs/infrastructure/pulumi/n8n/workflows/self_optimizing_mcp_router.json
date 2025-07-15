@@ -1,0 +1,343 @@
+{
+  "name": "Self-Optimizing MCP Router",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "triggerAtMinute": 1
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every Minute Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://prometheus:9090/api/v1/query",
+        "options": {
+          "qs": {
+            "query": "mcp_request_duration_seconds{quantile=\"0.95\"} > 0.15"
+          }
+        }
+      },
+      "id": "check-latency",
+      "name": "Check MCP Latencies",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "high-latency",
+              "leftValue": "={{ $json.data.result.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "latency-switch",
+      "name": "High Latency?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analyze which MCP servers are slow\nconst slowServers = [];\nconst results = $input.all()[0].json.data.result;\n\nfor (const result of results) {\n  const server = result.metric.mcp_server;\n  const latency = parseFloat(result.value[1]);\n  \n  slowServers.push({\n    server: server,\n    latency: latency,\n    timestamp: new Date().toISOString()\n  });\n}\n\n// Determine rerouting strategy\nconst rerouteMap = {};\n\nfor (const slow of slowServers) {\n  if (slow.server === 'weaviate' && slow.latency > 0.15) {\n    // Route to PostgreSQL for structured queries\n    rerouteMap[slow.server] = {\n      fallback: 'postgresql',\n      reason: 'Weaviate latency spike',\n      action: 'route_to_pgvector'\n    };\n  } else if (slow.server === 'gong' && slow.latency > 0.2) {\n    // Use cached results\n    rerouteMap[slow.server] = {\n      fallback: 'redis_cache',\n      reason: 'Gong API slow',\n      action: 'serve_from_cache'\n    };\n  } else if (slow.server === 'hubspot' && slow.latency > 0.25) {\n    // Batch requests\n    rerouteMap[slow.server] = {\n      fallback: 'batch_queue',\n      reason: 'HubSpot rate limit likely',\n      action: 'queue_and_batch'\n    };\n  }\n}\n\nreturn {\n  slowServers: slowServers,\n  rerouteMap: rerouteMap,\n  optimizationNeeded: Object.keys(rerouteMap).length > 0\n};"
+      },
+      "id": "analyze-bottlenecks",
+      "name": "Analyze Bottlenecks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        850,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://sophia-backend:8000/api/v2/config/mcp_routing",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "routing_updates",
+              "value": "={{ $json.rerouteMap }}"
+            },
+            {
+              "name": "reason",
+              "value": "Automatic performance optimization"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "update-routing",
+      "name": "Update MCP Routing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "channel": "#sophia-alerts",
+        "text": "\ud83d\ude80 MCP Routing Optimized\n\nDetected slow servers:\n{{ $json.slowServers.map(s => `\u2022 ${s.server}: ${s.latency}s`).join('\\n') }}\n\nRerouting applied:\n{{ Object.entries($json.rerouteMap).map(([k,v]) => `\u2022 ${k} \u2192 ${v.fallback} (${v.reason})`).join('\\n') }}\n\n_Self-optimization complete. Latency should improve._",
+        "authentication": "oAuth2",
+        "options": {}
+      },
+      "id": "notify-optimization",
+      "name": "Notify Optimization",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "optimization_history",
+        "columns": "timestamp,optimization_type,details,impact",
+        "additionalFields": {}
+      },
+      "id": "log-optimization",
+      "name": "Log to Database",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://estuary-flow:8080/api/flows/sophia-real-time/refresh",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "priority_sources",
+              "value": "={{ $json.rerouteMap }}"
+            }
+          ]
+        }
+      },
+      "id": "update-estuary",
+      "name": "Update Estuary Priority",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1050,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.x.com/v2/semantic/search",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "AI orchestration performance optimization latency"
+            },
+            {
+              "name": "limit",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{ $credentials.xApiKey }}"
+          }
+        }
+      },
+      "id": "external-intel",
+      "name": "Get External Intel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        650,
+        450
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract optimization tips from X\nconst posts = $input.all()[0].json.posts || [];\nconst tips = [];\n\nfor (const post of posts) {\n  if (post.text.toLowerCase().includes('latency') || \n      post.text.toLowerCase().includes('optimization')) {\n    tips.push({\n      source: post.author,\n      tip: post.text,\n      url: post.url\n    });\n  }\n}\n\nreturn {\n  externalTips: tips,\n  hasNewIdeas: tips.length > 0\n};"
+      },
+      "id": "process-intel",
+      "name": "Process External Tips",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        850,
+        450
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Self-Optimization Results\n\n{{ $json.hasNewIdeas ? 'Found external optimization ideas!' : 'No new external tips' }}\n\nStoring insights for future use...",
+        "options": {}
+      },
+      "id": "merge-insights",
+      "name": "Merge Insights",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        450
+      ]
+    }
+  ],
+  "connections": {
+    "Every Minute Check": {
+      "main": [
+        [
+          {
+            "node": "Check MCP Latencies",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get External Intel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check MCP Latencies": {
+      "main": [
+        [
+          {
+            "node": "High Latency?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "High Latency?": {
+      "main": [
+        [
+          {
+            "node": "Analyze Bottlenecks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Bottlenecks": {
+      "main": [
+        [
+          {
+            "node": "Update MCP Routing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Estuary Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update MCP Routing": {
+      "main": [
+        [
+          {
+            "node": "Notify Optimization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Optimization": {
+      "main": [
+        [
+          {
+            "node": "Log to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get External Intel": {
+      "main": [
+        [
+          {
+            "node": "Process External Tips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process External Tips": {
+      "main": [
+        [
+          {
+            "node": "Merge Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "sophia-error-handler"
+  },
+  "tags": [
+    {
+      "name": "self-optimization",
+      "createdAt": "2025-07-12T00:00:00.000Z"
+    }
+  ]
+}

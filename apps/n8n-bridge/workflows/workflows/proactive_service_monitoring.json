@@ -1,0 +1,145 @@
+{
+  "name": "Proactive Service Monitoring",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": {
+                "unit": "minutes",
+                "value": 15
+              }
+            }
+          ]
+        }
+      },
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "python3 scripts/check_internal_service_health.py",
+        "options": {
+          "shell": true
+        }
+      },
+      "name": "Execute Health Check",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "value": "={{$json.stdout}}",
+        "options": {}
+      },
+      "name": "Parse Health Report",
+      "type": "n8n-nodes-base.parseJson",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.data.summary.overallStatus}}",
+              "operation": "equal",
+              "value2": "UNHEALTHY"
+            }
+          ]
+        }
+      },
+      "name": "If Service Unhealthy",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "channel": "C03T4G1PZ7S",
+        "text": "=\ud83d\udea8 **Sophia AI Service Alert** \ud83d\udea8\n\nOne or more internal services are unhealthy. Please investigate immediately.\n\n*Report Time:* `{{$json.data.reportGeneratedAt}}`\n*Overall Status:* `{{$json.data.summary.overallStatus}}`\n\n*Details:*\n{{$json.data.unhealthyServices.map(s => `\u2022 *${s.name}* - Status: `${s.status}` - Details: _${s.details}_`).join('\\n')}}",
+        "options": {}
+      },
+      "name": "Post Alert to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        300
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "sophia-slack-prod",
+          "name": "Sophia Slack Prod"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Execute Health Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Health Check": {
+      "main": [
+        [
+          {
+            "node": "Parse Health Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Health Report": {
+      "main": [
+        [
+          {
+            "node": "If Service Unhealthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Service Unhealthy": {
+      "main": [
+        [
+          {
+            "node": "Post Alert to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "proactive-service-monitoring"
+}

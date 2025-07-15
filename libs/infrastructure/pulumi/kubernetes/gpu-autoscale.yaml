@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-ai-backend
+  labels:
+    app: sophia-ai
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sophia-ai
+  template:
+    metadata:
+      labels:
+        app: sophia-ai
+    spec:
+      nodeSelector:
+        lambdalabs.com/gpu-type: "a10"
+      containers:
+        - name: backend
+          image: sophia-ai/backend:prod
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "4"
+              memory: "8Gi"
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "8"
+              memory: "16Gi"
+              nvidia.com/gpu: "1"
+          env:
+            - name: ENVIRONMENT
+              value: "prod"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sophia-ai-backend-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sophia-ai-backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: nvidia.com/gpu
+        target:
+          type: Utilization
+          averageUtilization: 70

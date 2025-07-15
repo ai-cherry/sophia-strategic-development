@@ -1,0 +1,110 @@
+{
+  "name": "MCP Tool: Linear - Create Issue",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "linear-create-issue",
+        "options": {}
+      },
+      "name": "Webhook Trigger (Linear)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ],
+      "webhookId": "mcp-linear-create-issue"
+    },
+    {
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "title": "={{$json.body.title}}",
+        "description": "={{$json.body.description}}",
+        "teamId": "={{$json.body.teamId}}",
+        "options": {}
+      },
+      "name": "Create Linear Issue",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "credentials": {
+        "linearApi": {
+          "id": "sophia-linear-prod",
+          "name": "Sophia Linear Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "responseFor": "webhook",
+        "webhookId": "mcp-linear-create-issue",
+        "responseData": "={{$json}}",
+        "responseFormat": "json"
+      },
+      "name": "Return Issue Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        840,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Webhook Trigger (Linear)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger (Linear)": {
+      "main": [
+        [
+          {
+            "node": "Create Linear Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Linear Issue": {
+      "main": [
+        [
+          {
+            "node": "Return Issue Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "linear-create-issue-tool"
+}

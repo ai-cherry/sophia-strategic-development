@@ -1,0 +1,542 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sophia-ai-phase2
+  labels:
+    app: sophia-ai
+    phase: phase2-agentic-rag
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unified-memory-v3
+  namespace: sophia-ai-phase2
+  labels:
+    app: unified-memory-v3
+    component: agentic-rag
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: unified-memory-v3
+  template:
+    metadata:
+      labels:
+        app: unified-memory-v3
+        component: agentic-rag
+    spec:
+      containers:
+      - name: unified-memory-v3
+        image: scoobyjava15/sophia-ai-memory-v3:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 9100
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "prod"
+        - name: QDRANT_URL
+          value: "http://qdrant:6333"
+        - name: REDIS_URL
+          value: "redis://redis:6379"
+        - name: QDRANT_URL
+          value: "http://qdrant:6333"
+        - name: LAMBDA_INFERENCE_URL
+          value: "http://lambda-inference:8001"
+        - name: PULUMI_ORG
+          value: "scoobyjava-org"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multimodal-memory
+  namespace: sophia-ai-phase2
+  labels:
+    app: multimodal-memory
+    component: visual-processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multimodal-memory
+  template:
+    metadata:
+      labels:
+        app: multimodal-memory
+        component: visual-processing
+    spec:
+      containers:
+      - name: multimodal-memory
+        image: scoobyjava15/sophia-ai-multimodal:latest
+        ports:
+        - containerPort: 8002
+          name: http
+        - containerPort: 9102
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "prod"
+        - name: QDRANT_URL
+          value: "http://qdrant:6333"
+        - name: MAX_FILE_SIZE_MB
+          value: "50"
+        - name: VISION_MODEL
+          value: "colpali-v1.2"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+        volumeMounts:
+        - name: document-storage
+          mountPath: /app/documents
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 45
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8002
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: document-storage
+        persistentVolumeClaim:
+          claimName: document-storage-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hypothetical-rag
+  namespace: sophia-ai-phase2
+  labels:
+    app: hypothetical-rag
+    component: proactive-rag
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hypothetical-rag
+  template:
+    metadata:
+      labels:
+        app: hypothetical-rag
+        component: proactive-rag
+    spec:
+      containers:
+      - name: hypothetical-rag
+        image: scoobyjava15/sophia-ai-hypothetical:latest
+        ports:
+        - containerPort: 8003
+          name: http
+        - containerPort: 9103
+          name: metrics
+        env:
+        - name: ENVIRONMENT
+          value: "prod"
+        - name: HYPOTHETICAL_MAX_CACHE
+          value: "10000"
+        - name: HYPOTHETICAL_MAX_AGE_HOURS
+          value: "168"
+        - name: CONFIDENCE_DECAY_RATE
+          value: "0.95"
+        - name: PRUNING_THRESHOLD
+          value: "0.1"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "6Gi"
+            cpu: "3000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unified-memory-v3-service
+  namespace: sophia-ai-phase2
+  labels:
+    app: unified-memory-v3
+spec:
+  selector:
+    app: unified-memory-v3
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  - name: metrics
+    port: 9100
+    targetPort: 9100
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multimodal-memory-service
+  namespace: sophia-ai-phase2
+  labels:
+    app: multimodal-memory
+spec:
+  selector:
+    app: multimodal-memory
+  ports:
+  - name: http
+    port: 8002
+    targetPort: 8002
+  - name: metrics
+    port: 9102
+    targetPort: 9102
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypothetical-rag-service
+  namespace: sophia-ai-phase2
+  labels:
+    app: hypothetical-rag
+spec:
+  selector:
+    app: hypothetical-rag
+  ports:
+  - name: http
+    port: 8003
+    targetPort: 8003
+  - name: metrics
+    port: 9103
+    targetPort: 9103
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: document-storage-pvc
+  namespace: sophia-ai-phase2
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: local-path
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: phase2-agentic-rag-ingress
+  namespace: sophia-ai-phase2
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.middlewares: default-auth@kubernetescrd
+spec:
+  rules:
+  - host: memory-v3.sophia-ai.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: unified-memory-v3-service
+            port:
+              number: 8000
+  - host: multimodal.sophia-ai.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: multimodal-memory-service
+            port:
+              number: 8002
+  - host: hypothetical.sophia-ai.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hypothetical-rag-service
+            port:
+              number: 8003
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: phase2-config
+  namespace: sophia-ai-phase2
+data:
+  memory_config.yaml: |
+    memory_tiers:
+      episodic:
+        storage_type: redis
+        ttl_seconds: 3600
+        max_entries: 10000
+        embedding_model: lambda-gpu
+        multimodal_support: false
+        self_pruning: true
+      semantic:
+        storage_type: weaviate
+        ttl_seconds: 2592000  # 30 days
+        max_entries: 100000
+        embedding_model: lambda-gpu
+        multimodal_support: true
+        self_pruning: false
+      visual:
+        storage_type: qdrant
+        ttl_seconds: 604800  # 7 days
+        max_entries: 50000
+        embedding_model: colpali-v1.2
+        multimodal_support: true
+        self_pruning: true
+      procedural:
+        storage_type: neo4j
+        ttl_seconds: 1209600  # 14 days
+        max_entries: 25000
+        embedding_model: lambda-gpu
+        multimodal_support: false
+        self_pruning: true
+    
+    performance_targets:
+      embedding_latency_p95_ms: 50
+      search_latency_p95_ms: 100
+      cache_hit_rate_target: 0.85
+      rag_recall_target: 0.90
+      complex_query_accuracy_target: 0.95
+      multimodal_qa_accuracy_target: 0.88
+    
+    agentic_config:
+      max_iterations: 3
+      confidence_threshold: 0.8
+      multimodal_threshold: 0.7
+      pruning_interval_seconds: 3600
+      critique_improvement_threshold: 0.8
+  
+  multimodal_config.yaml: |
+    document_processing:
+      max_file_size_mb: 50
+      supported_formats:
+        - pdf
+        - docx
+        - pptx
+        - png
+        - jpg
+        - jpeg
+        - html
+      
+      vision_models:
+        primary: colpali-v1.2
+        fallback: clip-vit-base-patch32
+      
+      embedding_dimensions:
+        visual: 1024
+        text: 768
+      
+      performance_targets:
+        visual_qa_accuracy: 0.88
+        document_processing_ms_per_page: 30
+        visual_search_recall: 0.90
+        multimodal_latency_ms: 200
+    
+    QDRANT_config:
+      collection_names:
+        visual_embeddings: visual_embeddings
+        document_analysis: document_analysis
+      
+      vector_config:
+        size: 1024
+        distance: cosine
+      
+      batch_size: 100
+      timeout_seconds: 30
+  
+  hypothetical_config.yaml: |
+    cache_management:
+      max_cache_size: 10000
+      pruning_threshold: 0.1
+      max_age_hours: 168  # 7 days
+      min_access_count: 2
+      confidence_decay_rate: 0.95
+    
+    generation_config:
+      document_types:
+        - answer_focused
+        - context_rich
+        - scenario_based
+        - procedural
+        - comparative
+        - analytical
+      
+      llm_config:
+        model: openai/gpt-4
+        max_tokens: 1500
+        temperature: 0.7
+        timeout_seconds: 30
+    
+    pruning_strategies:
+      - confidence_based
+      - age_based
+      - access_based
+      - redundancy_based
+    
+    performance_targets:
+      recall_improvement_percent: 30
+      storage_reduction_percent: 20
+      generation_latency_ms: 50
+      cache_hit_rate: 0.80
+    
+    background_tasks:
+      pruning_interval_seconds: 3600
+      warming_interval_seconds: 1800
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: phase2-agentic-rag-metrics
+  namespace: sophia-ai-phase2
+  labels:
+    app: sophia-ai-phase2
+spec:
+  selector:
+    matchLabels:
+      component: agentic-rag
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: phase2-secrets
+  namespace: sophia-ai-phase2
+type: Opaque
+stringData:
+  QDRANT_api_key: ""  # Will be populated by Pulumi ESC
+  openai_api_key: ""  # Will be populated by Pulumi ESC
+  anthropic_api_key: ""  # Will be populated by Pulumi ESC
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: unified-memory-v3-pdb
+  namespace: sophia-ai-phase2
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: unified-memory-v3
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hypothetical-rag-pdb
+  namespace: sophia-ai-phase2
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: hypothetical-rag
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: unified-memory-v3-hpa
+  namespace: sophia-ai-phase2
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: unified-memory-v3
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hypothetical-rag-hpa
+  namespace: sophia-ai-phase2
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hypothetical-rag
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85 

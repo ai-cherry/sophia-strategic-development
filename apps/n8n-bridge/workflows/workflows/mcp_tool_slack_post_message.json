@@ -1,0 +1,107 @@
+{
+  "name": "MCP Tool: Slack - Post Message",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "slack-post-message",
+        "options": {}
+      },
+      "name": "Webhook Trigger (Slack)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ],
+      "webhookId": "mcp-slack-post-message"
+    },
+    {
+      "parameters": {
+        "channel": "={{$json.body.channel}}",
+        "text": "={{$json.body.text}}",
+        "options": {}
+      },
+      "name": "Post Slack Message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "sophia-slack-prod",
+          "name": "Sophia Slack Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "responseFor": "webhook",
+        "webhookId": "mcp-slack-post-message",
+        "responseData": "={{$json}}",
+        "responseFormat": "json"
+      },
+      "name": "Return Message Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        840,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Webhook Trigger (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger (Slack)": {
+      "main": [
+        [
+          {
+            "node": "Post Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Slack Message": {
+      "main": [
+        [
+          {
+            "node": "Return Message Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "slack-post-message-tool"
+}

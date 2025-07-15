@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-asana
+  namespace: sophia-ai-prod
+  labels:
+    app: mcp-asana
+    component: mcp-server
+    server: asana
+spec:
+  selector:
+    app: mcp-asana
+  ports:
+  - port: 9007
+    targetPort: 9007
+    name: http
+  type: ClusterIP

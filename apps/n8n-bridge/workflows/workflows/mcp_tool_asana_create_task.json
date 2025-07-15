@@ -1,0 +1,114 @@
+{
+  "name": "MCP Tool: Asana - Create Task",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "asana-create-task",
+        "options": {}
+      },
+      "name": "Webhook Trigger (Asana)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ],
+      "webhookId": "mcp-asana-create-task"
+    },
+    {
+      "parameters": {
+        "resource": "task",
+        "operation": "create",
+        "name": "={{$json.body.name}}",
+        "notes": "={{$json.body.notes}}",
+        "workspace": "={{$json.body.workspaceId}}",
+        "additionalFields": {
+          "projects": [
+            "{{$json.body.projectId}}"
+          ]
+        }
+      },
+      "name": "Create Asana Task",
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "credentials": {
+        "asanaApi": {
+          "id": "sophia-asana-prod",
+          "name": "Sophia Asana Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "responseFor": "webhook",
+        "webhookId": "mcp-asana-create-task",
+        "responseData": "={{$json}}",
+        "responseFormat": "json"
+      },
+      "name": "Return Task Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        840,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Webhook Trigger (Asana)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger (Asana)": {
+      "main": [
+        [
+          {
+            "node": "Create Asana Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Asana Task": {
+      "main": [
+        [
+          {
+            "node": "Return Task Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "asana-create-task-tool"
+}

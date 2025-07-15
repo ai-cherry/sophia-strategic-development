@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-memory-mcp
+  namespace: mcp-servers
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-memory-mcp
+  template:
+    metadata:
+      labels:
+        app: ai-memory-mcp
+        mcp-server: "true"
+    spec:
+      nodeSelector:
+        nvidia.com/gpu: "true"
+      containers:
+      - name: ai-memory
+        image: scoobyjava15/sophia-mcp-base:latest
+        command: ["python", "-m", "mcp_servers.ai_memory.server"]
+        ports:
+        - containerPort: 9001
+        env:
+        - name: ENVIRONMENT
+          value: "prod"
+        - name: MCP_PORT
+          value: "9001"
+        - name: QDRANT_URL
+          value: "https://cloud.qdrant.io"
+        - name: REDIS_URL
+          value: "redis://redis-master:6379"
+        - name: POSTGRESQL_URL
+          value: "postgresql://sophia:sophia@postgresql:5432/sophia"
+        - name: LAMBDA_INFERENCE_URL
+          value: "http://lambda-inference:8000"
+        - name: GPU_ACCEL
+          value: "true"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+            nvidia.com/gpu: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-memory-mcp
+  namespace: mcp-servers
+spec:
+  selector:
+    app: ai-memory-mcp
+  ports:
+  - port: 9001
+    targetPort: 9001
+  type: ClusterIP 

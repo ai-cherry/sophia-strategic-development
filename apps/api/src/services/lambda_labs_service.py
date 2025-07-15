@@ -1,0 +1,295 @@
+#!/usr/bin/env python3
+"""
+Lambda Labs Service
+Production service layer for Lambda Labs serverless integration
+"""
+
+import logging
+from datetime import datetime
+from typing import Any
+
+import aiohttp
+
+from backend.core.auto_esc_config import get_secret
+
+logger = logging.getLogger(__name__)
+
+
+class LambdaLabsService:
+    """Production Lambda Labs service with intelligent optimization"""
+
+    def __init__(self):
+        self.api_key = get_secret("lambda_labs_api_key")
+        self.base_url = "https://api.lambda.ai/v1"
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+
+        # Model configuration
+        self.models = {
+            "fast": "llama3.1-8b-instruct",
+            "balanced": "llama3.1-70b-instruct-fp8",
+            "premium": "llama-4-maverick-17b-128e-instruct-fp8",
+        }
+
+        # Cost monitoring (coded configuration)
+        self.cost_config = {
+            "daily_budget": 50.0,
+            "monthly_budget": 1000.0,
+            "model_costs": {
+                "llama3.1-8b-instruct": 0.07,
+                "llama3.1-70b-instruct-fp8": 0.35,
+                "llama-4-maverick-17b-128e-instruct-fp8": 0.88,
+            },
+        }
+
+        self.usage_tracker = {}
+
+    async def chat_completion(
+        self,
+        messages: list[dict[str, str]],
+        model: str = "llama3.1-70b-instruct-fp8",
+        max_tokens: int = 500,
+        temperature: float = 0.7,
+    ) -> dict[str, Any]:
+        """Execute chat completion with cost and performance monitoring"""
+
+        if model not in self.models.values():
+            raise ValueError(
+                f"Model {model} not supported. Available: {list(self.models.values())}"
+            )
+
+        # Pre-execution cost check
+        estimated_cost = self._estimate_cost(messages, model, max_tokens)
+        budget_check = await self._check_budget(estimated_cost)
+
+        if not budget_check["approved"]:
+            raise Exception(
+                f"Budget limit exceeded. Daily remaining: ${budget_check['daily_remaining']:.2f}"
+            )
+
+        payload = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=self.headers,
+                    json=payload,
+                ) as response:
+                    if response.status == 200:
+                        result = await response.json()
+
+                        # Track usage for cost monitoring
+                        usage = result.get("usage", {})
+                        actual_cost = self._calculate_actual_cost(usage, model)
+                        await self._track_usage(model, usage, actual_cost)
+
+                        return result
+                    else:
+                        error_text = await response.text()
+                        raise Exception(
+                            f"Lambda Labs API error: HTTP {response.status} - {error_text}"
+                        )
+
+        except Exception as e:
+            logger.error(f"Lambda Labs service error: {e!s}")
+            raise
+
+    async def simple_inference(self, prompt: str, complexity: str = "balanced") -> str:
+        """Simple inference with intelligent model selection"""
+
+        model = self.select_optimal_model(prompt, complexity)
+        messages = [{"role": "user", "content": prompt}]
+        result = await self.chat_completion(messages, model=model)
+
+        return result["choices"][0]["message"]["content"]
+
+    def select_optimal_model(self, prompt: str, complexity: str = "auto") -> str:
+        """Select optimal model based on prompt and complexity requirements"""
+
+        if complexity != "auto":
+            return self.models.get(complexity, self.models["balanced"])
+
+        # Automatic model selection based on prompt analysis
+        prompt_lower = prompt.lower()
+
+        # Simple task indicators
+        simple_indicators = ["quick", "simple", "brief", "short", "list", "summarize"]
+        if any(indicator in prompt_lower for indicator in simple_indicators):
+            return self.models["fast"]
+
+        # Complex task indicators
+        complex_indicators = [
+            "analyze",
+            "detailed",
+            "comprehensive",
+            "complex",
+            "reasoning",
+            "research",
+        ]
+        if any(indicator in prompt_lower for indicator in complex_indicators):
+            return self.models["premium"]
+
+        # Default to balanced
+        return self.models["balanced"]
+
+    async def natural_language_to_sql(
+        self, query: str, schema_context: str = ""
+    ) -> str:
+        """Convert natural language to optimized SQL using Lambda AI"""
+
+        prompt = f"""Convert this natural language query to optimized Qdrant SQL:
+
+Query: {query}
+
+Schema Context: {schema_context}
+
+Requirements:
+- Use proper Qdrant syntax and functions
+- Optimize for performance
+- Include appropriate JOINs and WHERE clauses
+- Return only the SQL query
+
+SQL Query:"""
+
+        try:
+            result = await self.simple_inference(prompt, complexity="premium")
+            return self._extract_sql_from_response(result)
+
+        except Exception as e:
+            logger.error(f"Natural language to SQL conversion failed: {e!s}")
+            raise
+
+    def _extract_sql_from_response(self, response: str) -> str:
+        """Extract clean SQL from AI response"""
+
+        # Remove markdown code blocks
+        if "```sql" in response:
+            start = response.find("```sql") + 6
+            end = response.find("```", start)
+            if end != -1:
+                return response[start:end].strip()
+        elif "```" in response:
+            start = response.find("```") + 3
+            end = response.find("```", start)
+            if end != -1:
+                return response[start:end].strip()
+
+        # Return cleaned response
+        lines = response.split("\n")
+        sql_lines = []
+
+        for line in lines:
+            line = line.strip()
+            if line.upper().startswith(
+                ("SELECT", "WITH", "INSERT", "UPDATE", "DELETE")
+            ) or (
+                sql_lines and line and not line.startswith(("Note:", "Explanation:"))
+            ):
+                sql_lines.append(line)
+
+        return "\n".join(sql_lines).strip()
+
+    def _estimate_cost(
+        self, messages: list[dict], model: str, max_tokens: int
+    ) -> float:
+        """Estimate cost for inference request"""
+
+        # Calculate input tokens (rough estimation)
+        input_text = " ".join([msg["content"] for msg in messages])
+        input_tokens = len(input_text) / 4  # 4 chars per token average
+        total_tokens = input_tokens + max_tokens
+
+        cost_per_million = self.cost_config["model_costs"].get(model, 0.35)
+        estimated_cost = (total_tokens / 1_000_000) * cost_per_million
+
+        return estimated_cost
+
+    def _calculate_actual_cost(self, usage: dict, model: str) -> float:
+        """Calculate actual cost from usage data"""
+
+        total_tokens = usage.get("total_tokens", 0)
+        cost_per_million = self.cost_config["model_costs"].get(model, 0.35)
+
+        return (total_tokens / 1_000_000) * cost_per_million
+
+    async def _check_budget(self, estimated_cost: float) -> dict[str, Any]:
+        """Check if request fits within budget constraints"""
+
+        current_usage = await self._get_current_usage()
+
+        daily_remaining = self.cost_config["daily_budget"] - current_usage["daily_cost"]
+        monthly_remaining = (
+            self.cost_config["monthly_budget"] - current_usage["monthly_cost"]
+        )
+
+        approved = (
+            estimated_cost <= daily_remaining and estimated_cost <= monthly_remaining
+        )
+
+        return {
+            "approved": approved,
+            "estimated_cost": estimated_cost,
+            "daily_remaining": daily_remaining,
+            "monthly_remaining": monthly_remaining,
+        }
+
+    async def _track_usage(self, model: str, usage: dict, cost: float):
+        """Track usage for cost monitoring"""
+
+        today = datetime.now().date()
+        month = datetime.now().strftime("%Y-%m")
+
+        if today not in self.usage_tracker:
+            self.usage_tracker[today] = {"cost": 0, "tokens": 0, "requests": 0}
+
+        if month not in self.usage_tracker:
+            self.usage_tracker[month] = {"cost": 0, "tokens": 0, "requests": 0}
+
+        # Update tracking
+        for period in [today, month]:
+            self.usage_tracker[period]["cost"] += cost
+            self.usage_tracker[period]["tokens"] += usage.get("total_tokens", 0)
+            self.usage_tracker[period]["requests"] += 1
+
+    async def _get_current_usage(self) -> dict[str, float]:
+        """Get current usage statistics"""
+
+        today = datetime.now().date()
+        month = datetime.now().strftime("%Y-%m")
+
+        daily_cost = self.usage_tracker.get(today, {}).get("cost", 0)
+        monthly_cost = self.usage_tracker.get(month, {}).get("cost", 0)
+
+        return {"daily_cost": daily_cost, "monthly_cost": monthly_cost}
+
+    async def health_check(self) -> bool:
+        """Check if Lambda Labs API is accessible"""
+
+        try:
+            test_messages = [{"role": "user", "content": "Hello"}]
+            await self.chat_completion(test_messages, max_tokens=10)
+            return True
+        except Exception as e:
+            logger.error(f"Lambda Labs health check failed: {e!s}")
+            return False
+
+    async def get_usage_analytics(self) -> dict[str, Any]:
+        """Get comprehensive usage analytics"""
+
+        current_usage = await self._get_current_usage()
+        budget_status = await self._check_budget(0)  # Check current budget status
+
+        return {
+            "current_usage": current_usage,
+            "budget_status": budget_status,
+            "cost_config": self.cost_config,
+            "usage_history": self.usage_tracker,
+        }

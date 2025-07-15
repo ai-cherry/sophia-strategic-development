@@ -1,0 +1,346 @@
+---
+# ArgoCD Deployment for Sophia AI GitOps
+# Zero-touch deployments from main branch to Lambda Labs K3s fortress
+# Rollback in seconds, chaos-tested resilience
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sophia-ai-fortress
+  namespace: argocd
+  labels:
+    app: sophia-ai
+    tier: production
+    deployment: gitops
+spec:
+  project: default
+  
+  # Source configuration - GitHub main branch
+  source:
+    repoURL: https://github.com/ai-cherry/sophia-main
+    targetRevision: main
+    path: k8s/lambda-labs
+    
+  # Destination - Lambda Labs K3s cluster
+  destination:
+    server: https://192.222.58.232:6443
+    namespace: sophia-ai
+    
+  # Sync policy - automatic with self-healing
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+        
+  # Health checks and validation
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+        
+  # Rollback configuration
+  revisionHistoryLimit: 10
+
+---
+# ArgoCD Project for Sophia AI
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: sophia-ai-project
+  namespace: argocd
+spec:
+  description: "Sophia AI production deployment project"
+  
+  # Source repositories
+  sourceRepos:
+    - https://github.com/ai-cherry/sophia-main
+    - https://github.com/ai-cherry/sophia-infrastructure
+    
+  # Destination clusters and namespaces
+  destinations:
+    - namespace: sophia-ai
+      server: https://192.222.58.232:6443
+    - namespace: sophia-ai-monitoring
+      server: https://192.222.58.232:6443
+    - namespace: sophia-ai-gpu
+      server: https://192.222.58.232:6443
+      
+  # Cluster resource whitelist
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRole
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRoleBinding
+    - group: "apiextensions.k8s.io"
+      kind: CustomResourceDefinition
+      
+  # Namespace resource whitelist
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: "apps"
+      kind: Deployment
+    - group: "apps"
+      kind: StatefulSet
+    - group: "apps"
+      kind: DaemonSet
+    - group: "batch"
+      kind: Job
+    - group: "batch"
+      kind: CronJob
+    - group: "networking.k8s.io"
+      kind: Ingress
+    - group: "networking.k8s.io"
+      kind: NetworkPolicy
+      
+  # RBAC roles
+  roles:
+    - name: sophia-ai-admin
+      description: "Full access to Sophia AI resources"
+      policies:
+        - p, proj:sophia-ai-project:sophia-ai-admin, applications, *, sophia-ai-project/*, allow
+        - p, proj:sophia-ai-project:sophia-ai-admin, repositories, *, *, allow
+        - p, proj:sophia-ai-project:sophia-ai-admin, clusters, *, *, allow
+      groups:
+        - sophia-ai-admins
+        
+    - name: sophia-ai-developer
+      description: "Read-only access to Sophia AI resources"
+      policies:
+        - p, proj:sophia-ai-project:sophia-ai-developer, applications, get, sophia-ai-project/*, allow
+        - p, proj:sophia-ai-project:sophia-ai-developer, applications, sync, sophia-ai-project/*, allow
+      groups:
+        - sophia-ai-developers
+
+---
+# ArgoCD Notifications for deployment events
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  # Slack notification template
+  template.app-deployed: |
+    message: |
+      🚀 **Sophia AI Fortress Deployed**
+      Application: {{.app.metadata.name}}
+      Environment: Production (Lambda Labs K3s)
+      Revision: {{.app.status.sync.revision}}
+      Status: {{.app.status.health.status}}
+      Time: {{.app.status.operationState.finishedAt}}
+      
+      🔗 [View Application]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      📊 [Monitoring Dashboard](https://grafana.sophia-ai.lambda-labs.com)
+      
+  template.app-sync-failed: |
+    message: |
+      ❌ **Sophia AI Deployment Failed**
+      Application: {{.app.metadata.name}}
+      Environment: Production (Lambda Labs K3s)
+      Error: {{.app.status.operationState.message}}
+      Time: {{.app.status.operationState.finishedAt}}
+      
+      🔧 [Troubleshoot]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      
+  # Slack service configuration
+  service.slack: |
+    token: $slack-token
+    
+  # Subscription for deployment notifications
+  subscriptions: |
+    - recipients:
+        - slack:sophia-ai-alerts
+      triggers:
+        - on-deployed
+        - on-sync-failed
+        - on-sync-status-unknown
+      template: app-deployed
+      
+    - recipients:
+        - slack:sophia-ai-alerts
+      triggers:
+        - on-sync-failed
+      template: app-sync-failed
+
+---
+# ArgoCD RBAC Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+  namespace: argocd
+data:
+  # RBAC policy for Sophia AI team
+  policy.default: role:readonly
+  policy.csv: |
+    # Sophia AI Admin permissions
+    p, role:sophia-ai-admin, applications, *, */*, allow
+    p, role:sophia-ai-admin, clusters, *, *, allow
+    p, role:sophia-ai-admin, repositories, *, *, allow
+    
+    # Sophia AI Developer permissions
+    p, role:sophia-ai-developer, applications, get, */*, allow
+    p, role:sophia-ai-developer, applications, sync, */*, allow
+    p, role:sophia-ai-developer, applications, action/*, */*, allow
+    
+    # Group mappings
+    g, sophia-ai-admins, role:sophia-ai-admin
+    g, sophia-ai-developers, role:sophia-ai-developer
+    
+  # OIDC configuration (optional)
+  oidc.config: |
+    name: GitHub
+    issuer: https://github.com
+    clientId: $github-client-id
+    clientSecret: $github-client-secret
+    requestedScopes: ["user:email"]
+    requestedIDTokenClaims: {"groups": {"essential": true}}
+
+---
+# ArgoCD Server Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-server-config
+  namespace: argocd
+data:
+  # Server configuration
+  url: https://argocd.sophia-ai.lambda-labs.com
+  
+  # Repository credentials
+  repositories: |
+    - type: git
+      url: https://github.com/ai-cherry/sophia-main
+      passwordSecret:
+        name: github-secret
+        key: password
+      usernameSecret:
+        name: github-secret
+        key: username
+        
+  # Resource customizations for Sophia AI
+  resource.customizations: |
+    # Custom health check for Sophia AI backend
+    apps/Deployment:
+      health.lua: |
+        hs = {}
+        if obj.status ~= nil then
+          if obj.status.readyReplicas ~= nil and obj.status.readyReplicas > 0 then
+            hs.status = "Healthy"
+            hs.message = "Deployment has " .. obj.status.readyReplicas .. " ready replicas"
+          else
+            hs.status = "Progressing"
+            hs.message = "Waiting for replicas to be ready"
+          end
+        else
+          hs.status = "Progressing"
+          hs.message = "Waiting for deployment status"
+        end
+        return hs
+        
+    # Custom health check for GPU workloads
+    apps/StatefulSet:
+      health.lua: |
+        hs = {}
+        if obj.status ~= nil then
+          if obj.status.readyReplicas ~= nil and obj.status.readyReplicas == obj.spec.replicas then
+            hs.status = "Healthy"
+            hs.message = "StatefulSet has all replicas ready"
+          else
+            hs.status = "Progressing"
+            hs.message = "Waiting for all replicas to be ready"
+          end
+        else
+          hs.status = "Progressing"
+          hs.message = "Waiting for StatefulSet status"
+        end
+        return hs
+        
+  # Application instance label key
+  application.instanceLabelKey: argocd.argoproj.io/instance
+  
+  # Exec configuration for troubleshooting
+  exec.enabled: true
+  
+  # Anonymous access (disable in production)
+  users.anonymous.enabled: false
+  
+  # Session timeout
+  server.sessionTimeout: 24h
+  
+  # Insecure mode (disable in production with proper TLS)
+  server.insecure: false
+
+---
+# GitHub Webhook Secret for GitOps triggers
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-webhook-secret
+  namespace: argocd
+type: Opaque
+data:
+  # Base64 encoded webhook secret
+  # Replace with actual secret: echo -n "your-webhook-secret" | base64
+  webhook.github.secret: c29waGlhLWFpLWdpdG9wcy1zZWNyZXQ=
+
+---
+# ArgoCD Image Updater Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-image-updater-config
+  namespace: argocd
+data:
+  # Registry configuration
+  registries.conf: |
+    registries:
+      - name: Docker Hub
+        prefix: docker.io
+        api_url: https://registry-1.docker.io
+        credentials: secret:argocd/dockerhub-secret#username,secret:argocd/dockerhub-secret#password
+        
+  # Application configuration
+  applications.yaml: |
+    applications:
+      - name: sophia-ai-fortress
+        images:
+          - image: scoobyjava15/sophia-ai-backend
+            tag: latest
+            update-strategy: latest
+          - image: scoobyjava15/sophia-mcp-gpu
+            tag: latest
+            update-strategy: latest
+          - image: semitechnologies/weaviate
+            tag: 1.26.0
+            update-strategy: semver
+            
+  # Notification configuration
+  notifications.yaml: |
+    notifications:
+      - name: slack-updates
+        webhook: https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+        events:
+          - image-updated
+          - update-failed 

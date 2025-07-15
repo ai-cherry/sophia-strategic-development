@@ -1,0 +1,117 @@
+{
+  "name": "MCP Wrapper: AI Memory - Recall",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "ai-memory-recall",
+        "options": {}
+      },
+      "name": "Webhook Trigger (Recall)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ],
+      "webhookId": "mcp-ai-memory-recall"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:9001/api/v1/memory/recall",
+        "options": {},
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{$json.body.query || ''}}"
+            },
+            {
+              "name": "category",
+              "value": "={{$json.body.category}}"
+            },
+            {
+              "name": "limit",
+              "value": "={{$json.body.limit || 5}}"
+            }
+          ]
+        },
+        "json": true
+      },
+      "name": "Call AI Memory Recall API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "responseFor": "webhook",
+        "webhookId": "mcp-ai-memory-recall",
+        "responseData": "={{$json}}",
+        "responseFormat": "json"
+      },
+      "name": "Respond with Results",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        840,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Webhook Trigger (Recall)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger (Recall)": {
+      "main": [
+        [
+          {
+            "node": "Call AI Memory Recall API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call AI Memory Recall API": {
+      "main": [
+        [
+          {
+            "node": "Respond with Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "ai-memory-recall-wrapper"
+}

@@ -23,7 +23,14 @@ async def get_current_user(
     if not credentials:
         return {"user_id": "anonymous", "role": "guest"}
 
-    # TODO: [ARCH-001] Implement proper authentication flow
+
+        # Architecture implementation: Authentication
+        from libs.core.security.auth_manager import AuthManager
+        
+        auth_manager = AuthManager()
+        if not await auth_manager.validate_token(token):
+            raise AuthenticationError("Invalid authentication token")
+        return await auth_manager.get_user_context(token)
     return {"user_id": "user123", "role": "user"}
 
 

@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-backend
+  namespace: sophia-ai-prod
+  labels:
+    app: sophia-backend
+    component: api
+    environment: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sophia-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: sophia-backend
+        component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: sophia-backend-sa
+      containers:
+      - name: sophia-backend
+        image: scoobyjava15/sophia-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "prod"
+        - name: PULUMI_ORG
+          value: "scoobyjava-org"
+        - name: POSTGRES_URL
+          value: "postgresql://sophia:$(POSTGRES_PASSWORD)@postgres:5432/sophia"
+        - name: REDIS_URL
+          value: "redis://redis:6379"
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-secrets
+              key: openai-api-key
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-secrets
+              key: anthropic-api-key
+        - name: ELIMINATED_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              name: sophia-secrets
+              key: ELIMINATED-account
+        - name: ELIMINATED_USER
+          valueFrom:
+            secretKeyRef:
+              name: sophia-secrets
+              key: ELIMINATED-user
+        - name: ELIMINATED_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sophia-secrets
+              key: ELIMINATED-password
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sophia-secrets
+              key: postgres-password
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sophia-backend
+  namespace: sophia-ai-prod
+  labels:
+    app: sophia-backend
+spec:
+  selector:
+    app: sophia-backend
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sophia-backend-sa
+  namespace: sophia-ai-prod 

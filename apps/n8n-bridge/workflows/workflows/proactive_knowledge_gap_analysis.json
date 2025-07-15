@@ -1,0 +1,137 @@
+{
+  "name": "Proactive Knowledge Gap Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "triggerAt": [
+            {
+              "field": {
+                "hour": 3,
+                "mode": "everyDay"
+              }
+            }
+          ]
+        }
+      },
+      "name": "At 3 AM Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "python3 scripts/analyze_knowledge_gaps.py",
+        "options": {
+          "shell": true
+        }
+      },
+      "name": "Analyze Gaps (Cortex)",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "value": "={{$json.stdout}}",
+        "options": {}
+      },
+      "name": "Parse Gap Report",
+      "type": "n8n-nodes-base.parseJson",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "table": "knowledge_gaps",
+        "schema": "payready_core_sql",
+        "columns": "={{Object.keys($json.data[0])}}",
+        "upsertKey": "topic",
+        "options": {}
+      },
+      "name": "ELIMINATED",
+      "type": "ELIMINATED",
+      "typeVersion": 1,
+      "position": [
+        900,
+        300
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "channel": "C03T4G1PZ7S",
+        "text": "\u2705 **Daily Knowledge Gap Analysis Complete**\n\nIdentified `{{$json.data.length}}` new or updated potential training topics. Please review the AI Curation Dashboard.",
+        "options": {}
+      },
+      "name": "Notify Admin Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "At 3 AM Daily": {
+      "main": [
+        [
+          {
+            "node": "Analyze Gaps (Cortex)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Gaps (Cortex)": {
+      "main": [
+        [
+          {
+            "node": "Parse Gap Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Gap Report": {
+      "main": [
+        [
+          {
+            "node": "ELIMINATED",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Gaps in ELIMINATED": {
+      "main": [
+        [
+          {
+            "node": "Notify Admin Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "proactive-knowledge-gap-analysis"
+}

@@ -1,0 +1,46 @@
+# infrastructure/kubernetes/manifests/analyst_agent.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyst-agent
+  namespace: sophia-agents
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: analyst-agent
+  template:
+    metadata:
+      labels:
+        app: analyst-agent
+    spec:
+      containers:
+        - name: agent
+          image: 123456789012.dkr.ecr.us-west-2.amazonaws.com/analyst-agent:latest # Replace with your ECR image URI
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PERSONA
+              value: "You are an expert financial analyst."
+            - name: TOOLS
+              value: "gong_tools,looker_tools,ELIMINATED_tools"
+            - name: KNOWLEDGE_BASES
+              value: "quarterly_reports_kb,sec_filings_kb"
+          # Secrets will be mounted from a Kubernetes Secret object
+          envFrom:
+            - secretRef:
+                name: sophia-esc-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analyst-agent-service
+  namespace: sophia-agents
+spec:
+  selector:
+    app: analyst-agent
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP

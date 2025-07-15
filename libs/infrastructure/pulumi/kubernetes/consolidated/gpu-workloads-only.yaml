@@ -1,0 +1,731 @@
+# =============================================================================
+# CONSOLIDATED KUBERNETES CONFIGURATION - GPU WORKLOADS ONLY
+# =============================================================================
+# This configuration focuses exclusively on GPU-intensive workloads for
+# Lambda Labs infrastructure. MCP servers are moved to Docker Swarm.
+# =============================================================================
+
+---
+# Namespace for GPU workloads
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sophia-gpu-workloads
+  labels:
+    name: sophia-gpu-workloads
+    workload-type: gpu-intensive
+    environment: production
+
+---
+# GPU Resource Quota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-workload-quota
+  namespace: sophia-gpu-workloads
+spec:
+  hard:
+    requests.nvidia.com/gpu: "8"      # Total GPU requests across all workloads
+    limits.nvidia.com/gpu: "8"        # Total GPU limits
+    requests.cpu: "32"                # Total CPU requests
+    requests.memory: 128Gi            # Total memory requests
+    limits.cpu: "64"                  # Total CPU limits
+    limits.memory: 256Gi              # Total memory limits
+    persistentvolumeclaims: "20"      # Total PVC count
+    requests.storage: 500Gi           # Total storage requests
+
+---
+# GPU Workload Limit Range
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: gpu-workload-limits
+  namespace: sophia-gpu-workloads
+spec:
+  limits:
+    - default:
+        nvidia.com/gpu: "0.5"         # Default GPU allocation
+        cpu: "2000m"                  # Default CPU
+        memory: "8Gi"                 # Default memory
+      defaultRequest:
+        nvidia.com/gpu: "0.25"        # Default GPU request
+        cpu: "500m"                   # Default CPU request
+        memory: "2Gi"                 # Default memory request
+      type: Container
+    - max:
+        nvidia.com/gpu: "2"           # Max GPU per container
+        cpu: "8000m"                  # Max CPU
+        memory: "32Gi"                # Max memory
+      min:
+        nvidia.com/gpu: "0.1"         # Min GPU
+        cpu: "100m"                   # Min CPU
+        memory: "256Mi"               # Min memory
+      type: Container
+
+---
+# =============================================================================
+# AI PROCESSING WORKLOADS
+# =============================================================================
+
+# Lambda GPU AI Processing Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ELIMINATED-cortex-ai
+  namespace: sophia-gpu-workloads
+  labels:
+    app: ELIMINATED-cortex-ai
+    workload-type: ai-processing
+    gpu-required: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ELIMINATED-cortex-ai
+  template:
+    metadata:
+      labels:
+        app: ELIMINATED-cortex-ai
+        workload-type: ai-processing
+        gpu-required: "true"
+    spec:
+      nodeSelector:
+        lambdalabs.com/gpu-type: "rtx-4090"
+        kubernetes.io/arch: amd64
+
+      tolerations:
+        - key: "lambdalabs.com/gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+
+      containers:
+        - name: ELIMINATED-cortex-ai
+          image: scoobyjava15/sophia-ELIMINATED-cortex:latest
+          imagePullPolicy: Always
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+
+          env:
+            - name: ENVIRONMENT
+              value: "prod"
+            - name: CUDA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: PYTORCH_CUDA_ALLOC_CONF
+              value: "max_split_size_mb:1024"
+            - name: ELIMINATED_CORTEX_ENABLED
+              value: "true"
+            - name: GPU_MEMORY_FRACTION
+              value: "0.8"
+
+          envFrom:
+            - secretRef:
+                name: sophia-ELIMINATED-secrets
+
+          resources:
+            requests:
+              nvidia.com/gpu: "0.5"
+              memory: "4Gi"
+              cpu: "1000m"
+            limits:
+              nvidia.com/gpu: "1"
+              memory: "16Gi"
+              cpu: "4000m"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: model-cache
+              mountPath: /app/models
+            - name: tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: ELIMINATED-cortex-models
+        - name: tmp
+          emptyDir: {}
+
+---
+# Local LLM Processing Service (High GPU Usage)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-llm-processing
+  namespace: sophia-gpu-workloads
+  labels:
+    app: local-llm-processing
+    workload-type: llm-inference
+    gpu-required: "true"
+spec:
+  replicas: 1  # Single replica for high GPU usage
+  selector:
+    matchLabels:
+      app: local-llm-processing
+  template:
+    metadata:
+      labels:
+        app: local-llm-processing
+        workload-type: llm-inference
+        gpu-required: "true"
+    spec:
+      nodeSelector:
+        lambdalabs.com/gpu-type: "rtx-4090"
+        gpu-memory-gb: "24"  # Require high-memory GPU
+
+      tolerations:
+        - key: "lambdalabs.com/gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+        - key: "lambdalabs.com/high-memory-gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+
+      containers:
+        - name: local-llm
+          image: scoobyjava15/sophia-local-llm:latest
+          imagePullPolicy: Always
+
+          ports:
+            - name: llm-api
+              containerPort: 8000
+              protocol: TCP
+            - name: metrics
+              containerPort: 9091
+              protocol: TCP
+
+          env:
+            - name: ENVIRONMENT
+              value: "prod"
+            - name: CUDA_VISIBLE_DEVICES
+              value: "0"  # Dedicated GPU
+            - name: MODEL_SIZE
+              value: "70b"
+            - name: MAX_MODEL_LEN
+              value: "32768"
+            - name: GPU_MEMORY_UTILIZATION
+              value: "0.95"  # Use most of GPU memory
+            - name: TENSOR_PARALLEL_SIZE
+              value: "1"
+
+          envFrom:
+            - secretRef:
+                name: sophia-llm-secrets
+
+          resources:
+            requests:
+              nvidia.com/gpu: "1"      # Full GPU
+              memory: "16Gi"
+              cpu: "4000m"
+            limits:
+              nvidia.com/gpu: "1"
+              memory: "32Gi"
+              cpu: "8000m"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: llm-api
+            initialDelaySeconds: 300   # LLM takes time to load
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /v1/models
+              port: llm-api
+            initialDelaySeconds: 240
+            periodSeconds: 30
+            timeoutSeconds: 15
+            failureThreshold: 5
+
+          volumeMounts:
+            - name: model-storage
+              mountPath: /models
+            - name: cache
+              mountPath: /cache
+
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: llm-model-storage
+        - name: cache
+          emptyDir:
+            sizeLimit: 50Gi
+
+---
+# AI Data Processing Pipeline
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-data-processing
+  namespace: sophia-gpu-workloads
+  labels:
+    app: ai-data-processing
+    workload-type: data-processing
+    gpu-required: "true"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ai-data-processing
+  template:
+    metadata:
+      labels:
+        app: ai-data-processing
+        workload-type: data-processing
+        gpu-required: "true"
+    spec:
+      nodeSelector:
+        lambdalabs.com/gpu-type: "rtx-4090"
+
+      tolerations:
+        - key: "lambdalabs.com/gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+
+      containers:
+        - name: ai-processing
+          image: scoobyjava15/sophia-ai-processing:latest
+          imagePullPolicy: Always
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          env:
+            - name: ENVIRONMENT
+              value: "prod"
+            - name: CUDA_VISIBLE_DEVICES
+              value: "all"
+            - name: BATCH_SIZE
+              value: "32"
+            - name: GPU_WORKERS
+              value: "4"
+
+          envFrom:
+            - secretRef:
+                name: sophia-processing-secrets
+
+          resources:
+            requests:
+              nvidia.com/gpu: "0.25"
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              nvidia.com/gpu: "0.5"
+              memory: "8Gi"
+              cpu: "2000m"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
+---
+# =============================================================================
+# PERSISTENT VOLUMES FOR GPU WORKLOADS
+# =============================================================================
+
+# Lambda GPU Model Cache
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ELIMINATED-cortex-models
+  namespace: sophia-gpu-workloads
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: lambda-labs-ssd
+
+---
+# LLM Model Storage (Large)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: llm-model-storage
+  namespace: sophia-gpu-workloads
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Gi  # Large storage for LLM models
+  storageClassName: lambda-labs-ssd
+
+---
+# =============================================================================
+# SERVICES
+# =============================================================================
+
+# Lambda GPU AI Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ELIMINATED-cortex-ai-service
+  namespace: sophia-gpu-workloads
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    app: ELIMINATED-cortex-ai
+
+---
+# Local LLM Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: local-llm-service
+  namespace: sophia-gpu-workloads
+spec:
+  type: ClusterIP
+  ports:
+    - name: llm-api
+      port: 8000
+      targetPort: llm-api
+      protocol: TCP
+    - name: metrics
+      port: 9091
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    app: local-llm-processing
+
+---
+# AI Data Processing Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-data-processing-service
+  namespace: sophia-gpu-workloads
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: ai-data-processing
+
+---
+# =============================================================================
+# HORIZONTAL POD AUTOSCALERS (GPU-AWARE)
+# =============================================================================
+
+# Lambda GPU AI HPA
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ELIMINATED-cortex-ai-hpa
+  namespace: sophia-gpu-workloads
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ELIMINATED-cortex-ai
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: nvidia.com/gpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+# AI Data Processing HPA
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-data-processing-hpa
+  namespace: sophia-gpu-workloads
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-data-processing
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: nvidia.com/gpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+# =============================================================================
+# NVIDIA DEVICE PLUGIN AND MONITORING
+# =============================================================================
+
+# NVIDIA Device Plugin DaemonSet
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-device-plugin
+  namespace: sophia-gpu-workloads
+spec:
+  selector:
+    matchLabels:
+      name: nvidia-device-plugin
+  template:
+    metadata:
+      labels:
+        name: nvidia-device-plugin
+    spec:
+      nodeSelector:
+        lambdalabs.com/gpu-type: "rtx-4090"
+
+      tolerations:
+        - key: "lambdalabs.com/gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+
+      containers:
+        - name: nvidia-device-plugin
+          image: nvcr.io/nvidia/k8s-device-plugin:v0.14.1
+          imagePullPolicy: Always
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/device-plugins
+
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+
+---
+# GPU Metrics Exporter
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-dcgm-exporter
+  namespace: sophia-gpu-workloads
+spec:
+  selector:
+    matchLabels:
+      app: nvidia-dcgm-exporter
+  template:
+    metadata:
+      labels:
+        app: nvidia-dcgm-exporter
+    spec:
+      nodeSelector:
+        lambdalabs.com/gpu-type: "rtx-4090"
+
+      tolerations:
+        - key: "lambdalabs.com/gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+
+      containers:
+        - name: nvidia-dcgm-exporter
+          image: nvcr.io/nvidia/k8s/dcgm-exporter:3.1.7-3.1.4-ubuntu20.04
+          imagePullPolicy: Always
+
+          ports:
+            - name: metrics
+              containerPort: 9400
+              protocol: TCP
+
+          securityContext:
+            privileged: true
+
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
+      hostNetwork: true
+      hostPID: true
+
+---
+# GPU Metrics Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nvidia-dcgm-exporter-service
+  namespace: sophia-gpu-workloads
+  labels:
+    app: nvidia-dcgm-exporter
+spec:
+  type: ClusterIP
+  ports:
+    - name: metrics
+      port: 9400
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    app: nvidia-dcgm-exporter
+
+---
+# =============================================================================
+# NETWORK POLICIES
+# =============================================================================
+
+# GPU Workloads Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gpu-workloads-network-policy
+  namespace: sophia-gpu-workloads
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Allow traffic from monitoring namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090
+        - protocol: TCP
+          port: 9091
+        - protocol: TCP
+          port: 9400
+
+    # Allow internal communication within namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: sophia-gpu-workloads
+
+  egress:
+    # Allow all egress for external API calls
+    - {}
+
+---
+# =============================================================================
+# SECRETS TEMPLATE (To be created via Pulumi ESC)
+# =============================================================================
+
+# ELIMINATED Secrets Template
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sophia-ELIMINATED-secrets
+  namespace: sophia-gpu-workloads
+  annotations:
+    pulumi.com/secret-source: "esc://scoobyjava-org/default/sophia-ai-production"
+type: Opaque
+# Data populated by Pulumi ESC sync
+
+---
+# LLM Secrets Template
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sophia-llm-secrets
+  namespace: sophia-gpu-workloads
+  annotations:
+    pulumi.com/secret-source: "esc://scoobyjava-org/default/sophia-ai-production"
+type: Opaque
+# Data populated by Pulumi ESC sync
+
+---
+# Processing Secrets Template
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sophia-processing-secrets
+  namespace: sophia-gpu-workloads
+  annotations:
+    pulumi.com/secret-source: "esc://scoobyjava-org/default/sophia-ai-production"
+type: Opaque
+# Data populated by Pulumi ESC sync

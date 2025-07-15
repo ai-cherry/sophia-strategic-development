@@ -1,0 +1,225 @@
+{
+  "name": "sophia-ai-assistant",
+  "displayName": "Sophia AI Assistant",
+  "description": "Advanced AI coding assistant with business intelligence integration",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "AI",
+    "Machine Learning",
+    "Productivity",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "claude",
+    "coding assistant",
+    "business intelligence",
+    "automation"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "sophia.generateCode",
+        "title": "Generate Code with Sophia AI",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.analyzeCode",
+        "title": "Analyze Code Quality",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.businessAnalysis",
+        "title": "Business Impact Analysis",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.designComponent",
+        "title": "Generate UI Component",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.optimizePerformance",
+        "title": "Optimize Performance",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.securityScan",
+        "title": "Security Analysis",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.documentCode",
+        "title": "Generate Documentation",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.chatWithSophia",
+        "title": "Chat with Sophia AI",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.workflowAutomation",
+        "title": "Automate Workflow",
+        "category": "Sophia AI"
+      },
+      {
+        "command": "sophia.platformIntegration",
+        "title": "Integrate with Platform",
+        "category": "Sophia AI"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "sophia.generateCode",
+        "key": "ctrl+shift+g",
+        "mac": "cmd+shift+g",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "sophia.chatWithSophia",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s"
+      },
+      {
+        "command": "sophia.analyzeCode",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "sophia.contextMenu",
+          "group": "sophia",
+          "when": "editorTextFocus"
+        }
+      ],
+      "sophia.contextMenu": [
+        {
+          "command": "sophia.generateCode",
+          "group": "generation"
+        },
+        {
+          "command": "sophia.analyzeCode",
+          "group": "analysis"
+        },
+        {
+          "command": "sophia.businessAnalysis",
+          "group": "analysis"
+        },
+        {
+          "command": "sophia.designComponent",
+          "group": "generation"
+        },
+        {
+          "command": "sophia.optimizePerformance",
+          "group": "optimization"
+        },
+        {
+          "command": "sophia.securityScan",
+          "group": "security"
+        },
+        {
+          "command": "sophia.documentCode",
+          "group": "documentation"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "sophia.contextMenu",
+        "label": "Sophia AI"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "sophiaAIPanel",
+          "name": "Sophia AI Assistant",
+          "when": "sophia.enabled"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sophia-ai",
+          "title": "Sophia AI",
+          "icon": "$(robot)"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Sophia AI",
+      "properties": {
+        "sophia.apiEndpoint": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "Sophia AI backend endpoint"
+        },
+        "sophia.claudeModel": {
+          "type": "string",
+          "default": "claude-3-5-sonnet-20241119",
+          "description": "Claude model to use"
+        },
+        "sophia.enableBusinessContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable business intelligence context"
+        },
+        "sophia.enableAutoCompletion": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable AI-powered auto completion"
+        },
+        "sophia.enableRealTimeAnalysis": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable real-time code analysis"
+        },
+        "sophia.platformIntegrations": {
+          "type": "object",
+          "default": {
+            "github": true,
+            "linear": true,
+            "slack": true,
+            "jira": false
+          },
+          "description": "Platform integrations to enable"
+        }
+      }
+    },
+    "webviews": [
+      {
+        "viewType": "sophia.chatPanel",
+        "displayName": "Sophia AI Chat"
+      }
+    ]
+  },
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:sophia.generateCode",
+    "onCommand:sophia.chatWithSophia"
+  ],
+  "dependencies": {
+    "axios": "^1.6.0",
+    "ws": "^8.14.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^5.0.0",
+    "@vscode/test-electron": "^2.3.0"
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  }
+}

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sophia-mcp
+  labels:
+    app: sophia-ai
+    component: mcp-servers
+    environment: production
+    deployment: lambda-labs
+  annotations:
+    description: "Sophia AI MCP Servers deployed on Lambda Labs Cloud"
+    lambda-labs-host: "104.171.202.117" 
