@@ -8,6 +8,13 @@ on:
   schedule:
     - cron: '0 2 * * *'  # Daily at 2 AM
 
+
+# Security: Minimal permissions
+permissions:
+  contents: read
+  actions: read
+  checks: read
+
 jobs:
   cleanup-validation:
     runs-on: ubuntu-latest
@@ -16,7 +23,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     

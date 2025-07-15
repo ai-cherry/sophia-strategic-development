@@ -3,43 +3,99 @@
 
 version: 2
 updates:
-  # Python dependencies
+  # Python dependencies (pip)
   - package-ecosystem: "pip"
-  ignore:
-    # Weaviate exclusions - using Qdrant instead
-    - dependency-name: "weaviate-client"
-    - dependency-name: "weaviate-*"
-    - dependency-name: "*weaviate*"
-
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-    open-pull-requests-limit: 5
+      interval: "daily"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ai-cherry"
+    assignees:
+      - "ai-cherry"
     labels:
       - "dependencies"
       - "security"
-    reviewers:
-      - "lynnmusil"
+      - "python"
     commit-message:
-      prefix: "chore"
+      prefix: "SECURITY"
+      include: "scope"
+    target-branch: "main"
+    allow:
+      - dependency-type: "direct"
+        update-type: "security"
+      - dependency-type: "indirect"
+        update-type: "security"
+      - dependency-type: "direct"
+        update-type: "version-update:semver-patch"
+      - dependency-type: "direct"
+        update-type: "version-update:semver-minor"
+    ignore:
+      # Ignore major version updates for core dependencies
+      - dependency-name: "fastapi"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "pydantic"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "sqlalchemy"
+        update-types: ["version-update:semver-major"]
+
+  # Python dependencies (backend)
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ai-cherry"
+    labels:
+      - "dependencies"
+      - "security"
+      - "backend"
+    commit-message:
+      prefix: "SECURITY"
       include: "scope"
 
-  # JavaScript/npm dependencies
+  # Node.js dependencies (frontend)
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-    open-pull-requests-limit: 5
+      interval: "daily"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ai-cherry"
+    assignees:
+      - "ai-cherry"
     labels:
       - "dependencies"
-      - "frontend"
       - "security"
-    reviewers:
-      - "lynnmusil"
+      - "frontend"
+    commit-message:
+      prefix: "SECURITY"
+      include: "scope"
+    target-branch: "main"
+    allow:
+      - dependency-type: "direct"
+        update-type: "security"
+      - dependency-type: "indirect"
+        update-type: "security"
+      - dependency-type: "direct"
+        update-type: "version-update:semver-patch"
+      - dependency-type: "direct"
+        update-type: "version-update:semver-minor"
+    ignore:
+      # Ignore major version updates for core frameworks
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -47,21 +103,112 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "04:00"
-    open-pull-requests-limit: 3
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ai-cherry"
     labels:
       - "dependencies"
-      - "ci/cd"
+      - "security"
+      - "github-actions"
+    commit-message:
+      prefix: "SECURITY"
+      include: "scope"
+    target-branch: "main"
+    allow:
+      - dependency-type: "direct"
+        update-type: "security"
+      - dependency-type: "direct"
+        update-type: "version-update:semver-patch"
+      - dependency-type: "direct"
+        update-type: "version-update:semver-minor"
+      - dependency-type: "direct"
+        update-type: "version-update:semver-major"
 
   # Docker dependencies
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "04:00"
-    open-pull-requests-limit: 3
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ai-cherry"
     labels:
       - "dependencies"
+      - "security"
       - "docker"
+    commit-message:
+      prefix: "SECURITY"
+      include: "scope"
+
+  # Docker dependencies (backend)
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "ai-cherry"
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+      - "backend"
+
+  # Docker dependencies (frontend)
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "ai-cherry"
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+      - "frontend"
+
+  # Infrastructure Docker files
+  - package-ecosystem: "docker"
+    directory: "/infrastructure"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "ai-cherry"
+    labels:
+      - "dependencies"
+      - "security"
+      - "docker"
+      - "infrastructure"
+
+  # Terraform/Pulumi (if applicable)
+  - package-ecosystem: "terraform"
+    directory: "/infrastructure"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "ai-cherry"
+    labels:
+      - "dependencies"
+      - "security"
+      - "terraform"
       - "infrastructure"

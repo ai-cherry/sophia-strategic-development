@@ -1,0 +1,10 @@
+Requirement already satisfied: urllib3 in /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages (2.3.0)
+Collecting urllib3
+  Downloading urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
+Installing collected packages: urllib3
+  Attempting uninstall: urllib3
+    Found existing installation: urllib3 2.3.0
+    Uninstalling urllib3-2.3.0:
+      Successfully uninstalled urllib3-2.3.0
+Successfully installed urllib3-2.5.0
