@@ -52,7 +52,7 @@ You should see your SSH key in the output.
 
 Test SSH access with:
 ```bash
-ssh -i ~/.ssh/lambda_labs_private_key ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 ```
 
 If that works, then run the deployment:

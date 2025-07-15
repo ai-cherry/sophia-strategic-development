@@ -176,7 +176,7 @@ cd infrastructure/esc
 python validate_infrastructure.py
 
 # Test SSH access
-ssh -i ~/.ssh/pulumi_lambda_key ubuntu@<instance-ip>
+ssh -i ~/.ssh/sophia_correct_key ubuntu@<instance-ip>
 
 # Check Pulumi ESC
 pulumi env open scoobyjava-org/default/sophia-ai-production

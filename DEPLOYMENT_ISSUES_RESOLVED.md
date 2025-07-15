@@ -3,7 +3,7 @@
 ## Summary of Issues Found and Fixed
 
 ### 1. **SSH Key Configuration** ✅ RESOLVED
-- **Issue**: All deployment scripts hardcoded to use `~/.ssh/sophia2025.pem`
+- **Issue**: All deployment scripts hardcoded to use `~/.ssh/sophia_correct_key`
 - **Root Cause**: SSH key was not documented as a requirement
 - **Resolution**: SSH key exists and has correct permissions (600)
 - **Status**: SSH connectivity confirmed working to all servers
@@ -106,7 +106,7 @@ python scripts/start_all_mcp_servers.py
    python3 scripts/lambda_labs_manager.py health --instance sophia-production-instance
    
    # View logs
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103 'docker logs -f sophia-backend'
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103 'docker logs -f sophia-backend'
    ```
 
 ## Cost Summary

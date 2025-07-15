@@ -1,3 +1,263 @@
+
+# REAL_LINEAR_API_INTEGRATION - Added by implementation script
+
+import httpx
+import asyncio
+from typing import Dict, List, Optional
+
+class RealLinearClient:
+    """Real Linear API client using GraphQL"""
+    
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.linear.app/graphql"
+        self.headers = {
+            "Authorization": api_key,
+            "Content-Type": "application/json"
+        }
+    
+    async def execute_query(self, query: str, variables: Optional[Dict] = None) -> Dict:
+        """Execute GraphQL query"""
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    self.base_url,
+                    json={"query": query, "variables": variables or {}},
+                    headers=self.headers
+                )
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    print(f"Linear API error: {response.status_code} - {response.text}")
+                    return {"error": f"API error: {response.status_code}"}
+                    
+        except Exception as e:
+            print(f"Linear API exception: {e}")
+            return {"error": str(e)}
+    
+    async def get_projects(self) -> List[Dict]:
+        """Get real projects from Linear"""
+        query = """
+        query GetProjects {
+            projects(first: 50) {
+                nodes {
+                    id
+                    name
+                    description
+                    state
+                    progress
+                    createdAt
+                    updatedAt
+                    lead {
+                        id
+                        name
+                        email
+                    }
+                    teams {
+                        nodes {
+                            id
+                            name
+                        }
+                    }
+                    issues {
+                        nodes {
+                            id
+                            title
+                            state {
+                                name
+                            }
+                            priority
+                        }
+                    }
+                }
+            }
+        }
+        """
+        
+        result = await self.execute_query(query)
+        if "data" in result and "projects" in result["data"]:
+            return result["data"]["projects"]["nodes"]
+        return []
+    
+    async def get_issues(self, project_id: Optional[str] = None) -> List[Dict]:
+        """Get real issues from Linear"""
+        query = """
+        query GetIssues($projectId: String) {
+            issues(
+                first: 100
+                filter: { project: { id: { eq: $projectId } } }
+            ) {
+                nodes {
+                    id
+                    title
+                    description
+                    state {
+                        name
+                        type
+                    }
+                    priority
+                    estimate
+                    createdAt
+                    updatedAt
+                    assignee {
+                        id
+                        name
+                        email
+                    }
+                    creator {
+                        id
+                        name
+                        email
+                    }
+                    project {
+                        id
+                        name
+                    }
+                    team {
+                        id
+                        name
+                    }
+                    labels {
+                        nodes {
+                            id
+                            name
+                            color
+                        }
+                    }
+                }
+            }
+        }
+        """
+        
+        variables = {"projectId": project_id} if project_id else {}
+        result = await self.execute_query(query, variables)
+        if "data" in result and "issues" in result["data"]:
+            return result["data"]["issues"]["nodes"]
+        return []
+    
+    async def get_team_analytics(self) -> Dict:
+        """Get team analytics from Linear"""
+        query = """
+        query GetTeamAnalytics {
+            teams {
+                nodes {
+                    id
+                    name
+                    description
+                    members {
+                        nodes {
+                            id
+                            name
+                            email
+                        }
+                    }
+                    issues {
+                        nodes {
+                            id
+                            state {
+                                name
+                                type
+                            }
+                            priority
+                            estimate
+                            createdAt
+                            assignee {
+                                id
+                                name
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        """
+        
+        result = await self.execute_query(query)
+        if "data" in result and "teams" in result["data"]:
+            teams = result["data"]["teams"]["nodes"]
+            
+            # Calculate analytics
+            analytics = {
+                "total_teams": len(teams),
+                "total_members": sum(len(team.get("members", {}).get("nodes", [])) for team in teams),
+                "total_issues": sum(len(team.get("issues", {}).get("nodes", [])) for team in teams),
+                "teams": []
+            }
+            
+            for team in teams:
+                issues = team.get("issues", {}).get("nodes", [])
+                team_analytics = {
+                    "id": team["id"],
+                    "name": team["name"],
+                    "member_count": len(team.get("members", {}).get("nodes", [])),
+                    "issue_count": len(issues),
+                    "issues_by_state": {},
+                    "issues_by_priority": {},
+                    "average_estimate": 0
+                }
+                
+                # Analyze issues
+                total_estimate = 0
+                estimate_count = 0
+                
+                for issue in issues:
+                    # State analysis
+                    state = issue.get("state", {}).get("name", "Unknown")
+                    team_analytics["issues_by_state"][state] = team_analytics["issues_by_state"].get(state, 0) + 1
+                    
+                    # Priority analysis
+                    priority = issue.get("priority", 0)
+                    team_analytics["issues_by_priority"][str(priority)] = team_analytics["issues_by_priority"].get(str(priority), 0) + 1
+                    
+                    # Estimate analysis
+                    if issue.get("estimate"):
+                        total_estimate += issue["estimate"]
+                        estimate_count += 1
+                
+                if estimate_count > 0:
+                    team_analytics["average_estimate"] = total_estimate / estimate_count
+                
+                analytics["teams"].append(team_analytics)
+            
+            return analytics
+        
+        return {"error": "Failed to get team analytics"}
+
+# Initialize real Linear client
+real_linear_client = None
+
+def get_real_linear_client():
+    """Get or create real Linear client"""
+    global real_linear_client
+    
+    if real_linear_client is None:
+        # Try to get API key from environment or ESC
+        api_key = os.getenv("LINEAR_API_KEY")
+        
+        if not api_key:
+            # Try direct Pulumi ESC access
+            try:
+                result = subprocess.run(
+                    ["pulumi", "env", "get", "scoobyjava-org/default/sophia-ai-production", "linear_api_key", "--show-secrets"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    api_key = result.stdout.strip().replace('"', '')
+            except:
+                pass
+        
+        if api_key and api_key not in ["FROM_GITHUB", "PLACEHOLDER_LINEAR_API_KEY", "[secret]"]:
+            real_linear_client = RealLinearClient(api_key)
+            print(f"✅ Real Linear client initialized")
+        else:
+            print(f"⚠️  Linear API key not found, using mock data")
+    
+    return real_linear_client
+
+
 #!/usr/bin/env python3
 """
 Sophia AI Linear MCP Server

@@ -25,10 +25,10 @@ npm run build
 tar -czf sophia-frontend.tar.gz dist/*
 
 # Copy to server
-scp -i ~/.ssh/sophia2025.pem sophia-frontend.tar.gz ubuntu@192.222.58.232:/tmp/
+scp -i ~/.ssh/sophia_correct_key sophia-frontend.tar.gz ubuntu@192.222.58.232:/tmp/
 
 # SSH to server
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 
 # Deploy frontend
 sudo mkdir -p /var/www/sophia-frontend
@@ -91,7 +91,7 @@ Or manually check:
 
 Check system health:
 ```bash
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 ./check_sophia_health.sh
 ```
 

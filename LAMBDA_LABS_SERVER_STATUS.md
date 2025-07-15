@@ -53,7 +53,7 @@ Both deployment scripts now use the correct server:
 
 1. **Test SSH Connection**:
    ```bash
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103
    ```
 
 2. **If SSH Works**, run deployment:

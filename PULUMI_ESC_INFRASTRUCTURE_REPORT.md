@@ -175,7 +175,7 @@
 
 5. **SSL Certificates**
    ```bash
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103
    sudo certbot --nginx -d sophia-intel.ai
    ```
 

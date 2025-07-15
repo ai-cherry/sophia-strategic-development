@@ -21,7 +21,7 @@ python backend/app/unified_chat_backend.py
 #### Docker Deployment to Lambda Labs
 ```bash
 # Attempted but failed due to build issues
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 docker build -f Dockerfile.backend -t sophia-backend .
 # ERROR: g++ compiler missing, asyncpg build fails
 ```

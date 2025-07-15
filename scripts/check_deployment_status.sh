@@ -3,14 +3,14 @@
 # Check deployment status on Sophia AI servers
 
 SERVER_IP="${1:-192.222.58.232}"  # Default to GH200
-SSH_KEY="$HOME/.ssh/sophia_final_key"
+SSH_KEY="$HOME/.ssh/sophia_correct_key"
 
 echo "🔍 Checking deployment status on $SERVER_IP..."
 echo ""
 
 # Function to run SSH commands
 ssh_cmd() {
-    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 ubuntu@$SERVER_IP "$@" 2>&1
+    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 ubuntu@$SERVER_IP "$@" 2>&1
 }
 
 # Check connection

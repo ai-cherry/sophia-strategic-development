@@ -16,7 +16,7 @@ To deploy the React frontend to your server, follow these steps:
 
 1. **SSH into your server:**
 ```bash
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 ```
 
 2. **Create frontend directory:**
@@ -36,7 +36,7 @@ cd ../..
 
 4. **Copy the package to server:**
 ```bash
-scp -i ~/.ssh/sophia2025.pem frontend-deploy.tar.gz ubuntu@192.222.58.232:/tmp/
+scp -i ~/.ssh/sophia_correct_key frontend-deploy.tar.gz ubuntu@192.222.58.232:/tmp/
 ```
 
 5. **On the server, extract the files:**

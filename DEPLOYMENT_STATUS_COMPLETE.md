@@ -24,7 +24,7 @@ On server `104.171.202.103`:
 
 ```bash
 # 1. SSH into the server
-ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103
+ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103
 
 # 2. Navigate to the repository
 cd ~/sophia-main
@@ -78,7 +78,7 @@ From your local machine:
 curl http://104.171.202.103:8000/health
 
 # Check server status
-ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103 "docker ps"
+ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103 "docker ps"
 ```
 
 ## Files Pushed to GitHub

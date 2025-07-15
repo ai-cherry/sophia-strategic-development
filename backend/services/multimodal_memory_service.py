@@ -43,8 +43,8 @@ except ImportError:
 
 # Qdrant imports with fallback
 try:
-    from QDRANT_client import QdrantClient
-    from QDRANT_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False

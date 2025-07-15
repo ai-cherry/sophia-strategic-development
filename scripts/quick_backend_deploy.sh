@@ -7,7 +7,7 @@ echo ""
 # Check if we're on the Lambda Labs server
 if [[ $(hostname -I | cut -d' ' -f1) != "192.222.58.232" ]]; then
     echo "⚠️  This script should be run on the Lambda Labs server"
-    echo "SSH into the server first: ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@192.222.58.232"
+    echo "SSH into the server first: ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@192.222.58.232"
     exit 1
 fi
 

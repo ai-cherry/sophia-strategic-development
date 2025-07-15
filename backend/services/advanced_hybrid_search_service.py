@@ -14,9 +14,9 @@ from datetime import datetime, timedelta
 import numpy as np
 from enum import Enum
 
-from QDRANT_client import QdrantClient
-from QDRANT_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
-from QDRANT_client.models import ScoredPoint, SearchRequest, Batch
+from qdrant_client import QdrantClient
+from qdrant_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
+from qdrant_client.models import ScoredPoint, SearchRequest, Batch
 
 from ..core.truthful_config import get_real_QDRANT_config
 from ..core.auto_esc_config import get_config_value

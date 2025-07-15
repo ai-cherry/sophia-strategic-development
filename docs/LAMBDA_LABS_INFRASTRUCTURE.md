@@ -58,7 +58,7 @@ ssh_key_path = config['ssh_key_path']
 - **Cost**: $1.49/hour
 - **Purpose**: Core AI Services & Lambda GPU
 - **Services**: AI Memory MCP (9001), FastAPI Backend (8000)
-- **SSH**: `ssh -i ~/.ssh/sophia_lambda_key ubuntu@192.222.58.232`
+- **SSH**: `ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232`
 
 ### 2. sophia-production-instance
 - **IP**: 104.171.202.103
@@ -67,7 +67,7 @@ ssh_key_path = config['ssh_key_path']
 - **Cost**: $0.50/hour
 - **Purpose**: Monitoring & Operations
 - **Services**: Prometheus (9090), Grafana (3000), Health Monitoring
-- **SSH**: `ssh -i ~/.ssh/sophia_lambda_key ubuntu@104.171.202.103`
+- **SSH**: `ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103`
 
 ### 3. sophia-mcp-orchestrator
 - **IP**: 104.171.202.117
@@ -76,7 +76,7 @@ ssh_key_path = config['ssh_key_path']
 - **Cost**: $0.80/hour
 - **Purpose**: MCP Server Orchestration & Business Intelligence
 - **Services**: MCP Gateway (8080), Business Intelligence APIs
-- **SSH**: `ssh -i ~/.ssh/sophia_lambda_key ubuntu@104.171.202.117`
+- **SSH**: `ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.117`
 
 ### 4. sophia-data-pipeline
 - **IP**: 104.171.202.134
@@ -85,7 +85,7 @@ ssh_key_path = config['ssh_key_path']
 - **Cost**: $1.29/hour
 - **Purpose**: Data Processing & ETL Operations
 - **Services**: Modern Stack Connections, ETL Pipelines, Data Ingestion
-- **SSH**: `ssh -i ~/.ssh/sophia_lambda_key ubuntu@104.171.202.134`
+- **SSH**: `ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.134`
 
 ### 5. sophia-development
 - **IP**: 155.248.194.183
@@ -94,32 +94,32 @@ ssh_key_path = config['ssh_key_path']
 - **Cost**: $0.75/hour
 - **Purpose**: Development & Testing Environment
 - **Services**: Development MCP Servers, Testing Infrastructure
-- **SSH**: `ssh -i ~/.ssh/sophia_lambda_key ubuntu@155.248.194.183`
+- **SSH**: `ssh -i ~/.ssh/sophia_correct_key ubuntu@155.248.194.183`
 
 ## 🔑 SSH Key Management
 
 ### Unified SSH Strategy
 - **Key Name**: `sophia2025` (configured in Lambda Labs)
-- **Local Path**: `~/.ssh/sophia_lambda_key`
+- **Local Path**: `~/.ssh/sophia_correct_key`
 - **Public Key**: Stored in `LAMBDA_SSH_KEY` (GitHub → Pulumi ESC)
 - **Private Key**: Stored in `LAMBDA_PRIVATE_SSH_KEY` (GitHub → Pulumi ESC)
 
 ### SSH Connection Commands
 ```bash
 # Core AI Services (CRITICAL)
-ssh -i ~/.ssh/sophia_lambda_key ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 
 # Production Monitoring
-ssh -i ~/.ssh/sophia_lambda_key ubuntu@104.171.202.103
+ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103
 
 # MCP Orchestration
-ssh -i ~/.ssh/sophia_lambda_key ubuntu@104.171.202.117
+ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.117
 
 # Data Pipeline
-ssh -i ~/.ssh/sophia_lambda_key ubuntu@104.171.202.134
+ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.134
 
 # Development Environment
-ssh -i ~/.ssh/sophia_lambda_key ubuntu@155.248.194.183
+ssh -i ~/.ssh/sophia_correct_key ubuntu@155.248.194.183
 ```
 
 ## 🚀 Deployment Workflow

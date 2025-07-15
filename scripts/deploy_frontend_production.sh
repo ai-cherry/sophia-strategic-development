@@ -11,7 +11,7 @@ echo ""
 
 # Configuration
 SERVER_IP="192.222.58.232"
-SSH_KEY="$HOME/.ssh/sophia_final_key"
+SSH_KEY="$HOME/.ssh/sophia_correct_key"
 REMOTE_USER="ubuntu"
 
 # Check if SSH key exists
@@ -31,10 +31,10 @@ tar -czf ../../frontend-deploy.tar.gz .
 cd ../..
 
 echo -e "\n3. Deploying to server..."
-scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null frontend-deploy.tar.gz "$REMOTE_USER@$SERVER_IP:/tmp/"
+scp -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null frontend-deploy.tar.gz "$REMOTE_USER@$SERVER_IP:/tmp/"
 
 echo -e "\n4. Extracting on server..."
-ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$REMOTE_USER@$SERVER_IP" << 'EOF'
+ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$REMOTE_USER@$SERVER_IP" << 'EOF'
     # Create frontend directory
     sudo mkdir -p /var/www/sophia-frontend
     sudo chown ubuntu:ubuntu /var/www/sophia-frontend
@@ -163,9 +163,9 @@ server {
 NGINX_CONFIG
 
 echo -e "\n6. Deploying nginx configuration..."
-scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null nginx-sophia-frontend.conf "$REMOTE_USER@$SERVER_IP:/tmp/"
+scp -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null nginx-sophia-frontend.conf "$REMOTE_USER@$SERVER_IP:/tmp/"
 
-ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$REMOTE_USER@$SERVER_IP" << 'EOF'
+ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$REMOTE_USER@$SERVER_IP" << 'EOF'
     # Backup current config
     sudo cp /etc/nginx/sites-available/sophia-intel-ai /etc/nginx/sites-available/sophia-intel-ai.backup
     
@@ -197,5 +197,5 @@ echo "  API: https://api.sophia-intel.ai"
 echo "  API Docs: https://api.sophia-intel.ai/docs"
 echo ""
 echo "To monitor:"
-echo "  ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $REMOTE_USER@$SERVER_IP 'sudo tail -f /var/log/nginx/access.log'"
+echo "  ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $REMOTE_USER@$SERVER_IP 'sudo tail -f /var/log/nginx/access.log'"
 echo "" 

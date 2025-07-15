@@ -32,7 +32,7 @@ Since your instances are already running, use this method:
 
 1. **Connect using existing credentials** (if you have any access):
    ```bash
-   ssh -i ~/.ssh/lambda_labs_private_key ubuntu@192.222.58.232
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
    ```
 
 2. **If you can't connect, use JupyterLab**:
@@ -52,7 +52,7 @@ Since your instances are already running, use this method:
 
 5. **Test SSH access**:
    ```bash
-   ssh -i ~/.ssh/lambda_labs_private_key ubuntu@192.222.58.232
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
    ```
 
 ### **Option 3: GitHub SSH Import (EASIEST)**

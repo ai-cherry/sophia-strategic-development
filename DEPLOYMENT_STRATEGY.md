@@ -22,7 +22,7 @@ The sophia-ai-core server (192.222.58.232) is more powerful and currently access
 ./scripts/update_dns_to_correct_ip.sh 192.222.58.232
 
 # 2. Fix the failing MCP servers
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 cd ~/sophia-main
 
 # Stop failing containers
@@ -66,7 +66,7 @@ sed -i '' 's/104.171.202.103/192.222.58.232/g' scripts/deploy_sophia_robust.sh
 1. **Stop failing MCP containers** on GH200
 2. **Update code on server**:
    ```bash
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
    cd ~/sophia-main
    git pull origin main
    ```
@@ -95,7 +95,7 @@ The MCP servers are likely failing because:
 
 ```bash
 # SSH to server
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 
 # Stop and remove failing containers
 docker stop $(docker ps -q --filter "name=mcp")

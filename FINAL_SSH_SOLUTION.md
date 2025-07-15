@@ -40,7 +40,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKAPI0WU9UcB5vVnneP3oExytrPcD0PON5NeQxeNAJ
 
 **Test SSH access:**
 ```bash
-ssh -i ~/.ssh/lambda_labs_private_key ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 ```
 
 **If that works, deploy:**

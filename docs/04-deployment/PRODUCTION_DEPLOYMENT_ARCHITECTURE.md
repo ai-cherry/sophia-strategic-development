@@ -241,7 +241,7 @@ REDIS_URL=redis://...
 ### **SSH Access**
 ```bash
 # Master node
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 
 # Kubernetes access
 export KUBECONFIG=~/.kube/sophia-production

@@ -56,16 +56,16 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/lambda_labs_private_key
-          chmod 600 ~/.ssh/lambda_labs_private_key
+          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/sophia_correct_key
+          chmod 600 ~/.ssh/sophia_correct_key
 
       - name: Deploy to Lambda Labs Frontend
         run: |
-          scp -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no \
+          scp -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no \
             frontend/frontend-dist.tar.gz \
             ubuntu@${{ env.LAMBDA_FRONTEND_IP }}:/tmp/
           
-          ssh -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no \
             ubuntu@${{ env.LAMBDA_FRONTEND_IP }} << 'EOF'
             cd /var/www
             sudo rm -rf html.bak
@@ -98,9 +98,9 @@ jobs:
       - name: Setup SSH tunnel for registry
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/lambda_labs_private_key
-          chmod 600 ~/.ssh/lambda_labs_private_key
-          ssh -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no \
+          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/sophia_correct_key
+          chmod 600 ~/.ssh/sophia_correct_key
+          ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no \
             -L 5000:localhost:5000 ubuntu@${{ env.LAMBDA_BACKEND_IP }} \
             -N -f
 
@@ -112,7 +112,7 @@ jobs:
 
       - name: Update K3s deployment
         run: |
-          ssh -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no \
             ubuntu@${{ env.LAMBDA_BACKEND_IP }} << EOF
             kubectl set image deployment/sophia-api \
               sophia-api=${{ env.DOCKER_REGISTRY }}/sophia-backend:${{ github.sha }} \
@@ -131,8 +131,8 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/lambda_labs_private_key
-          chmod 600 ~/.ssh/lambda_labs_private_key
+          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/sophia_correct_key
+          chmod 600 ~/.ssh/sophia_correct_key
 
       - name: Update MCP manifests with nodeSelector
         run: |
@@ -145,13 +145,13 @@ jobs:
       - name: Copy manifests to control plane
         run: |
           tar -czf mcp-manifests.tar.gz kubernetes/production/mcp-*.yaml
-          scp -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no \
+          scp -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no \
             mcp-manifests.tar.gz \
             ubuntu@${{ env.LAMBDA_BACKEND_IP }}:/tmp/
 
       - name: Label MCP node and deploy
         run: |
-          ssh -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no \
             ubuntu@${{ env.LAMBDA_BACKEND_IP }} << 'EOF'
             # Extract manifests
             cd /tmp
@@ -185,8 +185,8 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/lambda_labs_private_key
-          chmod 600 ~/.ssh/lambda_labs_private_key
+          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/sophia_correct_key
+          chmod 600 ~/.ssh/sophia_correct_key
 
       - name: Check Frontend
         run: |
@@ -210,7 +210,7 @@ jobs:
 
       - name: Check MCP Servers
         run: |
-          ssh -i ~/.ssh/lambda_labs_private_key -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no \
             ubuntu@${{ env.LAMBDA_BACKEND_IP }} << 'EOF'
             echo "MCP Server Status:"
             kubectl get pods -n sophia-ai-prod -o wide | grep mcp

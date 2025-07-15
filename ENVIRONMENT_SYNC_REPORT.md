@@ -70,7 +70,7 @@ There's a mismatch in DNS configuration:
 # Change: sophia-intel.ai → 192.222.58.232
 
 # 2. SSH to Lambda Labs and configure SSL
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 sudo certbot --nginx -d sophia-intel.ai -d api.sophia-intel.ai -d webhooks.sophia-intel.ai
 
 # 3. Verify all services on Lambda Labs

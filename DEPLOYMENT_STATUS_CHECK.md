@@ -17,7 +17,7 @@
 
 1. **SSH to the server:**
 ```bash
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 ```
 
 2. **Clean and redeploy frontend:**

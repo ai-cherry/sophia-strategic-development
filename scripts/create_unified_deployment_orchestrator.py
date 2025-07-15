@@ -18,7 +18,7 @@
     print()
     print("🔧 Prerequisites:")
     print("- Set environment variables: LAMBDA_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY")
-    print("- Ensure SSH key exists: ~/.ssh/sophia_final_key")
+    print("- Ensure SSH key exists: ~/.ssh/sophia_correct_key")
     print("- Install dependencies: pip install weaviate-client requests")
 
 if __name__ == "__main__":

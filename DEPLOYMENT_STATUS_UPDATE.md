@@ -9,7 +9,7 @@
 
 ### **1. SSH Key Configuration**
 - ✅ Extracted existing Lambda Labs SSH key from configuration
-- ✅ Set up local SSH keys at `~/.ssh/lambda_labs_private_key`
+- ✅ Set up local SSH keys at `~/.ssh/sophia_correct_key`
 - ✅ Updated SSH config with Lambda Labs server aliases
 - ✅ All deployment scripts ready with correct SSH configuration
 
@@ -165,7 +165,7 @@ Once SSH access is working, the deployment will automatically:
 ### **If SSH Still Fails:**
 ```bash
 # Check SSH key exists
-ls -la ~/.ssh/lambda_labs_private_key*
+ls -la ~/.ssh/sophia_correct_key*
 
 # Test with verbose output
 ssh -v sophia-primary

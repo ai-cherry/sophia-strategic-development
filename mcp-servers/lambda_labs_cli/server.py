@@ -381,7 +381,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
             return {"error": "No IP address found for instance"}
 
         # Execute SSH command
-        ssh_key = get_config_value("lambda_ssh_key_path", "~/.ssh/lambda_rsa")
+        ssh_key = get_config_value("lambda_ssh_key_path", "~/.ssh/sophia_correct_key")
         ssh_cmd = [
             "ssh",
             "-i",

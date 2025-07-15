@@ -128,7 +128,7 @@
 - **Modern Stack**: Account UHDECNO-CVB64222, User SCOOBYJAVA15
 - **Lambda Labs**: API keys configured in environment
 - **Vercel**: Deployed with API token
-- **SSH Key**: ~/.ssh/sophia2025.pem
+- **SSH Key**: ~/.ssh/sophia_correct_key
 
 ---
 

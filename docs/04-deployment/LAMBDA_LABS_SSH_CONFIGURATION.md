@@ -9,12 +9,12 @@
 - **Name**: lynn-sophia-gh200-master-01
 - **IP**: 192.222.58.232
 - **SSH Key in Lambda Labs**: lynn-sophia-key
-- **Local Private Key**: ~/.ssh/sophia2025.pem
-- **Local Public Key**: ~/.ssh/sophia2025.pem.pub
+- **Local Private Key**: ~/.ssh/sophia_correct_key
+- **Local Public Key**: ~/.ssh/sophia_correct_key.pub
 
 ### **SSH Connection Command**
 ```bash
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 ```
 
 ## 🔐 Key Management
@@ -22,10 +22,10 @@ ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
 ### **Local SSH Keys**
 ```bash
 # Your local private key (KEEP THIS SECURE)
-~/.ssh/sophia2025.pem
+~/.ssh/sophia_correct_key
 
 # Your local public key
-~/.ssh/sophia2025.pem.pub
+~/.ssh/sophia_correct_key.pub
 # Content: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5Oz2Q3EZFGl0Zap+eZaCIn55FfVjpt5Y+lE+t8/pxI lynn-sophia-h200-key
 ```
 
@@ -33,36 +33,36 @@ ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
 The following key is registered in Lambda Labs and matches your local key:
 - **Key Name**: lynn-sophia-key
 - **Key ID**: b6d556aad0f64c8eb22c9224b3dff66a
-- **Public Key**: Matches your local ~/.ssh/sophia2025.pem.pub
+- **Public Key**: Matches your local ~/.ssh/sophia_correct_key.pub
 
 ## 🚀 Common Operations
 
 ### **Test SSH Connection**
 ```bash
 ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no \
-    -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 \
+    -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 \
     "echo 'SSH Working' && hostname"
 ```
 
 ### **Check GPU Status**
 ```bash
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 \
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 \
     "nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv,noheader"
 ```
 
 ### **Check Docker Services**
 ```bash
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 \
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 \
     "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
 ```
 
 ### **Deploy Application**
 ```bash
 # Copy files
-scp -i ~/.ssh/sophia2025.pem -r ./backend ubuntu@192.222.58.232:~/sophia-deployment/
+scp -i ~/.ssh/sophia_correct_key -r ./backend ubuntu@192.222.58.232:~/sophia-deployment/
 
 # Run deployment
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 \
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 \
     "cd ~/sophia-deployment && docker stack deploy"
 ```
 
@@ -74,7 +74,7 @@ Update these in your GitHub Organization Secrets:
 1. **LAMBDA_LABS_SSH_PRIVATE_KEY**
    ```bash
    # Encode your private key
-   base64 -w 0 ~/.ssh/sophia2025.pem
+   base64 -w 0 ~/.ssh/sophia_correct_key
    # Copy the output and set as GitHub secret
    ```
 
@@ -92,7 +92,7 @@ Update these in your GitHub Organization Secrets:
 
 All deployment scripts should use these environment variables:
 ```python
-ssh_key_path = os.path.expanduser("~/.ssh/sophia2025.pem")
+ssh_key_path = os.path.expanduser("~/.ssh/sophia_correct_key")
 instance_ip = "192.222.58.232"
 ssh_key_name = "lynn-sophia-key"
 ```
@@ -101,7 +101,7 @@ ssh_key_name = "lynn-sophia-key"
 
 1. **DO NOT** create new SSH keys unless absolutely necessary
 2. **DO NOT** use `lynn-sophia-key-fixed` - this was deleted
-3. **ALWAYS** use `~/.ssh/sophia2025.pem` as your local private key
+3. **ALWAYS** use `~/.ssh/sophia_correct_key` as your local private key
 4. **ALWAYS** ensure new instances use `lynn-sophia-key` from Lambda Labs
 
 ## 🔧 Troubleshooting
@@ -109,8 +109,8 @@ ssh_key_name = "lynn-sophia-key"
 ### If SSH Fails
 1. Verify instance is active: Check Lambda Labs dashboard
 2. Verify IP is correct: `192.222.58.232`
-3. Verify key permissions: `chmod 600 ~/.ssh/sophia2025.pem`
-4. Verify key exists: `ls -la ~/.ssh/sophia2025.pem`
+3. Verify key permissions: `chmod 600 ~/.ssh/sophia_correct_key`
+4. Verify key exists: `ls -la ~/.ssh/sophia_correct_key`
 
 ### Creating New Instances
 Always use this command pattern:
@@ -128,7 +128,7 @@ curl -u $LAMBDA_LABS_API_KEY: -X POST \
 
 ## ✅ Validation Checklist
 
-- [ ] Local private key exists: `~/.ssh/sophia2025.pem`
+- [ ] Local private key exists: `~/.ssh/sophia_correct_key`
 - [ ] Key has correct permissions: `600`
 - [ ] Lambda Labs has key: `lynn-sophia-key`
 - [ ] Instance uses correct key: `lynn-sophia-key`

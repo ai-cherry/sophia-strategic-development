@@ -21,15 +21,15 @@ The Sophia AI platform is distributed across 5 specialized Lambda Labs instances
 1. **SSH Key Setup**
    ```bash
    # Ensure SSH key exists with correct permissions
-   chmod 600 ~/.ssh/sophia2025.pem
-   chmod 644 ~/.ssh/sophia2025.pem.pub
+   chmod 600 ~/.ssh/sophia_correct_key
+   chmod 644 ~/.ssh/sophia_correct_key.pub
    
    # Test SSH access to all instances
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103 "echo 'Production OK'"
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 "echo 'AI Core OK'"
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.117 "echo 'MCP OK'"
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.134 "echo 'Data OK'"
-   ssh -i ~/.ssh/sophia2025.pem ubuntu@155.248.194.183 "echo 'Dev OK'"
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103 "echo 'Production OK'"
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 "echo 'AI Core OK'"
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.117 "echo 'MCP OK'"
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.134 "echo 'Data OK'"
+   ssh -i ~/.ssh/sophia_correct_key ubuntu@155.248.194.183 "echo 'Dev OK'"
    ```
 
 2. **Docker Hub Authentication**
@@ -361,10 +361,10 @@ After deployment, services are accessible at:
 1. **SSH Connection Failed**
    ```bash
    # Check SSH key permissions
-   chmod 600 ~/.ssh/sophia2025.pem
+   chmod 600 ~/.ssh/sophia_correct_key
    
    # Test SSH connection
-   ssh -i ~/.ssh/sophia2025.pem -o ConnectTimeout=10 ubuntu@104.171.202.103 "echo 'Test'"
+   ssh -i ~/.ssh/sophia_correct_key -o ConnectTimeout=10 ubuntu@104.171.202.103 "echo 'Test'"
    ```
 
 2. **Docker Swarm Not Initialized**
@@ -404,19 +404,19 @@ After deployment, services are accessible at:
 ./scripts/deploy_sophia_unified.sh validate ai-core
 
 # Check service logs
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 "docker service logs sophia-ai-core_ai-memory-v2"
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 "docker service logs sophia-ai-core_ai-memory-v2"
 
 # Check running containers
-ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103 "docker ps"
+ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103 "docker ps"
 
 # Check Docker Swarm services
-ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103 "docker stack services sophia-production"
+ssh -i ~/.ssh/sophia_correct_key ubuntu@104.171.202.103 "docker stack services sophia-production"
 ```
 
 ## 🔒 Security Considerations
 
 ### SSH Key Management
-- Use the standardized SSH key: `~/.ssh/sophia2025.pem`
+- Use the standardized SSH key: `~/.ssh/sophia_correct_key`
 - Ensure proper permissions (600 for private key, 644 for public key)
 - Never commit SSH keys to version control
 

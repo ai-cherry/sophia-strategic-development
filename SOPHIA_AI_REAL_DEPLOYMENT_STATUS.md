@@ -60,7 +60,7 @@ If you prefer to do it manually or the scripts fail:
 
 ### 1. SSH to Server
 ```bash
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 ```
 
 ### 2. Install Required Services
@@ -127,7 +127,7 @@ tar -czf ../../sophia-frontend.tar.gz .
 cd ../..
 
 # Copy to server
-scp -i ~/.ssh/sophia2025.pem sophia-frontend.tar.gz ubuntu@192.222.58.232:~/
+scp -i ~/.ssh/sophia_correct_key sophia-frontend.tar.gz ubuntu@192.222.58.232:~/
 ```
 
 ### 4. Install Frontend on Server
@@ -214,10 +214,10 @@ curl https://sophia-intel.ai  # Should show HTML
 curl https://api.sophia-intel.ai/health  # Should show {"status":"healthy"}
 
 # View logs
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 'tail -f ~/sophia-logs/*.log'
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 'tail -f ~/sophia-logs/*.log'
 
 # Restart backend
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 'pkill -f uvicorn; cd ~/sophia-main && nohup python -m api.main > ~/sophia-logs/backend.log 2>&1 &'
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 'pkill -f uvicorn; cd ~/sophia-main && nohup python -m api.main > ~/sophia-logs/backend.log 2>&1 &'
 ```
 
 ## 🎯 THE BOTTOM LINE

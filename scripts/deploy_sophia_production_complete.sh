@@ -17,7 +17,7 @@ DOMAIN="sophia-intel.ai"
 API_DOMAIN="api.sophia-intel.ai"
 WEBHOOK_DOMAIN="webhooks.sophia-intel.ai"
 SERVER_IP="192.222.58.232"
-SSH_KEY="$HOME/.ssh/sophia_final_key"
+SSH_KEY="$HOME/.ssh/sophia_correct_key"
 FRONTEND_DIR="frontend"
 BACKEND_DIR="backend"
 
@@ -55,7 +55,7 @@ phase1_checks() {
     fi
     
     # Check if we can SSH to server
-    if ! ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 ubuntu@$SERVER_IP "echo 'SSH connection successful'" > /dev/null 2>&1; then
+    if ! ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 ubuntu@$SERVER_IP "echo 'SSH connection successful'" > /dev/null 2>&1; then
         log_error "Cannot connect to server via SSH"
         exit 1
     fi
@@ -94,10 +94,10 @@ phase3_deploy_frontend() {
     
     # Copy deployment package to server
     log_info "Copying frontend to server..."
-    scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null sophia-frontend-deploy.tar.gz ubuntu@$SERVER_IP:/tmp/
+    scp -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null sophia-frontend-deploy.tar.gz ubuntu@$SERVER_IP:/tmp/
     
     # Deploy on server
-    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP << 'ENDSSH'
+    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP << 'ENDSSH'
     # Create frontend directory
     sudo mkdir -p /var/www/sophia-frontend
     sudo chown ubuntu:ubuntu /var/www/sophia-frontend
@@ -236,10 +236,10 @@ server {
 EOF
 
     # Copy nginx config to server
-    scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null nginx-sophia-production.conf ubuntu@$SERVER_IP:/tmp/
+    scp -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null nginx-sophia-production.conf ubuntu@$SERVER_IP:/tmp/
     
     # Apply nginx configuration
-    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP << 'ENDSSH'
+    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP << 'ENDSSH'
     # Backup existing config
     sudo cp /etc/nginx/sites-available/sophia-intel-ai /etc/nginx/sites-available/sophia-intel-ai.backup.$(date +%Y%m%d_%H%M%S)
     
@@ -266,7 +266,7 @@ ENDSSH
 phase5_deploy_mcp_servers() {
     log_info "Phase 5: Deploying MCP servers..."
     
-    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP << 'ENDSSH'
+    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP << 'ENDSSH'
     cd ~/sophia-main
     
     # Create directories if they don't exist
@@ -386,9 +386,9 @@ free -h | head -2
 EOF
 
     # Copy monitoring script to server
-    scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null health_check.sh ubuntu@$SERVER_IP:~/
+    scp -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null health_check.sh ubuntu@$SERVER_IP:~/
     
-    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP "chmod +x ~/health_check.sh"
+    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP "chmod +x ~/health_check.sh"
     
     log_success "Monitoring setup complete"
 }
@@ -418,7 +418,7 @@ phase7_run_tests() {
     
     # Test MCP servers
     log_info "Testing MCP servers..."
-    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP << 'ENDSSH'
+    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP << 'ENDSSH'
     for port in 9000 3008 9003 9004 9005 9006; do
         if nc -z localhost $port 2>/dev/null; then
             echo "✓ Port $port is open"
@@ -486,7 +486,7 @@ phase8_generate_report() {
 
 SSH to server:
 \`\`\`bash
-ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP
+ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP
 \`\`\`
 
 Check health:
@@ -542,7 +542,7 @@ main() {
     echo "Webhooks: https://$WEBHOOK_DOMAIN"
     echo
     echo "Run health check on server:"
-    echo "ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP './health_check.sh'"
+    echo "ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$SERVER_IP './health_check.sh'"
     echo
 }
 

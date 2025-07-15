@@ -16,7 +16,7 @@ Complete deployment plan for Sophia AI platform including frontend, backend, MCP
 ### 1.1 Deploy React Frontend
 ```bash
 # SSH to server
-ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 
 # Create frontend directory
 sudo mkdir -p /var/www/sophia-frontend
@@ -148,7 +148,7 @@ server {
 cd frontend
 npm run build
 tar -czf sophia-frontend.tar.gz dist/*
-scp -i ~/.ssh/sophia2025.pem sophia-frontend.tar.gz ubuntu@192.222.58.232:/tmp/
+scp -i ~/.ssh/sophia_correct_key sophia-frontend.tar.gz ubuntu@192.222.58.232:/tmp/
 
 # On server
 cd /var/www/sophia-frontend

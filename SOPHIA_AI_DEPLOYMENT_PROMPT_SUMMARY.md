@@ -16,7 +16,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 - **sophia-production-instance**: 104.171.202.103 (main production server)
 - **sophia-ai-core**: 192.222.58.232 (AI core services)
 - **sophia-mcp-orchestrator**: 104.171.202.117 (dedicated MCP server deployment target)
-- **SSH Access**: Available via ~/.ssh/sophia2025.pem for all servers
+- **SSH Access**: Available via ~/.ssh/sophia_correct_key for all servers
 - **OS**: Ubuntu on all servers
 
 ### API Keys & Credentials Available

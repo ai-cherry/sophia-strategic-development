@@ -1,3 +1,112 @@
+
+# REAL_NOTION_API_INTEGRATION - Added by implementation script
+
+import httpx
+from typing import Dict, List, Optional
+
+class RealNotionClient:
+    """Real Notion API client"""
+    
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.notion.com/v1"
+        self.headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28"
+        }
+    
+    async def make_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict:
+        """Make API request to Notion"""
+        try:
+            url = f"{self.base_url}/{endpoint}"
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                if method.upper() == "GET":
+                    response = await client.get(url, headers=self.headers, params=data)
+                elif method.upper() == "POST":
+                    response = await client.post(url, headers=self.headers, json=data)
+                else:
+                    raise ValueError(f"Unsupported method: {method}")
+                
+                if response.status_code in [200, 201]:
+                    return response.json()
+                else:
+                    print(f"Notion API error: {response.status_code} - {response.text}")
+                    return {"error": f"API error: {response.status_code}"}
+                    
+        except Exception as e:
+            print(f"Notion API exception: {e}")
+            return {"error": str(e)}
+    
+    async def search_pages(self, query: str = "") -> List[Dict]:
+        """Search pages in Notion"""
+        data = {
+            "filter": {
+                "property": "object",
+                "value": "page"
+            }
+        }
+        
+        if query:
+            data["query"] = query
+        
+        result = await self.make_request("POST", "search", data)
+        return result.get("results", []) if "results" in result else []
+    
+    async def get_databases(self) -> List[Dict]:
+        """Get all databases"""
+        data = {
+            "filter": {
+                "property": "object",
+                "value": "database"
+            }
+        }
+        
+        result = await self.make_request("POST", "search", data)
+        return result.get("results", []) if "results" in result else []
+    
+    async def query_database(self, database_id: str, filter_data: Optional[Dict] = None) -> List[Dict]:
+        """Query database"""
+        data = {}
+        if filter_data:
+            data["filter"] = filter_data
+        
+        result = await self.make_request("POST", f"databases/{database_id}/query", data)
+        return result.get("results", []) if "results" in result else []
+
+# Initialize real Notion client
+real_notion_client = None
+
+def get_real_notion_client():
+    """Get or create real Notion client"""
+    global real_notion_client
+    
+    if real_notion_client is None:
+        api_key = os.getenv("NOTION_API_KEY")
+        
+        if not api_key:
+            try:
+                result = subprocess.run(
+                    ["pulumi", "env", "get", "scoobyjava-org/default/sophia-ai-production", "notion_api_key", "--show-secrets"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    api_key = result.stdout.strip().replace('"', '')
+            except:
+                pass
+        
+        if api_key and api_key not in ["FROM_GITHUB", "PLACEHOLDER_NOTION_API_KEY", "[secret]"]:
+            real_notion_client = RealNotionClient(api_key)
+            print(f"✅ Real Notion client initialized")
+        else:
+            print(f"⚠️  Notion API key not found, using mock data")
+    
+    return real_notion_client
+
+
 #!/usr/bin/env python3
 """
 Sophia AI Notion MCP Server

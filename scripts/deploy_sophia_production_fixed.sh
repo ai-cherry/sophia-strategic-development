@@ -66,12 +66,12 @@ echo -e "${GREEN}✓ SSH key retrieved${NC}"
 
 # Function to execute commands on server
 remote_exec() {
-    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@$SERVER_IP "$@"
+    ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@$SERVER_IP "$@"
 }
 
 # Function to copy files to server
 remote_copy() {
-    scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r "$1" ubuntu@$SERVER_IP:"$2"
+    scp -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r "$1" ubuntu@$SERVER_IP:"$2"
 }
 
 # Cleanup function

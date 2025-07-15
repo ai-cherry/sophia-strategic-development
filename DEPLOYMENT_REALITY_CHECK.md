@@ -134,10 +134,10 @@ Real AI analysis, business intelligence, multi-agent orchestration
 tar -czf sophia-full-backend.tar.gz backend_production.py backend/ mcp-servers/
 
 # Deploy to Lambda Labs
-scp -i ~/.ssh/sophia_final_key sophia-full-backend.tar.gz ubuntu@192.222.58.232:/tmp/
+scp -i ~/.ssh/sophia_correct_key sophia-full-backend.tar.gz ubuntu@192.222.58.232:/tmp/
 
 # Extract and start real backend
-ssh -i ~/.ssh/sophia_final_key ubuntu@192.222.58.232 "
+ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232 "
   cd /tmp && tar -xzf sophia-full-backend.tar.gz
   pkill -f minimal_backend.py
   python3 backend_production.py

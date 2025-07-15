@@ -2,7 +2,7 @@
 
 # Find which Lambda Labs servers are accessible
 
-SSH_KEY="$HOME/.ssh/sophia_final_key"
+SSH_KEY="$HOME/.ssh/sophia_correct_key"
 
 # List of servers
 declare -A SERVERS=(
@@ -22,7 +22,7 @@ for name in "${!SERVERS[@]}"; do
     ip="${SERVERS[$name]}"
     echo -n "Testing $name ($ip)... "
     
-    if timeout 5 ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=3 -o BatchMode=yes ubuntu@$ip "echo 'OK'" 2>/dev/null | grep -q "OK"; then
+    if timeout 5 ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=3 -o BatchMode=yes ubuntu@$ip "echo 'OK'" 2>/dev/null | grep -q "OK"; then
         echo "✅ WORKING"
         WORKING_SERVERS+=("$name:$ip")
     else
