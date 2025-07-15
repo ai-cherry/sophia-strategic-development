@@ -1,0 +1,148 @@
+{
+  "timestamp": "2025-07-14T20:52:36.327447",
+  "test_results": {
+    "mcp_servers": {
+      "linear": {
+        "status": "error",
+        "error": "All connection attempts failed",
+        "port": "9004"
+      },
+      "asana": {
+        "status": "error",
+        "error": "All connection attempts failed",
+        "port": "9007"
+      },
+      "notion": {
+        "status": "error",
+        "error": "All connection attempts failed",
+        "port": "9008"
+      }
+    },
+    "api_routes": {
+      "/api/v4/mcp/linear/projects": {
+        "status": 200,
+        "response_time": 0.007459,
+        "data_size": 534,
+        "success": true,
+        "data_keys": [
+          "projects",
+          "issues",
+          "server_status",
+          "last_updated"
+        ]
+      },
+      "/api/v4/mcp/asana/projects": {
+        "status": 200,
+        "response_time": 0.005608,
+        "data_size": 677,
+        "success": true,
+        "data_keys": [
+          "projects",
+          "tasks",
+          "server_status",
+          "last_updated"
+        ]
+      },
+      "/api/v4/mcp/notion/projects": {
+        "status": 200,
+        "response_time": 0.005585,
+        "data_size": 435,
+        "success": true,
+        "data_keys": [
+          "pages",
+          "server_status",
+          "last_updated"
+        ]
+      },
+      "/api/v4/mcp/unified/dashboard": {
+        "status": 200,
+        "response_time": 0.018505,
+        "data_size": 1991,
+        "success": true,
+        "data_keys": [
+          "linear",
+          "asana",
+          "notion",
+          "unified",
+          "mcp_servers"
+        ]
+      },
+      "/api/v4/mcp/health": {
+        "status": 200,
+        "response_time": 0.007343,
+        "data_size": 342,
+        "success": true,
+        "data_keys": [
+          "status",
+          "timestamp",
+          "mcp_servers",
+          "api_version"
+        ]
+      }
+    },
+    "task_creation": {
+      "status": 200,
+      "response_time": 0.002144,
+      "success": true,
+      "data": {
+        "success": true,
+        "task_id": "linear_task_1752547956.302226",
+        "platform": "linear",
+        "title": "Test Task from Integration Test",
+        "description": "This is a test task created by the integration test script",
+        "priority": "medium",
+        "created_at": "2025-07-15T02:52:36.302233",
+        "message": "Task created successfully in Linear"
+      }
+    },
+    "system_health": {
+      "status": 200,
+      "system_status": "operational",
+      "version": "4.0.0-unified",
+      "uptime": 28.716461181640625,
+      "mcp_servers": {
+        "ai_memory": {
+          "status": "healthy",
+          "port": 9001
+        },
+        "github": {
+          "status": "healthy",
+          "port": 9003
+        },
+        "slack": {
+          "status": "healthy",
+          "port": 9005
+        },
+        "linear": {
+          "status": "healthy",
+          "port": 9004
+        },
+        "asana": {
+          "status": "healthy",
+          "port": 9007
+        },
+        "notion": {
+          "status": "healthy",
+          "port": 9008
+        }
+      },
+      "success": true
+    },
+    "frontend": {
+      "status": 200,
+      "response_time": 0.016125,
+      "success": true,
+      "content_size": 1842
+    }
+  },
+  "summary": {
+    "mcp_healthy": 0,
+    "mcp_total": 3,
+    "api_working": 5,
+    "api_total": 5,
+    "task_creation_working": true,
+    "system_healthy": true,
+    "frontend_accessible": true,
+    "overall_status": "FAIL"
+  }
+}

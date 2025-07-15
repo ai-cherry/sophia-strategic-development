@@ -1,0 +1,134 @@
+{
+  "timestamp": "2025-07-14T20:48:36.402967",
+  "test_results": {
+    "mcp_servers": {
+      "linear": {
+        "status": "error",
+        "error": "All connection attempts failed",
+        "port": "9004"
+      },
+      "asana": {
+        "status": "error",
+        "error": "All connection attempts failed",
+        "port": "9007"
+      },
+      "notion": {
+        "status": "error",
+        "error": "All connection attempts failed",
+        "port": "9008"
+      }
+    },
+    "api_routes": {
+      "/api/v4/mcp/linear/projects": {
+        "status": 404,
+        "response_time": 0.012864,
+        "data_size": 229,
+        "success": false,
+        "data_keys": [
+          "error",
+          "message",
+          "available_endpoints"
+        ]
+      },
+      "/api/v4/mcp/asana/projects": {
+        "status": 404,
+        "response_time": 0.000969,
+        "data_size": 229,
+        "success": false,
+        "data_keys": [
+          "error",
+          "message",
+          "available_endpoints"
+        ]
+      },
+      "/api/v4/mcp/notion/projects": {
+        "status": 404,
+        "response_time": 0.000803,
+        "data_size": 229,
+        "success": false,
+        "data_keys": [
+          "error",
+          "message",
+          "available_endpoints"
+        ]
+      },
+      "/api/v4/mcp/unified/dashboard": {
+        "status": 404,
+        "response_time": 0.00071,
+        "data_size": 229,
+        "success": false,
+        "data_keys": [
+          "error",
+          "message",
+          "available_endpoints"
+        ]
+      },
+      "/api/v4/mcp/health": {
+        "status": 404,
+        "response_time": 0.000695,
+        "data_size": 229,
+        "success": false,
+        "data_keys": [
+          "error",
+          "message",
+          "available_endpoints"
+        ]
+      }
+    },
+    "task_creation": {
+      "status": 404,
+      "response_time": 0.002712,
+      "success": false,
+      "data": "{\"error\":\"Endpoint not found\",\"message\":\"The requested endpoint does not exist in Sophia AI Unified Backend\",\"available_endpoints\":[\"/\",\"/health\",\"/chat\",\"/api/v4/orchestrate\",\"/system/status\",\"/metrics\",\"/ws\",\"/stream\",\"/docs\"]}"
+    },
+    "system_health": {
+      "status": 200,
+      "system_status": "operational",
+      "version": "4.0.0-unified",
+      "uptime": 768.594507932663,
+      "mcp_servers": {
+        "ai_memory": {
+          "status": "healthy",
+          "port": 9001
+        },
+        "github": {
+          "status": "healthy",
+          "port": 9003
+        },
+        "slack": {
+          "status": "healthy",
+          "port": 9005
+        },
+        "linear": {
+          "status": "healthy",
+          "port": 9004
+        },
+        "asana": {
+          "status": "healthy",
+          "port": 9007
+        },
+        "notion": {
+          "status": "healthy",
+          "port": 9008
+        }
+      },
+      "success": true
+    },
+    "frontend": {
+      "status": 200,
+      "response_time": 0.008226,
+      "success": true,
+      "content_size": 1842
+    }
+  },
+  "summary": {
+    "mcp_healthy": 0,
+    "mcp_total": 3,
+    "api_working": 0,
+    "api_total": 5,
+    "task_creation_working": false,
+    "system_healthy": true,
+    "frontend_accessible": true,
+    "overall_status": "FAIL"
+  }
+}

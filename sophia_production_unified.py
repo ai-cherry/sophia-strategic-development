@@ -304,6 +304,14 @@ try:
 except Exception as e:
     logger.error(f"❌ Failed to load competitor intelligence routes: {e}")
 
+# Import and include project management routes
+try:
+    from backend.api.project_management_routes import router as project_router
+    app.include_router(project_router, prefix="/api/v4/mcp", tags=["project_management"])
+    logger.info("✅ Project Management API routes loaded")
+except Exception as e:
+    logger.error(f"❌ Failed to load project management routes: {e}")
+
 # Root endpoint
 @app.get("/", response_class=HTMLResponse)
 async def root():
