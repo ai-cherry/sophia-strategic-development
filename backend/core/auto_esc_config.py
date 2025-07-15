@@ -360,41 +360,31 @@ Si02dEz1jsNZT5IObnR+EZU3x3tUPVwobDfLiVIhf5iOHg48b/w=
 
 
 def get_docker_hub_config() -> Dict[str, Any]:
-    """
-    Get Docker Hub configuration from Pulumi ESC
-
-    PERMANENT FIX: Use DOCKER_TOKEN and DOCKERHUB_USERNAME as the primary keys
-    These are the actual secret names in GitHub
-
-    Returns:
-        Docker Hub configuration dictionary with username and access token
-    """
-    # Get username - DOCKERHUB_USERNAME is the primary key in GitHub
-    username = (
-        get_config_value("DOCKERHUB_USERNAME")
-        or get_config_value("docker_username")  # PRIMARY
-        or get_config_value("docker_hub_username")
-        or "scoobyjava15"  # fallback
-    )
-
-    # Get token - DOCKER_TOKEN is the primary key in GitHub
-    access_token = (
-        get_config_value("DOCKER_TOKEN")
-        or get_config_value("docker_token")  # PRIMARY
-        or get_config_value("docker_hub_access_token")
-        or get_config_value("docker_token")
-    )
-
-    # Log what we found for debugging
-    if access_token:
-        logger.info(f"Docker Hub config loaded: username={username}, token=***")
-    else:
-        logger.warning("No Docker Hub token found in configuration")
-
+    """Get Docker Hub configuration"""
     return {
-        "username": username,
-        "access_token": access_token,
-        "registry": "docker.io",
+        "username": get_config_value("DOCKERHUB_USERNAME", "scoobyjava15"),
+        "access_token": get_config_value("DOCKER_HUB_ACCESS_TOKEN"),
+        "registry": "docker.io"
+    }
+
+
+def get_pulumi_config() -> Dict[str, Any]:
+    """Get Pulumi configuration"""
+    return {
+        "access_token": get_config_value("PULUMI_ACCESS_TOKEN"),
+        "org": "scoobyjava-org",
+        "stack": "sophia-ai-production"
+    }
+
+
+def get_gong_config() -> Dict[str, Any]:
+    """Get Gong configuration using REAL GitHub Organization Secrets"""
+    return {
+        "access_key": get_config_value("GONG_ACCESS_KEY"),
+        "access_key_secret": get_config_value("gong_access_key_secret"),
+        "client_access_key": get_config_value("gong_api_key"),
+        "client_secret": get_config_value("gong_client_secret"),
+        "base_url": get_config_value("gong_base_url", "https://api.gong.io")
     }
 
 
