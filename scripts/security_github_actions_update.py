@@ -46,7 +46,6 @@ class GitHubActionsSecurityUpdater:
             'actions/setup-dotnet': 'v4'
         }
         
-        # Deprecated/insecure actions to replace
         self.deprecated_actions = {
             'actions/checkout@v2': 'actions/checkout@v4',
             'actions/checkout@v3': 'actions/checkout@v4',

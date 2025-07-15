@@ -10,6 +10,7 @@ import sys
 
 import requests
 from nacl import public
+from backend.core.auto_esc_config import get_config_value
 
 # GitHub configuration
 GITHUB_ORG = "ai-cherry"
@@ -111,7 +112,7 @@ def main():
     print("📝 Updating GitHub Organization Secrets")
 
     # Get GitHub PAT
-    github_token = os.getenv("GITHUB_PAT") or os.getenv("GITHUB_TOKEN")
+    github_token = get_config_value("GITHUB_PAT") or get_config_value("GITHUB_TOKEN")
     if not github_token:
         print("❌ GitHub PAT not found in environment")
         print("Please set GITHUB_PAT or GITHUB_TOKEN environment variable")
@@ -129,37 +130,37 @@ def main():
     # Secrets to update
     secrets_mapping = {
         # Qdrant
-        "QDRANT_ACCOUNT": os.getenv("QDRANT_ACCOUNT"),
-        "QDRANT_USER": os.getenv("QDRANT_USER"),
-        "QDRANT_PASSWORD": os.getenv("QDRANT_PASSWORD"),
-        "QDRANT_PAT": os.getenv("QDRANT_PAT"),
-        "QDRANT_MASTER_TOKEN": os.getenv("QDRANT_MASTER_TOKEN"),
+        "QDRANT_ACCOUNT": get_config_value("QDRANT_ACCOUNT"),
+        "QDRANT_USER": get_config_value("QDRANT_USER"),
+        "QDRANT_PASSWORD": get_config_value("QDRANT_PASSWORD"),
+        "QDRANT_PAT": get_config_value("QDRANT_PAT"),
+        "QDRANT_MASTER_TOKEN": get_config_value("QDRANT_MASTER_TOKEN"),
         # Docker Hub
-        "DOCKER_HUB_USERNAME": os.getenv("DOCKER_USERNAME"),
-        "DOCKER_HUB_ACCESS_TOKEN": os.getenv("DOCKER_PERSONAL_ACCESS_TOKEN"),
+        "DOCKER_HUB_USERNAME": get_config_value("DOCKER_USERNAME"),
+        "DOCKER_HUB_ACCESS_TOKEN": get_config_value("DOCKER_PERSONAL_ACCESS_TOKEN"),
         # Lambda Labs
-        "LAMBDA_API_KEY": os.getenv("LAMBDA_API_KEY"),
-        "LAMBDA_PRIVATE_SSH_KEY": os.getenv("LAMBDA_SSH_KEY"),
+        "LAMBDA_API_KEY": get_config_value("LAMBDA_API_KEY"),
+        "LAMBDA_PRIVATE_SSH_KEY": get_config_value("LAMBDA_SSH_KEY"),
         # AI Services
-        "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
-        "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
+        "OPENAI_API_KEY": get_config_value("OPENAI_API_KEY"),
+        "ANTHROPIC_API_KEY": get_config_value("ANTHROPIC_API_KEY"),
         # Business Tools
-        "GONG_ACCESS_KEY": os.getenv("GONG_ACCESS_KEY"),
-        "GONG_ACCESS_KEY_SECRET": os.getenv("GONG_ACCESS_KEY_SECRET"),
-        "HUBSPOT_API_KEY": os.getenv("HUBSPOT_API_KEY"),
-        "SLACK_APP_TOKEN": os.getenv("SLACK_APP_TOKEN"),
-        "SLACK_BOT_TOKEN": os.getenv("SLACK_BOT_TOKEN"),
+        "GONG_ACCESS_KEY": get_config_value("GONG_ACCESS_KEY"),
+        "GONG_ACCESS_KEY_SECRET": get_config_value("GONG_ACCESS_KEY_SECRET"),
+        "HUBSPOT_API_KEY": get_config_value("HUBSPOT_API_KEY"),
+        "SLACK_APP_TOKEN": get_config_value("SLACK_APP_TOKEN"),
+        "SLACK_BOT_TOKEN": get_config_value("SLACK_BOT_TOKEN"),
         # Other Services
-        "VERCEL_API_TOKEN": os.getenv("VERCEL_API_TOKEN"),
-        "LINEAR_API_KEY": os.getenv("LINEAR_API_KEY"),
-        "ESTUARY_API_KEY": os.getenv("ESTUARY_API_KEY"),
-        "SENTRY_API_TOKEN": os.getenv("SENTRY_API_TOKEN"),
-        "ARIZE_API_KEY": os.getenv("ARIZE_API_KEY"),
-        "OPENROUTER_API_KEY": os.getenv("OPENROUTER_API_KEY"),
-        "PORTKEY_API_KEY": os.getenv("PORTKEY_API_KEY"),
+        "VERCEL_API_TOKEN": get_config_value("VERCEL_API_TOKEN"),
+        "LINEAR_API_KEY": get_config_value("LINEAR_API_KEY"),
+        "ESTUARY_API_KEY": get_config_value("ESTUARY_API_KEY"),
+        "SENTRY_API_TOKEN": get_config_value("SENTRY_API_TOKEN"),
+        "ARIZE_API_KEY": get_config_value("ARIZE_API_KEY"),
+        "OPENROUTER_API_KEY": get_config_value("OPENROUTER_API_KEY"),
+        "PORTKEY_API_KEY": get_config_value("PORTKEY_API_KEY"),
         # Pulumi
         "PULUMI_ORG": "scoobyjava-org",
-        "PULUMI_ACCESS_TOKEN": os.getenv("PULUMI_ACCESS_TOKEN"),
+        "PULUMI_ACCESS_TOKEN": get_config_value("PULUMI_ACCESS_TOKEN"),
     }
 
     # Update secrets

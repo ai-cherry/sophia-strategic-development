@@ -41,7 +41,7 @@ class QdrantSecretIntegration:
             return False
             
         # Check Pulumi access token
-        if not os.getenv("PULUMI_ACCESS_TOKEN"):
+        if not get_config_value("PULUMI_ACCESS_TOKEN"):
             logger.error("❌ PULUMI_ACCESS_TOKEN not found")
             return False
         logger.info("✅ Pulumi access token available")
@@ -60,14 +60,14 @@ class QdrantSecretIntegration:
         logger.info("🔑 Loading QDRANT secrets from environment...")
         
         # Load QDRANT_API_KEY
-        self.QDRANT_api_key = os.getenv("QDRANT_API_KEY")
+        self.QDRANT_api_key = get_config_value("QDRANT_API_KEY")
         if not self.QDRANT_api_key:
             logger.error("❌ QDRANT_API_KEY not found in environment")
             logger.info("💡 Please ensure QDRANT_API_KEY is set in GitHub Organization Secrets")
             return False
         
         # Load QDRANT_URL
-        self.QDRANT_URL = os.getenv("QDRANT_URL")
+        self.QDRANT_URL = get_config_value("QDRANT_URL")
         if not self.QDRANT_URL:
             logger.error("❌ QDRANT_URL not found in environment")
             logger.info("💡 Please ensure QDRANT_URL is set in GitHub Organization Secrets")
@@ -155,6 +155,7 @@ class QdrantSecretIntegration:
         
         try:
             import requests
+from backend.core.auto_esc_config import get_config_value
             
             # Test collections endpoint
             response = requests.get(

@@ -12,6 +12,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from backend.core.auto_esc_config import get_docker_hub_config
+from backend.core.auto_esc_config import get_config_value
 
 
 def docker_login():
@@ -79,8 +80,8 @@ def main():
     print("=" * 50)
 
     # Set required environment variables
-    os.environ["PULUMI_ORG"] = "scoobyjava-org"
-    os.environ["ENVIRONMENT"] = "prod"
+    get_config_value("PULUMI_ORG") = "scoobyjava-org"
+    get_config_value("ENVIRONMENT") = "prod"
 
     # Login to Docker
     if docker_login():

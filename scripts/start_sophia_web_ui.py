@@ -18,6 +18,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from backend.core.auto_esc_config import get_config_value
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -34,7 +35,7 @@ class SophiaWebService:
 
     def __init__(self):
         self.serverless_endpoint = "https://api.lambdalabs.com/v1"
-        self.serverless_api_key = os.getenv("LAMBDA_API_KEY")
+        self.serverless_api_key = get_config_value("LAMBDA_API_KEY")
         self.stats = {
             "total_requests": 0,
             "serverless_requests": 0,
@@ -295,13 +296,13 @@ def main():
     """Main function to start the web service"""
     try:
         # Validate environment
-        if not os.getenv("LAMBDA_API_KEY"):
+        if not get_config_value("LAMBDA_API_KEY"):
             logger.error("❌ LAMBDA_API_KEY environment variable required")
             sys.exit(1)
 
         # Configuration
-        host = os.getenv("HOST", "0.0.0.0")
-        port = int(os.getenv("PORT", "8000"))
+        host = get_config_value("HOST")
+        port = int(get_config_value("PORT"))
 
         logger.info(f"🚀 Starting Sophia AI Web UI on {host}:{port}")
         logger.info("🌐 Beautiful web interface with hybrid AI architecture")

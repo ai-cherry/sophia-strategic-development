@@ -214,7 +214,6 @@ Based *only* on the provided context and data, provide a comprehensive, actionab
             tokens = tokens[: self.token_limit]
         return self.tokenizer.decode(tokens)
 
-    # Backward compatibility methods (deprecated but maintained for existing code)
     async def _execute_with_quality_assurance(
         self, request_data: dict[str, Any]
     ) -> str:

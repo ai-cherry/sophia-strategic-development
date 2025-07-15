@@ -1,0 +1,408 @@
+values:
+  # Core Platform Configuration
+  sophia:
+    version: "3.4.0"
+    environment: "production"
+    platform: "lambda-labs"
+    
+  # Auto-inject from GitHub Organization Secrets (135+ secrets)
+  secrets:
+    # ================================================================
+    # 🏗️ CORE PLATFORM INFRASTRUCTURE
+    # ================================================================
+    api_secret_key:
+      fn::secret: ${{ secrets.API_SECRET_KEY }}
+    jwt_secret:
+      fn::secret: ${{ secrets.JWT_SECRET }}
+    encryption_key:
+      fn::secret: ${{ secrets.ENCRYPTION_KEY }}
+    backup_encryption_key:
+      fn::secret: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+    
+    # ================================================================
+    # 🔑 AUTHENTICATION & SECURITY
+    # ================================================================
+    gh_api_token:
+      fn::secret: ${{ secrets.GH_API_TOKEN }}
+    gh_classic_pat_token:
+      fn::secret: ${{ secrets.GH_CLASSIC_PAT_TOKEN }}
+    gh_fine_grained_token:
+      fn::secret: ${{ secrets.GH_FINE_GRAINED_TOKEN }}
+    ssh_private_key:
+      fn::secret: ${{ secrets.SSH_PRIVATE_KEY }}
+    ssh_public_key:
+      fn::secret: ${{ secrets.SSH_PUBLIC_KEY }}
+    
+    # ================================================================
+    # 🤖 AI MODEL PROVIDERS (Primary Stack)
+    # ================================================================
+    openai_api_key:
+      fn::secret: ${{ secrets.OPENAI_API_KEY }}
+    anthropic_api_key:
+      fn::secret: ${{ secrets.ANTHROPIC_API_KEY }}
+    portkey_api_key:
+      fn::secret: ${{ secrets.PORTKEY_API_KEY }}
+    portkey_config:
+      fn::secret: ${{ secrets.PORTKEY_CONFIG }}
+    portkey_config_id:
+      fn::secret: ${{ secrets.PORTKEY_CONFIG_ID }}
+    openrouter_api_key:
+      fn::secret: ${{ secrets.OPENROUTER_API_KEY }}
+    langchain_api_key:
+      fn::secret: ${{ secrets.LANGCHAIN_API_KEY }}
+    langgraph_api_key:
+      fn::secret: ${{ secrets.LANGGRAPH_API_KEY }}
+    langsmith_api_key:
+      fn::secret: ${{ secrets.LANGSMITH_API_KEY }}
+    langsmith_org_id:
+      fn::secret: ${{ secrets.LANGSMITH_ORG_ID }}
+    mem0_api_key:
+      fn::secret: ${{ secrets.MEM0_API_KEY }}
+    
+    # ================================================================
+    # 🌐 ALTERNATIVE AI PROVIDERS (Extended Stack)
+    # ================================================================
+    mistral_api_key:
+      fn::secret: ${{ secrets.MISTRAL_API_KEY }}
+    mistral_virtual_key:
+      fn::secret: ${{ secrets.MISTRAL_VIRTUAL_KEY }}
+    codestral_api_key:
+      fn::secret: ${{ secrets.CODESTRAL_API_KEY }}
+    codestral_org_id:
+      fn::secret: ${{ secrets.CODESTRAL_ORG_ID }}
+    codestral_org_name:
+      fn::secret: ${{ secrets.CODESTRAL_ORG_NAME }}
+    groq_api_key:
+      fn::secret: ${{ secrets.GROQ_API_KEY }}
+    groq_virtual_key:
+      fn::secret: ${{ secrets.GROQ_VIRTUAL_KEY }}
+    deepseek_api_key:
+      fn::secret: ${{ secrets.DEEPSEEK_API_KEY }}
+    cohere_api_key:
+      fn::secret: ${{ secrets.COHERE_API_KEY }}
+    cohere_virtual_key:
+      fn::secret: ${{ secrets.COHERE_VIRTUAL_KEY }}
+    llama_api_key:
+      fn::secret: ${{ secrets.LLAMA_API_KEY }}
+    perplexity_api_key:
+      fn::secret: ${{ secrets.PERPLEXITY_API_KEY }}
+    xai_api_key:
+      fn::secret: ${{ secrets.XAI_API_KEY }}
+    qwen_api_key:
+      fn::secret: ${{ secrets.QWEN_API_KEY }}
+    qwen_virtual_key:
+      fn::secret: ${{ secrets.QWEN_VIRTUAL_KEY }}
+    venice_ai_api_key:
+      fn::secret: ${{ secrets.VENICE_AI_API_KEY }}
+    venice_api_key:
+      fn::secret: ${{ secrets.VENICE_API_KEY }}
+    together_ai_api_key:
+      fn::secret: ${{ secrets.TOGETHER_AI_API_KEY }}
+    togetherai_api_key:
+      fn::secret: ${{ secrets.TOGETHERAI_API_KEY }}
+    continue_api_key:
+      fn::secret: ${{ secrets.CONTINUE_API_KEY }}
+    
+    # ================================================================
+    # 🗄️ DATABASE & STORAGE INFRASTRUCTURE
+    # ================================================================
+    database_url:
+      fn::secret: ${{ secrets.DATABASE_URL }}
+    database_host:
+      fn::secret: ${{ secrets.DATABASE_HOST }}
+    qdrant_api_key:
+      fn::secret: ${{ secrets.QDRANT_API_KEY }}
+    qdrant_cluster:
+      fn::secret: ${{ secrets.QDRANT_CLUSTER }}
+    qdrant_cluster_url:
+      fn::secret: ${{ secrets.QDRANT_CLUSTER_URL }}
+    qdrant_url:
+      fn::secret: ${{ secrets.QDRANT_URL }}
+    redis_url:
+      fn::secret: ${{ secrets.REDIS_URL }}
+    redis_password:
+      fn::secret: ${{ secrets.REDIS_PASSWORD }}
+    redis_database_name:
+      fn::secret: ${{ secrets.REDIS_DATABASE_NAME }}
+    redis_api_accountkey:
+      fn::secret: ${{ secrets.REDIS_API_ACCOUNTKEY }}
+    redis_api_userkey:
+      fn::secret: ${{ secrets.REDIS_API_USERKEY }}
+    redit_database_endpoint:
+      fn::secret: ${{ secrets.REDIT_DATABASE_ENDPOINT }}
+    
+    # ================================================================
+    # ☁️ INFRASTRUCTURE & DEPLOYMENT
+    # ================================================================
+    pulumi_access_token:
+      fn::secret: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+    pulumi_configure_passphrase:
+      fn::secret: ${{ secrets.PULUMI_CONFIGURE_PASSPHRASE }}
+    pulumi_ip_address:
+      fn::secret: ${{ secrets.PULUMI_IP_ADDRESS }}
+    lambda_api_key:
+      fn::secret: ${{ secrets.LAMBDA_API_KEY }}
+    lambda_cloud_api_key:
+      fn::secret: ${{ secrets.LAMBDA_CLOUD_API_KEY }}
+    lambda_labs_api_key:
+      fn::secret: ${{ secrets.LAMBDA_LABS_API_KEY }}
+    lambda_ssh_host:
+      fn::secret: ${{ secrets.LAMBDA_SSH_HOST }}
+    lambda_ssh_user:
+      fn::secret: ${{ secrets.LAMBDA_SSH_USER }}
+    docker_user_name:
+      fn::secret: ${{ secrets.DOCKER_USER_NAME }}
+    docker_personal_access_token:
+      fn::secret: ${{ secrets.DOCKER_PERSONAL_ACCESS_TOKEN }}
+    docker_token:
+      fn::secret: ${{ secrets.DOCKER_TOKEN }}
+    dockerhub_username:
+      fn::secret: ${{ secrets.DOCKERHUB_USERNAME }}
+    kubernetes_cluster_id:
+      fn::secret: ${{ secrets.KUBERNETES_CLUSTER_ID }}
+    production_host:
+      fn::secret: ${{ secrets.PRODUCTION_HOST }}
+    staging_host:
+      fn::secret: ${{ secrets.STAGING_HOST }}
+    load_balancer_host:
+      fn::secret: ${{ secrets.LOAD_BALANCER_HOST }}
+    
+    # ================================================================
+    # 📊 BUSINESS INTELLIGENCE INTEGRATIONS
+    # ================================================================
+    hubspot_access_token:
+      fn::secret: ${{ secrets.HUBSPOT_ACCESS_TOKEN }}
+    hubspot_api_key:
+      fn::secret: ${{ secrets.HUBSPOT_API_KEY }}
+    hubspot_client_secret:
+      fn::secret: ${{ secrets.HUBSPOT_CLIENT_SECRET }}
+    gong_access_key:
+      fn::secret: ${{ secrets.GONG_ACCESS_KEY }}
+    gong_access_key_secret:
+      fn::secret: ${{ secrets.GONG_ACCESS_KEY_SECRET }}
+    gong_client_access_key:
+      fn::secret: ${{ secrets.GONG_CLIENT_ACCESS_KEY }}
+    gong_client_secret:
+      fn::secret: ${{ secrets.GONG_CLIENT_SECRET }}
+    slack_bot_token:
+      fn::secret: ${{ secrets.SLACK_BOT_TOKEN }}
+    slack_app_token:
+      fn::secret: ${{ secrets.SLACK_APP_TOKEN }}
+    slack_app_token_2:
+      fn::secret: ${{ secrets.SLACK_APP_TOKEN_2 }}
+    slack_client_id:
+      fn::secret: ${{ secrets.SLACK_CLIENT_ID }}
+    slack_client_secret:
+      fn::secret: ${{ secrets.SLACK_CLIENT_SECRET }}
+    slack_signing_secret:
+      fn::secret: ${{ secrets.SLACK_SIGNING_SECRET }}
+    slack_socket_token:
+      fn::secret: ${{ secrets.SLACK_SOCKET_TOKEN }}
+    slack_refresh_token:
+      fn::secret: ${{ secrets.SLACK_REFRESH_TOKEN }}
+    linear_api_key:
+      fn::secret: ${{ secrets.LINEAR_API_KEY }}
+    asana_api_token:
+      fn::secret: ${{ secrets.ASANA_API_TOKEN }}
+    notion_api_key:
+      fn::secret: ${{ secrets.NOTION_API_KEY }}
+    notion_api_token:
+      fn::secret: ${{ secrets.NOTION_API_TOKEN }}
+    salesforce_access_token:
+      fn::secret: ${{ secrets.SALESFORCE_ACCESS_TOKEN }}
+    
+    # ================================================================
+    # 🔄 WORKFLOW AUTOMATION & ETL
+    # ================================================================
+    estuary_access_token:
+      fn::secret: ${{ secrets.ESTUARY_ACCESS_TOKEN }}
+    estuary_refresh_token:
+      fn::secret: ${{ secrets.ESTUARY_REFRESH_TOKEN }}
+    estuary_tenant:
+      fn::secret: ${{ secrets.ESTUARY_TENANT }}
+    n8n_api_key:
+      fn::secret: ${{ secrets.N8N_API_KEY }}
+    terraform_api_token:
+      fn::secret: ${{ secrets.TERRAFORM_API_TOKEN }}
+    terraform_organization_token:
+      fn::secret: ${{ secrets.TERRAFORM_ORGANIZATION_TOKEN }}
+    
+    # ================================================================
+    # 🛠️ DEVELOPMENT & CODE QUALITY
+    # ================================================================
+    codacy_api_token:
+      fn::secret: ${{ secrets.CODACY_API_TOKEN }}
+    figma_pat:
+      fn::secret: ${{ secrets.FIGMA_PAT }}
+    figma_project_id:
+      fn::secret: ${{ secrets.FIGMA_PROJECT_ID }}
+    npm_api_token:
+      fn::secret: ${{ secrets.NPM_API_TOKEN }}
+    arize_api_key:
+      fn::secret: ${{ secrets.ARIZE_API_KEY }}
+    arize_space_id:
+      fn::secret: ${{ secrets.ARIZE_SPACE_ID }}
+    
+    # ================================================================
+    # 🌐 WEB SERVICES & APIs
+    # ================================================================
+    exa_api_key:
+      fn::secret: ${{ secrets.EXA_API_KEY }}
+    serp_api_key:
+      fn::secret: ${{ secrets.SERP_API_KEY }}
+    tavily_api_key:
+      fn::secret: ${{ secrets.TAVILY_API_KEY }}
+    brave_api_key:
+      fn::secret: ${{ secrets.BRAVE_API_KEY }}
+    apify_api_token:
+      fn::secret: ${{ secrets.APIFY_API_TOKEN }}
+    phantombuster_api_key:
+      fn::secret: ${{ secrets.PHANTOMBUSTER_API_KEY }}
+    phantom_buster_api_key:
+      fn::secret: ${{ secrets.PHANTOM_BUSTER_API_KEY }}
+    pipedream_api_key:
+      fn::secret: ${{ secrets.PIPEDREAM_API_KEY }}
+    pipedream_oauth_client_id:
+      fn::secret: ${{ secrets.PIPEDREAM_OAUTH_CLIENT_ID }}
+    pipedream_oauth_client_name:
+      fn::secret: ${{ secrets.PIPEDREAM_OAUTH_CLIENT_NAME }}
+    pipedream_oauth_client_secret:
+      fn::secret: ${{ secrets.PIPEDREAM_OAUTH_CLIENT_SECRET }}
+    pipedream_workplace_id:
+      fn::secret: ${{ secrets.PIPEDREAM_WORKPLACE_ID }}
+    eleven_labs_api_key:
+      fn::secret: ${{ secrets.ELEVEN_LABS_API_KEY }}
+    stability_api_key:
+      fn::secret: ${{ secrets.STABILITY_API_KEY }}
+    recraft_api_key:
+      fn::secret: ${{ secrets.RECRAFT_API_KEY }}
+    resemble_api_key:
+      fn::secret: ${{ secrets.RESEMBLE_API_KEY }}
+    resemble_streaming_endpoint:
+      fn::secret: ${{ secrets.RESEMBLE_STREAMING_ENDPOINT }}
+    resemble_synthesis_endpoint:
+      fn::secret: ${{ secrets.RESEMBLE_SYNTHESIS_ENDPOINT }}
+    apollo_api_key:
+      fn::secret: ${{ secrets.APOLLO_API_KEY }}
+    lattice_api_key:
+      fn::secret: ${{ secrets.LATTICE_API_KEY }}
+    
+    # ================================================================
+    # 🔧 SPECIALIZED SERVICES
+    # ================================================================
+    sourcegraph_api_token:
+      fn::secret: ${{ secrets.SOURCEGRAPH_API_TOKEN }}
+    crew_api_token:
+      fn::secret: ${{ secrets.CREW_API_TOKEN }}
+    kong_access_token:
+      fn::secret: ${{ secrets.KONG_ACCESS_TOKEN }}
+    kong_org_id:
+      fn::secret: ${{ secrets.KONG_ORG_ID }}
+    ngrok_authtoken:
+      fn::secret: ${{ secrets.NGROK_AUTHTOKEN }}
+    nordvpn_username:
+      fn::secret: ${{ secrets.NORDVPN_USERNAME }}
+    nordvpn_password:
+      fn::secret: ${{ secrets.NORDVPN_PASSWORD }}
+    namecheap_api_key:
+      fn::secret: ${{ secrets.NAMECHEAP_API_KEY }}
+    namecheap_username:
+      fn::secret: ${{ secrets.NAMECHEAP_USERNAME }}
+    reddit_api_key:
+      fn::secret: ${{ secrets.REDDIT_API_KEY }}
+    reddit_client_id:
+      fn::secret: ${{ secrets.REDDIT_CLIENT_ID }}
+    stackapps_client_secret:
+      fn::secret: ${{ secrets.STACKAPPS_CLIENT_SECRET }}
+    stackapp_api_key:
+      fn::secret: ${{ secrets.STACKAPP_API_KEY }}
+    slidespeak_api_key:
+      fn::secret: ${{ secrets.SLIDESPEAK_API_KEY }}
+    twingly_api_key:
+      fn::secret: ${{ secrets.TWINGLY_API_KEY }}
+    zenrows_api_key:
+      fn::secret: ${{ secrets.ZENROWS_API_KEY }}
+    eden_api_key:
+      fn::secret: ${{ secrets.EDEN_API_KEY }}
+    browser_use_api_key:
+      fn::secret: ${{ secrets.BROWSER_USE_API_KEY }}
+    mureka_api_key:
+      fn::secret: ${{ secrets.MUREKA_API_KEY }}
+    patronus_api_key:
+      fn::secret: ${{ secrets.PATRONUS_API_KEY }}
+    bardeen_id:
+      fn::secret: ${{ secrets.BARDEEN_ID }}
+    midjourney_id:
+      fn::secret: ${{ secrets.MIDJOURNEY_ID }}
+    prisma_api_key:
+      fn::secret: ${{ secrets.PRISMA_API_KEY }}
+    
+    # ================================================================
+    # 🎯 SOPHIA AI SPECIFIC
+    # ================================================================
+    sophia_ai_token:
+      fn::secret: ${{ secrets.SOPHIA_AI_TOKEN }}
+    sophia_deployment_key_2025:
+      fn::secret: ${{ secrets.SOPHIA_DEPLOYMENT_KEY_2025 }}
+    
+  # Runtime Configuration
+  runtime:
+    personality_engine:
+      persistence_enabled: true
+      cultural_adaptation: true
+      ai_generation: true
+      sass_level: 0.8
+      memory_integration: true
+      
+    memory_stack:
+      primary: "qdrant"
+      cache: "redis"
+      backup: "postgresql"
+      embedding_model: "text-embedding-3-large"
+      
+    deployment:
+      target: "lambda-labs-k3s"
+      replicas: 3
+      gpu_enabled: true
+      auto_scaling: true
+      max_replicas: 10
+      
+    monitoring:
+      prometheus_enabled: true
+      grafana_enabled: true
+      logging_level: "INFO"
+      metrics_retention: "30d"
+      
+    performance:
+      response_timeout: "30s"
+      max_concurrent_requests: 1000
+      cache_ttl: "1h"
+      
+  # Environment-specific overrides
+  environments:
+    production:
+      debug: false
+      log_level: "INFO"
+      replicas: 3
+      gpu_enabled: true
+      personality_engine:
+        sass_level: 0.8
+        cultural_adaptation: true
+        
+    staging:
+      debug: true
+      log_level: "DEBUG"
+      replicas: 1
+      gpu_enabled: false
+      personality_engine:
+        sass_level: 0.5
+        cultural_adaptation: false
+        
+    development:
+      debug: true
+      log_level: "DEBUG"
+      replicas: 1
+      gpu_enabled: false
+      personality_engine:
+        sass_level: 0.3
+        cultural_adaptation: false 

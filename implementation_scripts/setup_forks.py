@@ -4,12 +4,13 @@
 import os
 
 import requests
+from backend.core.auto_esc_config import get_config_value
 
 
 def fork_repository(owner, repo, org):
     """Fork a repository to the organization."""
     headers = {
-        "Authorization": f'token {os.environ.get("GITHUB_TOKEN")}',
+        "Authorization": f'token {get_config_value("GITHUB_TOKEN")}',
         "Accept": "application/vnd.github.v3+json",
     }
 

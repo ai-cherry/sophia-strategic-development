@@ -485,6 +485,7 @@ class AuditLogger:
         """Log a CRITICAL level audit event"""
         if exc_info:
             import traceback
+from backend.core.auto_esc_config import get_config_value
 
             if details is None:
                 details = {}
@@ -684,19 +685,19 @@ def audit_decorator(
 def configure_from_env():
     """Configure the default audit logger from environment variables"""
     # Get configuration from environment variables
-    app_name = os.environ.get("SOPHIA_AUDIT_APP_NAME", "sophia")
-    log_level = os.environ.get("SOPHIA_AUDIT_LOG_LEVEL", "INFO")
+    app_name = get_config_value("SOPHIA_AUDIT_APP_NAME")
+    log_level = get_config_value("SOPHIA_AUDIT_LOG_LEVEL")
     enable_console = (
-        os.environ.get("SOPHIA_AUDIT_ENABLE_CONSOLE", "true").lower() == "true"
+        get_config_value("SOPHIA_AUDIT_ENABLE_CONSOLE").lower() == "true"
     )
-    enable_file = os.environ.get("SOPHIA_AUDIT_ENABLE_FILE", "true").lower() == "true"
-    file_path = os.environ.get("SOPHIA_AUDIT_FILE_PATH")
+    enable_file = get_config_value("SOPHIA_AUDIT_ENABLE_FILE").lower() == "true"
+    file_path = get_config_value("SOPHIA_AUDIT_FILE_PATH")
     enable_sentry = (
-        os.environ.get("SOPHIA_AUDIT_ENABLE_SENTRY", "false").lower() == "true"
+        get_config_value("SOPHIA_AUDIT_ENABLE_SENTRY").lower() == "true"
     )
-    sentry_dsn = os.environ.get("SOPHIA_AUDIT_SENTRY_DSN")
+    sentry_dsn = get_config_value("SOPHIA_AUDIT_SENTRY_DSN")
     redact_sensitive_data = (
-        os.environ.get("SOPHIA_AUDIT_REDACT_SENSITIVE", "true").lower() == "true"
+        get_config_value("SOPHIA_AUDIT_REDACT_SENSITIVE").lower() == "true"
     )
 
     # Create new audit logger with environment configuration

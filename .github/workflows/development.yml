@@ -1,0 +1,40 @@
+name: 🧑‍💻 Development Workflow
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [develop, feature/*]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: 📦 Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          
+      - name: 🧪 Run Tests
+        run: |
+          pytest tests/ -v
+        env:
+          ENVIRONMENT: test
+          DATABASE_URL: sqlite:///test.db
+          
+      - name: 🔍 Code Quality Check
+        run: |
+          ruff check .
+          
+      - name: 📊 Report Results
+        run: |
+          echo "✅ All tests passed!"
+          echo "🔍 Code quality checks passed!"

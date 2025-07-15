@@ -7,6 +7,7 @@ This file permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1
 from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import logging
 import os
+from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +43,8 @@ def apply_startup_configuration():
     configure_QDRANT_environment()
 
     # Set other environment variables
-    os.environ["ENVIRONMENT"] = "prod"
-    os.environ["PULUMI_ORG"] = "scoobyjava-org"
+    get_config_value("ENVIRONMENT") = "prod"
+    get_config_value("PULUMI_ORG") = "scoobyjava-org"
 
     logger.info("✅ Startup configuration complete - Qdrant fix applied")
 

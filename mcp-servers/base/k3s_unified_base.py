@@ -58,10 +58,10 @@ class K3sUnifiedMCPServer(ABC):
         self.is_healthy = True
 
         # K3s specific configuration
-        self.k3s_namespace = os.getenv("K3S_NAMESPACE", "sophia-mcp")
-        self.k3s_pod_name = os.getenv("HOSTNAME", socket.gethostname())
-        self.k3s_node_name = os.getenv("K3S_NODE_NAME", "unknown")
-        self.k3s_deployment = os.getenv("K3S_DEPLOYMENT", "false").lower() == "true"
+        self.k3s_namespace = get_config_value("K3S_NAMESPACE")
+        self.k3s_pod_name = get_config_value("HOSTNAME"))
+        self.k3s_node_name = get_config_value("K3S_NODE_NAME")
+        self.k3s_deployment = get_config_value("K3S_DEPLOYMENT").lower() == "true"
 
         # Service discovery
         self.service_dns_suffix = f".{self.k3s_namespace}.svc.cluster.local"
@@ -175,6 +175,7 @@ class K3sUnifiedMCPServer(ABC):
 
                 # Convert dict result to JSON text
                 import json
+from backend.core.auto_esc_config import get_config_value
 
                 return [TextContent(type="text", text=json.dumps(result, indent=2))]
 

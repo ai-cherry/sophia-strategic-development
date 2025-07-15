@@ -263,7 +263,7 @@ def get_real_linear_client():
     
     if real_linear_client is None:
         # Try to get API key from environment or ESC
-        api_key = os.getenv("LINEAR_API_KEY")
+        api_key = get_config_value("LINEAR_API_KEY")
         
         if not api_key:
             # Try direct Pulumi ESC access
@@ -380,6 +380,7 @@ def test_linear_integration():
     # Test via backend API
     try:
         import requests
+from backend.core.auto_esc_config import get_config_value
         response = requests.get("http://localhost:8000/api/v4/mcp/linear/projects", timeout=10)
         if response.status_code == 200:
             data = response.json()

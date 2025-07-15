@@ -40,6 +40,7 @@ def create_simple_app():
     from pydantic import BaseModel
     import json
     from datetime import datetime
+from backend.core.auto_esc_config import get_config_value
     
     app = FastAPI(
         title="Sophia AI Production Backend",
@@ -70,7 +71,7 @@ def create_simple_app():
             "version": "2.0.0",
             "status": "operational",
             "timestamp": datetime.now().isoformat(),
-            "environment": os.getenv("ENVIRONMENT", "prod"),
+            "environment": get_config_value("ENVIRONMENT"),
             "api_provider": "sophia_ai_production"
         }
         
@@ -79,7 +80,7 @@ def create_simple_app():
         return {
             "status": "healthy",
             "version": "2.0.0",
-            "environment": os.getenv("ENVIRONMENT", "prod"),
+            "environment": get_config_value("ENVIRONMENT"),
             "timestamp": datetime.now().isoformat(),
             "services": {
                 "backend": "operational",
@@ -220,11 +221,11 @@ def main():
     app = create_simple_app()
     
     # Get configuration
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8000"))
+    host = get_config_value("HOST")
+    port = int(get_config_value("PORT"))
     
     logger.info(f"Starting server on {host}:{port}")
-    logger.info(f"Environment: {os.getenv('ENVIRONMENT', 'prod')}")
+    logger.info(f"Environment: {get_config_value("ENVIRONMENT")}")
     logger.info(f"API Documentation: http://{host}:{port}/docs")
     
     # Start the server

@@ -133,7 +133,6 @@ class Phase2CleanupValidator:
         }
         
         try:
-            # 1. Remove deprecated service files
             logger.info("🗑️ Removing deprecated service files...")
             for file_path in self.cleanup_targets["deprecated_services"]:
                 full_path = self.project_root / file_path

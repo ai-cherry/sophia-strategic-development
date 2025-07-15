@@ -307,6 +307,7 @@ except Exception as e:
 # Import and include project management routes
 try:
     from backend.api.project_management_routes import router as project_router
+from backend.core.auto_esc_config import get_config_value
     app.include_router(project_router, prefix="/api/v4/mcp", tags=["project_management"])
     logger.info("✅ Project Management API routes loaded")
 except Exception as e:
@@ -517,7 +518,7 @@ async def health_check():
             status="healthy",
             timestamp=datetime.now().isoformat(),
             version="4.0.0-unified",
-            environment=os.getenv("ENVIRONMENT", "production"),
+            environment=get_config_value("ENVIRONMENT"),
             services=services
         )
         
@@ -529,7 +530,7 @@ async def health_check():
             status="unhealthy",
             timestamp=datetime.now().isoformat(),
             version="4.0.0-unified",
-            environment=os.getenv("ENVIRONMENT", "production"),
+            environment=get_config_value("ENVIRONMENT"),
             services={"error": str(e)}
         )
 
@@ -669,7 +670,7 @@ async def system_status():
             status="operational",
             timestamp=datetime.now().isoformat(),
             version="4.0.0-unified",
-            environment=os.getenv("ENVIRONMENT", "production"),
+            environment=get_config_value("ENVIRONMENT"),
             uptime_seconds=uptime,
             services={
                 "api": {
@@ -859,8 +860,8 @@ if __name__ == "__main__":
     logger.info("🚀 Starting Sophia AI Unified Production Backend...")
     
     # Configuration
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8000"))
+    host = get_config_value("HOST")
+    port = int(get_config_value("PORT"))
     
     # Run server
     uvicorn.run(

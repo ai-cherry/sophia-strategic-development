@@ -216,7 +216,7 @@ def get_real_asana_client():
     
     if real_asana_client is None:
         # Try to get API key from environment or ESC
-        access_token = os.getenv("ASANA_ACCESS_TOKEN") or os.getenv("ASANA_API_TOKEN")
+        access_token = get_config_value("ASANA_ACCESS_TOKEN") or get_config_value("ASANA_API_TOKEN")
         
         if not access_token:
             # Try direct Pulumi ESC access
@@ -442,6 +442,7 @@ def test_asana_integration():
     # Test via backend API
     try:
         import requests
+from backend.core.auto_esc_config import get_config_value
         response = requests.get("http://localhost:8000/api/v4/mcp/asana/projects", timeout=10)
         if response.status_code == 200:
             data = response.json()

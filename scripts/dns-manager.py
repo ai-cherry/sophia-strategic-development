@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 
 import requests
+from backend.core.auto_esc_config import get_config_value
 
 
 @dataclass
@@ -129,20 +130,20 @@ class IPContextDetector:
     def _is_github_actions(self) -> bool:
         """Check if running in GitHub Actions"""
         indicators = [
-            os.getenv("GITHUB_ACTIONS") == "true",
-            os.getenv("CI") == "true" and os.getenv("GITHUB_REPOSITORY") is not None,
-            os.getenv("GITHUB_RUN_ID") is not None,
-            os.getenv("RUNNER_OS") is not None,
+            get_config_value("GITHUB_ACTIONS") == "true",
+            get_config_value("CI") == "true" and get_config_value("GITHUB_REPOSITORY") is not None,
+            get_config_value("GITHUB_RUN_ID") is not None,
+            get_config_value("RUNNER_OS") is not None,
         ]
         return sum(indicators) >= 3
 
     def _is_pulumi_cloud(self) -> bool:
         """Check if running in Pulumi Cloud"""
         indicators = [
-            os.getenv("PULUMI_COMMAND") is not None,
-            os.getenv("PULUMI_ORGANIZATION") is not None,
-            os.getenv("PULUMI_STACK") is not None,
-            os.getenv("KUBERNETES_SERVICE_HOST") is not None,
+            get_config_value("PULUMI_COMMAND") is not None,
+            get_config_value("PULUMI_ORGANIZATION") is not None,
+            get_config_value("PULUMI_STACK") is not None,
+            get_config_value("KUBERNETES_SERVICE_HOST") is not None,
         ]
         return sum(indicators) >= 2
 

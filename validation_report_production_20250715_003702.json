@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-07-15T00:37:02.427704",
+  "environment": "production",
+  "overall_status": "FAIL",
+  "results": {
+    "endpoints": false,
+    "services": false,
+    "integrations": false,
+    "personality": false,
+    "performance": false
+  },
+  "summary": {
+    "total_checks": 5,
+    "passed": 0,
+    "failed": 5
+  }
+}

@@ -191,7 +191,7 @@ NORMAL_VAR=not_a_secret
         script_file.write_text("""
 import os
 # This is fine
-api_key = os.getenv('API_KEY')
+api_key = get_config_value("API_KEY")
 # This is bad
 hardcoded_key = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 """)
@@ -313,6 +313,7 @@ hardcoded_key = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
     def test_secret_patterns(self, secret_pattern, test_string, should_match):
         """Test secret detection patterns"""
         import re
+from backend.core.auto_esc_config import get_config_value
         pattern = re.compile(secret_pattern)
         match = pattern.search(test_string)
         assert (match is not None) == should_match

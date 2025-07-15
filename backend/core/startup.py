@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Any, Optional
+from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -102,11 +103,11 @@ def initialize_logging(level: str = "INFO") -> None:
 def get_startup_config() -> dict[str, Any]:
     """Get startup configuration with defaults"""
     return {
-        "environment": os.getenv("ENVIRONMENT", "prod"),
-        "debug": os.getenv("DEBUG", "false").lower() == "true",
-        "log_level": os.getenv("LOG_LEVEL", "INFO"),
-        "pulumi_org": os.getenv("PULUMI_ORG", "scoobyjava-org"),
-        "service_mode": os.getenv("SERVICE_MODE", "production"),
+        "environment": get_config_value("ENVIRONMENT"),
+        "debug": get_config_value("DEBUG").lower() == "true",
+        "log_level": get_config_value("LOG_LEVEL"),
+        "pulumi_org": get_config_value("PULUMI_ORG"),
+        "service_mode": get_config_value("SERVICE_MODE"),
     }
 
 
@@ -170,5 +171,5 @@ def startup_sequence(
 
 
 # Auto-load environment if this module is imported
-if not os.getenv("SOPHIA_STARTUP_SKIP_AUTO_LOAD"):
+if not get_config_value("SOPHIA_STARTUP_SKIP_AUTO_LOAD"):
     load_environment(verbose=False)

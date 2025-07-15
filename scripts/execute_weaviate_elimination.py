@@ -265,14 +265,15 @@ import os
 import logging
 from QDRANT_client import QdrantClient
 from QDRANT_client.models import Distance, VectorParams, CollectionConfig
+from backend.core.auto_esc_config import get_config_value
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def create_QDRANT_client():
     """Create Qdrant client connection"""
-    QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
-    QDRANT_api_key = os.getenv("QDRANT_API_KEY")
+    QDRANT_URL = get_config_value("QDRANT_URL")
+    QDRANT_api_key = get_config_value("QDRANT_API_KEY")
     
     try:
         client = QdrantClient(

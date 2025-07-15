@@ -23,6 +23,7 @@ import os
 from typing import Any
 
 import httpx
+from backend.core.auto_esc_config import get_config_value
 
 
 
@@ -80,7 +81,7 @@ class UnifiedAIOrchestrationService:
             self.estuary_client = httpx.AsyncClient(
                 base_url="https://api.estuary.dev",
                 headers={
-                    "Authorization": f"Bearer {os.getenv('ESTUARY_ACCESS_TOKEN', '')}",
+                    "Authorization": f"Bearer {get_config_value("ESTUARY_ACCESS_TOKEN")}",
                     "Content-Type": "application/json",
                 },
                 timeout=30.0,

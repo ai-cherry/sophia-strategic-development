@@ -127,7 +127,7 @@ def get_real_notion_client():
     global real_notion_client
     
     if real_notion_client is None:
-        api_key = os.getenv("NOTION_API_KEY")
+        api_key = get_config_value("NOTION_API_KEY")
         
         if not api_key:
             try:
@@ -263,7 +263,7 @@ def get_real_hubspot_client():
     global real_hubspot_client
     
     if real_hubspot_client is None:
-        access_token = os.getenv("HUBSPOT_ACCESS_TOKEN")
+        access_token = get_config_value("HUBSPOT_ACCESS_TOKEN")
         
         if not access_token:
             try:
@@ -584,6 +584,7 @@ async def get_unified_projects():
         for endpoint in unified_endpoints:
             try:
                 import requests
+from backend.core.auto_esc_config import get_config_value
                 response = requests.get(f"{self.backend_url}/api/v4/mcp/{endpoint}", timeout=15)
                 if response.status_code == 200:
                     test_results["unified_endpoints"][endpoint] = {
