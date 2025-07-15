@@ -34,11 +34,12 @@ cd /Users/lynnmusil/sophia-main
 # Run the setup script with your page ID
 python scripts/setup_notion_simple.py YOUR_PAGE_ID_HERE
 
-# This creates 4 databases:
+# This creates 5 databases:
 # - 👥 Employees
 # - 🏢 Customers
 # - 🥊 Competitors
 # - 📦 Products
+# - 🥇 Power Users
 ```
 
 The script will output database IDs - save these!
@@ -54,6 +55,7 @@ cp infrastructure/mcp_servers/notion_simple/env.template infrastructure/mcp_serv
 # CUSTOMERS_DB_ID=xxx
 # COMPETITORS_DB_ID=xxx
 # PRODUCTS_DB_ID=xxx
+# POWER_USERS_DB_ID=xxx
 ```
 
 ### Step 4: Start Notion MCP Server (3 minutes)
@@ -72,7 +74,9 @@ python server.py
 # 🚀 Starting Notion Simple MCP Server on port 9003
 # ✅ Employees database configured
 # ✅ Customers database configured
-# ...
+# ✅ Competitors database configured
+# ✅ Products database configured
+# ✅ Power Users database configured
 ```
 
 ### Step 5: Import Sample Data (10 minutes)
@@ -119,6 +123,11 @@ curl -X POST http://localhost:9003/search \
 curl -X POST http://localhost:9003/search \
   -H "Content-Type: application/json" \
   -d '{"query": "Acme", "entity_type": "customers"}'
+
+# Search for power users
+curl -X POST http://localhost:9003/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "CEO", "entity_type": "power_users"}'
 ```
 
 ### Test 2: Employee Lookup
@@ -135,6 +144,9 @@ curl http://localhost:9003/employees
 
 # List customers
 curl http://localhost:9003/customers
+
+# List power users
+curl http://localhost:9003/power_users
 ```
 
 ---
@@ -154,10 +166,90 @@ To integrate with Sophia AI chat:
    - "Tell me about Acme Corp"
    - "What are our main competitors?"
    - "Show me our products"
+   - "Who are our power users?"
+   - "Show me executive leadership team"
 
 ---
 
 ## 📊 Sample Data Format
+
+### 🥇 Power Users (Executive Leadership)
+
+Power Users are key internal stakeholders with high privileges and strategic influence. These are typically C-suite executives, VPs, and strategic decision-makers.
+
+#### Power Users CSV
+```csv
+Employee ID,Full Name,Email,Job Title,Department,Manager ID,Manager Name,Level,Role Code,Competitors,Segments,Functions,Regions,Rating,Type,Skills,Experience Years,Performance Score
+emp_lynn_musil,Lynn Patrick Musil,lynn@payready.com,Chief Executive Officer,Executive,,,1,CEO,"EliseAI,Entrata",Multifamily,Strategic Planning,National,85.0,full,,2,78.5
+emp_tiffany_york,Tiffany York,tiffany@payready.com,Chief Product Officer,Product,emp_lynn_musil,Lynn Patrick Musil,2,CPO,EliseAI,Multifamily,Product Strategy,West Coast,82.0,full,,5,75.2
+emp_steve_gabel,Steve Gabel,steve@payready.com,VP Strategic Initiatives,Strategy,emp_lynn_musil,Lynn Patrick Musil,2,VP_Strategic,"Market Analysis","All Segments",Strategic Planning,National,78.0,full,,3,73.1
+```
+
+#### Power Users JSON
+```json
+[
+  {
+    "employee_id": "emp_lynn_musil",
+    "full_name": "Lynn Patrick Musil",
+    "email": "lynn@payready.com",
+    "job_title": "Chief Executive Officer",
+    "department": "Executive",
+    "manager_id": null,
+    "manager_name": null,
+    "level": 1,
+    "role_code": "CEO",
+    "competitors": ["EliseAI", "Entrata"],
+    "segments": ["Multifamily"],
+    "functions": ["Strategic Planning"],
+    "regions": ["National"],
+    "rating": 85.0,
+    "type": "full",
+    "skills": null,
+    "experience_years": 2,
+    "performance_score": 78.5
+  },
+  {
+    "employee_id": "emp_tiffany_york",
+    "full_name": "Tiffany York",
+    "email": "tiffany@payready.com",
+    "job_title": "Chief Product Officer",
+    "department": "Product",
+    "manager_id": "emp_lynn_musil",
+    "manager_name": "Lynn Patrick Musil",
+    "level": 2,
+    "role_code": "CPO",
+    "competitors": ["EliseAI"],
+    "segments": ["Multifamily"],
+    "functions": ["Product Strategy"],
+    "regions": ["West Coast"],
+    "rating": 82.0,
+    "type": "full",
+    "skills": null,
+    "experience_years": 5,
+    "performance_score": 75.2
+  },
+  {
+    "employee_id": "emp_steve_gabel",
+    "full_name": "Steve Gabel",
+    "email": "steve@payready.com",
+    "job_title": "VP Strategic Initiatives",
+    "department": "Strategy",
+    "manager_id": "emp_lynn_musil",
+    "manager_name": "Lynn Patrick Musil",
+    "level": 2,
+    "role_code": "VP_Strategic",
+    "competitors": ["Market Analysis"],
+    "segments": ["All Segments"],
+    "functions": ["Strategic Planning"],
+    "regions": ["National"],
+    "rating": 78.0,
+    "type": "full",
+    "skills": null,
+    "experience_years": 3,
+    "performance_score": 73.1
+  }
+]
+```
 
 ### Employees CSV
 ```csv
@@ -208,6 +300,9 @@ John Doe,john.doe@payready.com,Senior Engineer,Engineering,San Francisco
 ### Issue: "Notion API error"
 **Solution**: Verify your NOTION_API_KEY is correct
 
+### Issue: "Power Users not found"
+**Solution**: Ensure POWER_USERS_DB_ID is configured and the database exists
+
 ---
 
 ## 🎯 Next Steps
@@ -219,6 +314,7 @@ Once the basic system is working:
 3. **Build Relationships**: Create employee-customer mappings
 4. **Add Integrations**: Connect Slack and Gong for auto-updates
 5. **Deploy to Production**: Use Docker for production deployment
+6. **Power User Analytics**: Track power user engagement and system usage
 
 ---
 
