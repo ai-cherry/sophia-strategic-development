@@ -479,39 +479,24 @@ services:
       timeout: 5s
       retries: 5
 
-  # Vector Database for AI Processing
-  vector-db:
-    image: weaviate/weaviate:1.24.0
+  # Qdrant Vector Database (Pure Qdrant Architecture)
+  qdrant:
+    image: qdrant/qdrant:v1.9.1
+    container_name: sophia-qdrant
     ports:
-      - "8088:8080"
-    environment:
-      - QUERY_DEFAULTS_LIMIT=25
-      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=false
-      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
-      - DEFAULT_VECTORIZER_MODULE=none
-      - ENABLE_MODULES=backup-filesystem,text2vec-openai
-      - BACKUP_FILESYSTEM_PATH=/var/lib/weaviate/backups
-      - CLUSTER_HOSTNAME=weaviate
-      - CUDA_VISIBLE_DEVICES=0
-    deploy:
-      <<: *default-deploy
-      replicas: 1
-      resources:
-        <<: *gpu-resources
-        limits:
-          cpus: '4'
-          memory: 8G
-        reservations:
-          cpus: '2'
-          memory: 4G
+      - "6333:6333"
+      - "6334:6334"
     volumes:
-      - qdrant-data:/var/lib/weaviate
+      - qdrant-data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__LOG_LEVEL=INFO
+    restart: unless-stopped
     networks:
-      - sophia-ai-network
-      - sophia-private
-    logging: *default-logging
+      - sophia-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/v1/.well-known/ready"]
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -542,7 +527,7 @@ networks:
 volumes:
   sophia-ai-redis-data:
     driver: local
-  weaviate-data:
+  qdrant-data:
     driver: local
   huggingface-cache:
     driver: local

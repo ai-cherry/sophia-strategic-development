@@ -1,11 +1,11 @@
 import React from 'react';
-import SophiaIntelligenceHub from './components/SophiaIntelligenceHub';
+import SophiaExecutiveDashboard from './components/SophiaExecutiveDashboard';
 import './App.css';
 
 const App: React.FC = () => {
   return (
     <div className="App">
-      <SophiaIntelligenceHub />
+      <SophiaExecutiveDashboard />
     </div>
   );
 };

@@ -1,422 +1,134 @@
 /**
- * API Client for Sophia AI Frontend
- * GPU-accelerated memory operations with Weaviate/Redis/PostgreSQL
+ * Unified API Client for Sophia AI Executive Dashboard
+ * Provides consistent interface for all backend communications
  */
 
-import axios, { AxiosInstance } from 'axios';
+interface ApiResponse<T = any> {
+  data?: T;
+  error?: string;
+  status: number;
+}
 
-// Environment-aware backend URL configuration
-const API_CONFIG = {
-  production: 'https://api.sophia-intel.ai',
-  development: 'http://localhost:8000',
-  timeout: 10000,
-  retries: 3,
-  retryDelay: 1000
-};
-
-const getBaseURL = (): string => {
-  const isDevelopment = process.env.NODE_ENV === 'development' ||
-                       window.location.hostname === 'localhost' ||
-                       window.location.hostname === '127.0.0.1';
-  return isDevelopment ? API_CONFIG.development : API_CONFIG.production;
-};
-
-// Create clean axios instance
-const apiClient: AxiosInstance = axios.create({
-  baseURL: getBaseURL(),
-  timeout: API_CONFIG.timeout,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
+class ApiClient {
+  private baseURL: string;
+  
+  constructor() {
+    this.baseURL = process.env.NODE_ENV === 'production' 
+      ? 'https://api.sophia-intel.ai' 
+      : 'http://localhost:8000';
   }
-});
 
-// Interceptors for logging and error handling
-apiClient.interceptors.request.use(
-  (config: any) => {
-    config.metadata = { startTime: new Date() };
-    console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
-    return config;
-  },
-  (error) => {
-    console.error('❌ Request Error:', error);
-    return Promise.reject(error);
+  private async request<T>(
+    endpoint: string, 
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    try {
+      const response = await fetch(`${this.baseURL}${endpoint}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      });
+
+      const data = await response.json();
+      
+      return {
+        data,
+        status: response.status,
+      };
+    } catch (error) {
+      console.error(`API Error for ${endpoint}:`, error);
+      return {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        status: 500,
+      };
+    }
   }
-);
 
-apiClient.interceptors.response.use(
-  (response) => {
-    const duration = new Date().getTime() - response.config.metadata.startTime.getTime();
-    console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url} (${duration}ms)`);
-    return response;
-  },
-  (error) => {
-    const duration = error.config?.metadata ? new Date().getTime() - error.config.metadata.startTime.getTime() : 0;
-    console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} (${duration}ms)`, error);
-    return Promise.reject(error);
+  // Core API methods
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'GET' });
   }
-);
 
-// Type definitions
-interface HealthResponse {
-  status: string;
-  timestamp: string;
-  version: string;
-  environment: string;
-  services: Record<string, any>;
-}
-
-interface ChatResponse {
-  response: string;
-  conversation_id?: string;
-}
-
-interface ExecutiveIntelligence {
-  business_metrics: {
-    monthly_revenue: number;
-    growth_rate: number;
-    customer_count: number;
-    team_productivity: number;
-  };
-  project_health: {
-    active_projects: number;
-    on_track: number;
-    at_risk: number;
-    health_score: number;
-  };
-  market_insights: {
-    market_trends: string[];
-    competitive_position: string;
-    opportunities: string[];
-  };
-  executive_summary: {
-    key_insights: string[];
-    recommendations: string[];
-  };
-}
-
-interface OrchestrationStatus {
-  initialized: boolean;
-  active_tasks: number;
-  completed_tasks: number;
-  orchestration_metrics: {
-    total_tasks: number;
-    successful_tasks: number;
-    avg_execution_time: number;
-    model_utilization: Record<string, number>;
-    agent_performance: Record<string, number>;
-  };
-  model_hub_status: Record<string, string>;
-  agent_network_status: Record<string, string>;
-  system_status: string;
-}
-
-interface IntegrationStatus {
-  initialized: boolean;
-  active_tasks: number;
-  performance_metrics: {
-    total_integrations: number;
-    avg_execution_time_ms: number;
-    success_rate: number;
-    component_utilization: Record<string, number>;
-  };
-  component_health: Record<string, string>;
-  system_status: string;
-}
-
-interface PerformanceMetrics {
-  system_performance: {
-    cpu_usage: number;
-    memory_usage: number;
-    response_time_ms: number;
-    throughput: number;
-    uptime: number;
-  };
-  optimization_results: {
-    efficiency_improvement: number;
-    cost_reduction: number;
-    performance_gain: number;
-  };
-  real_time_metrics: {
-    active_requests: number;
-    cache_hit_rate: number;
-    error_rate: number;
-    avg_response_time: number;
-  };
-}
-
-interface WorkflowStatus {
-  active_workflows: number;
-  completed_workflows: number;
-  workflow_efficiency: number;
-  automation_rate: number;
-  business_impact: {
-    time_savings_hours: number;
-    cost_savings: number;
-    process_improvement: number;
-  };
-}
-
-interface TaskExecutionResult {
-  task_id: string;
-  success: boolean;
-  model_used: string;
-  agents_involved: string[];
-  execution_time_ms: number;
-  confidence_score: number;
-  business_impact: {
-    efficiency_gain: number;
-    cost_savings: number;
-    time_savings_hours: number;
-  };
-  recommendations: string[];
-}
-
-// Enhanced API methods for Phase 2.3 and Phase 2.4 integration
-const api = {
-  // Health and status endpoints
-  async getHealth(): Promise<HealthResponse> {
-    const response = await apiClient.get('/health');
-    return response.data;
-  },
-
-  // Chat endpoints
-  async sendMessage(message: string, conversationId?: string): Promise<ChatResponse> {
-    const response = await apiClient.post('/chat', {
-      message,
-      conversation_id: conversationId
+  async post<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
     });
-    return response.data;
-  },
-
-  // Phase 2.3 Cross-Component Integration endpoints
-  async getIntegrationStatus(): Promise<IntegrationStatus> {
-    try {
-      const response = await apiClient.get('/api/integration/status');
-      return response.data;
-    } catch (error) {
-      // Fallback to mock data if endpoint doesn't exist yet
-      return {
-        initialized: true,
-        active_tasks: 0,
-        performance_metrics: {
-          total_integrations: 156,
-          avg_execution_time_ms: 185.5,
-          success_rate: 0.94,
-          component_utilization: {
-            mcp_servers: 0.78,
-            n8n_workflows: 0.85,
-            performance_engine: 0.72
-          }
-        },
-        component_health: {
-          orchestrator: 'healthy',
-          memory_service: 'healthy',
-          mcp_servers: 'healthy',
-          n8n_workflows: 'healthy',
-          performance_engine: 'healthy'
-        },
-        system_status: 'operational'
-      };
-    }
-  },
-
-  async executeIntegration(taskType: string, description: string, mode: string = 'executive_intelligence'): Promise<any> {
-    try {
-      const response = await apiClient.post('/api/integration/execute', {
-        task_type: taskType,
-        description,
-        mode
-      });
-      return response.data;
-    } catch (error) {
-      // Fallback to mock data
-      return {
-        task_id: `task_${Date.now()}`,
-        success: true,
-        execution_time_ms: 150 + Math.random() * 100,
-        components_used: ['mcp_server', 'memory_service', 'orchestrator'],
-        performance_metrics: {
-          avg_execution_time_ms: 185.5,
-          success_rate: 0.94,
-          total_integrations: 156
-        }
-      };
-    }
-  },
-
-  // Phase 2.4 Advanced AI Orchestration endpoints
-  async getOrchestrationStatus(): Promise<OrchestrationStatus> {
-    try {
-      const response = await apiClient.get('/api/orchestration/status');
-      return response.data;
-    } catch (error) {
-      // Fallback to mock data
-      return {
-        initialized: true,
-        active_tasks: 2,
-        completed_tasks: 156,
-        orchestration_metrics: {
-          total_tasks: 158,
-          successful_tasks: 149,
-          avg_execution_time: 201.0,
-          model_utilization: {
-            'claude-4': 85,
-            'gpt-4': 12,
-            'gemini-2.5-pro': 45,
-            'gemini-cli': 8
-          },
-          agent_performance: {
-            'executive_analyst': 0.91,
-            'business_strategist': 0.88,
-            'technical_architect': 0.93,
-            'market_analyst': 0.86,
-            'code_generator': 0.91,
-            'process_optimizer': 0.89
-          }
-        },
-        model_hub_status: {
-          'claude-4': 'connected',
-          'gpt-4': 'connected',
-          'gemini-2.5-pro': 'connected',
-          'gemini-cli': 'connected'
-        },
-        agent_network_status: {
-          'executive_analyst': 'active',
-          'business_strategist': 'active',
-          'technical_architect': 'active',
-          'market_analyst': 'active',
-          'code_generator': 'active',
-          'process_optimizer': 'active'
-        },
-        system_status: 'operational'
-      };
-    }
-  },
-
-  async executeAdvancedTask(taskType: string, description: string, complexity: string = 'moderate'): Promise<TaskExecutionResult> {
-    try {
-      const response = await apiClient.post('/api/orchestration/execute', {
-        task_type: taskType,
-        description,
-        complexity,
-        priority: 1
-      });
-      return response.data;
-    } catch (error) {
-      // Fallback to mock data
-      return {
-        task_id: `ai_task_${Date.now()}`,
-        success: true,
-        model_used: 'claude-4',
-        agents_involved: ['executive_analyst', 'business_strategist'],
-        execution_time_ms: 201.0,
-        confidence_score: 0.89,
-        business_impact: {
-          efficiency_gain: 0.45,
-          cost_savings: 2500,
-          time_savings_hours: 12
-        },
-        recommendations: [
-          'Implement automated executive reporting',
-          'Enhance predictive analytics',
-          'Optimize agent collaboration'
-        ]
-      };
-    }
-  },
-
-  // Executive Intelligence endpoints
-  async getExecutiveIntelligence(): Promise<ExecutiveIntelligence> {
-    try {
-      const response = await apiClient.get('/api/executive/intelligence');
-      return response.data;
-    } catch (error) {
-      // Fallback to mock data
-      return {
-        business_metrics: {
-          monthly_revenue: 150000,
-          growth_rate: 0.15,
-          customer_count: 250,
-          team_productivity: 0.85
-        },
-        project_health: {
-          active_projects: 12,
-          on_track: 10,
-          at_risk: 2,
-          health_score: 0.83
-        },
-        market_insights: {
-          market_trends: ['AI adoption increasing', 'Remote work stabilizing'],
-          competitive_position: 'strong',
-          opportunities: ['Enterprise AI', 'SMB automation']
-        },
-        executive_summary: {
-          key_insights: [
-            'Revenue growth strong at 15%',
-            'Team productivity high at 85%',
-            'Market opportunities available'
-          ],
-          recommendations: [
-            'Focus on customer retention',
-            'Invest in team productivity tools',
-            'Expand market presence'
-          ]
-        }
-      };
-    }
-  },
-
-  // Performance metrics endpoints
-  async getPerformanceMetrics(): Promise<PerformanceMetrics> {
-    try {
-      const response = await apiClient.get('/api/performance/metrics');
-      return response.data;
-    } catch (error) {
-      // Fallback to mock data
-      return {
-        system_performance: {
-          cpu_usage: 0.55,
-          memory_usage: 0.67,
-          response_time_ms: 185,
-          throughput: 95,
-          uptime: 0.999
-        },
-        optimization_results: {
-          efficiency_improvement: 0.40,
-          cost_reduction: 0.25,
-          performance_gain: 0.35
-        },
-        real_time_metrics: {
-          active_requests: 8,
-          cache_hit_rate: 0.87,
-          error_rate: 0.02,
-          avg_response_time: 145
-        }
-      };
-    }
-  },
-
-  // Workflow automation endpoints
-  async getWorkflowStatus(): Promise<WorkflowStatus> {
-    try {
-      const response = await apiClient.get('/api/workflows/status');
-      return response.data;
-    } catch (error) {
-      // Fallback to mock data
-      return {
-        active_workflows: 8,
-        completed_workflows: 234,
-        workflow_efficiency: 0.92,
-        automation_rate: 0.90,
-        business_impact: {
-          time_savings_hours: 320,
-          cost_savings: 45000,
-          process_improvement: 0.45
-        }
-      };
-    }
   }
-};
 
-export default api; 
+  async put<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'DELETE' });
+  }
+
+  // Specialized methods for Sophia AI
+  async chat(message: string): Promise<ApiResponse<any>> {
+    return this.post('/chat', { message });
+  }
+
+  async getHealth(): Promise<ApiResponse<any>> {
+    return this.get('/health');
+  }
+
+  async getSystemStatus(): Promise<ApiResponse<any>> {
+    return this.get('/system/status');
+  }
+
+  async getMetrics(): Promise<ApiResponse<any>> {
+    return this.get('/metrics');
+  }
+
+  // Intelligence endpoints
+  async getBusinessIntelligence(): Promise<ApiResponse<any>> {
+    return this.get('/api/v1/intelligence/business');
+  }
+
+  async getMemoryInsights(): Promise<ApiResponse<any>> {
+    return this.get('/api/v1/memory/insights');
+  }
+
+  async getTemporalLearning(): Promise<ApiResponse<any>> {
+    return this.get('/api/v1/temporal-learning/dashboard/data');
+  }
+
+  async getLambdaLabsStatus(): Promise<ApiResponse<any>> {
+    return this.get('/api/v1/lambda-labs/status');
+  }
+
+  async getDeploymentStatus(): Promise<ApiResponse<any>> {
+    return this.get('/api/v1/deployment/status');
+  }
+
+  async getAIMemoryHealth(): Promise<ApiResponse<any>> {
+    return this.get('/api/v1/ai-memory/health');
+  }
+
+  async getCompetitorIntelligence(): Promise<ApiResponse<any>> {
+    return this.get('/api/v1/competitor-intelligence');
+  }
+
+  async getExternalIntelligence(): Promise<ApiResponse<any>> {
+    return this.get('/api/v1/external-intelligence');
+  }
+
+  // WebSocket connection helper
+  createWebSocket(path: string = '/ws'): WebSocket {
+    const wsUrl = this.baseURL.replace('http', 'ws') + path;
+    return new WebSocket(wsUrl);
+  }
+}
+
+// Export singleton instance
+const apiClient = new ApiClient();
+export default apiClient;
+
+// Export types for use in components
+export type { ApiResponse }; 

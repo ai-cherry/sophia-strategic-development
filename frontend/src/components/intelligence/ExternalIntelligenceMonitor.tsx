@@ -27,7 +27,10 @@ import {
   ArrowUp,
   ArrowDown,
   Target,
-  Zap
+  Zap,
+  Shield,
+  Activity,
+  BarChart3
 } from 'lucide-react';
 
 // Types
@@ -43,46 +46,169 @@ interface SocialMediaPost {
   tags: string[];
 }
 
+interface CompetitorProfile {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  website: string;
+  threat_level: number;
+  market_share: number;
+  growth_rate: number;
+  key_products: string[];
+  strengths: string[];
+  weaknesses: string[];
+  similarity_score?: number;
+}
+
+interface CompetitorIntelligence {
+  id: string;
+  competitor_id: string;
+  intelligence_type: string;
+  title: string;
+  description: string;
+  source: string;
+  impact_score: number;
+  confidence_score: number;
+  timestamp: string;
+  tags: string[];
+  similarity_score?: number;
+}
+
 interface CompetitorAlert {
   id: string;
   company: string;
   type: 'website_change' | 'pricing_update' | 'product_launch' | 'hiring_trend';
   title: string;
   description: string;
-  impact: 'low' | 'medium' | 'high' | 'critical';
+  impact: 'high' | 'medium' | 'low';
   timestamp: string;
-  url?: string;
-  change_percentage?: number;
-}
-
-interface MarketIntelligence {
-  id: string;
-  type: 'industry_news' | 'funding' | 'regulatory' | 'economic';
-  title: string;
-  description: string;
   source: string;
-  impact_score: number;
-  timestamp: string;
-  url: string;
-  tags: string[];
+  confidence: number;
 }
 
-interface CustomerSignal {
-  id: string;
-  customer: string;
-  type: 'website_activity' | 'social_mention' | 'news_coverage' | 'expansion_signal';
-  title: string;
-  description: string;
-  opportunity_score: number;
-  timestamp: string;
-  actionable: boolean;
+interface ThreatAnalysis {
+  total_competitors: number;
+  threat_distribution: {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
+  category_distribution: {
+    direct: number;
+    indirect: number;
+    emerging: number;
+    substitute: number;
+  };
+  top_threats: Array<{
+    name: string;
+    threat_level: number;
+    category: string;
+    key_products: string[];
+  }>;
+  emerging_threats: Array<{
+    name: string;
+    threat_level: number;
+    growth_rate: number;
+  }>;
+  market_insights: {
+    total_market_share: number;
+    average_growth_rate: number;
+  };
 }
+
+interface IntelligenceSummary {
+  total_items: number;
+  period_days: number;
+  type_distribution: Record<string, number>;
+  impact_analysis: {
+    high_impact: number;
+    medium_impact: number;
+    low_impact: number;
+  };
+  top_intelligence: Array<{
+    title: string;
+    competitor_id: string;
+    impact_score: number;
+    intelligence_type: string;
+    timestamp: string;
+  }>;
+}
+
+// API Functions
+const fetchCompetitorProfiles = async (query: string = 'property management', limit: number = 10): Promise<CompetitorProfile[]> => {
+  const response = await fetch(`/api/v1/competitors/profiles?query=${encodeURIComponent(query)}&limit=${limit}`);
+  if (!response.ok) throw new Error('Failed to fetch competitor profiles');
+  const data = await response.json();
+  return data.results || [];
+};
+
+const fetchCompetitorIntelligence = async (query: string = 'AI', limit: number = 20): Promise<CompetitorIntelligence[]> => {
+  const response = await fetch(`/api/v1/competitors/intelligence/search?query=${encodeURIComponent(query)}&limit=${limit}&days_back=30`);
+  if (!response.ok) throw new Error('Failed to fetch competitor intelligence');
+  const data = await response.json();
+  return data.results || [];
+};
+
+const fetchThreatAnalysis = async (): Promise<ThreatAnalysis> => {
+  const response = await fetch('/api/v1/competitors/analytics/threat-analysis');
+  if (!response.ok) throw new Error('Failed to fetch threat analysis');
+  const data = await response.json();
+  return data.analysis || {};
+};
+
+const fetchIntelligenceSummary = async (days_back: number = 7): Promise<IntelligenceSummary> => {
+  const response = await fetch(`/api/v1/competitors/analytics/intelligence-summary?days_back=${days_back}`);
+  if (!response.ok) throw new Error('Failed to fetch intelligence summary');
+  const data = await response.json();
+  return data.summary || {};
+};
+
+const fetchDashboardData = async () => {
+  const response = await fetch('/api/v1/competitors/analytics/dashboard');
+  if (!response.ok) throw new Error('Failed to fetch dashboard data');
+  const data = await response.json();
+  return data.dashboard || {};
+};
 
 const ExternalIntelligenceMonitor: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [timeRange, setTimeRange] = useState<string>('24h');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Mock data - in production, would come from external APIs
+  // React Query hooks for real-time data
+  const { data: competitorProfiles, isLoading: profilesLoading, error: profilesError } = useQuery({
+    queryKey: ['competitor-profiles', searchQuery],
+    queryFn: () => fetchCompetitorProfiles(searchQuery || 'property management', 10),
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+
+  const { data: competitorIntelligence, isLoading: intelligenceLoading, error: intelligenceError } = useQuery({
+    queryKey: ['competitor-intelligence', searchQuery],
+    queryFn: () => fetchCompetitorIntelligence(searchQuery || 'AI', 20),
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const { data: threatAnalysis, isLoading: threatLoading, error: threatError } = useQuery({
+    queryKey: ['threat-analysis'],
+    queryFn: fetchThreatAnalysis,
+    refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
+  });
+
+  const { data: intelligenceSummary, isLoading: summaryLoading, error: summaryError } = useQuery({
+    queryKey: ['intelligence-summary', timeRange],
+    queryFn: () => fetchIntelligenceSummary(timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : 30),
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const { data: dashboardData, isLoading: dashboardLoading, error: dashboardError } = useQuery({
+    queryKey: ['competitor-dashboard'],
+    queryFn: fetchDashboardData,
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  // Mock data for social media (would be replaced with real API in production)
   const socialMediaPosts: SocialMediaPost[] = [
     {
       id: '1',
@@ -105,121 +231,63 @@ const ExternalIntelligenceMonitor: React.FC = () => {
       relevance: 0.88,
       sentiment: 'neutral',
       tags: ['AI', 'automation', 'market']
-    },
-    {
-      id: '3',
-      platform: 'executive',
-      author: 'MegaCorp CTO',
-      content: 'Our infrastructure modernization initiative is ahead of schedule. Looking for AI partners...',
-      engagement: 450,
-      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-      relevance: 0.92,
-      sentiment: 'positive',
-      tags: ['infrastructure', 'AI', 'partnerships']
     }
   ];
 
-  const competitorAlerts: CompetitorAlert[] = [
-    {
-      id: '1',
-      company: 'CompetitorX',
-      type: 'pricing_update',
-      title: 'Enterprise pricing increased by 25%',
-      description: 'CompetitorX raised their enterprise tier pricing from $199/month to $249/month',
-      impact: 'high',
-      timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-      url: 'https://competitorx.com/pricing',
-      change_percentage: 25
-    },
-    {
-      id: '2',
-      company: 'RivalCorp',
-      type: 'product_launch',
-      title: 'New AI automation suite launched',
-      description: 'RivalCorp announced their new AI automation suite targeting mid-market customers',
-      impact: 'medium',
-      timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-      url: 'https://rivalcorp.com/products/ai-suite'
-    },
-    {
-      id: '3',
-      company: 'StartupY',
-      type: 'hiring_trend',
-      title: 'Aggressive hiring in sales team',
-      description: 'StartupY posted 15 new sales positions in the last 2 weeks, indicating expansion',
-      impact: 'medium',
-      timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
-    }
-  ];
+  // Convert competitor intelligence to alerts format
+  const competitorAlerts: CompetitorAlert[] = (competitorIntelligence || []).map(intel => ({
+    id: intel.id,
+    company: intel.competitor_id, // This would be resolved to company name in production
+    type: intel.intelligence_type as any,
+    title: intel.title,
+    description: intel.description,
+    impact: intel.impact_score >= 8 ? 'high' : intel.impact_score >= 5 ? 'medium' : 'low',
+    timestamp: intel.timestamp,
+    source: intel.source,
+    confidence: intel.confidence_score
+  }));
 
-  const marketIntelligence: MarketIntelligence[] = [
-    {
-      id: '1',
-      type: 'funding',
-      title: 'AI Automation sector sees $2.3B in funding',
-      description: 'Q3 funding in AI automation reached record highs with 47 deals totaling $2.3B',
-      source: 'TechCrunch',
-      impact_score: 0.89,
-      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-      url: 'https://techcrunch.com/ai-funding-q3',
-      tags: ['funding', 'AI', 'automation']
-    },
-    {
-      id: '2',
-      type: 'regulatory',
-      title: 'New AI governance framework proposed',
-      description: 'EU proposes new framework for AI governance affecting enterprise deployments',
-      source: 'Reuters',
-      impact_score: 0.76,
-      timestamp: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
-      url: 'https://reuters.com/ai-governance',
-      tags: ['regulatory', 'EU', 'governance']
-    },
-    {
-      id: '3',
-      type: 'industry_news',
-      title: 'Enterprise AI adoption accelerates',
-      description: 'Gartner reports 65% of enterprises now have AI initiatives in production',
-      source: 'Gartner',
-      impact_score: 0.82,
-      timestamp: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
-      url: 'https://gartner.com/ai-adoption',
-      tags: ['enterprise', 'adoption', 'AI']
-    }
-  ];
+  // Filter logic
+  const filteredAlerts = competitorAlerts.filter(alert => {
+    if (activeFilter === 'all') return true;
+    return alert.type === activeFilter;
+  });
 
-  const customerSignals: CustomerSignal[] = [
-    {
-      id: '1',
-      customer: 'TechCorp',
-      type: 'website_activity',
-      title: 'Website activity increased 340%',
-      description: 'TechCorp website traffic to pricing and enterprise pages spiked significantly',
-      opportunity_score: 0.94,
-      timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-      actionable: true
-    },
-    {
-      id: '2',
-      customer: 'MegaCorp',
-      type: 'expansion_signal',
-      title: 'Infrastructure modernization mentioned',
-      description: 'CTO mentioned infrastructure modernization and looking for AI partners',
-      opportunity_score: 0.87,
-      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-      actionable: true
-    },
-    {
-      id: '3',
-      customer: 'GrowthCo',
-      type: 'social_mention',
-      title: 'Positive mention in industry forum',
-      description: 'CEO mentioned challenges with current automation tools in LinkedIn post',
-      opportunity_score: 0.73,
-      timestamp: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(),
-      actionable: true
+  const filteredPosts = socialMediaPosts.filter(post => {
+    if (activeFilter === 'all') return true;
+    return post.platform === activeFilter;
+  });
+
+  // Time range filtering
+  const getTimeRangeFilter = () => {
+    const now = new Date();
+    switch (timeRange) {
+      case '24h': return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      case '7d': return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case '30d': return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      default: return new Date(now.getTime() - 24 * 60 * 60 * 1000);
     }
-  ];
+  };
+
+  const timeFilter = getTimeRangeFilter();
+  const filteredByTime = filteredAlerts.filter(alert => 
+    new Date(alert.timestamp) >= timeFilter
+  );
+
+  // Loading and error states
+  const isLoading = profilesLoading || intelligenceLoading || threatLoading || summaryLoading || dashboardLoading;
+  const hasError = profilesError || intelligenceError || threatError || summaryError || dashboardError;
+
+  if (hasError) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="flex items-center">
+          <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+          <span className="text-red-800">Error loading competitor intelligence data</span>
+        </div>
+      </div>
+    );
+  }
 
   // Helper functions
   const getImpactColor = (impact: string) => {
@@ -387,26 +455,10 @@ const ExternalIntelligenceMonitor: React.FC = () => {
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      {alert.change_percentage && (
-                        <span className="text-xs text-orange-400">
-                          {alert.change_percentage > 0 ? '+' : ''}{alert.change_percentage}%
-                        </span>
-                      )}
                       <span className="text-xs text-gray-400 capitalize">
                         {alert.type.replace('_', ' ')}
                       </span>
                     </div>
-                    {alert.url && (
-                      <a 
-                        href={alert.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-400 hover:text-blue-300 flex items-center space-x-1"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        <span>View</span>
-                      </a>
-                    )}
                   </div>
                 </div>
               ))}
@@ -422,24 +474,23 @@ const ExternalIntelligenceMonitor: React.FC = () => {
                 <TrendingUp className="h-5 w-5" />
                 <span>Market Intelligence</span>
               </h3>
-              <span className="text-xs text-gray-400">{marketIntelligence.length} updates</span>
+              <span className="text-xs text-gray-400">{intelligenceSummary?.total_items || 0} updates</span>
             </div>
             
             <div className="space-y-3">
-              {marketIntelligence.map((intel) => (
-                <div key={intel.id} className="bg-gray-700 rounded-lg p-3">
+              {intelligenceSummary?.top_intelligence.map((intel) => (
+                <div key={intel.title} className="bg-gray-700 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <Newspaper className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm font-medium text-white">{intel.source}</span>
+                      <span className="text-sm font-medium text-white">{intel.title}</span>
                       <span className="text-xs text-gray-400 capitalize">
-                        {intel.type.replace('_', ' ')}
+                        {intel.intelligence_type.replace('_', ' ')}
                       </span>
                     </div>
                     <span className="text-xs text-gray-400">{formatTimeAgo(intel.timestamp)}</span>
                   </div>
                   
-                  <h4 className="text-sm font-medium text-white mb-1">{intel.title}</h4>
                   <p className="text-sm text-gray-300 mb-2">{intel.description}</p>
                   
                   <div className="flex items-center justify-between">
@@ -447,23 +498,7 @@ const ExternalIntelligenceMonitor: React.FC = () => {
                       <span className="text-xs text-blue-400">
                         Impact: {Math.round(intel.impact_score * 100)}%
                       </span>
-                      <div className="flex flex-wrap gap-1">
-                        {intel.tags.map((tag, idx) => (
-                          <span key={idx} className="text-xs bg-gray-600 text-gray-300 px-2 py-1 rounded">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
                     </div>
-                    <a 
-                      href={intel.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-400 hover:text-blue-300 flex items-center space-x-1"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                      <span>Read</span>
-                    </a>
                   </div>
                 </div>
               ))}
@@ -479,41 +514,30 @@ const ExternalIntelligenceMonitor: React.FC = () => {
                 <Building className="h-5 w-5" />
                 <span>Customer Intelligence</span>
               </h3>
-              <span className="text-xs text-gray-400">{customerSignals.length} signals</span>
+              <span className="text-xs text-gray-400">{intelligenceSummary?.total_items || 0} signals</span>
             </div>
             
             <div className="space-y-3">
-              {customerSignals.map((signal) => (
-                <div key={signal.id} className="bg-gray-700 rounded-lg p-3">
+              {intelligenceSummary?.top_intelligence.map((signal) => (
+                <div key={signal.title} className="bg-gray-700 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-white">{signal.customer}</span>
-                      {signal.actionable && (
-                        <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">
-                          Actionable
-                        </span>
-                      )}
+                      <span className="text-sm font-medium text-white">{signal.title}</span>
                     </div>
                     <span className="text-xs text-gray-400">{formatTimeAgo(signal.timestamp)}</span>
                   </div>
                   
-                  <h4 className="text-sm font-medium text-white mb-1">{signal.title}</h4>
                   <p className="text-sm text-gray-300 mb-2">{signal.description}</p>
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-xs text-green-400">
-                        Opportunity: {Math.round(signal.opportunity_score * 100)}%
+                        Opportunity: {Math.round(signal.impact_score * 100)}%
                       </span>
                       <span className="text-xs text-gray-400 capitalize">
-                        {signal.type.replace('_', ' ')}
+                        {signal.intelligence_type.replace('_', ' ')}
                       </span>
                     </div>
-                    {signal.actionable && (
-                      <button className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                        Take Action
-                      </button>
-                    )}
                   </div>
                 </div>
               ))}
@@ -550,7 +574,7 @@ const ExternalIntelligenceMonitor: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Market Updates</p>
-              <p className="text-2xl font-bold text-white">{marketIntelligence.length}</p>
+              <p className="text-2xl font-bold text-white">{intelligenceSummary?.total_items || 0}</p>
             </div>
             <TrendingUp className="h-8 w-8 text-green-400" />
           </div>
@@ -561,7 +585,7 @@ const ExternalIntelligenceMonitor: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Customer Signals</p>
-              <p className="text-2xl font-bold text-white">{customerSignals.length}</p>
+              <p className="text-2xl font-bold text-white">{intelligenceSummary?.total_items || 0}</p>
             </div>
             <Building className="h-8 w-8 text-purple-400" />
           </div>
