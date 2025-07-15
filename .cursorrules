@@ -1113,6 +1113,7 @@ except Exception as e:
 ## Business Domain Knowledge
 
 ### Pay Ready Context
+- **CRITICAL SPELLING RULE: Always spell as "Pay Ready" (with space) - NEVER "PayReady"**
 - Company focus: Business intelligence and automation
 - Key metrics: Revenue growth, customer satisfaction, sales efficiency
 - Team communication: Primarily through Slack
@@ -1941,6 +1942,14 @@ cat docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md
 ```
 
 **Remember**: *Prevention is 100x easier than cleanup!* We just removed 290 items - let's never do that again! 🧹✨
+
+## 🚨 **MANDATORY SPELLING RULE: PAY READY**
+
+### **CRITICAL SPELLING REQUIREMENT**
+- ✅ **ALWAYS spell as "Pay Ready" (with space between words)**
+- ❌ **NEVER spell as "PayReady" (one word)**
+- This applies to ALL documentation, code comments, variable names, file names, and any references
+- Company name is "Pay Ready" - two words with space
 
 ## 🚨 **HONEST GIT OPERATIONS - NO DECEPTION**
 
