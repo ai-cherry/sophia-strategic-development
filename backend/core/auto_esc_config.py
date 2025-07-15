@@ -20,6 +20,57 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "prod")
 PULUMI_ORG = os.getenv("PULUMI_ORG", "scoobyjava-org")
 PULUMI_STACK = f"{PULUMI_ORG}/default/sophia-ai-production"
 
+# ✅ FIXED SECRET MAPPINGS - Use Direct Paths from Pulumi ESC
+# Based on actual Pulumi ESC structure where secrets are stored directly
+SECRET_MAPPINGS = {
+    # AI Services - Direct paths
+    "OPENAI_API_KEY": "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY": "ANTHROPIC_API_KEY", 
+    "PORTKEY_API_KEY": "PORTKEY_API_KEY",
+    "OPENROUTER_API_KEY": "OPENROUTER_API_KEY",
+    
+    # Business Intelligence - DIRECT PATHS (secrets are at root level)
+    "GONG_ACCESS_KEY": "GONG_ACCESS_KEY",
+    "GONG_ACCESS_KEY_SECRET": "gong_access_key_secret",  # ✅ Fixed: lowercase in ESC
+    "GONG_BASE_URL": "gong_base_url",  # ✅ Fixed: lowercase in ESC
+    "GONG_CLIENT_ACCESS_KEY": "gong_api_key",  # ✅ Fixed: maps to gong_api_key
+    "GONG_CLIENT_SECRET": "gong_client_secret",  # ✅ Fixed: maps to gong_client_secret
+    
+    # Infrastructure - Direct paths
+    "PULUMI_ACCESS_TOKEN": "PULUMI_ACCESS_TOKEN",
+    "DOCKER_HUB_ACCESS_TOKEN": "DOCKER_HUB_ACCESS_TOKEN", 
+    "DOCKERHUB_USERNAME": "DOCKERHUB_USERNAME",
+    
+    # Data Services - Direct paths
+    "SNOWFLAKE_ACCOUNT": "SNOWFLAKE_ACCOUNT",
+    "SNOWFLAKE_USERNAME": "SNOWFLAKE_USERNAME",
+    "SNOWFLAKE_PASSWORD": "SNOWFLAKE_PASSWORD",
+    "SNOWFLAKE_DATABASE": "SNOWFLAKE_DATABASE",
+    "SNOWFLAKE_SCHEMA": "SNOWFLAKE_SCHEMA",
+    "SNOWFLAKE_WAREHOUSE": "SNOWFLAKE_WAREHOUSE",
+    
+    # Vector Databases - Direct paths
+    "QDRANT_URL": "QDRANT_URL",
+    "QDRANT_API_KEY": "QDRANT_API_KEY",
+    "PINECONE_API_KEY": "PINECONE_API_KEY",
+    "PINECONE_ENVIRONMENT": "PINECONE_ENVIRONMENT",
+    
+    # Business Tools - Direct paths
+    "SLACK_BOT_TOKEN": "SLACK_BOT_TOKEN",
+    "SLACK_USER_TOKEN": "SLACK_USER_TOKEN", 
+    "LINEAR_API_KEY": "LINEAR_API_KEY",
+    "NOTION_API_TOKEN": "NOTION_API_TOKEN",
+    "ASANA_ACCESS_TOKEN": "ASANA_ACCESS_TOKEN",
+    "GITHUB_TOKEN": "GITHUB_TOKEN",
+    "HUBSPOT_ACCESS_TOKEN": "HUBSPOT_ACCESS_TOKEN",
+    
+    # Lambda Labs - Direct paths
+    "LAMBDA_API_KEY": "LAMBDA_API_KEY",
+    "LAMBDA_SSH_KEY": "LAMBDA_SSH_KEY",
+    "LAMBDA_PRIVATE_SSH_KEY": "LAMBDA_PRIVATE_SSH_KEY",
+    "LAMBDA_API_ENDPOINT": "LAMBDA_API_ENDPOINT"
+}
+
 
 @lru_cache(maxsize=1)
 def get_pulumi_config() -> Dict[str, Any]:
@@ -54,37 +105,31 @@ def get_pulumi_config() -> Dict[str, Any]:
 
 
 def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
-    """Get a configuration value from Pulumi ESC or environment variables"""
-    # Try environment variable first
-    env_value = os.getenv(key.upper())
+    """Get configuration value with proper error handling - NO MORE WARNINGS"""
+    
+    # Check environment variables first (direct access, no recursion)
+    env_value = os.getenv(key)
     if env_value:
         return env_value
-
-    # Try Pulumi ESC with secret decryption
+    
+    # Check SECRET_MAPPINGS for alternative names
+    mapped_key = SECRET_MAPPINGS.get(key, key)
+    if mapped_key != key:
+        env_value = os.getenv(mapped_key)
+        if env_value:
+            return env_value
+    
+    # Load from Pulumi ESC
     try:
-        result = subprocess.run(
-            ["pulumi", "env", "get", PULUMI_STACK, f"values.{key}", "--show-secrets"],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-        
-        if result.returncode == 0:
-            value = result.stdout.strip()
+        esc_data = _load_esc_environment()
+        if esc_data and key in esc_data:
+            value = esc_data[key]
             if value and value != "[secret]" and not value.startswith("PLACEHOLDER"):
                 return value
     except Exception as e:
         logger.debug(f"Failed to get {key} from Pulumi ESC: {e}")
 
-    # Fallback to cached config
-    config = get_pulumi_config()
-    if config and key in config:
-        value = config[key]
-        if value and value != "[secret]" and not value.startswith("PLACEHOLDER"):
-            return value
-
-    # Return default
+    # Return default value (removed get_pulumi_config() to prevent recursion)
     return default
 
 
@@ -369,10 +414,20 @@ def get_docker_hub_config() -> Dict[str, Any]:
 
 
 def get_pulumi_config() -> Dict[str, Any]:
-    """Get Pulumi configuration"""
+    """Get Pulumi configuration - direct access to prevent recursion"""
+    # Direct environment variable access to avoid recursion
+    access_token = os.getenv("PULUMI_ACCESS_TOKEN")
+    if not access_token:
+        # Try direct ESC access without using get_config_value()
+        try:
+            esc_data = _load_esc_environment()
+            access_token = esc_data.get("PULUMI_ACCESS_TOKEN")
+        except Exception:
+            pass
+    
     return {
-        "access_token": get_config_value("PULUMI_ACCESS_TOKEN"),
-        "org": "scoobyjava-org",
+        "access_token": access_token,
+        "org": "scoobyjava-org", 
         "stack": "sophia-ai-production"
     }
 
@@ -381,10 +436,10 @@ def get_gong_config() -> Dict[str, Any]:
     """Get Gong configuration using REAL GitHub Organization Secrets"""
     return {
         "access_key": get_config_value("GONG_ACCESS_KEY"),
-        "access_key_secret": get_config_value("gong_access_key_secret"),
-        "client_access_key": get_config_value("gong_api_key"),
-        "client_secret": get_config_value("gong_client_secret"),
-        "base_url": get_config_value("gong_base_url", "https://api.gong.io")
+        "access_key_secret": get_config_value("GONG_ACCESS_KEY_SECRET"),
+        "client_access_key": get_config_value("GONG_CLIENT_ACCESS_KEY"),
+        "client_secret": get_config_value("GONG_CLIENT_SECRET"),
+        "base_url": get_config_value("GONG_BASE_URL", "https://api.gong.io")
     }
 
 
