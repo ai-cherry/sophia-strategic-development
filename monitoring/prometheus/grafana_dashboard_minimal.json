@@ -1,0 +1,43 @@
+{
+  "dashboard": {
+    "title": "Qdrant Minimal Monitoring",
+    "panels": [
+      {
+        "title": "Service Health",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "qdrant_health_status"
+          }
+        ]
+      },
+      {
+        "title": "Operations Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(qdrant_operations_total[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Query Latency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, qdrant_query_latency_seconds)"
+          }
+        ]
+      },
+      {
+        "title": "Service Uptime",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "qdrant_service_uptime_seconds"
+          }
+        ]
+      }
+    ]
+  }
+}

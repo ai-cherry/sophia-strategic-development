@@ -111,7 +111,7 @@ export default function UnifiedDashboard() {
   }, []);
 
   const handleSearch = useCallback(async () => {
-    // Simulate Weaviate search with snarky response
+    // Simulate Qdrant search with snarky response
     const mockResponse: ChatMessage = {
       id: Date.now().toString(),
       user: 'ceo_user',
@@ -123,7 +123,7 @@ export default function UnifiedDashboard() {
       mode: 'snarky',
       timestamp: new Date().toISOString(),
       trends: [
-        { text: "Tech revenue growth hitting record highs #earnings", relevance: 0.95 }
+        { text: "Tech trends rising" }
       ],
       videos: [
         { title: "Revenue Analysis Masterclass", duration: "12:34", source: "youtube" }
@@ -281,40 +281,47 @@ export default function UnifiedDashboard() {
                     Strategic Project Management
                   </CardTitle>
                   <CardDescription>
-                    Unified view across Notion OKRs, Linear Engineering, and Asana Product Management
+                    Unified view across Asana, Linear, and Notion with AI-powered insights
                   </CardDescription>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant={strategicSubTab === 'overview' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setStrategicSubTab('overview')}
-                  >
-                    Strategic Overview
-                  </Button>
-                  <Button
-                    variant={strategicSubTab === 'kpis' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setStrategicSubTab('kpis')}
-                  >
-                    Departmental KPIs
-                  </Button>
-                  <Button
-                    variant={strategicSubTab === 'intelligence' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setStrategicSubTab('intelligence')}
-                  >
-                    Cross-Platform Intelligence
-                  </Button>
-                </div>
+                <Badge variant="outline">Multi-Platform</Badge>
               </div>
             </CardHeader>
-          </Card>
+            <CardContent>
+              <Tabs value={strategicSubTab} onValueChange={setStrategicSubTab} className="space-y-4">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="overview">Strategic Overview</TabsTrigger>
+                  <TabsTrigger value="departmental">Departmental KPIs</TabsTrigger>
+                  <TabsTrigger value="intelligence">Cross-Platform Intelligence</TabsTrigger>
+                  <TabsTrigger value="analytics">Advanced Analytics</TabsTrigger>
+                </TabsList>
 
-          {/* Strategic Project Management Sub-panels */}
-          {strategicSubTab === 'overview' && <StrategicOverviewPanel />}
-          {strategicSubTab === 'kpis' && <DepartmentalKPIPanel />}
-          {strategicSubTab === 'intelligence' && <CrossPlatformIntelligencePanel />}
+                <TabsContent value="overview">
+                  <StrategicOverviewPanel />
+                </TabsContent>
+
+                <TabsContent value="departmental">
+                  <DepartmentalKPIPanel />
+                </TabsContent>
+
+                <TabsContent value="intelligence">
+                  <CrossPlatformIntelligencePanel />
+                </TabsContent>
+
+                <TabsContent value="analytics">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-center text-gray-500">
+                        <Target className="h-12 w-12 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Advanced Analytics</h3>
+                        <p>Advanced cross-platform analytics will be implemented here.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* User Management Tab */}
@@ -326,9 +333,12 @@ export default function UnifiedDashboard() {
         <TabsContent value="chat" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Chat Interactions</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Chat Analytics
+              </CardTitle>
               <CardDescription>
-                Real-time chat with snarky AI responses
+                Real-time AI chat performance and user interactions
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -423,9 +433,9 @@ export default function UnifiedDashboard() {
         <TabsContent value="search" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Weaviate AI Search</CardTitle>
+              <CardTitle>Qdrant AI Search</CardTitle>
               <CardDescription>
-                Search with snarky AI responses and real-time trends
+                Search with AI responses and real-time trends
               </CardDescription>
             </CardHeader>
             <CardContent>

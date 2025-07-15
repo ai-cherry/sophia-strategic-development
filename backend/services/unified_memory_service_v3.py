@@ -86,7 +86,7 @@ class UnifiedMemoryServiceV3:
         
         try:
             # Get Qdrant configuration
-            QDRANT_URL = get_config_value("QDRANT_URL") or "http://localhost:6333"
+            QDRANT_URL = get_config_value("QDRANT_URL") or "http://a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io:6333"
             QDRANT_api_key = get_config_value("QDRANT_api_key")
             
             # Initialize client

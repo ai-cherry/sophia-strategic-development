@@ -1,0 +1,14 @@
+{
+  "class": "QdrantVectorService",
+  "connection": {
+    "url": "http://localhost:6333",
+    "timeout": 30.0,
+    "max_retries": 3
+  },
+  "features": {
+    "connection_pooling": true,
+    "health_monitoring": true,
+    "metrics_collection": true,
+    "batch_operations": true
+  }
+}

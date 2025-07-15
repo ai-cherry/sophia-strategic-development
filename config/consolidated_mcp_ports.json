@@ -468,5 +468,10 @@
       "unified_ai",
       "unified_data"
     ]
+  },
+  "qdrant": {
+    "url": "https://a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io:6333",
+    "api_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.dolvYDuCiLIegw30HhFR9wXWWO3wn8ArOHr0ORj9U2Y",
+    "cluster_id": "a2a5dc3b-bf37-4907-9398-d49f5c6813ed"
   }
 }

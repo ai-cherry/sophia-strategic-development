@@ -1,0 +1,44 @@
+{
+  "environment": "development",
+  "qdrant": {
+    "url": "http://localhost:6333",
+    "api_key": "",
+    "timeout": 30.0,
+    "prefer_grpc": false
+  },
+  "collections": {
+    "sophia_knowledge": {
+      "size": 3072,
+      "distance": "Cosine"
+    },
+    "sophia_conversations": {
+      "size": 3072,
+      "distance": "Cosine"
+    },
+    "sophia_business_intelligence": {
+      "size": 3072,
+      "distance": "Cosine"
+    },
+    "sophia_competitors": {
+      "size": 3072,
+      "distance": "Cosine"
+    },
+    "sophia_competitor_events": {
+      "size": 3072,
+      "distance": "Cosine"
+    }
+  },
+  "features": {
+    "metrics_enabled": true,
+    "monitoring_enabled": true,
+    "caching_enabled": true,
+    "quantization_enabled": false,
+    "parallel_processing": true
+  },
+  "performance": {
+    "batch_size": 100,
+    "max_connections": 10,
+    "retry_attempts": 3,
+    "timeout_seconds": 30
+  }
+}

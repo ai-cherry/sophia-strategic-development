@@ -1,0 +1,19 @@
+{
+  "name": "sophia_competitors",
+  "description": "Competitor analysis vectors",
+  "vector_size": 3072,
+  "payload_fields": {
+    "company_name": "string",
+    "industry": "string",
+    "timestamp": "datetime",
+    "source": "string"
+  },
+  "required_fields": [
+    "company_name",
+    "industry",
+    "timestamp",
+    "source"
+  ],
+  "created_at": "2025-07-15T12:56:59.834304",
+  "version": "1.0"
+}

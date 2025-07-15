@@ -1,0 +1,20 @@
+{
+  "batch_processing": {
+    "default_batch_size": 100,
+    "max_concurrent_batches": 5,
+    "retry_attempts": 3,
+    "timeout_seconds": 300
+  },
+  "embedding_generation": {
+    "cache_enabled": true,
+    "max_cache_size": 10000,
+    "embedding_dimensions": 3072,
+    "batch_size": 50
+  },
+  "quality_control": {
+    "min_content_length": 10,
+    "max_content_length": 50000,
+    "duplicate_detection": true,
+    "content_validation": true
+  }
+}

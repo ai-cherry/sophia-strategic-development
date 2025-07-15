@@ -1,0 +1,17 @@
+groups:
+- name: qdrant_alerts
+  rules:
+  - alert: QdrantServiceDown
+    annotations:
+      summary: Qdrant service is unhealthy
+    expr: qdrant_health_status == 0
+    for: 5m
+    labels:
+      severity: critical
+  - alert: QdrantHighLatency
+    annotations:
+      summary: Qdrant P95 latency is high
+    expr: histogram_quantile(0.95, qdrant_query_latency_seconds) > 0.5
+    for: 10m
+    labels:
+      severity: warning

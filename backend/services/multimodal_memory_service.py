@@ -118,7 +118,7 @@ class MultimodalMemoryService:
     
     def __init__(self):
         # Service configuration
-        self.QDRANT_URL = get_config_value("QDRANT_URL", "http://localhost:6333")
+        self.QDRANT_URL = get_config_value("QDRANT_URL", "http://a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io:6333")
         self.QDRANT_api_key = get_config_value("QDRANT_api_key", None)
         
         # Clients

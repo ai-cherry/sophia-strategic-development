@@ -91,7 +91,7 @@ class WeaviateEliminator:
             # Replace Weaviate URLs and configurations
             content = re.sub(r'QDRANT_URL', 'QDRANT_URL', content)
             content = re.sub(r'QDRANT_URL', 'QDRANT_URL', content)
-            content = re.sub(r'http://.*QDRANT_client.*:8080', 'http://localhost:6333', content)
+            content = re.sub(r'http://.*QDRANT_client.*:8080', 'http://a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io:6333', content)
             content = re.sub(r'weaviate:8080', 'qdrant:6333', content)
             
             # Replace Weaviate-specific method calls
@@ -191,7 +191,7 @@ class WeaviateEliminator:
             
             # Generic replacements
             content = re.sub(r'weaviate:8080', 'qdrant:6333', content)
-            content = re.sub(r'localhost:8080', 'localhost:6333', content)
+            content = re.sub(r'localhost:8080', 'a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io:6333', content)
             
             if content != original_content:
                 with open(file_path, 'w', encoding='utf-8') as f:

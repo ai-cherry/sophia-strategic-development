@@ -1,0 +1,23 @@
+{
+  "name": "sophia_knowledge",
+  "description": "Knowledge base and documentation vectors",
+  "vector_size": 3072,
+  "payload_fields": {
+    "source": "string",
+    "timestamp": "datetime",
+    "user_id": "string",
+    "agent_id": "string",
+    "session_id": "string",
+    "modality": "string",
+    "context": "string"
+  },
+  "required_fields": [
+    "source",
+    "timestamp",
+    "user_id",
+    "agent_id",
+    "session_id"
+  ],
+  "created_at": "2025-07-15T12:56:59.833191",
+  "version": "1.0"
+}

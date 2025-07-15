@@ -1,0 +1,20 @@
+{
+  "name": "sophia_competitor_events",
+  "description": "Competitor events vectors",
+  "vector_size": 3072,
+  "payload_fields": {
+    "event_type": "string",
+    "company_name": "string",
+    "timestamp": "datetime",
+    "source": "string",
+    "impact_level": "string"
+  },
+  "required_fields": [
+    "event_type",
+    "company_name",
+    "timestamp",
+    "source"
+  ],
+  "created_at": "2025-07-15T12:56:59.834565",
+  "version": "1.0"
+}

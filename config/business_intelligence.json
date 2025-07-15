@@ -66,5 +66,10 @@
         "roi_analysis": true
       }
     }
+  },
+  "vector_database": {
+    "provider": "qdrant",
+    "url": "https://a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io:6333",
+    "cluster_id": "a2a5dc3b-bf37-4907-9398-d49f5c6813ed"
   }
 }

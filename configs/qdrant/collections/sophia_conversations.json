@@ -1,0 +1,22 @@
+{
+  "name": "sophia_conversations",
+  "description": "Conversation history vectors",
+  "vector_size": 3072,
+  "payload_fields": {
+    "conversation_id": "string",
+    "user_id": "string",
+    "agent_id": "string",
+    "timestamp": "datetime",
+    "role": "string",
+    "content": "string"
+  },
+  "required_fields": [
+    "conversation_id",
+    "user_id",
+    "agent_id",
+    "timestamp",
+    "role"
+  ],
+  "created_at": "2025-07-15T12:56:59.833653",
+  "version": "1.0"
+}

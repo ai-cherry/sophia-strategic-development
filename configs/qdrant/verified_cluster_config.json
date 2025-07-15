@@ -1,0 +1,22 @@
+{
+  "cluster_info": {
+    "cluster_name": "payready-sophia",
+    "cluster_id": "a2a5dc3b-bf37-4907-9398-d49f5c6813ed",
+    "endpoint": "https://a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io",
+    "api_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.dolvYDuCiLIegw30HhFR9wXWWO3wn8ArOHr0ORj9U2Y",
+    "rest_url": "https://a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io:6333",
+    "grpc_url": "https://a2a5dc3b-bf37-4907-9398-d49f5c6813ed.us-west-2-0.aws.cloud.qdrant.io:6334"
+  },
+  "verification": {
+    "timestamp": "2025-07-15T13:38:36.904725",
+    "rest_verified": true,
+    "grpc_verified": true,
+    "operations_verified": true,
+    "auth_verified": true
+  },
+  "performance": {
+    "rest_latency_ms": 534.1,
+    "grpc_latency_ms": 487.5,
+    "search_latency_ms": 77.1
+  }
+}

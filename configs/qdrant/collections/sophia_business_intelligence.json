@@ -1,0 +1,20 @@
+{
+  "name": "sophia_business_intelligence",
+  "description": "Business metrics vectors",
+  "vector_size": 3072,
+  "payload_fields": {
+    "metric_type": "string",
+    "source_system": "string",
+    "timestamp": "datetime",
+    "department": "string",
+    "value": "float"
+  },
+  "required_fields": [
+    "metric_type",
+    "source_system",
+    "timestamp",
+    "department"
+  ],
+  "created_at": "2025-07-15T12:56:59.833997",
+  "version": "1.0"
+}

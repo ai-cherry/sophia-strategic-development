@@ -1,0 +1,61 @@
+{
+  "timestamp": "2025-07-15T13:13:05.683849",
+  "issues_resolved": {
+    "url_configuration": {
+      "provided_api_key": "2d196a4d-a80f-4846-be65-67563bced21f|8aakHwQeR3g5dWbeN4OGCs3FpaxyvkanTDMfbD4eIS_NsLS7nMlS4Q",
+      "cluster_id": "2d196a4d-a80f-4846-be65-67563bced21f",
+      "actual_api_key": "8aakHwQeR3g5dWbeN4OGCs3FpaxyvkanTDMfbD4eIS_NsLS7nMlS4Q",
+      "url_candidates": [
+        "https://2d196a4d-a80f-4846-be65-67563bced21f.us-east4-0.gcp.cloud.qdrant.io",
+        "https://2d196a4d-a80f-4846-be65-67563bced21f.europe-west3-0.gcp.cloud.qdrant.io",
+        "https://2d196a4d-a80f-4846-be65-67563bced21f.asia-northeast1-0.gcp.cloud.qdrant.io",
+        "https://2d196a4d-a80f-4846-be65-67563bced21f.us-central1-0.gcp.cloud.qdrant.io",
+        "https://2d196a4d-a80f-4846-be65-67563bced21f.cloud.qdrant.io",
+        "https://2d196a4d-a80f-4846-be65-67563bced21f.qdrant.tech"
+      ],
+      "working_url": null,
+      "connection_test": {}
+    }
+  },
+  "api_verification": {
+    "api_key_format": "cluster_id|api_key",
+    "cluster_id": "2d196a4d-a80f-4846-be65-67563bced21f",
+    "api_key_length": 54,
+    "authentication_test": {},
+    "permissions_test": {},
+    "status": "failed",
+    "error": "No working URL found - cannot test authentication"
+  },
+  "collections_status": {
+    "target_collections": [
+      "sophia_knowledge",
+      "sophia_conversations",
+      "sophia_business_intelligence",
+      "sophia_competitors",
+      "sophia_competitor_events"
+    ],
+    "existing_collections": [],
+    "collections_created": [],
+    "creation_results": {},
+    "status": "failed",
+    "error": "No working URL - cannot restore collections"
+  },
+  "wrapper_fixes": {
+    "file_path": "backend/services/qdrant_wrapper.py",
+    "missing_classes": [
+      "UpsertConfig"
+    ],
+    "fixes_applied": [
+      "Added UpsertConfig class"
+    ],
+    "validation_status": "fixed"
+  },
+  "configuration_updates": {
+    "files_updated": [],
+    "environment_variables": {},
+    "pulumi_esc_updates": {},
+    "wrapper_config_updates": {}
+  },
+  "errors": [],
+  "next_steps": []
+}
