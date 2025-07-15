@@ -60,10 +60,29 @@ def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
     if env_value:
         return env_value
 
-    # Try Pulumi ESC
+    # Try Pulumi ESC with secret decryption
+    try:
+        result = subprocess.run(
+            ["pulumi", "env", "get", PULUMI_STACK, f"values.{key}", "--show-secrets"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        
+        if result.returncode == 0:
+            value = result.stdout.strip()
+            if value and value != "[secret]" and not value.startswith("PLACEHOLDER"):
+                return value
+    except Exception as e:
+        logger.debug(f"Failed to get {key} from Pulumi ESC: {e}")
+
+    # Fallback to cached config
     config = get_pulumi_config()
     if config and key in config:
-        return config[key]
+        value = config[key]
+        if value and value != "[secret]" and not value.startswith("PLACEHOLDER"):
+            return value
 
     # Return default
     return default
@@ -327,6 +346,7 @@ Si02dEz1jsNZT5IObnR+EZU3x3tUPVwobDfLiVIhf5iOHg48b/w=
     return {
         "api_key": api_key,
         "api_endpoint": "https://cloud.lambda.ai/api/v1/instances",
+        "ssh_private_key_path": "~/.ssh/sophia_correct_key",  # ✅ UNIFIED SSH KEY
         "ssh_private_key": ssh_private_key,
         "ssh_public_key": ssh_public_key,
         "ip_address": get_config_value("lambda_ip_address") or get_config_value("LAMBDA_IP_ADDRESS") or "192.222.58.232",
