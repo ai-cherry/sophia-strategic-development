@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.sophia_unified_memory_service import get_memory_service, UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from backend.services.portkey_gateway import PortkeyGateway
 from backend.utils.logger import get_logger
 
@@ -61,7 +61,7 @@ class SophiaAIUnifiedOrchestrator:
     """
     
     def __init__(self):
-        self.memory_service = UnifiedMemoryService()
+        self.memory_service = SophiaUnifiedMemoryService()
         self.portkey = PortkeyGateway()
         
         # Routing configuration
