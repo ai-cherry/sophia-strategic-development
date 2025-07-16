@@ -306,8 +306,8 @@ except Exception as e:
 
 # Import and include project management routes
 try:
+    from backend.core.auto_esc_config import get_config_value
     from backend.api.project_management_routes import router as project_router
-from backend.core.auto_esc_config import get_config_value
     app.include_router(project_router, prefix="/api/v4/mcp", tags=["project_management"])
     logger.info("✅ Project Management API routes loaded")
 except Exception as e:
