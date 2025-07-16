@@ -1,0 +1,51 @@
+[Unit]
+Description=Sophia AI Backend Service
+Documentation=https://github.com/ai-cherry/sophia-main
+After=network.target network-online.target
+Wants=network-online.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/sophia-main
+
+# Main execution command
+ExecStart=/usr/bin/python3 -m uvicorn backend.app.simple_fastapi:app --host 0.0.0.0 --port 7000 --workers 1
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Restart configuration
+Restart=always
+RestartSec=10s
+KillMode=mixed
+TimeoutStartSec=30s
+TimeoutStopSec=30s
+
+# Environment variables
+Environment=ENVIRONMENT=prod
+Environment=PULUMI_ORG=scoobyjava-org
+Environment=PORT=7000
+Environment=HOST=0.0.0.0
+Environment=PYTHONPATH=/home/ubuntu/sophia-main
+Environment=PYTHONUNBUFFERED=1
+
+# Logging configuration
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=sophia-backend
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/ubuntu/sophia-main/logs
+ReadWritePaths=/tmp
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target 

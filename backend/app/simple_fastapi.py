@@ -28,6 +28,7 @@ from backend.api.routes.user_management import router as user_management_router
 from backend.api.unified_chat_routes import router as chat_router
 from backend.api.orchestrator_v4_routes import router as orchestrator_router
 from backend.api.project_management_routes import router as project_router
+from backend.api.mcp_proxy_routes import router as mcp_proxy_router
 
 # Import services for health checks
 try:
@@ -123,6 +124,7 @@ app.include_router(user_management_router, prefix="/api/v1", tags=["User Managem
 app.include_router(chat_router, tags=["Chat"])
 app.include_router(orchestrator_router, tags=["Orchestrator"])
 app.include_router(project_router, prefix="/api/v1/projects", tags=["Projects"])
+app.include_router(mcp_proxy_router, tags=["MCP Proxy"])
 
 # Basic routes
 @app.get("/", response_class=HTMLResponse)
@@ -293,10 +295,11 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 # Development server
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 7000))  # Changed from 8000 to 7000 to avoid MCP conflicts
     host = os.getenv("HOST", "0.0.0.0")
     
     logger.info(f"🚀 Starting Sophia AI Platform on {host}:{port}")
+    logger.info("📡 Backend on port 7000 - MCP services on 8000-8499")
     
     uvicorn.run(
         "backend.app.simple_fastapi:app",

@@ -17,7 +17,7 @@
  * 🏗️ ARCHITECTURE: Executive-grade React + TypeScript + Real-time WebSocket
  * 🎨 UI/UX: Professional glassmorphism design with comprehensive features
  * 📊 FEATURES: 8 intelligence tabs + proactive alerts + health monitoring
- * 🔐 INTEGRATION: Unified backend on port 8000
+ * 🔐 INTEGRATION: Unified backend on port 7000 (MCP services on 8000-8499)
  * 
  * Business Context:
  * - Executive dashboard for Pay Ready CEO (80 employees, $50M revenue)
@@ -199,7 +199,7 @@ interface IceBreakerPrompt {
 }
 
 // Constants
-const BACKEND_URL = 'http://localhost:8000';
+const BACKEND_URL = 'http://localhost:7000';  // Updated from 8000 to 7000 to avoid MCP conflicts
 
 const INTELLIGENCE_TABS = {
   'chat': { icon: MessageSquare, label: 'Executive Chat', color: 'blue' },
@@ -341,7 +341,7 @@ const SophiaExecutiveDashboard: React.FC = () => {
         const errorMessage: ChatMessage = {
           id: 'error',
           role: 'system',
-          content: '❌ **Dashboard Initialization Error**\n\nFailed to connect to backend systems. Please check:\n\n• Backend server status (port 8000)\n• Network connectivity\n• System health\n\nTrying to reconnect...',
+          content: '❌ **Dashboard Initialization Error**\n\nFailed to connect to backend systems. Please check:\n\n• Backend server status (port 7000)\n• Network connectivity\n• System health\n\nTrying to reconnect...',
           timestamp: new Date().toISOString()
         };
         setMessages([errorMessage]);
@@ -354,7 +354,7 @@ const SophiaExecutiveDashboard: React.FC = () => {
   // Initialize WebSocket
   const initializeWebSocket = useCallback(() => {
     try {
-      const ws = new WebSocket('ws://localhost:8000/ws');
+              const ws = new WebSocket('ws://localhost:7000/ws');  // Updated from 8000 to 7000
       
       ws.onopen = () => {
         console.log('WebSocket connected');
