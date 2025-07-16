@@ -1,0 +1,168 @@
+name: 🚀 Hybrid K3s Deployment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: 'Deployment Type'
+        required: true
+        default: 'validation'
+        type: choice
+        options:
+        - validation
+        - k3s-cluster
+        - direct-services
+        - full-hybrid
+
+env:
+  ENVIRONMENT: prod
+  PULUMI_ORG: scoobyjava-org
+
+jobs:
+  infrastructure-validation:
+    name: 🔍 Infrastructure Validation
+    runs-on: ubuntu-latest
+    outputs:
+      readiness-score: ${{ steps.validate.outputs.score }}
+      instances-connected: ${{ steps.validate.outputs.connected }}
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: 📦 Install Dependencies
+      run: |
+        pip install requests subprocess-run asyncio
+        
+    - name: 🔍 Validate Infrastructure
+      id: validate
+      run: |
+        python scripts/fix_infrastructure_misalignments.py
+        echo "score=$(jq '.readiness_score' INFRASTRUCTURE_VALIDATION_REPORT.json)" >> $GITHUB_OUTPUT
+        echo "connected=$(jq '.summary.instances_connected' INFRASTRUCTURE_VALIDATION_REPORT.json)" >> $GITHUB_OUTPUT
+        
+    - name: 📊 Upload Validation Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: infrastructure-validation-report
+        path: INFRASTRUCTURE_VALIDATION_REPORT.json
+
+  k3s-cluster-deployment:
+    name: 🏗️ K3s Cluster Deployment
+    runs-on: ubuntu-latest
+    needs: infrastructure-validation
+    if: ${{ needs.infrastructure-validation.outputs.instances-connected == '5' }}
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup SSH Agent
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.LAMBDA_LABS_SSH_PRIVATE_KEY }}
+        
+    - name: 🚀 Deploy K3s Master
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.LAMBDA_MASTER_IP }} '
+          curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+          sudo cat /var/lib/rancher/k3s/server/node-token
+        ' > k3s-token.txt
+        
+    - name: 🔗 Join Worker Nodes
+      run: |
+        TOKEN=$(cat k3s-token.txt)
+        for IP in ${{ secrets.LAMBDA_PRODUCTION_IP }} ${{ secrets.LAMBDA_MCP_HUB_IP }} ${{ secrets.LAMBDA_DATA_PIPELINE_IP }} ${{ secrets.LAMBDA_DEVELOPMENT_IP }}; do
+          ssh -o StrictHostKeyChecking=no ubuntu@$IP "
+            curl -sfL https://get.k3s.io | K3S_URL=https://${{ secrets.LAMBDA_MASTER_IP }}:6443 K3S_TOKEN=$TOKEN sh -
+          " &
+        done
+        wait
+        
+    - name: ✅ Verify Cluster
+      run: |
+        ssh ubuntu@${{ secrets.LAMBDA_MASTER_IP }} 'kubectl get nodes'
+
+  direct-services-deployment:
+    name: 🎯 Direct Services Deployment  
+    runs-on: ubuntu-latest
+    needs: [infrastructure-validation, k3s-cluster-deployment]
+    if: ${{ always() && needs.infrastructure-validation.result == 'success' }}
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup SSH Agent
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.LAMBDA_LABS_SSH_PRIVATE_KEY }}
+        
+    - name: 🚀 Deploy AI Memory MCP (Direct)
+      run: |
+        ssh ubuntu@${{ secrets.LAMBDA_MCP_HUB_IP }} '
+          cd /opt/sophia-ai
+          python -m mcp_servers.ai_memory.server --port 9001 > ai_memory.log 2>&1 &
+          echo $! > ai_memory.pid
+        '
+        
+    - name: 🚀 Deploy Vector Search MCP (Direct)
+      run: |
+        ssh ubuntu@${{ secrets.LAMBDA_DATA_PIPELINE_IP }} '
+          cd /opt/sophia-ai  
+          python -m mcp_servers.vector_search.server --port 9002 > vector_search.log 2>&1 &
+          echo $! > vector_search.pid
+        '
+
+  containerized-services:
+    name: 🐳 Containerized MCP Services
+    runs-on: ubuntu-latest
+    needs: [k3s-cluster-deployment]
+    if: ${{ needs.k3s-cluster-deployment.result == 'success' }}
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup SSH Agent  
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.LAMBDA_LABS_SSH_PRIVATE_KEY }}
+        
+    - name: 🐳 Deploy Containerized MCP Servers
+      run: |
+        ssh ubuntu@${{ secrets.LAMBDA_MASTER_IP }} '
+          kubectl apply -f kubernetes/production/
+          kubectl get pods -n sophia-ai
+        '
+
+  deployment-validation:
+    name: ✅ Deployment Validation
+    runs-on: ubuntu-latest
+    needs: [k3s-cluster-deployment, direct-services-deployment, containerized-services]
+    if: ${{ always() }}
+    
+    steps:
+    - name: 🔍 Validate Deployment
+      run: |
+        ssh ubuntu@${{ secrets.LAMBDA_MASTER_IP }} '
+          echo "=== K3s Cluster Status ==="
+          kubectl get nodes
+          kubectl get pods -A
+          
+          echo "=== Direct Services Status ==="
+          ssh ubuntu@${{ secrets.LAMBDA_MCP_HUB_IP }} "ps aux | grep mcp"
+          
+          echo "=== Service Health ==="
+          curl -f http://${{ secrets.LAMBDA_MASTER_IP }}:30090/metrics || echo "Monitoring unavailable"
+        '
+
