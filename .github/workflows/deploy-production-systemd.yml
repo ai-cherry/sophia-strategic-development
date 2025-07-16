@@ -1,0 +1,385 @@
+name: Deploy Sophia AI - Production systemd
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      target_instances:
+        description: 'Target instances (comma-separated or "all")'
+        required: false
+        default: 'all'
+        type: string
+      dry_run:
+        description: 'Perform dry run only'
+        required: false
+        default: false
+        type: boolean
+      validate_only:
+        description: 'Only validate deployment'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Production infrastructure IPs (from config/production_infrastructure.py)
+  AI_CORE_IP: "192.222.58.232"
+  BUSINESS_TOOLS_IP: "104.171.202.117"
+  DATA_PIPELINE_IP: "104.171.202.134"
+  PRODUCTION_SERVICES_IP: "104.171.202.103"
+  DEVELOPMENT_IP: "155.248.194.183"
+
+jobs:
+  validate-infrastructure:
+    name: Validate Production Infrastructure
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      instances-healthy: ${{ steps.health-check.outputs.healthy }}
+      deployment-ready: ${{ steps.validation.outputs.ready }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install asyncssh aiohttp
+        
+    - name: Setup SSH key for Lambda Labs
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/lambda_labs_key
+        chmod 600 ~/.ssh/lambda_labs_key
+        
+        # Add all instance IPs to known hosts
+        ssh-keyscan -H ${{ env.AI_CORE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.BUSINESS_TOOLS_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.DATA_PIPELINE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.PRODUCTION_SERVICES_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.DEVELOPMENT_IP }} >> ~/.ssh/known_hosts
+    
+    - name: Validate production infrastructure configuration
+      id: validation
+      run: |
+        # Validate configuration matches actual infrastructure
+        python -c "
+        from config.production_infrastructure import PRODUCTION_INFRASTRUCTURE, validate_port_ranges
+        
+        print('🔍 Validating production infrastructure configuration...')
+        
+        # Check that configured IPs match environment variables
+        expected_ips = {
+            'ai_core': '${{ env.AI_CORE_IP }}',
+            'business_tools': '${{ env.BUSINESS_TOOLS_IP }}',
+            'data_pipeline': '${{ env.DATA_PIPELINE_IP }}',
+            'production_services': '${{ env.PRODUCTION_SERVICES_IP }}',
+            'development': '${{ env.DEVELOPMENT_IP }}'
+        }
+        
+        all_valid = True
+        for instance_name, expected_ip in expected_ips.items():
+            actual_ip = PRODUCTION_INFRASTRUCTURE.instances[instance_name].ip
+            if actual_ip != expected_ip:
+                print(f'❌ IP mismatch for {instance_name}: config={actual_ip}, env={expected_ip}')
+                all_valid = False
+            else:
+                print(f'✅ {instance_name}: {actual_ip}')
+        
+        # Validate port ranges
+        if validate_port_ranges():
+            print('✅ Port ranges valid')
+        else:
+            print('❌ Port range validation failed')
+            all_valid = False
+        
+        if all_valid:
+            print('✅ Infrastructure configuration validation passed')
+            print('::set-output name=ready::true')
+        else:
+            print('❌ Infrastructure configuration validation failed')
+            print('::set-output name=ready::false')
+            exit(1)
+        "
+    
+    - name: Test SSH connectivity to all instances
+      id: health-check
+      run: |
+        echo "🔍 Testing SSH connectivity to all production instances..."
+        
+        instances=(
+          "${{ env.AI_CORE_IP }}:ai_core"
+          "${{ env.BUSINESS_TOOLS_IP }}:business_tools"
+          "${{ env.DATA_PIPELINE_IP }}:data_pipeline"
+          "${{ env.PRODUCTION_SERVICES_IP }}:production_services"
+          "${{ env.DEVELOPMENT_IP }}:development"
+        )
+        
+        healthy_instances=0
+        total_instances=${#instances[@]}
+        
+        for instance in "${instances[@]}"; do
+          ip=$(echo $instance | cut -d':' -f1)
+          name=$(echo $instance | cut -d':' -f2)
+          
+          echo "Testing connectivity to $name ($ip)..."
+          
+          if ssh -i ~/.ssh/lambda_labs_key -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@$ip "echo 'Connected to $name'" > /dev/null 2>&1; then
+            echo "✅ $name: SSH connection successful"
+            healthy_instances=$((healthy_instances + 1))
+          else
+            echo "❌ $name: SSH connection failed"
+          fi
+        done
+        
+        echo "📊 SSH Health: $healthy_instances/$total_instances instances accessible"
+        
+        if [ $healthy_instances -eq $total_instances ]; then
+          echo "✅ All instances healthy and accessible"
+          echo "::set-output name=healthy::true"
+        else
+          echo "⚠️ Some instances not accessible"
+          echo "::set-output name=healthy::false"
+        fi
+
+  deploy-production:
+    name: Deploy to Production Infrastructure
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: validate-infrastructure
+    if: needs.validate-infrastructure.outputs.deployment-ready == 'true'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install deployment dependencies
+      run: |
+        pip install asyncssh aiohttp
+        
+    - name: Setup SSH key for deployment
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/lambda_labs_key
+        chmod 600 ~/.ssh/lambda_labs_key
+        
+        # Configure SSH client
+        cat >> ~/.ssh/config << 'EOF'
+        Host sophia-*
+          User ubuntu
+          IdentityFile ~/.ssh/lambda_labs_key
+          StrictHostKeyChecking no
+          UserKnownHostsFile /dev/null
+          LogLevel ERROR
+        
+        Host sophia-ai-core
+          HostName ${{ env.AI_CORE_IP }}
+        
+        Host sophia-business-tools
+          HostName ${{ env.BUSINESS_TOOLS_IP }}
+        
+        Host sophia-data-pipeline
+          HostName ${{ env.DATA_PIPELINE_IP }}
+        
+        Host sophia-production-services
+          HostName ${{ env.PRODUCTION_SERVICES_IP }}
+        
+        Host sophia-development
+          HostName ${{ env.DEVELOPMENT_IP }}
+        EOF
+    
+    - name: Validate deployment script
+      run: |
+        echo "🔍 Validating deployment script..."
+        python scripts/deploy_distributed_systemd.py --dry-run
+    
+    - name: Deploy to production infrastructure
+      run: |
+        echo "🚀 Starting deployment to production infrastructure..."
+        
+        # Determine deployment scope
+        if [ "${{ github.event.inputs.validate_only }}" = "true" ]; then
+          echo "🔍 Running validation-only deployment..."
+          python scripts/deploy_distributed_systemd.py --validate-only
+        elif [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+          echo "🧪 Running dry-run deployment..."
+          python scripts/deploy_distributed_systemd.py --dry-run
+        elif [ "${{ github.event.inputs.target_instances }}" != "" ] && [ "${{ github.event.inputs.target_instances }}" != "all" ]; then
+          echo "🎯 Deploying to specific instances: ${{ github.event.inputs.target_instances }}"
+          IFS=',' read -ra INSTANCES <<< "${{ github.event.inputs.target_instances }}"
+          for instance in "${INSTANCES[@]}"; do
+            echo "Deploying to instance: $instance"
+            python scripts/deploy_distributed_systemd.py --instance "$instance"
+          done
+        else
+          echo "🌐 Deploying to all production instances..."
+          python scripts/deploy_distributed_systemd.py
+        fi
+    
+    - name: Upload deployment logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: deployment-logs-${{ github.run_number }}
+        path: |
+          deployment_*.log
+          deployment_report_*.json
+        retention-days: 30
+
+  validate-deployment:
+    name: Validate Production Deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: deploy-production
+    if: always() && needs.deploy-production.result != 'skipped'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install validation dependencies
+      run: |
+        pip install aiohttp asyncssh
+        
+    - name: Validate all service endpoints
+      run: |
+        echo "🔍 Validating all production service endpoints..."
+        
+        # Use production configuration to get all endpoints
+        python -c "
+        import asyncio
+        import aiohttp
+        import sys
+        from config.production_infrastructure import get_all_service_endpoints
+        
+        async def validate_endpoints():
+            endpoints = get_all_service_endpoints()
+            successful_checks = 0
+            failed_checks = []
+            
+            async with aiohttp.ClientSession() as session:
+                for service_name, endpoint in endpoints.items():
+                    try:
+                        health_url = f'{endpoint}/health'
+                        async with session.get(health_url, timeout=10) as response:
+                            if response.status == 200:
+                                print(f'✅ {service_name}: {endpoint} - Healthy')
+                                successful_checks += 1
+                            else:
+                                print(f'❌ {service_name}: {endpoint} - Status {response.status}')
+                                failed_checks.append(f'{service_name}:{response.status}')
+                    except Exception as e:
+                        print(f'❌ {service_name}: {endpoint} - Error: {e}')
+                        failed_checks.append(f'{service_name}:error')
+            
+            total_checks = len(endpoints)
+            success_rate = (successful_checks / total_checks) * 100
+            
+            print(f'📊 Health Check Summary: {successful_checks}/{total_checks} ({success_rate:.1f}%)')
+            
+            if success_rate >= 80:
+                print('✅ Deployment validation passed (≥80% success rate)')
+                return True
+            else:
+                print(f'❌ Deployment validation failed (<80% success rate)')
+                print(f'Failed services: {failed_checks}')
+                return False
+        
+        success = asyncio.run(validate_endpoints())
+        if not success:
+            sys.exit(1)
+        "
+    
+    - name: Test nginx load balancer
+      run: |
+        echo "🌐 Testing nginx load balancer on primary instance..."
+        
+        # Test nginx health endpoint
+        if curl -s -f http://${{ env.AI_CORE_IP }}/health > /dev/null; then
+          echo "✅ nginx load balancer is responding"
+        else
+          echo "❌ nginx load balancer not responding"
+          exit 1
+        fi
+        
+        # Test API routing
+        if curl -s -f http://${{ env.AI_CORE_IP }}/api/ai/ > /dev/null 2>&1 || 
+           curl -s -f http://${{ env.AI_CORE_IP }}/api/business/ > /dev/null 2>&1 ||
+           curl -s -f http://${{ env.AI_CORE_IP }}/api/data/ > /dev/null 2>&1; then
+          echo "✅ API routing is functional"
+        else
+          echo "⚠️ API routing may need configuration - this is expected for new deployments"
+        fi
+
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [validate-infrastructure, deploy-production, validate-deployment]
+    if: always()
+    
+    steps:
+    - name: Determine deployment status
+      id: status
+      run: |
+        if [ "${{ needs.validate-infrastructure.result }}" = "failure" ]; then
+          echo "::set-output name=status::failed"
+          echo "::set-output name=reason::Infrastructure validation failed"
+        elif [ "${{ needs.deploy-production.result }}" = "failure" ]; then
+          echo "::set-output name=status::failed"
+          echo "::set-output name=reason::Deployment failed"
+        elif [ "${{ needs.validate-deployment.result }}" = "failure" ]; then
+          echo "::set-output name=status::failed"
+          echo "::set-output name=reason::Post-deployment validation failed"
+        elif [ "${{ needs.deploy-production.result }}" = "success" ]; then
+          echo "::set-output name=status::success"
+          echo "::set-output name=reason::Deployment completed successfully"
+        else
+          echo "::set-output name=status::skipped"
+          echo "::set-output name=reason::Deployment was skipped"
+        fi
+    
+    - name: Create deployment summary
+      run: |
+        echo "# 🚀 Sophia AI Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ${{ steps.status.outputs.status == 'success' && '✅ SUCCESS' || steps.status.outputs.status == 'failed' && '❌ FAILED' || '⏭️ SKIPPED' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Reason:** ${{ steps.status.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Infrastructure Overview" >> $GITHUB_STEP_SUMMARY
+        echo "- **AI Core:** ${{ env.AI_CORE_IP }} (Primary/nginx)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Business Tools:** ${{ env.BUSINESS_TOOLS_IP }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Data Pipeline:** ${{ env.DATA_PIPELINE_IP }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Production Services:** ${{ env.PRODUCTION_SERVICES_IP }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Development:** ${{ env.DEVELOPMENT_IP }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Deployment Method" >> $GITHUB_STEP_SUMMARY
+        echo "- **Type:** Distributed systemd services" >> $GITHUB_STEP_SUMMARY
+        echo "- **Script:** \`scripts/deploy_distributed_systemd.py\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Configuration:** \`config/production_infrastructure.py\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Health Check Endpoints" >> $GITHUB_STEP_SUMMARY
+        echo "- **Central Monitor:** http://${{ env.AI_CORE_IP }}:9100" >> $GITHUB_STEP_SUMMARY
+        echo "- **nginx Load Balancer:** http://${{ env.AI_CORE_IP }}/health" >> $GITHUB_STEP_SUMMARY
+        echo "- **All Service Endpoints:** See deployment logs for details" >> $GITHUB_STEP_SUMMARY 

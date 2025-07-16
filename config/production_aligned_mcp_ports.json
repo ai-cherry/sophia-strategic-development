@@ -1,0 +1,286 @@
+{
+  "production_infrastructure": {
+    "configuration_type": "distributed_systemd",
+    "deployment_date": "2025-07-16",
+    "instances": {
+      "ai_core": {
+        "ip": "192.222.58.232",
+        "gpu": "GH200 96GB",
+        "role": "Primary/Master - AI Core Services",
+        "nginx_primary": true,
+        "services": {
+          "vector_search_mcp": 8000,
+          "real_time_chat_mcp": 8001,
+          "ai_memory_mcp": 8002,
+          "unified_memory_service": 9000,
+          "health_monitor": 9100
+        }
+      },
+      "business_tools": {
+        "ip": "104.171.202.117",
+        "gpu": "A6000 48GB",
+        "role": "Business Intelligence Hub",
+        "services": {
+          "gong_mcp": 8100,
+          "hubspot_mcp": 8101,
+          "linear_mcp": 8102,
+          "asana_mcp": 8103,
+          "slack_mcp": 8104
+        }
+      },
+      "data_pipeline": {
+        "ip": "104.171.202.134",
+        "gpu": "A100 80GB",
+        "role": "Data Processing Pipeline",
+        "services": {
+          "github_mcp": 8200,
+          "notion_mcp": 8201,
+          "postgres_mcp": 8202,
+          "snowflake_mcp": 8203
+        }
+      },
+      "production_services": {
+        "ip": "104.171.202.103",
+        "gpu": "RTX6000 48GB",
+        "role": "Production Services",
+        "services": {
+          "codacy_mcp": 8300,
+          "portkey_admin": 8301,
+          "ui_ux_agent": 8302
+        }
+      },
+      "development": {
+        "ip": "155.248.194.183",
+        "gpu": "A10 24GB",
+        "role": "Development & Testing",
+        "services": {
+          "test_mcp": 8400,
+          "backup_services": 8401
+        }
+      }
+    }
+  },
+  "port_allocation_strategy": {
+    "port_ranges": {
+      "ai_core": [8000, 8099],
+      "business_tools": [8100, 8199],
+      "data_pipeline": [8200, 8299],
+      "production_services": [8300, 8399],
+      "development": [8400, 8499],
+      "strategic_services": [9000, 9099],
+      "health_monitoring": [9100, 9199]
+    },
+    "service_types": {
+      "mcp_servers": "8000-8499",
+      "strategic_services": "9000-9099",
+      "health_monitoring": "9100-9199",
+      "nginx": "80, 443"
+    }
+  },
+  "service_registry": {
+    "ai_core_services": [
+      {
+        "name": "vector_search_mcp",
+        "port": 8000,
+        "endpoint": "http://192.222.58.232:8000",
+        "health_check": "http://192.222.58.232:8000/health",
+        "systemd_service": "sophia-vector_search_mcp"
+      },
+      {
+        "name": "real_time_chat_mcp",
+        "port": 8001,
+        "endpoint": "http://192.222.58.232:8001",
+        "health_check": "http://192.222.58.232:8001/health",
+        "systemd_service": "sophia-real_time_chat_mcp"
+      },
+      {
+        "name": "ai_memory_mcp",
+        "port": 8002,
+        "endpoint": "http://192.222.58.232:8002",
+        "health_check": "http://192.222.58.232:8002/health",
+        "systemd_service": "sophia-ai_memory_mcp"
+      },
+      {
+        "name": "unified_memory_service",
+        "port": 9000,
+        "endpoint": "http://192.222.58.232:9000",
+        "health_check": "http://192.222.58.232:9100/health",
+        "systemd_service": "sophia-unified_memory_service",
+        "strategic": true
+      }
+    ],
+    "business_tools_services": [
+      {
+        "name": "gong_mcp",
+        "port": 8100,
+        "endpoint": "http://104.171.202.117:8100",
+        "health_check": "http://104.171.202.117:8100/health",
+        "systemd_service": "sophia-gong_mcp"
+      },
+      {
+        "name": "hubspot_mcp",
+        "port": 8101,
+        "endpoint": "http://104.171.202.117:8101",
+        "health_check": "http://104.171.202.117:8101/health",
+        "systemd_service": "sophia-hubspot_mcp"
+      },
+      {
+        "name": "linear_mcp",
+        "port": 8102,
+        "endpoint": "http://104.171.202.117:8102",
+        "health_check": "http://104.171.202.117:8102/health",
+        "systemd_service": "sophia-linear_mcp"
+      },
+      {
+        "name": "asana_mcp",
+        "port": 8103,
+        "endpoint": "http://104.171.202.117:8103",
+        "health_check": "http://104.171.202.117:8103/health",
+        "systemd_service": "sophia-asana_mcp"
+      },
+      {
+        "name": "slack_mcp",
+        "port": 8104,
+        "endpoint": "http://104.171.202.117:8104",
+        "health_check": "http://104.171.202.117:8104/health",
+        "systemd_service": "sophia-slack_mcp"
+      }
+    ],
+    "data_pipeline_services": [
+      {
+        "name": "github_mcp",
+        "port": 8200,
+        "endpoint": "http://104.171.202.134:8200",
+        "health_check": "http://104.171.202.134:8200/health",
+        "systemd_service": "sophia-github_mcp"
+      },
+      {
+        "name": "notion_mcp",
+        "port": 8201,
+        "endpoint": "http://104.171.202.134:8201",
+        "health_check": "http://104.171.202.134:8201/health",
+        "systemd_service": "sophia-notion_mcp"
+      },
+      {
+        "name": "postgres_mcp",
+        "port": 8202,
+        "endpoint": "http://104.171.202.134:8202",
+        "health_check": "http://104.171.202.134:8202/health",
+        "systemd_service": "sophia-postgres_mcp"
+      },
+      {
+        "name": "snowflake_mcp",
+        "port": 8203,
+        "endpoint": "http://104.171.202.134:8203",
+        "health_check": "http://104.171.202.134:8203/health",
+        "systemd_service": "sophia-snowflake_mcp"
+      }
+    ],
+    "production_services": [
+      {
+        "name": "codacy_mcp",
+        "port": 8300,
+        "endpoint": "http://104.171.202.103:8300",
+        "health_check": "http://104.171.202.103:8300/health",
+        "systemd_service": "sophia-codacy_mcp"
+      },
+      {
+        "name": "portkey_admin",
+        "port": 8301,
+        "endpoint": "http://104.171.202.103:8301",
+        "health_check": "http://104.171.202.103:8301/health",
+        "systemd_service": "sophia-portkey_admin"
+      },
+      {
+        "name": "ui_ux_agent",
+        "port": 8302,
+        "endpoint": "http://104.171.202.103:8302",
+        "health_check": "http://104.171.202.103:8302/health",
+        "systemd_service": "sophia-ui_ux_agent"
+      }
+    ]
+  },
+  "nginx_configuration": {
+    "primary_instance": "192.222.58.232",
+    "upstream_blocks": {
+      "ai_core_services": [
+        "192.222.58.232:8000",
+        "192.222.58.232:8001",
+        "192.222.58.232:8002"
+      ],
+      "business_tools_services": [
+        "104.171.202.117:8100",
+        "104.171.202.117:8101",
+        "104.171.202.117:8102",
+        "104.171.202.117:8103",
+        "104.171.202.117:8104"
+      ],
+      "data_pipeline_services": [
+        "104.171.202.134:8200",
+        "104.171.202.134:8201",
+        "104.171.202.134:8202",
+        "104.171.202.134:8203"
+      ],
+      "production_services": [
+        "104.171.202.103:8300",
+        "104.171.202.103:8301",
+        "104.171.202.103:8302"
+      ]
+    },
+    "route_mapping": {
+      "/api/ai/": "ai_core_services",
+      "/api/business/": "business_tools_services",
+      "/api/data/": "data_pipeline_services",
+      "/api/production/": "production_services",
+      "/api/unified/": "192.222.58.232:9000"
+    }
+  },
+  "health_monitoring": {
+    "health_check_interval": 30,
+    "health_check_timeout": 5,
+    "health_check_retries": 3,
+    "central_health_monitor": "http://192.222.58.232:9100",
+    "service_health_endpoints": {
+      "vector_search_mcp": "http://192.222.58.232:8000/health",
+      "real_time_chat_mcp": "http://192.222.58.232:8001/health",
+      "ai_memory_mcp": "http://192.222.58.232:8002/health",
+      "gong_mcp": "http://104.171.202.117:8100/health",
+      "hubspot_mcp": "http://104.171.202.117:8101/health",
+      "linear_mcp": "http://104.171.202.117:8102/health",
+      "asana_mcp": "http://104.171.202.117:8103/health",
+      "slack_mcp": "http://104.171.202.117:8104/health",
+      "github_mcp": "http://104.171.202.134:8200/health",
+      "notion_mcp": "http://104.171.202.134:8201/health",
+      "postgres_mcp": "http://104.171.202.134:8202/health",
+      "snowflake_mcp": "http://104.171.202.134:8203/health",
+      "codacy_mcp": "http://104.171.202.103:8300/health",
+      "portkey_admin": "http://104.171.202.103:8301/health",
+      "ui_ux_agent": "http://104.171.202.103:8302/health",
+      "unified_memory_service": "http://192.222.58.232:9100/health"
+    }
+  },
+  "deployment_metadata": {
+    "deployment_type": "distributed_systemd",
+    "infrastructure_provider": "lambda_labs",
+    "total_instances": 5,
+    "total_services": 16,
+    "configuration_source": "config/production_infrastructure.py",
+    "deployment_script": "scripts/deploy_distributed_systemd.py",
+    "health_monitor_script": "scripts/monitor_production_deployment.py"
+  },
+  "migration_notes": {
+    "from": "conflicted_docker_k8s_configs",
+    "to": "production_aligned_systemd",
+    "deprecated_files": [
+      "config/consolidated_mcp_ports.json",
+      "deployment/docker-compose-*.yml",
+      "k8s/*.yaml"
+    ],
+    "conflicts_resolved": [
+      "port_ranges_8000_8499_vs_9000_plus",
+      "systemd_vs_containerized_deployment",
+      "distributed_vs_centralized_architecture",
+      "nginx_load_balancing_vs_k8s_service_discovery"
+    ]
+  }
+} 
