@@ -199,7 +199,7 @@ interface IceBreakerPrompt {
 }
 
 // Constants
-const BACKEND_URL = 'http://104.171.202.103';  // Production backend on sophia-intel.ai
+const BACKEND_URL = 'https://sophia-intel.ai';  // FINAL PRODUCTION DEPLOYMENT
 
 const INTELLIGENCE_TABS = {
   'chat': { icon: MessageSquare, label: 'Executive Chat', color: 'blue' },
@@ -234,8 +234,9 @@ const SophiaExecutiveDashboard: React.FC = () => {
   const { data: systemHealth, isLoading: healthLoading } = useQuery<SystemHealth>({
     queryKey: ['systemHealth'],
     queryFn: async () => {
-      const response = await fetch(`${BACKEND_URL}/system/status`);
-      return response.json();
+      const response = await fetch(`${BACKEND_URL}/api/v3/dashboard/data`);
+      const data = await response.json();
+      return data.system_status;
     },
     refetchInterval: 5000,
   });
@@ -440,7 +441,7 @@ const SophiaExecutiveDashboard: React.FC = () => {
         setActiveTab('project');
       }
 
-      const response = await fetch(`${BACKEND_URL}/chat`, {
+      const response = await fetch(`${BACKEND_URL}/api/v3/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

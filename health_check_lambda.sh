@@ -15,15 +15,10 @@ NC='\033[0m'
 # Lambda Labs server
 LAMBDA_HOST="192.222.58.232"
 
-# Check Frontend (Vercel)
+# Check Frontend (Lambda Labs)
 echo "📱 Frontend Services:"
-echo -n "  app.sophia-intel.ai: "
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://app.sophia-intel.ai || echo "000")
-if [ "$HTTP_CODE" = "200" ]; then
-    echo -e "${GREEN}✅ OK ($HTTP_CODE)${NC}"
-else
-    echo -e "${RED}❌ Failed ($HTTP_CODE)${NC}"
-fi
+echo -n "  frontend.sophia-intel.ai: "
+check_endpoint "https://sophia-intel.ai"
 
 # Check Backend API (Lambda Labs)
 echo ""
@@ -71,7 +66,7 @@ fi
 # Summary
 echo ""
 echo "📊 Deployment Architecture:"
-echo "  • Frontend: Vercel (app.sophia-intel.ai)"
+echo "  • Frontend: Lambda Labs (sophia-intel.ai)"
 echo "  • Backend API: Lambda Labs (api.sophia-intel.ai)"
 echo "  • MCP Servers: Lambda Labs (internal ports 9001-9104)"
 echo "  • Database: Lambda Labs (PostgreSQL + Redis)"

@@ -78,7 +78,6 @@ class BinaryFileHandler:
         """Advanced MIME type detection"""
         
     async def extract_metadata(self, file_path: str):
-        """Extract metadata using Lambda Labs GPU"""
         
     async def generate_preview(self, file_path: str):
         """Create searchable previews for binary content"""

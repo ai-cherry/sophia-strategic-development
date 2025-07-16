@@ -19,7 +19,6 @@ export MEM0_API_KEY="your-mem0-key"
 export ELIMINATED_ACCOUNT="your-ELIMINATED-account"
 export ELIMINATED_USER="your-ELIMINATED-user"
 export ELIMINATED_PASSWORD="your-ELIMINATED-password"
-# ELIMINATED: Vercel API key removed - using Lambda Labs
 
 # 5. Deploy the stack:
 ./quick_deploy.sh

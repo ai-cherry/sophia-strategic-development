@@ -147,7 +147,6 @@ SOPHIA AI SPECIFIC CLEANUP:
 #### **Post-Elimination Cleanup:**
 ```
 RECENT ELIMINATION ARTIFACTS:
-- References to removed Vercel/Snowflake/Weaviate in comments
 - Import statements for eliminated packages
 - Configuration sections for removed services
 - Documentation that mentions eliminated technologies

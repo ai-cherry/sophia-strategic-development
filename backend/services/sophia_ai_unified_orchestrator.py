@@ -17,7 +17,7 @@ from typing import Dict, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
 
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, UnifiedMemoryService
 from backend.services.portkey_gateway import PortkeyGateway
 from backend.utils.logger import get_logger
 
@@ -59,7 +59,7 @@ class SophiaAIUnifiedOrchestrator:
     """
     
     def __init__(self):
-        self.memory_service = SophiaUnifiedMemoryService()
+        self.memory_service = get_memory_service()
         self.portkey = PortkeyGateway()
         
         # Routing configuration

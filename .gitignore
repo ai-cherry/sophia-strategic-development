@@ -294,7 +294,6 @@ weaviate.config.*
 *modern_stack*
 SNOWFLAKE_*
 WEAVIATE_*
-VERCEL_*
 elimination_backup_*
 
 # ELIMINATION PREVENTION - Never allow these back
@@ -307,7 +306,6 @@ qdrant_client.config.*
 *qdrant_memory*
 QDRANT_*
 WEAVIATE_*
-VERCEL_*
 elimination_backup_*
 
 # ELIMINATION PREVENTION - Never allow these back
@@ -320,5 +318,4 @@ QDRANT_client.config.*
 *QDRANT_memory*
 QDRANT_*
 WEAVIATE_*
-VERCEL_*
 elimination_backup_*

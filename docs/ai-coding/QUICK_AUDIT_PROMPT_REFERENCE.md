@@ -45,9 +45,7 @@ Be thorough but conservative. When in doubt, flag for review.
 Look for these common patterns in this codebase:
 
 **POST-ELIMINATION ARTIFACTS:**
-- References to removed Vercel/Snowflake/Weaviate in comments/imports
 - Configuration sections for eliminated services
-- Import statements for removed packages (weaviate-client, vercel SDK)
 - Environment variables for removed integrations
 
 **MCP SERVER REDUNDANCY:**

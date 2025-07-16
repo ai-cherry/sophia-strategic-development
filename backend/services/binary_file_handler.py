@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 🔧 Binary File Handler - Universal File Processing
 Handles various file types with metadata extraction, content analysis, and GPU-powered insights
@@ -22,16 +23,20 @@ from enum import Enum
 import hashlib
 import time
 from datetime import datetime
+import os
+import struct
+import tempfile
+import subprocess
 
 # Set up logger first
 logger = logging.getLogger(__name__)
 
-# Optional imports for file processing
+# Try to import magic library with fallback
 try:
     import magic
-    HAS_MAGIC = True
+    MAGIC_AVAILABLE = True
 except ImportError:
-    HAS_MAGIC = False
+    MAGIC_AVAILABLE = False
     logger.warning("python-magic not available, using basic file type detection")
 
 class FileCategory(Enum):
@@ -215,7 +220,7 @@ class BinaryFileHandler:
         """Detect file MIME type and encoding"""
         try:
             # Try python-magic first if available
-            if HAS_MAGIC:
+            if MAGIC_AVAILABLE:
                 mime_type = magic.from_file(str(file_path), mime=True)
                 encoding = magic.from_file(str(file_path))
                 return mime_type, encoding

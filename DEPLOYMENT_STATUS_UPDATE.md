@@ -83,7 +83,6 @@ If SSH key setup is complex, deploy directly on each server:
 
 #### **Primary Server (192.222.58.232)**
 ```bash
-# SSH using Lambda Labs console or existing method
 ssh root@192.222.58.232
 
 # Clone and deploy
