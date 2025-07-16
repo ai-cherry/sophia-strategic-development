@@ -19,7 +19,6 @@ USAGE:
 """
 
 import asyncio
-import asyncssh
 import subprocess
 import sys
 import os
