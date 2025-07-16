@@ -24,7 +24,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from backend.agents.base_agent import BaseAgent
-from core.sophia_engine import SophiaAIEngine
+from backend.core.sophia_engine import SophiaAIEngine
 from infrastructure.integrations.buzz_integration import BuzzAISystem
 from infrastructure.mcp_servers.mcp_gateway import MCPGateway
 

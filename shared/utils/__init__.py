@@ -14,8 +14,8 @@ from backend.utils.errors import (
     SecurityError,
     ValidationError,
 )
-from shared.utils.http_client import APIClient, HTTPClient
-from shared.utils.monitoring import (
+from backend.utils.http_client import APIClient, HTTPClient
+from backend.utils.monitoring import (
     HealthCheck,
     HealthMonitor,
     HealthStatus,
@@ -25,7 +25,7 @@ from shared.utils.monitoring import (
     get_metrics_collector,
     log_execution_time,
 )
-from shared.utils.rate_limiting import (
+from backend.utils.rate_limiting import (
     MultiServiceRateLimiter,
     RateLimitConfig,
     RateLimiter,

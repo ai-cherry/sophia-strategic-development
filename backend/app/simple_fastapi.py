@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
             try:
                 memory_service = QdrantCodingMCPUnifiedMemoryService()
                 async with coding_memory_context() as memory_service:
-                logger.info("✅ Qdrant memory service initialized")
+                    logger.info("✅ Qdrant memory service initialized")
             except Exception as e:
                 logger.warning(f"⚠️ Qdrant memory service not available: {e}")
         

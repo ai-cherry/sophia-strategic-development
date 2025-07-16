@@ -290,7 +290,7 @@ class MonorepoMigrator:
             "import backend.": "import apps.api.src.",
             
             # Core imports  
-            "from core.": "from libs.core.",
+            "from backend.core.": "from libs.core.",
             "import core.": "import libs.core.",
             
             # Shared imports

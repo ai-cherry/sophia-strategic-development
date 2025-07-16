@@ -14,7 +14,7 @@ Production-ready caching implementation with Redis backend and intelligent cache
         - Multi-tier cache hierarchy
 """
 
-from core.enhanced_cache_manager import (
+from backend.core.enhanced_cache_manager import (
     EnhancedCacheManager,
     get_cache_manager,
     initialize_cache_system,

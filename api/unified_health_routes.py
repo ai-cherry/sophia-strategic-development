@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-from api.ai_memory_health_routes import get_ai_memory_health
-from api.deployment_status_routes import get_deployment_status
+from backend.api.ai_memory_health_routes import get_ai_memory_health
+from backend.api.deployment_status_routes import get_deployment_status
 
 # Import functions from other route modules
-from api.lambda_labs_health_routes import get_lambda_labs_health
+from backend.api.lambda_labs_health_routes import get_lambda_labs_health
 
 router = APIRouter(prefix="/api/v1/unified", tags=["unified-health"])
 

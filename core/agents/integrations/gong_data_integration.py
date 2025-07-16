@@ -31,7 +31,7 @@ import structlog
 from pydantic import BaseModel, Field
 
 from backend.agents.langgraph_agent_base import AgentContext
-from core.integration_registry import IntegrationRegistry
+from backend.core.integration_registry import IntegrationRegistry
 from infrastructure.integrations.gong_redis_client import (
     NotificationPriority,
     NotificationType,
@@ -812,12 +812,12 @@ class LangGraphAgentWorkflowOrchestrator:
     def _initialize_agent_classes(self):
         """Initialize agent class registry for dynamic instantiation"""
         try:
-            from core.use_cases.call_analysis_agent import CallAnalysisAgent
-            from core.use_cases.marketing_analysis_agent import (
+            from backend.core.use_cases.call_analysis_agent import CallAnalysisAgent
+            from backend.core.use_cases.marketing_analysis_agent import (
                 MarketingAnalysisAgent,
             )
-            from core.use_cases.sales_coach_agent import SalesCoachAgent
-            from core.use_cases.sales_intelligence_agent import (
+            from backend.core.use_cases.sales_coach_agent import SalesCoachAgent
+            from backend.core.use_cases.sales_intelligence_agent import (
                 SalesIntelligenceAgent,
             )
 

@@ -73,9 +73,9 @@ async def main():
         # Import required modules
         try:
             from infrastructure.config import InfrastructureConfig, InstanceRole
-            from services.service_discovery import ServiceDiscovery
+            from backend.services.service_discovery import ServiceDiscovery
             from utils.health_check import HealthChecker
-            from api.main import create_app
+            from backend.api.main import create_app
             import uvicorn
         except ImportError as e:
             logger.error(f"❌ Failed to import required modules: {e}")
@@ -191,7 +191,7 @@ async def create_application():
     """
     try:
         from infrastructure.config import InfrastructureConfig
-        from api.main import create_app
+        from backend.api.main import create_app
         
         # Determine current instance
         current_instance = InfrastructureConfig.get_current_instance()

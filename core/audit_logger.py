@@ -5,7 +5,7 @@ import logging
 import time
 from typing import Any
 
-from core.protocols import AuditLoggerProtocol
+from backend.core.protocols import AuditLoggerProtocol
 
 logger = logging.getLogger(__name__)
 

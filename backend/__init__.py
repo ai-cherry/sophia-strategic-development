@@ -4,7 +4,7 @@ Centralized backend services with secure secret management
 """
 
 # Remove circular import - import these on demand instead
-from .core.auto_esc_config import (
+from backend.core.auto_esc_config import (
     get_config_value,
     get_integration_config,
     get_lambda_labs_config,

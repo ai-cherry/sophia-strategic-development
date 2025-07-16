@@ -11,7 +11,7 @@ import logging
 from collections import defaultdict
 from typing import Any
 
-from core.constitutional_ai import SophiaConstitutionalFramework
+from backend.core.constitutional_ai import SophiaConstitutionalFramework
 
 logger = logging.getLogger(__name__)
 

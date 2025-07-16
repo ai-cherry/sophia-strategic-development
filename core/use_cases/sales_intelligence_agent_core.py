@@ -18,7 +18,7 @@ from backend.workflows.multi_agent_workflow import (
     WorkflowTask,
 )
 
-# # from core.use_cases.sales_coach_agent import SalesCoachAgent  # Temporarily disabled  # Temporarily disabled due to syntax error
+# # from backend.core.use_cases.sales_coach_agent import SalesCoachAgent  # Temporarily disabled  # Temporarily disabled due to syntax error
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )

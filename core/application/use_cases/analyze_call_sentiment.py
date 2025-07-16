@@ -7,8 +7,8 @@ of a sales call.
 
 from dataclasses import dataclass
 
-from core.application.ports.repositories.call_repository import CallRepository
-from core.application.ports.services.ai_service import AIService
+from backend.core.application.ports.repositories.call_repository import CallRepository
+from backend.core.application.ports.services.ai_service import AIService
 from domain.entities.call import Call
 from domain.value_objects.sentiment import Sentiment
 

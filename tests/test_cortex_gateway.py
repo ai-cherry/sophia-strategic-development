@@ -7,7 +7,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_complete_calls_execute():
     # TODO: Update this import to correct location
-    # from core.infra.cortex_gateway import get_gateway
+    # from backend.core.infra.cortex_gateway import get_gateway
     pytest.skip("Skipping test - cortex_gateway module needs to be relocated")
     
     # gw = get_gateway()
@@ -26,7 +26,7 @@ async def test_complete_calls_execute():
 @pytest.mark.asyncio
 async def test_embed_parses_json():
     # TODO: Update this import to correct location
-    # from core.infra.cortex_gateway import get_gateway
+    # from backend.core.infra.cortex_gateway import get_gateway
     pytest.skip("Skipping test - cortex_gateway module needs to be relocated")
     
     # gw = get_gateway()

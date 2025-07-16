@@ -34,7 +34,7 @@ from fastapi.openapi.utils import get_openapi
 import uvicorn
 
 from infrastructure.config import InfrastructureConfig, LambdaInstance, InstanceRole
-from services.service_discovery import get_service_discovery
+from backend.services.service_discovery import get_service_discovery
 from utils.health_check import get_health_checker
 
 logger = logging.getLogger(__name__)

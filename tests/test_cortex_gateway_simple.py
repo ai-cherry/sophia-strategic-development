@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # TODO: Update this import to correct location
-# from core.infra.cortex_gateway import get_gateway
+# from backend.core.infra.cortex_gateway import get_gateway
 import pytest
 
 # Mock get_gateway until the module is properly relocated

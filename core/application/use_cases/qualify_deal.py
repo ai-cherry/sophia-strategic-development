@@ -8,9 +8,9 @@ based on various criteria.
 from dataclasses import dataclass
 from datetime import datetime
 
-from core.application.ports.repositories.call_repository import CallRepository
-from core.application.ports.repositories.contact_repository import ContactRepository
-from core.application.ports.repositories.deal_repository import DealRepository
+from backend.core.application.ports.repositories.call_repository import CallRepository
+from backend.core.application.ports.repositories.contact_repository import ContactRepository
+from backend.core.application.ports.repositories.deal_repository import DealRepository
 from domain.entities.contact import EngagementLevel
 from domain.entities.deal import Deal, DealStage
 

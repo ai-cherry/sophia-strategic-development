@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from shared.utils.QDRANT_cortex import (
+from backend.utils.QDRANT_cortex import (
     CortexAuthenticationError,
     CortexModel,
     MCPMode,

@@ -12,7 +12,7 @@ Features:
 - Integration with Pulumi ESC for secret management
 - Support for both full and incremental sync modes
 """
-from core.optimized_database_manager import (
+from backend.core.optimized_database_manager import (
     OptimizedDatabaseManager,
     BatchOperation,
     ConnectionType

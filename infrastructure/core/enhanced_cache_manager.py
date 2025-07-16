@@ -19,7 +19,7 @@ import time
 from datetime import datetime
 from typing import Any
 
-from core.hierarchical_cache import (
+from backend.core.hierarchical_cache import (
     CacheLevel,
     HierarchicalCache,
 )
