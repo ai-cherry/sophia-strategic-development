@@ -32,7 +32,7 @@ data_pipeline:
   ip: 104.171.202.134
   gpu: A100 80GB
   role: Data Processing Pipeline
-  services: [github_mcp, notion_mcp, postgres_mcp, snowflake_mcp]
+          services: [github_mcp, notion_mcp, postgres_mcp]
 
 production_services:
   ip: 104.171.202.103

@@ -58,11 +58,6 @@
           "service": "hubspot_mcp_server",
           "description": "HubSpot CRM integration and contact management"
         },
-        "snowflake_analytics": {
-          "port": 9022,
-          "service": "snowflake_mcp_server",
-          "description": "Snowflake data warehouse and analytics"
-        },
         "business_workflow": {
           "port": 9023,
           "service": "workflow_orchestrator",
@@ -132,7 +127,6 @@
       "vector_search_health": 9102,
       "gong_intelligence_health": 9120,
       "hubspot_crm_health": 9121,
-      "snowflake_analytics_health": 9122,
       "business_workflow_health": 9123,
       "slack_integration_health": 9140,
       "email_intelligence_health": 9141,
@@ -148,7 +142,7 @@
       "ssl_port": 8443,
       "upstream_pools": {
         "ai_memory_pool": ["localhost:9000"],
-        "business_intelligence_pool": ["localhost:9020", "localhost:9021", "localhost:9022", "localhost:9023"],
+        "business_intelligence_pool": ["localhost:9020", "localhost:9021", "localhost:9023"],
         "communication_pool": ["localhost:9040", "localhost:9041"],
         "development_pool": ["localhost:9060", "localhost:9061"],
         "project_management_pool": ["localhost:9080", "localhost:9081"]
@@ -168,4 +162,4 @@
     "memory_architecture": "UNIFIED",
     "last_validation": "2025-07-16T08:27:42Z"
   }
-} 
+}

@@ -243,7 +243,6 @@
       "github_mcp": "http://104.171.202.134:8200/health",
       "notion_mcp": "http://104.171.202.134:8201/health",
       "postgres_mcp": "http://104.171.202.134:8202/health",
-      "snowflake_mcp": "http://104.171.202.134:8203/health",
       "codacy_mcp": "http://104.171.202.103:8300/health",
       "portkey_admin": "http://104.171.202.103:8301/health",
       "ui_ux_agent": "http://104.171.202.103:8302/health",
@@ -254,7 +253,7 @@
     "deployment_type": "distributed_systemd",
     "infrastructure_provider": "lambda_labs",
     "total_instances": 5,
-    "total_services": 16,
+    "total_services": 15,
     "configuration_source": "config/production_infrastructure.py",
     "deployment_script": "scripts/deploy_distributed_systemd.py",
     "health_monitor_script": "scripts/monitor_production_deployment.py"

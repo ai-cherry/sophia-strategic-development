@@ -70,12 +70,11 @@ PRODUCTION_INFRASTRUCTURE = ProductionInfrastructure(
             ip="104.171.202.134",
             gpu="A100 80GB",
             role="Data Processing Pipeline",
-            services=["github_mcp", "notion_mcp", "postgres_mcp", "snowflake_mcp"],
+            services=["github_mcp", "notion_mcp", "postgres_mcp"],
             ports={
                 "github_mcp": 8200,
                 "notion_mcp": 8201,
-                "postgres_mcp": 8202,
-                "snowflake_mcp": 8203
+                "postgres_mcp": 8202
             }
         ),
         
@@ -226,4 +225,4 @@ if __name__ == "__main__":
     print(f"📊 Total instances: {len(PRODUCTION_INFRASTRUCTURE.instances)}")
     print(f"📊 Total services: {sum(len(instance.services) for instance in PRODUCTION_INFRASTRUCTURE.instances.values())}")
     print(f"🌐 Primary nginx: {PRODUCTION_INFRASTRUCTURE.nginx_primary}")
-    print("✅ Production infrastructure configuration loaded successfully") 
+    print("✅ Production infrastructure configuration loaded successfully")

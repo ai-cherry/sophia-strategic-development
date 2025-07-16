@@ -23,7 +23,7 @@ check-env: ## Check environment setup
 
 deploy: deploy-all ## Full deployment (alias for deploy-all)
 
-deploy-infra: check-env ## Deploy infrastructure (Weaviate, Redis, PostgreSQL)
+deploy-infra: check-env ## Deploy infrastructure (Qdrant, Redis, PostgreSQL)
 	@echo "🏗️  Deploying infrastructure to Lambda Labs..."
 	cd infrastructure/pulumi && pulumi up -y
 	@echo "⏳ Waiting for infrastructure to stabilize..."
