@@ -159,7 +159,7 @@ Creating a file? → Ask: "Will this be used more than once?"
 - **Type:** Multi-agent AI orchestrator for CEO-level business intelligence
 - **Primary User:** Pay Ready CEO (initial sole user)
 - **Core Integrations:** HubSpot CRM, Gong.io call analysis, Slack communication
-- **Data Stack:** PostgreSQL, Redis, Pinecone, Weaviate
+- **Data Stack:** PostgreSQL, Redis, Pinecone, Qdrant (Weaviate eliminated)
 - **Infrastructure:** Lambda Labs servers, Lambda Labs frontend deployment
 - **External Repository Collection:** 11 strategic MCP servers (22k+ combined stars)
 
@@ -636,10 +636,10 @@ The external repository collection enables:
    ```
    L0: GPU Cache (Lambda Labs) - Hardware acceleration
    L1: Redis (Hot cache) - <10ms session data
-   L2: Weaviate (Vectors) - <50ms semantic search
+   L2: Qdrant (Vectors) - <50ms semantic search
    L3: PostgreSQL pgvector - <100ms hybrid queries
    L4: Mem0 (Conversations) - Agent memory
-   L5: qdrant (Legacy) - Migration in progress
+   L5: Legacy Storage (Deprecated) - Migration complete
    ```
 
 4. **IMPORT PATTERNS:**
@@ -649,7 +649,7 @@ The external repository collection enables:
    memory = get_unified_memory_service()
    
    # ✅ ALSO CORRECT - Direct usage when needed
-   import weaviate
+   from qdrant_client import QdrantClient
    from pgvector.asyncpg import register_vector
    import redis
    ```
@@ -663,16 +663,18 @@ The external repository collection enables:
        metadata_filter={"department": "sales"}
    )
    
-   # ✅ ALSO CORRECT - Direct Weaviate for performance
-   weaviate_client.query.get("Knowledge").with_near_text(
-       {"concepts": ["revenue forecast"]}
-   ).with_limit(10).do()
+   # ✅ ALSO CORRECT - Direct Qdrant for performance
+   qdrant_client.search(
+       collection_name="knowledge",
+       query_vector=embeddings,
+       limit=10
+   )
    ```
 
 6. **PERFORMANCE TARGETS:**
    ```python
    # Embedding generation: <50ms (Lambda GPU)
-   # Vector search: <100ms (Weaviate)
+   # Vector search: <100ms (Qdrant)
    # Cache hit: <10ms (Redis)
    # Hybrid query: <150ms (PostgreSQL)
    ```
@@ -680,27 +682,25 @@ The external repository collection enables:
 ### **🛡️ MIGRATION SUPPORT**
 
 1. **Dual-Mode Operation:**
-   - Services can use both old (qdrant) and new (Weaviate) backends
-   - Gradual migration with feature flags
-   - A/B testing for performance validation
+   - ELIMINATED: Weaviate has been completely removed
+   - Services now use Qdrant as primary vector database
+   - Migration to Qdrant complete
 
 2. **Migration Helpers:**
    ```python
-   # Automatic routing based on configuration
-   if memory.use_new_stack:
-       return await memory.search_weaviate(query)
-   else:
-       return await memory.search_qdrant(query)
+   # ELIMINATED: Weaviate migration complete
+   # All services now use Qdrant directly
+   return await memory.search_qdrant(query)
    ```
 
 ### **📋 BEST PRACTICES**
 
 1. **Choose the Right Store:**
    - Hot data → Redis
-   - Semantic search → Weaviate
+   - Semantic search → Qdrant (Weaviate eliminated)
    - Hybrid queries → PostgreSQL pgvector
    - Conversations → Mem0
-   - Analytics → qdrant (legacy)
+   - Analytics → Qdrant (primary)
 
 2. **Optimize for Performance:**
    - Batch embeddings on GPU
@@ -710,14 +710,14 @@ The external repository collection enables:
 
 ### **🚀 PERFORMANCE WINS**
 
-With the new stack:
+With Qdrant architecture:
 - 10x faster embeddings (500ms → 50ms)
 - 5x faster search (500ms → 100ms)  
 - 70% cost reduction ($3.5k → $1k/month)
 - No vendor lock-in
 - Full control over models
 
-Remember: **Lambda Labs + Weaviate = Badass Performance** for Sophia AI!
+Remember: **Lambda Labs + Qdrant = Enterprise Performance** for Sophia AI!
 
 ## 📦 **UV DEPENDENCY GOVERNANCE (MANDATORY)**
 
@@ -1358,656 +1358,4 @@ Remember: You're building an enterprise-grade AI orchestrator that will handle c
 **CRITICAL RULE:** All new frontend development MUST extend the one, true `UnifiedDashboard.tsx` component.
 
 1.  **NO NEW DASHBOARDS:** Do not create new, separate dashboard components or pages. All new views, tabs, or features must be integrated into the existing `UnifiedDashboard.tsx` tabbed interface.
-2.  **EXTEND, DON'T REPLACE:** Use the existing components (`UnifiedKPICard`, etc.) and the established layout. New features should be added as new tabs or as components within existing tabs.
-3.  **SINGLE API CLIENT:** All frontend API calls MUST use the `frontend/src/services/apiClient.js`. Do not create new API clients.
-4.  **DOCUMENTATION IS LAW:** All frontend architecture must align with the `docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md`. Any deviation must first be reflected in the handbook.
-
-This ensures we maintain a single, clean, and unified frontend, preventing the fragmentation that we just worked so hard to eliminate.
-
-# Sophia AI Development Rules
-
-PROJECT_CONTEXT: |
-  Sophia AI - Executive AI Orchestrator for Pay Ready
-  Initial User: CEO only (80-employee company)
-  Priority: Quality > Stability > Maintainability > Performance > Cost
-  Current Phase: Building enhanced chat with citation system
-
-CODING_STANDARDS: |
-  Python:
-    - Use Python 3.11+ with type hints for all functions
-    - Follow async/await patterns for I/O operations
-    - Use Black formatter (88 char line limit)
-    - Include comprehensive docstrings
-    - Error handling with proper logging
-
-  TypeScript:
-    - Strict mode enabled, no 'any' types
-    - ESLint + Prettier configured
-    - Interfaces over types where possible
-    - JSDoc for all exported functions
-    - React functional components only
-
-  Testing:
-    - TDD approach - write tests first
-    - pytest for Python, Jest for TypeScript
-    - Minimum 80% code coverage
-    - Integration tests for all API endpoints
-    - Unit tests for business logic
-
-AI_RULES: |
-  Planning:
-    - Plan-Then-Act: 70% planning, 30% execution
-    - Break tasks into micro-tasks (< 5 min each)
-    - Define clear success criteria before coding
-    - Create tests before implementation
-
-  Development:
-    - Make minimal, focused changes
-    - Micro-commits with descriptive messages
-    - Update documentation with each change
-    - Run tests after each change
-    - Review diffs before committing
-
-  Context:
-    - Always reference @docs/PROJECT_CONTEXT.md
-    - Check @docs/architecture/ for patterns
-    - Update @docs/AI_MEMORY.md with learnings
-    - Cite all data sources in responses
-
-ARCHITECTURE_PATTERNS: |
-  Backend:
-    - FastAPI for async REST APIs
-    - Service layer pattern for business logic
-    - Repository pattern for data access
-    - Dependency injection for testability
-    - Event-driven communication via Redis
-
-  Frontend:
-    - React 18 with TypeScript
-    - Component composition over inheritance
-    - Custom hooks for shared logic
-    - Context API for global state
-    - TailwindCSS for styling
-
-  AI Integration:
-    - qdrant Cortex for all LLM operations
-    - Model routing based on task complexity
-    - Citation system for transparency
-    - Memory system with Mem0
-    - Cost tracking for all AI operations
-
-SECURITY_RULES: |
-  - Never hardcode secrets or API keys
-  - Use environment variables via auto_esc_config
-  - Validate all user inputs
-  - Sanitize LLM outputs
-  - Log security-relevant events
-  - Follow principle of least privilege
-
-QUALITY_STANDARDS: |
-  - No code duplication
-  - Clear variable and function names
-  - Comprehensive error handling
-  - Performance monitoring for all endpoints
-  - Document all architectural decisions
-  - Regular code reviews (even for AI-generated code)
-
-TIMELINE_AND_BUDGET_GUIDELINES: |
-  Coding Tasks:
-    - NO specific timeline estimates (hours, days, weeks)
-    - NO budget estimates for development work
-    - Focus on technical implementation details only
-    - Break down tasks by complexity, not time
-    - Describe phases by functionality, not duration
-
-  Business Planning:
-    - Timeline estimates only when explicitly requested for business planning
-    - Budget discussions only for infrastructure/service costs
-    - Keep business metrics separate from coding tasks
-
-  Documentation:
-    - Use phase numbers or functional milestones
-    - Describe dependencies and prerequisites
-    - Focus on "what" and "how", not "when"
-    - Technical complexity over time estimates
-
-## 🛡️ **AUTOMATED TECHNICAL DEBT PREVENTION SYSTEM**
-
-### **🚀 SYSTEM OVERVIEW**
-Our comprehensive "Clean by Design" framework **automatically prevents** the accumulation of technical debt that led to our recent cleanup of **290 dead code items**.
-
-### **🤖 AUTOMATED TOOLS IN PLACE**
-1. **Daily Cleanup Automation**: `scripts/utils/daily_cleanup.py`
-   - Removes expired one-time scripts (30-day lifecycle)
-   - Prevents archive directory creation
-   - Cleans up backup files automatically
-   - Monitors for large files and stale documentation
-
-2. **Pre-Commit Debt Prevention**: `scripts/utils/pre_push_debt_check.py`
-   - Blocks commits with technical debt patterns
-   - Validates one-time script placement
-   - Prevents forbidden documentation patterns
-   - Enforces file naming conventions
-
-3. **Documentation Lifecycle Management**:
-   - Automatic archiving of temporary documentation
-   - Retention policies for different document types
-   - Stale documentation detection and alerts
-
-### **📋 DEVELOPER WORKFLOW INTEGRATION**
-The prevention system is now **fully automated** and integrated into the development workflow:
-
-```bash
-# 1. Daily cleanup runs automatically (GitHub Actions)
-# 2. Pre-commit checks run on every commit attempt
-# 3. Developers just follow the "Clean by Design" principles
-
-# Manual commands available:
-python scripts/utils/daily_cleanup.py           # Check current status
-python scripts/utils/pre_push_debt_check.py     # Validate before commit
-```
-
-### **🎯 ZERO MAINTENANCE OVERHEAD**
-- **No manual cleanup needed**: All technical debt prevention is automated
-- **No reminder checklists**: System enforces policies automatically  
-- **No human error**: Automated tools prevent debt introduction
-- **No major cleanups**: Prevention eliminates the need for large-scale cleanup operations
-
-### **📊 SUCCESS METRICS**
-Target: **Zero major cleanups** like the 290-item cleanup we just completed
-- One-time scripts: <10 at any time (auto-managed)
-- Archive directories: 0 (zero tolerance, auto-prevented)
-- Backup files: 0 (zero tolerance, auto-removed)
-- Stale documentation: <5 files >90 days (auto-detected)
-
-**See**: `docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md` for complete documentation.
-
-### **📋 Enhanced One-Time Script Pattern (Auto-Managed)**
-```python
-# REQUIRED: All one-time scripts must use this pattern
-"""
-🚨 ONE-TIME SCRIPT - AUTO-DELETION ENABLED
-Purpose: [specific purpose]
-Created: [date]
-DELETE AFTER: [date]
-Usage: python scripts/one_time/script_name_DELETE_YYYY_MM_DD.py
-
-🤖 AUTOMATION: This script will be auto-deleted by daily cleanup
-"""
-
-def main():
-    try:
-        # Script logic here
-        print("✅ Operation completed successfully")
-        print("🤖 AUTO-CLEANUP: This script will auto-delete on expiration date")
-        print("📍 Managed by: scripts/utils/daily_cleanup.py")
-    except Exception as e:
-        print(f"❌ Operation failed: {e}")
-        print("🔄 Fix issues and retry - script remains until successful")
-
-if __name__ == "__main__":
-    main()
-```
-
-## 🔐 **MANDATORY SECRET MANAGEMENT - PULUMI ESC ONLY**
-
-### **🚨 CRITICAL: NEVER HANDLE SECRETS MANUALLY**
-
-**FORBIDDEN - IMMEDIATE REJECTION:**
-```python
-# ❌ NEVER DO THIS - IMMEDIATE REJECTION
-API_KEY = "sk-1234567890abcdef"  # Hardcoded secret
-os.environ["SECRET_KEY"] = "hardcoded_value"  # Manual env var
-with open(".env", "w") as f:  # Manual .env creation
-    f.write("SECRET=value")
-```
-
-**REQUIRED - ALWAYS USE PULUMI ESC:**
-```python
-# ✅ CORRECT - Always use centralized config
-from backend.core.auto_esc_config import get_config_value, get_docker_hub_config
-
-# For any secret
-secret_value = get_config_value("secret_name")
-
-# For Docker Hub (always available)
-docker_config = get_docker_hub_config()
-# Returns: {"username": "scoobyjava15", "access_token": "real_token", "registry": "docker.io"}
-
-# For qdrant
-qdrant_config = get_qdrant_config()
-
-# For Lambda Labs
-lambda_config = get_lambda_labs_config()
-```
-
-### **🔒 Secret Management Hierarchy (MANDATORY)**
-1. **Pulumi ESC** (primary - automatic via `get_config_value()`)
-2. **GitHub Organization Secrets** (automatic sync)
-3. **Environment Variables** (fallback only)
-4. **Hardcoded Defaults** (non-sensitive fallbacks only)
-
-### **🚫 NEVER CREATE THESE FILES:**
-- `.env` files (use Pulumi ESC)
-- `secrets.json` (use Pulumi ESC)
-- `config.local.py` (use Pulumi ESC)
-- Any file containing credentials
-
-### **✅ GitHub Actions Secret Access (AUTOMATIC)**
-```yaml
-# GitHub Actions automatically has access to all secrets
-- name: Deploy to Production
-  env:
-    DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-    DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-    LAMBDA_PRIVATE_SSH_KEY: ${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}
-  run: |
-    # Secrets are automatically available
-    echo "Deploying with authenticated access"
-```
-
-## 🚫 **ZERO-TOLERANCE TECHNICAL DEBT POLICY**
-
-### **IMMEDIATE REJECTION CRITERIA - NEVER ACCEPT CODE THAT:**
-1. **Introduces syntax errors** or prevents compilation
-2. **Creates circular dependencies** or import chains
-3. **Lacks comprehensive type hints** for all functions/classes
-4. **Missing error handling** for external API calls or file operations
-5. **Hardcodes secrets, URLs, or configuration** values
-6. **Duplicates existing functionality** without deprecating the old
-7. **Violates single responsibility principle** (functions >50 lines)
-8. **Lacks corresponding tests** for new business logic
-9. **Introduces security vulnerabilities** (SQL injection, XSS, etc.)
-10. **Degrades performance** without measurement and justification
-11. **Creates one-time files** without deletion plan
-12. **Bypasses Pulumi ESC** for secret management
-
-### **MANDATORY QUALITY GATES**
-Before any code change, AI must:
-1. **Architecture Alignment Check**: Verify code follows Phoenix architecture patterns
-2. **Dependency Impact Assessment**: Analyze potential circular dependencies
-3. **Performance Impact Analysis**: Measure memory/CPU impact for critical paths
-4. **Security Validation**: Scan for common vulnerabilities
-5. **Test Coverage Verification**: Ensure new code has corresponding tests
-6. **Documentation Update**: Update relevant docs for architectural changes
-7. **File Cleanup Plan**: Identify one-time files for deletion
-8. **Secret Management Compliance**: Verify Pulumi ESC usage
-
-## 🚀 **DEPLOYMENT EXCELLENCE STANDARDS**
-
-### **Production Deployment Requirements**
-1. **GitHub Actions ONLY** - Never deploy from local machine
-2. **Pulumi ESC Integration** - All secrets via ESC
-3. **Docker Hub Registry** - scoobyjava15 registry
-4. **Lambda Labs Target** - 192.222.58.232 deployment
-5. **Comprehensive Testing** - All quality gates passed
-6. **Zero Temporary Files** - All one-time files deleted
-7. **Security Validation** - No hardcoded secrets
-8. **Performance Verification** - All SLAs met
-
-### **Quality Gate Checklist**
-- [ ] Syntax validation passed
-- [ ] Type hints complete (100%)
-- [ ] Security scan passed (0 vulnerabilities)
-- [ ] Performance requirements met
-- [ ] Test coverage >80%
-- [ ] Documentation updated
-- [ ] Architecture compliance verified
-- [ ] Business logic validated
-- [ ] **No hardcoded secrets** (Pulumi ESC only)
-- [ ] **No temporary files** (all one-time files deleted)
-- [ ] **Secret management compliant** (ESC integration verified)
-
-## 📊 **CONTINUOUS IMPROVEMENT TARGETS**
-
-### **Weekly Cleanup**
-- [ ] Scan for orphaned files
-- [ ] Review secret management compliance
-- [ ] Validate performance metrics
-- [ ] Update improvement targets
-- [ ] **🧹 Repository cleanup audit (orphaned files)**
-- [ ] **🔐 Secret management compliance review**
-- [ ] **📊 File lifecycle management assessment**
-
-### **Monthly Excellence Review**
-- **Technical Excellence Score**: >90
-- **Business Impact Score**: >90
-- **CEO Productivity Increase**: >10%
-- **System Reliability**: >99.9%
-- **Security Posture**: 100% compliant
-- **Operational Excellence**: Zero manual interventions
-- [ ] **🧹 Complete repository hygiene audit**
-- [ ] **🔐 Comprehensive secret management review**
-- [ ] **📋 Best practices compliance assessment**
-
----
-
-## 🎯 **FINAL DEVELOPMENT CHECKLIST**
-
-### **Before Every Commit**
-- [ ] All one-time files identified for deletion
-- [ ] Pulumi ESC used for all secrets
-- [ ] No hardcoded configuration values
-- [ ] All quality gates passed
-- [ ] Performance requirements met
-- [ ] Security validation complete
-- [ ] Documentation updated
-- [ ] Tests written and passing
-
-### **After Every Successful Operation**
-- [ ] Delete all one-time scripts
-- [ ] Remove temporary files
-- [ ] Clean up debug files
-- [ ] Update documentation
-- [ ] Verify deployment readiness
-- [ ] **🧹 Delete all one-time files after use**
-- [ ] **🔐 Verify all secrets use Pulumi ESC**
-- [ ] **🚫 Scan for hardcoded secrets**
-
----
-
-**Excellence Mantra**: "Perfect code, clean repository, secure secrets, continuous improvement."
-
-**Success Formula**: Technical Excellence + Clean Codebase + Secure Secrets + Zero Waste = Executive-Grade AI Platform
-
-**Remember**: Every file matters, every secret matters, every line of code matters. Keep it clean, keep it secure, keep it excellent.
-
-## 🔧 **K3S CLUSTER CONFIGURATION**
-
-### **Cluster Access (Via GitHub Actions Only)**
-```bash
-# K3s cluster endpoint
-https://192.222.58.232:6443
-
-# Namespaces
-- sophia-ai-prod (main application)
-- mcp-servers (MCP microservices)
-- monitoring (Prometheus/Grafana)
-- ingress (Traefik)
-```
-
-### **Resource Organization**
-```yaml
-# Deployment structure
-k8s/
-├── base/           # Base manifests
-├── overlays/       # Environment-specific
-│   ├── production/
-│   └── staging/
-└── helm/           # Helm charts
-```
-
-### **K3s-Specific Features**
-- Lightweight Kubernetes distribution
-- Built-in Traefik ingress controller
-- Integrated local storage provisioner
-- GPU device plugin for Lambda Labs
-- Automatic TLS with cert-manager
-
-## Memory Architecture Rules (CRITICAL - Updated July 12, 2025)
-
-### ✅ MANDATORY - Use Pure Qdrant Memory Stack
-- **ALWAYS** use `UnifiedMemoryServiceV3` from `backend.services.unified_memory_service_v3`
-- **ALWAYS** use Qdrant for vector storage (ONLY vector database)
-- **ALWAYS** use Redis for caching layer
-- **ALWAYS** use PostgreSQL with pgvector for hybrid queries
-- **ALWAYS** use Lambda GPU inference for embeddings
-
-### ❌ FORBIDDEN - Eliminated Systems
-- **NEVER** use Weaviate (completely eliminated from architecture)
-- **NEVER** use Snowflake Cortex for new features
-- **NEVER** reference any Weaviate clients or configurations
-- **NEVER** use mixed vector database architectures
-- **NEVER** use `CORTEX.EMBED_TEXT_768()` - use GPU embeddings instead
-
-### 🚀 Performance Targets
-- Embedding generation: <50ms (GPU accelerated)
-- Vector search: <50ms P95 (Weaviate)
-- Cache hits: >80% (Redis)
-- ETL pipeline: <200ms end-to-end
-
-### 📝 Code Examples
-
-```python
-# CORRECT - Using new memory service
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-
-memory_service = UnifiedMemoryServiceV2()
-await memory_service.initialize()
-
-# Store with GPU embeddings
-memory_id = await memory_service.add_knowledge(
-    content="Important information",
-    source="mcp/source",
-    metadata={"category": "insights"}
-)
-
-# Search with GPU acceleration
-results = await memory_service.search_knowledge(
-    query="find insights",
-    limit=10
-)
-```
-
-```python
-# WRONG - Using old services
-from backend.services.unified_memory_service import UnifiedMemoryService  # NO!
-from qdrant.cortex import embed_text_768  # FORBIDDEN!
-```
-
-### 🔧 MCP Server Integration
-- All MCP servers MUST use `UnifiedMemoryServiceV2` for memory operations
-- Set environment variables: `WEAVIATE_URL`, `REDIS_URL`, `POSTGRESQL_URL`, `LAMBDA_INFERENCE_URL`
-- Include `GPU_ACCEL` capability for memory-intensive servers
-
-## Infrastructure Rules
-
-### GPU Resources
-- Lambda B200 GPUs for inference (2.3x VRAM advantage)
-- Request GPU resources in K8s manifests: `nvidia.com/gpu: "1"`
-- Use GPU node selectors and tolerations
-
-### Database Connections
-- Weaviate: Use v1.25.4+ for stability
-- Redis: Use hiredis for performance
-- PostgreSQL: Use pgvector 0.3.6+ with IVFFlat indexes
-
-## 🛡️ **TECHNICAL DEBT PREVENTION - "CLEAN BY DESIGN" (MANDATORY)**
-
-**CRITICAL**: Based on our recent cleanup of **290 dead code items** (279 files, 11 directories, 3MB), we now enforce a **Zero Technical Debt Policy** with automated prevention.
-
-### **🚨 ZERO TOLERANCE PATTERNS (IMMEDIATE REJECTION)**
-1. **Archive directories**: `archive/`, `backup/`, `_archived/`, `migration_backup/` ❌
-2. **Backup files**: `*.backup`, `*.bak`, `*.old`, `*.tmp`, `*.temp` ❌
-3. **One-time scripts** outside `scripts/one_time/` ❌
-4. **Completion documentation**: `*_COMPLETE.md`, `*_SUCCESS.md`, `*_FINAL.md` ❌
-5. **Implementation reports**: `*_IMPLEMENTATION_COMPLETE.md` ❌
-
-### **🔧 MANDATORY ONE-TIME SCRIPT MANAGEMENT**
-**BEFORE creating ANY script, ask: "Will this be used more than once?"**
-
-#### **If NO (One-time use):**
-```bash
-# CORRECT - One-time script with deletion date
-scripts/one_time/fix_auth_issue_DELETE_2025_08_15.py
-
-# REQUIRED header:
-"""
-One-time script: Fix authentication issue
-DELETE AFTER: 2025-08-15
-Created: 2025-07-13
-Purpose: Fix specific auth bug in production
-"""
-```
-
-#### **If YES (Permanent utility):**
-```bash
-# CORRECT - Permanent utilities
-scripts/utils/deploy_production.py        # Reusable deployment
-scripts/monitoring/health_check.py        # Ongoing monitoring
-scripts/maintenance/cleanup_logs.py       # Regular maintenance
-```
-
-### **📄 DOCUMENTATION LIFECYCLE MANAGEMENT**
-**All documentation MUST be categorized:**
-
-#### **PERMANENT (No Expiration)**
-- `docs/01-getting-started/` - User guides
-- `docs/03-architecture/` - Core architecture
-- `docs/99-reference/` - Reference documentation
-- `README.md`, `CHANGELOG.md` - Project essentials
-
-#### **TEMPORARY (Auto-Archive/Delete)**
-- `docs/implementation/` - **90 days** → Archive
-- `docs/deployment/` - **60 days** → Archive
-- `docs/migration/` - **30 days after completion** → Delete
-- `*_PLAN.md`, `*_STRATEGY.md` - **60 days** → Archive
-
-### **🤖 AUTOMATED ENFORCEMENT TOOLS**
-
-#### **Daily Cleanup (Automatic)**
-```bash
-# Runs automatically via GitHub Actions
-python scripts/utils/daily_cleanup.py
-
-# Features:
-✅ One-time script expiration (30 days)
-✅ Archive directory prevention
-✅ Backup file removal
-✅ Stale documentation detection
-✅ Large file monitoring (>10MB alerts)
-```
-
-#### **Pre-Commit Prevention (Mandatory)**
-```bash
-# Blocks commits that introduce technical debt
-python scripts/utils/pre_push_debt_check.py
-
-# Automatically blocks:
-❌ One-time scripts outside scripts/one_time/
-❌ Backup files (*.backup, *.bak, *.old)
-❌ Archive directories
-❌ Forbidden documentation patterns
-```
-
-### **📊 PREVENTION METRICS & TARGETS**
-- **One-time scripts**: <10 at any time
-- **Archive directories**: 0 (zero tolerance)
-- **Backup files**: 0 (zero tolerance)
-- **Stale documentation**: <5 files >90 days old
-- **Technical debt score**: <20/100
-
-### **🎯 "CLEAN BY DESIGN" PRINCIPLES**
-
-#### **1. Script Lifecycle Awareness**
-- **Before creating**: Ask "Will this be used more than once?"
-- **If NO**: Use `scripts/one_time/` with deletion date
-- **If YES**: Use appropriate permanent directory
-
-#### **2. Zero Archive Policy**
-- **Never create**: `archive/`, `backup/`, `old/` directories
-- **Use git history**: For accessing old versions
-- **Use branches**: For experimental work
-- **Use tags**: For release snapshots
-
-#### **3. Documentation Lifecycle**
-- **Implementation docs**: Include completion criteria
-- **Plans/strategies**: Set review dates
-- **Migration docs**: Delete after completion
-- **Reference docs**: Keep permanently updated
-
-#### **4. File Naming Conventions**
-```bash
-# ✅ GOOD
-scripts/utils/deploy_production.py           # Permanent utility
-scripts/one_time/fix_auth_DELETE_2025_08_15.py  # One-time with date
-docs/99-reference/api_documentation.md      # Permanent reference
-
-# ❌ BAD
-deploy_auth_fix.py                          # Unclear lifecycle
-docs/implementation_complete.md             # Completion doc
-backup_config.json                         # Backup file
-```
-
-### **🚀 QUICK PREVENTION COMMANDS**
-```bash
-# Check current debt status
-python scripts/utils/daily_cleanup.py
-
-# Validate before commit
-python scripts/utils/pre_push_debt_check.py
-
-# View prevention strategy
-cat docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md
-```
-
-**Remember**: *Prevention is 100x easier than cleanup!* We just removed 290 items - let's never do that again! 🧹✨
-
-## 🚨 **MANDATORY SPELLING RULE: PAY READY**
-
-### **CRITICAL SPELLING REQUIREMENT**
-- ✅ **ALWAYS spell as "Pay Ready" (with space between words)**
-- ❌ **NEVER spell as "PayReady" (one word)**
-- This applies to ALL documentation, code comments, variable names, file names, and any references
-- Company name is "Pay Ready" - two words with space
-
-## 🚨 **HONEST GIT OPERATIONS - NO DECEPTION**
-
-### **CRITICAL: BE TRUTHFUL ABOUT GITHUB OPERATIONS**
-- ❌ **NEVER** claim "committed to GitHub" unless `git push` actually succeeded
-- ❌ **NEVER** say "pushed to repository" unless you see successful push output
-- ❌ **NEVER** use phrases like "deployment triggered" unless push actually worked
-- ✅ **ALWAYS** say "committed locally" when only `git commit` is done
-- ✅ **ALWAYS** verify push success before claiming GitHub integration
-- ✅ **ALWAYS** show actual git command output when claiming success
-
-### **REQUIRED GIT WORKFLOW**
-1. **Local Commit**: `git commit -m "message"` → Say "committed locally" 
-2. **Verification**: Check `git status` and `git log --oneline -3`
-3. **Push Attempt**: `git push origin main` → Show actual output
-4. **Only Then**: Claim "successfully pushed to GitHub" if exit code = 0
-
-### **FORBIDDEN PHRASES UNLESS PUSH SUCCEEDS:**
-- ❌ "Committed to GitHub" 
-- ❌ "Pushed to repository"
-- ❌ "Deployment triggered"
-- ❌ "GitHub integration complete"
-- ❌ "Changes deployed"
-
-### **MANDATORY VALIDATION STEPS:**
-Before claiming GitHub success:
-```bash
-# Required validation sequence
-git status                    # Verify clean state
-git log --oneline -3         # Show recent commits  
-git push origin main         # Actual push attempt
-echo "Exit code: $?"         # Verify success
-```
-
-### **HONEST STATUS REPORTING**
-- "Changes committed locally, attempting GitHub push..."
-- "Push failed due to [specific error], investigating..."
-- "Successfully pushed to GitHub (verified exit code 0)"
-- "Both sophia-main and sophia-strategic-development repositories synchronized"
-
-## ⚠️ **REPOSITORY SYNCHRONIZATION REQUIREMENTS**
-
-### **BOTH REPOSITORIES MUST STAY ALIGNED:**
-- **sophia-main**: https://github.com/ai-cherry/sophia-main
-- **sophia-strategic-development**: https://github.com/ai-cherry/sophia-strategic-development
-
-### **SYNCHRONIZATION COMMANDS:**
-```bash
-# Add strategic remote (one-time setup)
-git remote add strategic https://github.com/ai-cherry/sophia-strategic-development.git
-
-# Sync both repositories 
-git push origin main                    # Push to sophia-main
-git push strategic main                 # Push to sophia-strategic-development
-```
-
-### **VERIFICATION REQUIREMENTS:**
-- ✅ Verify both pushes succeed with exit code 0
-- ✅ Check GitHub web interface shows latest commit on both repos
-- ✅ Confirm commit hashes match between repositories
-- ❌ Never claim synchronization unless both pushes succeed
+2.  **EXTEND, DON'T REPLACE:** Use the existing components (`

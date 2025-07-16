@@ -69,7 +69,7 @@ mkdir -p ~/sophia-deployment
 mkdir -p ~/sophia-logs
 mkdir -p ~/sophia-data/postgres
 mkdir -p ~/sophia-data/redis
-mkdir -p ~/sophia-data/weaviate
+mkdir -p ~/sophia-data/qdrant
 EOF
 echo -e "${GREEN}✓ Server environment ready${NC}"
 
@@ -103,20 +103,18 @@ services:
       - ~/sophia-data/redis:/data
     restart: always
 
-  weaviate:
-    image: semitechnologies/weaviate:1.25.4
-    container_name: sophia-weaviate
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: sophia-qdrant
     ports:
-      - "8080:8080"
-      - "50051:50051"
+      - "6333:6333"
+      - "6334:6334"
     environment:
-      PERSISTENCE_DATA_PATH: /var/lib/weaviate
-      DEFAULT_VECTORIZER_MODULE: text2vec-transformers
-      ENABLE_MODULES: text2vec-transformers
-      TRANSFORMERS_INFERENCE_API: http://t2v-transformers:8080
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
     volumes:
-      - ~/sophia-data/weaviate:/var/lib/weaviate
-    restart: always
+      - ~/sophia-data/qdrant:/qdrant/storage
+    restart: unless-stopped
 
   t2v-transformers:
     image: semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1
@@ -161,7 +159,7 @@ os.environ['ENVIRONMENT'] = 'prod'
 os.environ['PULUMI_ORG'] = 'scoobyjava-org'
 os.environ['DATABASE_URL'] = 'postgresql://sophia:sophia2025@localhost:5432/sophia_ai'
 os.environ['REDIS_URL'] = 'redis://localhost:6379'
-os.environ['WEAVIATE_URL'] = 'http://localhost:8080'
+os.environ['QDRANT_URL'] = 'http://localhost:6333'
 
 import uvicorn
 from api.main import app
@@ -202,7 +200,7 @@ source venv/bin/activate
 
 # Install dependencies
 pip install --upgrade pip
-pip install -r requirements.txt || pip install fastapi uvicorn sqlalchemy redis weaviate-client openai anthropic
+pip install -r requirements.txt || pip install fastapi uvicorn sqlalchemy redis qdrant-client openai anthropic
 
 # Set up environment file
 cat > .env << 'ENVFILE'
@@ -210,7 +208,7 @@ ENVIRONMENT=prod
 PULUMI_ORG=scoobyjava-org
 DATABASE_URL=postgresql://sophia:sophia2025@localhost:5432/sophia_ai
 REDIS_URL=redis://localhost:6379
-WEAVIATE_URL=http://localhost:8080
+QDRANT_URL=http://localhost:6333
 ENVFILE
 
 # Copy startup script

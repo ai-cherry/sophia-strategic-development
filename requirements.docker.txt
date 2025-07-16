@@ -2724,7 +2724,7 @@ wcwidth==0.2.13 \
     --hash=sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859 \
     --hash=sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5
     # via prompt-toolkit
-weaviate-client==4.15.4 \
+# ELIMINATED: weaviate-client==4.15.4 (using Qdrant instead)
     --hash=sha256:005e7a6cee52ff4ac66f244a572b5ed98dd0e15bfda380979a88fddf692720df \
     --hash=sha256:870b73495b8e5849003690f7c36f2795b90765e62482f07ab71275dbd21b271d
     # via sophia-ai

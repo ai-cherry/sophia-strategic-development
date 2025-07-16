@@ -27,9 +27,6 @@ echo "🔑 Setting secrets..."
 pulumi env set sophia-ai/production namecheap_api_key --secret
 pulumi env set sophia-ai/production namecheap_api_user "scoobyjava"
 
-# Vercel
-pulumi env set sophia-ai/production vercel_token --secret
-
 # Domain configuration
 pulumi env set sophia-ai/production domain "sophia-intel.ai"
 pulumi env set sophia-ai/production api_url "https://api.sophia-intel.ai"
@@ -41,7 +38,6 @@ pulumi env set sophia-ai/production lambda_labs_host "192.222.58.232"
 # Database URLs (will be updated after deployment)
 pulumi env set sophia-ai/production database_url --secret
 pulumi env set sophia-ai/production redis_url "redis://localhost:6379"
-pulumi env set sophia-ai/production weaviate_url "http://localhost:8080"
 
 # AI Services (optional)
 echo "🤖 Setting AI service keys (press Enter to skip if not available)..."

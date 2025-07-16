@@ -140,7 +140,7 @@ fi
 # Create directories
 mkdir -p ~/sophia-deployment
 mkdir -p ~/sophia-logs
-mkdir -p ~/sophia-data/{postgres,redis,weaviate}
+mkdir -p ~/sophia-data/{postgres,redis,qdrant}
 
 echo "Server environment ready"
 REMOTE_SCRIPT

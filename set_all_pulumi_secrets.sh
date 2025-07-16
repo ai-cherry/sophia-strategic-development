@@ -34,8 +34,9 @@ pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrast
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.qdrant.role "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.data.pinecone.api_key "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.data.pinecone.environment "${github_secret}"
-pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.data.weaviate.api_key "${github_secret}"
-pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.data.weaviate.url "${github_secret}"
+# ELIMINATED: Weaviate secrets removed - using Qdrant instead
+# pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.data.weaviate.api_key "${github_secret}"
+# pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.data.weaviate.url "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.postgres.password "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.redis.password "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.lambda_labs.api_key "${github_secret}"

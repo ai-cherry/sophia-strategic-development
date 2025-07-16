@@ -59,7 +59,7 @@ ssh_exec "docker --version && docker-compose --version && df -h /"
 echo -e "\n${YELLOW}Step 3: Setting up deployment structure...${NC}"
 ssh_exec << 'EOF'
 mkdir -p ~/sophia-deployment/{backend,frontend,data,logs}
-mkdir -p ~/sophia-data/{postgres,redis,weaviate}
+mkdir -p ~/sophia-data/{postgres,redis,qdrant}
 EOF
 
 # Step 4: Deploy services one by one
@@ -102,25 +102,18 @@ services:
       timeout: 5s
       retries: 5
 
-  weaviate:
-    image: semitechnologies/weaviate:1.25.4
-    container_name: sophia-weaviate
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: sophia-qdrant
     ports:
-      - "8080:8080"
+      - "6333:6333"
+      - "6334:6334"
     environment:
-      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
-      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
-      DEFAULT_VECTORIZER_MODULE: 'text2vec-transformers'
-      ENABLE_MODULES: 'text2vec-transformers'
-      TRANSFORMERS_INFERENCE_API: 'http://t2v-transformers:8080'
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
     volumes:
-      - ~/sophia-data/weaviate:/var/lib/weaviate
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/.well-known/ready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - ~/sophia-data/qdrant:/qdrant/storage
+    restart: unless-stopped
 
   t2v-transformers:
     image: semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1

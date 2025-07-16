@@ -62,7 +62,6 @@ create_secret "redis_url" "$(get_secret '.redis_url')"
 create_secret "mem0_api_key" "$(get_secret '.mem0_api_key')"
 create_secret "github_token" "$(get_secret '.github_token')"
 create_secret "lambda_api_key" "$(get_secret '.lambda_api_key')"
-create_secret "VERCEL_ACCESS_TOKEN" "$(get_secret '.vercel_api_token')"
 
 # Gong secrets (real values)
 create_secret "gong_access_key" "$(get_secret '.gong_access_key')"
