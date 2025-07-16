@@ -1,0 +1,71 @@
+{
+  "integration_id": "simple_integration_20250716_002944",
+  "integration_type": "simple_pay_ready_employee_roster",
+  "timestamp": "2025-07-16T00:29:44.993527",
+  "source_file": "data/pay_ready_employees_2025_07_15.csv",
+  "database_file": "foundational_knowledge_simple_integration_20250716_002944.db",
+  "status": "SUCCESS",
+  "employee_metrics": {
+    "total_employees": 104,
+    "active_employees": 104,
+    "active_percentage": 100.0,
+    "has_manager_percentage": 99.0
+  },
+  "department_distribution": {
+    "Account Management": 11,
+    "AI": 8,
+    "Compliance": 2,
+    "Engineering": 16,
+    "Eviction Center": 5,
+    "Executive": 3,
+    "Finance": 8,
+    "Human Resources": 3,
+    "Implementation": 3,
+    "Marketing": 2,
+    "Operational Excellence": 6,
+    "Payment Operations": 2,
+    "Product": 7,
+    "Sales": 8,
+    "Support Team": 20
+  },
+  "business_function_distribution": {
+    "customer_retention": 11,
+    "artificial_intelligence": 8,
+    "risk_management": 2,
+    "product_development": 23,
+    "specialized_operations": 5,
+    "strategic_leadership": 3,
+    "financial_operations": 10,
+    "people_operations": 3,
+    "customer_onboarding": 3,
+    "marketing_growth": 2,
+    "operational_efficiency": 6,
+    "revenue_generation": 8,
+    "customer_success": 20
+  },
+  "intelligence_priority_distribution": {
+    "high": 15,
+    "critical": 39,
+    "standard": 47,
+    "maximum": 3
+  },
+  "ai_enhancement_distribution": {
+    "advanced": 35,
+    "maximum": 8,
+    "specialized": 7,
+    "executive": 3,
+    "standard": 51
+  },
+  "strategic_metrics": {
+    "strategic_employee_count": 42,
+    "strategic_percentage": 40.4,
+    "ai_advanced_count": 46,
+    "ai_advanced_percentage": 44.2
+  },
+  "key_insights": {
+    "largest_department": "Support Team",
+    "primary_business_function": "product_development",
+    "total_departments": 15,
+    "unique_business_functions": 13
+  }
+}
