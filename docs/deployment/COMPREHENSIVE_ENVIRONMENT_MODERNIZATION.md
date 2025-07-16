@@ -81,10 +81,10 @@ DATABASE_SSH_KEY=your-database-ssh-key-here
 # 🤖 AI MODEL PROVIDERS (Primary Stack)
 # ================================================================
 # OpenAI
-OPENAI_API_KEY=sk-your-openai-key-here
+OPENAI_API_KEY=${OPENAI_API_KEY}
 
 # Anthropic  
-ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
+ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
 # Model Routing & Gateway
 PORTKEY_API_KEY=your-portkey-key-here
@@ -368,8 +368,8 @@ LOG_LEVEL=DEBUG
 SOPHIA_VERSION=3.4.0-dev
 
 # Essential AI Services (use your own keys)
-OPENAI_API_KEY=sk-your-personal-openai-key
-ANTHROPIC_API_KEY=sk-ant-your-personal-anthropic-key
+OPENAI_API_KEY=${OPENAI_API_KEY}
+ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
 # Local Database URLs
 DATABASE_URL=postgresql://postgres:password@localhost:5432/sophia_ai_dev

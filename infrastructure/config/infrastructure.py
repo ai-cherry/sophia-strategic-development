@@ -1,7 +1,7 @@
 """Infrastructure configuration re-export."""
 
 # Re-export from the main config location
-from config.infrastructure import (
+from infrastructure.config import (
     InfrastructureConfig,
     ServiceType,
     LambdaInstance,
