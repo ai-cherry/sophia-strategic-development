@@ -1,5 +1,5 @@
 {
-  "name": "Gong to Weaviate GPU Pipeline",
+  "name": "Gong to Qdrant GPU Pipeline",
   "nodes": [
     {
       "parameters": {
@@ -87,18 +87,18 @@
           "vector": "={{ $json.embedding }}"
         }
       },
-      "id": "store_weaviate",
-      "name": "Store in Weaviate",
-      "type": "n8n-nodes-community.weaviate",
+      "id": "store_qdrant",
+      "name": "Store in Qdrant",
+      "type": "n8n-nodes-community.qdrant",
       "typeVersion": 1,
       "position": [
         1050,
         200
       ],
       "credentials": {
-        "weaviateApi": {
+        "qdrantApi": {
           "id": "1",
-          "name": "Weaviate"
+          "name": "Qdrant"
         }
       }
     },
@@ -236,7 +236,7 @@
       "main": [
         [
           {
-            "node": "store_weaviate",
+            "node": "store_qdrant",
             "type": "main",
             "index": 0
           },
@@ -253,7 +253,7 @@
         ]
       ]
     },
-    "store_weaviate": {
+    "store_qdrant": {
       "main": [
         [
           {

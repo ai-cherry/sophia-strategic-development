@@ -56,9 +56,9 @@ deploy-mcp: ## Deploy MCP servers
 	sleep 20
 	kubectl get pods -n mcp-servers
 
-deploy-frontend: ## Deploy frontend to Vercel
+deploy-frontend: ## Deploy frontend to Lambda Labs
 	@echo "🎨 Deploying frontend..."
-	cd frontend && vercel --prod
+	cd frontend && npm run build
 
 deploy-n8n: ## Deploy n8n workflows
 	@echo "🔄 Deploying n8n workflows..."

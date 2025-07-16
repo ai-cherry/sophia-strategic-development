@@ -98,7 +98,7 @@ This document tracks the production deployment of Sophia AI v4.0 - the badass or
 ## Key Features Deployed
 
 ### 1. GPU-Accelerated Memory
-- Weaviate vector database
+- Qdrant vector database
 - Redis caching layer
 - PostgreSQL with pgvector
 - Lambda GPU inference

@@ -15,7 +15,7 @@ Your Sophia AI orchestrator leverages a **revolutionary 6-tier memory hierarchy*
 User Query → Sophia's Response: <200ms total
 ├── GPU Embedding Generation: <50ms (GH200)
 ├── Redis Cache Lookup: <10ms (Hot data)
-├── Weaviate Vector Search: <50ms (Semantic patterns)
+├── Qdrant Vector Search: <50ms (Semantic patterns)
 ├── PostgreSQL Hybrid Query: <100ms (Structured data)
 └── Mem0 Context Retrieval: <200ms (Conversational history)
 
@@ -39,7 +39,7 @@ Step 1: Immediate Context Gathering (Parallel Processing)
 │   └── Project context → GitHub MCP integration
 │
 ├── Historical Pattern Matching  
-│   ├── Similar coding tasks → Weaviate semantic search
+│   ├── Similar coding tasks → Qdrant semantic search
 │   ├── Previous solutions → PostgreSQL structured queries
 │   └── User preferences → Mem0 personalization
 │
@@ -87,7 +87,7 @@ Layer 1 (Redis): <10ms
 ├── Session state and user preferences
 └── MCP server response cache
 
-Layer 2 (Weaviate): <50ms
+Layer 2 (Qdrant): <50ms
 ├── Semantic search across all knowledge
 ├── Code pattern similarity matching
 ├── Business intelligence relationships
@@ -129,7 +129,7 @@ Every Interaction Triggers:
    └── Predictive context preparation
 
 3. Knowledge Integration
-   ├── Successful patterns → Weaviate long-term storage
+   ├── Successful patterns → Qdrant long-term storage
    ├── Quick access patterns → Redis cache update
    ├── User preferences → Mem0 personalization
    └── Business insights → PostgreSQL analytics
@@ -243,18 +243,18 @@ Between Cursor AI Sessions:
 1. Session State Persistence
    ├── Active project context → Redis + Mem0
    ├── Conversation history → Mem0 + PostgreSQL
-   ├── Code patterns and decisions → Weaviate
+   ├── Code patterns and decisions → Qdrant
    └── MCP server state → Distributed cache
 
 2. Context Reconstruction on Restart
    ├── User identification → Mem0 profile loading
    ├── Project context → GitHub + AI Memory MCPs
    ├── Recent patterns → Redis cache retrieval
-   └── Historical context → Weaviate semantic search
+   └── Historical context → Qdrant semantic search
 
 3. Intelligent Context Prioritization
    ├── Recent interactions → Higher weight in Redis
-   ├── Successful patterns → Promoted to Weaviate
+   ├── Successful patterns → Promoted to Qdrant
    ├── User preferences → Enhanced in Mem0
    └── Business priorities → Updated in PostgreSQL
 ```
@@ -304,7 +304,7 @@ Performance Optimization Strategy:
 2. Intelligent Caching Strategy
    ├── Redis → 80%+ cache hit rate for hot data
    ├── GPU VRAM → Active model and embedding cache
-   ├── Weaviate → Optimized vector indexing
+   ├── Qdrant → Optimized vector indexing
    └── PostgreSQL → Query optimization and indexing
 
 3. Parallel Processing Architecture
@@ -326,7 +326,7 @@ Response Generation:
 
 Memory Retrieval:
 ├── Redis cache hits: <10ms (>80% hit rate)
-├── Weaviate searches: <50ms average
+├── Qdrant searches: <50ms average
 ├── PostgreSQL queries: <100ms average
 └── Mem0 context: <200ms average
 

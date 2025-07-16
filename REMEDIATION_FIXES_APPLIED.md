@@ -51,7 +51,7 @@
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/faiss/loader.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/anthropic/_client.py: 1 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/setuptools/warnings.py: 0 replacements
-- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/weaviate/logger.py: 0 replacements
+- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/Qdrant/logger.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/coverage/sysmon.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/coverage/parser.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/openai/__init__.py: 1 replacements
@@ -93,7 +93,7 @@
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/mypy/test/testmypyc.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/setuptools/tests/test_build_meta.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/setuptools/config/_validate_pyproject/error_reporting.py: 0 replacements
-- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/weaviate/collections/batch/base.py: 0 replacements
+- Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/Qdrant/collections/batch/base.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/.venv/lib/python3.12/site-packages/_pytest/_io/terminalwriter.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/scripts/implementation/phase1_foundation_setup.py: 0 replacements
 - Fixed /Users/lynnmusil/sophia-main/api/middleware/security.py: 0 replacements

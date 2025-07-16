@@ -171,10 +171,9 @@ class AdvancedUIUXAgentService:
         self.config = SophiaConfig()
         self.portkey = UnifiedLLMServiceService(self.config)
 
-        # MCP server connections for design tools
+        # MCP server connections for design tools (Vercel eliminated)
         self.mcp_servers = {
             "figma": {"port": 9001, "status": "available"},
-            "v0_vercel": {"port": 9003, "status": "available"},
             "design_system": {"port": 9004, "status": "available"},
         }
 

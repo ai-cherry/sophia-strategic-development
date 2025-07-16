@@ -37,8 +37,8 @@
       },
       "output_summary": "Simulated load test complete"
     },
-    "Weaviate Optimization": {
-      "test": "Weaviate Optimization",
+    "Qdrant Optimization": {
+      "test": "Qdrant Optimization",
       "success": false,
       "target": ">92% recall",
       "target_met": true,

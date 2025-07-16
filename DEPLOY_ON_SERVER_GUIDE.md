@@ -19,7 +19,7 @@ fi
 
 ```bash
 # Create data directories
-mkdir -p ~/sophia-data/{postgres,redis,weaviate}
+mkdir -p ~/sophia-data/{postgres,redis,Qdrant}
 
 # Start PostgreSQL
 docker run -d \
@@ -38,29 +38,18 @@ docker run -d \
   -v ~/sophia-data/redis:/data \
   redis:7-alpine
 
-# Start Weaviate
+# Start Qdrant
 docker run -d \
-  --name sophia-weaviate \
-  -p 8080:8080 \
-  -e AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true \
-  -e PERSISTENCE_DATA_PATH=/var/lib/weaviate \
-  -e DEFAULT_VECTORIZER_MODULE=text2vec-transformers \
-  -e ENABLE_MODULES=text2vec-transformers \
-  -e TRANSFORMERS_INFERENCE_API=http://t2v-transformers:8080 \
-  -v ~/sophia-data/weaviate:/var/lib/weaviate \
-  semitechnologies/weaviate:1.25.4
-
-# Start transformer model for Weaviate
-docker run -d \
-  --name sophia-t2v-transformers \
-  -e ENABLE_CUDA=0 \
-  semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1
+  --name sophia-qdrant \
+  -p 6333:6333 \
+  -p 6334:6334 \
+  -v ~/sophia-data/qdrant:/qdrant/storage \
+  qdrant/qdrant:latest
 
 # Check all services
-docker ps
-```
+docker ps```
 
-## Step 3: Initialize Weaviate Schema
+## Step 3: Initialize Qdrant Schema
 
 ```bash
 # Install Python dependencies (if needed)
@@ -72,10 +61,10 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Install requirements
-pip install weaviate-client redis psycopg2-binary
+pip install qdrant-client redis psycopg2-binary
 
-# Initialize Weaviate schema
-python scripts/init_weaviate_schema.py
+# Initialize Qdrant schema
+python scripts/init_qdrant_collections.py
 ```
 
 ## Step 4: Deploy Backend
@@ -88,7 +77,7 @@ API_HOST=0.0.0.0
 API_PORT=8000
 DATABASE_URL=postgresql://sophia:sophia2025@localhost:5432/sophia_ai
 REDIS_URL=redis://localhost:6379
-WEAVIATE_URL=http://localhost:8080
+QDRANT_URL=http://localhost:8080
 OPENAI_API_KEY=${OPENAI_API_KEY}
 ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 GONG_API_KEY=${GONG_API_KEY}
@@ -152,16 +141,16 @@ screen -r sophia-backend
 # View logs
 docker logs sophia-postgres
 docker logs sophia-redis
-docker logs sophia-weaviate
+docker logs sophia-qdrant
 
 # Restart services
-docker restart sophia-postgres sophia-redis sophia-weaviate
+docker restart sophia-postgres sophia-redis sophia-qdrant
 
 # Stop all services
-docker stop sophia-postgres sophia-redis sophia-weaviate sophia-t2v-transformers
+docker stop sophia-postgres sophia-redis sophia-qdrant 
 
 # Remove containers (careful!)
-docker rm sophia-postgres sophia-redis sophia-weaviate sophia-t2v-transformers
+docker rm sophia-postgres sophia-redis sophia-qdrant 
 ```
 
 ## Troubleshooting

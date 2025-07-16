@@ -140,8 +140,8 @@ For more detailed CHANGELOG, see [AGENT_DEVELOPMENT.md](AGENT_DEVELOPMENT.md) an
 ## [Unreleased]
 
 ### Added
-- **Phase 4: GPU Beast Infrastructure Deployment** - Pulumi/K8s deployment for Weaviate/Redis/PostgreSQL/Lambda
-  - Weaviate Deployment with 3 replicas, GPU support, and auto-scaling to 10 pods
+- **Phase 4: GPU Beast Infrastructure Deployment** - Pulumi/K8s deployment for Qdrant/Redis/PostgreSQL/Lambda
+  - Qdrant Deployment with 3 replicas, GPU support, and auto-scaling to 10 pods
   - Redis StatefulSet with Sentinel for HA and 10Gi persistent storage
   - PostgreSQL with pgvector extension, IVFFlat indexes, and 200Gi storage
   - Lambda Inference Service with B200 GPU support and Portkey fallback
@@ -153,7 +153,7 @@ For more detailed CHANGELOG, see [AGENT_DEVELOPMENT.md](AGENT_DEVELOPMENT.md) an
 
 ### Infrastructure
 - Lambda B200 GPU integration with 2.3x VRAM (700W TDP efficiency)
-- Weaviate v1.25.4 with hybrid fusion for sub-50ms queries on billions of vectors
+- Qdrant v1.25.4 with hybrid fusion for sub-50ms queries on billions of vectors
 - Redis with hiredis for <1ms caching latency
 - PostgreSQL 16 with pgvector 0.3.6 for hybrid SQL+vector queries
 - Exponential backoff retry logic for Lambda GPU flakes
@@ -166,7 +166,7 @@ For more detailed CHANGELOG, see [AGENT_DEVELOPMENT.md](AGENT_DEVELOPMENT.md) an
 - Support for 1000+ records/min ingestion
 
 ### Monitoring
-- Weaviate query latency alerts (P95 >50ms, P99 >200ms)
+- Qdrant query latency alerts (P95 >50ms, P99 >200ms)
 - ETL throughput monitoring with Prometheus
 - GPU memory utilization tracking
 - End-to-end knowledge search metrics
@@ -177,12 +177,12 @@ For more detailed CHANGELOG, see [AGENT_DEVELOPMENT.md](AGENT_DEVELOPMENT.md) an
 ### Added
 - **Phase 3: ETL Pipeline Revolution** - Complete migration from Modern Stack to GPU-powered stack
   - UnifiedMemoryServiceV2 with Lambda GPU embeddings
-  - Estuary Flow configurations for Weaviate integration
+  - Estuary Flow configurations for Qdrant integration
   - n8n workflows with parallel storage operations
-  - Migration script for Modern Stack → Weaviate data transfer
+  - Migration script for Modern Stack → Qdrant data transfer
 
 ### Changed
-- Memory architecture from Lambda GPU to Lambda/Weaviate/Redis stack
+- Memory architecture from Lambda GPU to Lambda/Qdrant/Redis stack
 - Cost reduction: $3,500/month → $700/month (80% savings)
 - Performance: 10x faster embeddings, 6x faster search
 

@@ -160,7 +160,7 @@ Creating a file? → Ask: "Will this be used more than once?"
 - **Primary User:** Pay Ready CEO (initial sole user)
 - **Core Integrations:** HubSpot CRM, Gong.io call analysis, Slack communication
 - **Data Stack:** PostgreSQL, Redis, Pinecone, Weaviate
-- **Infrastructure:** Lambda Labs servers, Vercel frontend deployment
+- **Infrastructure:** Lambda Labs servers, Lambda Labs frontend deployment
 - **External Repository Collection:** 11 strategic MCP servers (22k+ combined stars)
 
 ## 🔐 **PERMANENT SECRET MANAGEMENT SOLUTION - MANDATORY REFERENCE**
@@ -229,7 +229,7 @@ Services that use CLI-based authentication with secure credential storage:
 - **GitHub**: `gh auth login` with secure token storage
 - **Pulumi**: `pulumi login` with organization access
 - **Docker**: `docker login` for registry operations
-- **Vercel**: `vercel login` for frontend deployments
+- **Lambda Labs**: Direct deployment to Lambda Labs servers
 
 #### **Tier 2: Enhanced API Authentication**
 Services with enhanced security patterns:
@@ -340,7 +340,7 @@ if confirmation.approved:
 "Deploy the updated infrastructure to production"
 "Scale up the qdrant warehouse for the analytics job"
 "Create a new Docker service for the MCP gateway"
-"Update the Vercel deployment with latest frontend changes"
+"Update the Lambda Labs deployment with latest frontend changes"
 ```
 
 #### **Data Operations**
@@ -1326,7 +1326,7 @@ When using Cursor AI for infrastructure operations, you can use natural language
 
 ### MCP Server Natural Language Integration (v3.18 Enhanced)
 - **Query Data**: "Get recent Gong calls" → Uses Gong MCP server with model routing
-- **Deploy Apps**: "Deploy to Vercel" → Uses Vercel MCP server with improved diff
+- **Deploy Apps**: "Deploy to Lambda Labs" → Uses Lambda Labs deployment with improved diff
 - **Manage Data**: "Upload to Estuary" → Uses Estuary MCP server with WebFetch
 - **Database Operations**: "Query qdrant" → Uses qdrant MCP server with Cortex
 - **Store Memory**: "Remember this conversation" → Uses AI Memory MCP server with Claude 4

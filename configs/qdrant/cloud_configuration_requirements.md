@@ -40,7 +40,7 @@
    - Use Docker or K8s deployment
 
 3. **Different Vector Database**
-   - Switch to Pinecone, Weaviate, etc.
+   - Switch to Pinecone, Qdrant, etc.
    - Modify wrapper service accordingly
 
 ## Next Steps

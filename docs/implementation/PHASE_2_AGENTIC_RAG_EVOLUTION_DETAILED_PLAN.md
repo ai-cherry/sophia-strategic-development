@@ -46,7 +46,7 @@ Query → LangGraph State → [Retrieve → Critique → Refine] → Tool-Use �
 ### 🔧 Core Technologies
 
 - **LangGraph**: State management and cyclical workflows
-- **Weaviate**: Primary vector store (enhanced with v1.26 features)
+- **Qdrant**: Primary vector store (enhanced with v1.26 features)
 - **Qdrant**: Multimodal visual embeddings
 - **Docling**: Document parsing and visual grounding
 - **Redis**: Hot cache and session state
@@ -97,7 +97,7 @@ class RAGState(TypedDict):
 class MemoryTier:
     """Memory tier configuration"""
     name: str
-    storage_type: str  # redis, weaviate, neo4j
+    storage_type: str  # redis, Qdrant, neo4j
     ttl_seconds: int
     max_entries: int
     embedding_model: str
@@ -105,7 +105,7 @@ class MemoryTier:
 class UnifiedMemoryServiceV3:
     """
     Modular memory service with LangGraph integration
-    Episodic (Redis) + Semantic (Weaviate) + Procedural (Neo4j stub)
+    Episodic (Redis) + Semantic (Qdrant) + Procedural (Neo4j stub)
     """
     
     def __init__(self):
@@ -120,7 +120,7 @@ class UnifiedMemoryServiceV3:
             ),
             "semantic": MemoryTier(
                 name="Semantic Memory", 
-                storage_type="weaviate",
+                storage_type="Qdrant",
                 ttl_seconds=86400 * 30,  # 30 days
                 max_entries=100000,
                 embedding_model="lambda-gpu"
@@ -381,7 +381,7 @@ async def validate_phase2_performance():
 - **Lambda Labs GPU**: B200 instance for embedding generation
 - **K3s Resources**: 8GB RAM, 4 CPU cores per service
 - **Redis**: 16GB instance for episodic memory
-- **Weaviate**: v1.26+ with GPU acceleration
+- **Qdrant**: v1.26+ with GPU acceleration
 
 #### Deployment Script
 ```bash
@@ -891,8 +891,8 @@ class ModularMemoryPruner:
         # Find and remove near-duplicate embeddings
         similarity_threshold = policy["similarity_threshold"]
         
-        # Get all embeddings from Weaviate
-        collection = self.memory_service.weaviate.collections.get("Knowledge")
+        # Get all embeddings from Qdrant
+        collection = self.memory_service.Qdrant.collections.get("Knowledge")
         
         # Batch similarity comparison
         duplicates_removed = 0

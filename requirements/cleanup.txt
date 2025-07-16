@@ -1,32 +1,23 @@
 # Cleanup and Validation Dependencies
-# Dependencies for technical debt cleanup and validation scripts
+# Dependencies specific to technical debt cleanup and validation scripts
+# Migrated from requirements-phase2.txt on Tue Jul 16 03:44:55 UTC 2025
 
 -r base.txt
 
-# Testing Framework
-pytest>=7.0.0
-pytest-asyncio>=0.21.0
+# Cleanup-specific testing (not duplicated in development.txt)
+pytest>=7.0.0  # Basic testing for cleanup scripts
+gitpython>=3.1.0  # Git operations for cleanup scripts
 
-# Code Quality Tools
-black>=23.0.0
-isort>=5.12.0
-flake8>=6.0.0
-mypy>=1.0.0
-bandit>=1.7.0
-safety>=2.3.0
+# File system operations specific to cleanup
+pathlib2>=2.3.0  # Enhanced path operations for cleanup scripts
+watchdog>=3.0.0  # File monitoring for cleanup automation
 
-# File System and Process Management
-pathlib2>=2.3.0
-watchdog>=3.0.0
-click>=8.0.0
-rich>=13.0.0
+# Cleanup-specific utilities 
+toml>=0.10.0  # Configuration file parsing
+click>=8.0.0  # CLI framework for cleanup scripts
+rich>=13.0.0  # Beautiful terminal output for cleanup
 
-# Code Analysis for Technical Debt
-ast-grep>=0.5.0
-vulture>=2.7.0
-radon>=6.0.0
-
-# Additional utilities for cleanup scripts
-gitpython>=3.1.0
-toml>=0.10.0
-
+# Code analysis for technical debt detection (cleanup-specific)
+ast-grep>=0.5.0  # AST-based code search for debt detection
+vulture>=2.7.0  # Dead code detection
+radon>=6.0.0  # Code complexity analysis

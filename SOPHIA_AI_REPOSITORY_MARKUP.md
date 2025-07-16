@@ -289,7 +289,7 @@ Strategic external repositories:
 
 ### Databases
 - **PostgreSQL** - Primary database with pgvector
-- **Weaviate** - Vector database
+- **Qdrant** - Vector database
 - **Redis** - Caching layer
 - **Modern Stack** - Data warehouse (legacy)
 
@@ -335,7 +335,7 @@ Strategic external repositories:
 ### Services Deployed
 - **PostgreSQL** (Port 5432)
 - **Redis** (Port 6379)
-- **Weaviate** (Port 8080)
+- **Qdrant** (Port 8080)
 - **FastAPI Backend** (Port 8000)
 - **React Frontend** (Port 3000)
 - **50+ MCP Servers** (Ports 3000-9999)
@@ -358,7 +358,7 @@ Strategic external repositories:
 ## 📊 Active Development Areas
 
 1. **Memory Architecture Migration**
-   - Moving from Modern Stack to Weaviate
+   - Moving from Modern Stack to Qdrant
    - GPU-accelerated embeddings
    - 3-tier caching strategy
 

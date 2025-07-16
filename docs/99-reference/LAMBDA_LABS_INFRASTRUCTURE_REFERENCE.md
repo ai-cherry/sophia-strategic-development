@@ -68,7 +68,7 @@ All secrets are managed through the unified pipeline:
 - AI Memory MCP (Port 9001)
 - PostgreSQL (Port 5432)
 - Redis (Port 6379)
-- Weaviate (Port 8080)
+- Qdrant (Port 8080)
 
 ### **sophia-mcp-orchestrator (104.171.202.117)**
 - MCP Gateway (Port 8080)

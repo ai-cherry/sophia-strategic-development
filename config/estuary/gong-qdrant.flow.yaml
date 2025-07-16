@@ -1,4 +1,4 @@
-# Estuary Flow Specification for Gong Data → Weaviate/PostgreSQL
+# Estuary Flow Specification for Gong Data → Qdrant/PostgreSQL
 # GPU-powered embeddings, no more ELIMINATED!
 # Date: July 11, 2025
 
@@ -132,7 +132,7 @@ materializations:
         resource:
           table: gong_call_transcripts
 
-# Custom Derivations - GPU Embeddings & Weaviate Storage
+# Custom Derivations - GPU Embeddings & Qdrant Storage
 derivations:
   sophia/gong-enrichment:
     transform:
@@ -140,7 +140,7 @@ derivations:
       config:
         # Lambda GPU endpoint
         lambda_inference_url: ${LAMBDA_INFERENCE_URL}
-        # Weaviate connection
+        # Qdrant connection
         QDRANT_URL: ${QDRANT_URL}
         # Redis for caching
         redis_host: ${REDIS_HOST}
@@ -214,7 +214,7 @@ hooks:
     type: post-materialization
     config:
       # This hook runs after data lands in PostgreSQL
-      # It generates embeddings and stores in Weaviate
+      # It generates embeddings and stores in Qdrant
       script: |
         #!/usr/bin/env python3
         import asyncio
@@ -226,7 +226,7 @@ hooks:
             
             # Query new records from PostgreSQL
             # Generate embeddings on Lambda GPU
-            # Store in Weaviate + cache in Redis
+            # Store in Qdrant + cache in Redis
             # Update PostgreSQL with embedding status
             
         asyncio.run(process_new_records())
@@ -240,7 +240,7 @@ monitoring:
       
     - name: QDRANT_storage_success
       type: counter
-      description: Successful Weaviate storage operations
+      description: Successful Qdrant storage operations
       
     - name: cache_hit_rate
       type: gauge
@@ -252,8 +252,8 @@ monitoring:
       message: "GPU embeddings exceeding 100ms p95"
       
     - name: storage_failures
-      condition: rate(weaviate_storage_success[5m]) < 0.95
-      message: "Weaviate storage success rate below 95%"
+      condition: rate(qdrant_storage_success[5m]) < 0.95
+      message: "Qdrant storage success rate below 95%"
 
 # Performance Targets
 performance:

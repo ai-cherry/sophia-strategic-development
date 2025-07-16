@@ -16,7 +16,7 @@ You are tasked with conducting deep research to find the **latest, most cutting-
 - **Sophia AI**: Enterprise AI orchestrator with 25+ MCP (Model Context Protocol) servers
 - **Backend**: FastAPI with Clean Architecture, Python 3.12
 - **Infrastructure**: Lambda Labs GPU instances, Kubernetes orchestration
-- **Data Stack**: PostgreSQL, Redis, Modern Stack, Pinecone, Weaviate
+- **Data Stack**: PostgreSQL, Redis, Modern Stack, Pinecone, Qdrant
 - **Current Integrations**: GitHub Actions, existing N8N bridge, multiple Docker configurations
 
 ### Migration Goals

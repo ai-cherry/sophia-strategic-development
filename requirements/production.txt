@@ -3,22 +3,23 @@
 
 -r base.txt
 
-# Production-specific optimizations
+# Production-specific web server optimizations
 gunicorn>=21.0.0
 gevent>=23.0.0
 
-# Enhanced monitoring
+# Enhanced monitoring and observability
 sentry-sdk[fastapi]>=1.32.0
 datadog>=0.47.0
 
-# Performance optimizations
-ujson>=5.8.0
-cython>=3.0.0
+# Performance optimizations (not in base.txt)
+ujson>=5.8.0  # Faster JSON parsing than orjson
+cython>=3.0.0  # Performance optimizations
 
-# Security enhancements
+# Security enhancements for production
 cryptography>=41.0.0
 bcrypt>=4.0.0
 
-# Production database optimizations
+# Production-specific database optimizations (replaces base asyncpg)
+# Note: This overrides the base asyncpg with speedups
 asyncpg[speedups]==0.30.0
 

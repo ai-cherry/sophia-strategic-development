@@ -10,7 +10,7 @@ describe('Memory Dashboard', () => {
           tiers: {
             L0_gpu_cache: 'Lambda B200',
             L1_redis: 'available',
-            L2_weaviate: 'available',
+            L2_qdrant: 'available',
             L3_postgresql: 'available',
           },
           features: {
@@ -98,7 +98,7 @@ describe('Memory Dashboard', () => {
     // Check tier status
     cy.contains('L0_gpu_cache').should('be.visible');
     cy.contains('L1_redis').should('be.visible');
-    cy.contains('L2_weaviate').should('be.visible');
+    cy.contains('L2_qdrant').should('be.visible');
     cy.contains('L3_postgresql').should('be.visible');
 
     // Check features

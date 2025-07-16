@@ -34,7 +34,7 @@ graph TB
 
     subgraph "Vector Intelligence Layer"
         J[Pinecone Real-time]
-        K[Weaviate Complex Filtering]
+        K[Qdrant Complex Filtering]
         L[Semantic Routing Engine]
     end
 
@@ -213,12 +213,12 @@ $$;
 #### **Vector Database Intelligent Routing**
 ```python
 class SophiaVectorIntelligence:
-    """Unified vector intelligence that makes Pinecone/Weaviate work seamlessly with Cortex"""
+    """Unified vector intelligence that makes Pinecone/Qdrant work seamlessly with Cortex"""
 
     def __init__(self):
         self.ELIMINATED_cortex = Modern StackCortexClient()
         self.pinecone = PineconeClient()
-        self.weaviate = WeaviateClient()
+        self.Qdrant = QdrantClient()
         self.routing_optimizer = VectorRoutingOptimizer()
         self.constitutional_ai = ConstitutionalAI()
 
@@ -252,10 +252,10 @@ class SophiaVectorIntelligence:
                 self._pinecone_search_with_context(query_context, routing_strategy)
             )
 
-        # Add Weaviate for complex filtering
+        # Add Qdrant for complex filtering
         if routing_strategy.requires_complex_filtering:
             search_tasks.append(
-                self._weaviate_search_with_business_logic(query_context, routing_strategy)
+                self._Qdrant_search_with_business_logic(query_context, routing_strategy)
             )
 
         # Execute all searches in parallel
@@ -374,7 +374,7 @@ interface SophiaConversationalConfig {
     };
     vector_databases: {
       pinecone: { role: 'realtime', priority: 2 };
-      weaviate: { role: 'complex_filtering', priority: 3 };
+      Qdrant: { role: 'complex_filtering', priority: 3 };
     };
     web_search: {
       providers: ['search1api', 'brave', 'google'];

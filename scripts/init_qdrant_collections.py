@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Initialize Qdrant Collections for Sophia AI
-Replaces the old Weaviate schema initialization
+Initializes Qdrant collections for vector storage
 """
 
 import asyncio

@@ -1,5 +1,5 @@
 # 🚀 SOPHIA AI REPOSITORY MARKUP - POST MEMORY MIGRATION
-*Updated: July 12, 2025 - After Lambda/Weaviate/Redis Migration*
+*Updated: July 12, 2025 - After Lambda/Qdrant/Redis Migration*
 
 ## 📊 Executive Summary
 
@@ -41,9 +41,9 @@ sophia-main/
 │   ├── asana/                # Project management
 │   └── codacy/               # Code quality
 ├── scripts/                   # 250 utility scripts
-│   └── migrate_ELIMINATED_to_weaviate.py  # NEW migration tool
+│   └── migrate_ELIMINATED_to_Qdrant.py  # NEW migration tool
 ├── config/                    # Configuration files
-│   └── estuary/              # NEW: Weaviate flow configs
+│   └── estuary/              # NEW: Qdrant flow configs
 ├── docs/                      # 293 documentation files
 │   └── system_handbook/      # UPDATED architecture docs
 └── external/                  # 11 strategic repositories
@@ -57,7 +57,7 @@ class UnifiedMemoryServiceV2:
     """
     GPU-accelerated memory service with:
     - Lambda B200 GPU embeddings (<50ms)
-    - Weaviate vector storage
+    - Qdrant vector storage
     - Redis caching layer
     - PostgreSQL pgvector hybrid search
     """
@@ -65,19 +65,19 @@ class UnifiedMemoryServiceV2:
 
 ### 2. **Data Flow Architecture**
 ```yaml
-# config/estuary/gong-weaviate.flow.yaml
+# config/estuary/gong-Qdrant.flow.yaml
 Source: Gong API
 ↓ 
 Processor: GPU Enrichment (Lambda)
 ↓
 Targets:
-  - Weaviate (vectors)
+  - Qdrant (vectors)
   - Redis (cache)
   - PostgreSQL (hybrid)
 ```
 
 ### 3. **Migration Infrastructure**
-- `scripts/migrate_ELIMINATED_to_weaviate.py` - Data migration tool
+- `scripts/migrate_ELIMINATED_to_Qdrant.py` - Data migration tool
 - `scripts/benchmark_memory_performance.py` - Performance validation
 - `config/n8n/workflows/sophia-etl-gpu.json` - ETL workflow
 
@@ -94,7 +94,7 @@ Targets:
 ### ✅ Added/Enhanced
 ```
 - Lambda Labs B200 GPU integration
-- Weaviate v1.25+ vector database
+- Qdrant v1.25+ vector database
 - Redis with hiredis for <1ms caching
 - PostgreSQL pgvector for hybrid queries
 - Unified ETL adapter pattern
@@ -112,7 +112,7 @@ ETL Pipelines: 600-1000ms
 Monthly Cost: $3,500
 ```
 
-### After Migration (Lambda/Weaviate)
+### After Migration (Lambda/Qdrant)
 ```
 Embeddings: 20-50ms (10x faster)
 Vector Search: 30-50ms (6x faster)
@@ -127,7 +127,7 @@ Monthly Cost: $700 (80% reduction)
 ```
 L0: GPU Cache (Lambda B200) - Hardware acceleration
 L1: Redis Hot Cache - <1ms latency
-L2: Weaviate Vectors - 30-50ms semantic search
+L2: Qdrant Vectors - 30-50ms semantic search
 L3: PostgreSQL pgvector - Hybrid SQL+vector
 L4: Mem0 Conversations - Agent memory
 L5: Modern Stack (Legacy) - Being phased out
@@ -137,7 +137,7 @@ L5: Modern Stack (Legacy) - Being phased out
 ```toml
 [tool.uv.dependency-groups]
 memory = [
-    "weaviate-client==4.9.4",
+    "Qdrant-client==4.9.4",
     "redis[hiredis]==5.2.0", 
     "pgvector==0.3.6",
     "sentence-transformers==3.3.1",
@@ -147,7 +147,7 @@ memory = [
 ## 🚀 MCP Server Updates
 
 ### Enhanced Servers (19 total)
-1. **AI Memory MCP** - Now GPU-powered with Weaviate backend
+1. **AI Memory MCP** - Now GPU-powered with Qdrant backend
 2. **Gong MCP** - Direct GPU enrichment pipeline
 3. **Modern Stack MCP** - Legacy support during transition
 4. **Asana MCP** - Integrated with new memory
@@ -171,7 +171,7 @@ memory = [
 
 ### New/Updated Guides
 - `docs/system_handbook/12_GPU_MEMORY_ARCHITECTURE.md` - Complete architecture
-- `docs/04-deployment/WEAVIATE_DEPLOYMENT_GUIDE.md` - Production setup
+- `docs/04-deployment/QDRANT_DEPLOYMENT_GUIDE.md` - Production setup
 - `docs/07-performance/LAMBDA_GPU_BENCHMARKS.md` - Performance data
 - `MEMORY_MIGRATION_COMPLETE.md` - Migration summary
 
@@ -184,7 +184,7 @@ memory = [
 
 ### ✅ Completed
 - [x] Memory service v2 implementation
-- [x] Weaviate schema and indexes
+- [x] Qdrant schema and indexes
 - [x] Redis caching layer
 - [x] PostgreSQL pgvector setup
 - [x] ETL pipeline conversion
@@ -194,7 +194,7 @@ memory = [
 - [x] Cost analysis validation
 
 ### 🚀 Next Steps (Phase 4)
-- [ ] Production Weaviate deployment on K8s
+- [ ] Production Qdrant deployment on K8s
 - [ ] Redis cluster configuration
 - [ ] PostgreSQL replication setup
 - [ ] Lambda GPU autoscaling
@@ -236,7 +236,7 @@ memory = [
 ### Production Services
 ```yaml
 Lambda GPU: https://api.lambdalabs.com/inference
-Weaviate: http://localhost:8080 (to be deployed)
+Qdrant: http://localhost:8080 (to be deployed)
 Redis: redis://localhost:6379
 PostgreSQL: postgresql://localhost:5432/sophia_vectors
 Frontend: https://app.sophia-intel.ai
@@ -289,9 +289,9 @@ These repositories provide proven implementation patterns, best practices, and c
 ## 📚 Quick Links
 
 - [Architecture Diagram](docs/system_handbook/diagrams/gpu_memory_architecture.png)
-- [Migration Guide](scripts/migrate_ELIMINATED_to_weaviate.py)
+- [Migration Guide](scripts/migrate_ELIMINATED_to_Qdrant.py)
 - [Performance Benchmarks](docs/07-performance/LAMBDA_GPU_BENCHMARKS.md)
-- [Deployment Guide](docs/04-deployment/WEAVIATE_DEPLOYMENT_GUIDE.md)
+- [Deployment Guide](docs/04-deployment/QDRANT_DEPLOYMENT_GUIDE.md)
 
 ---
 

@@ -113,7 +113,7 @@ GitHub Organization Secrets → Pulumi ESC → Backend Auto-Loading
 
 ### **Current Architecture Strengths:**
 - ✅ **5-GPU Lambda Labs Infrastructure** ($3,549/mo)
-- ✅ **6-Tier Memory Hierarchy** (GPU/Redis/Weaviate/Postgres/Mem0/Legacy)
+- ✅ **6-Tier Memory Hierarchy** (GPU/Redis/Qdrant/Postgres/Mem0/Legacy)
 - ✅ **17 MCP Servers** (Business Intelligence focused)
 - ✅ **Unified Secret Management** (GitHub → Pulumi ESC → Backend)
 - ✅ **Production-Ready Backend** (FastAPI, health checks, monitoring)

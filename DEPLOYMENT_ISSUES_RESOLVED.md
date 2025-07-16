@@ -9,8 +9,8 @@
 - **Status**: SSH connectivity confirmed working to all servers
 
 ### 2. **Outdated Documentation** ✅ FIXED
-- **Issue**: System Handbook claimed "NEVER use Weaviate" despite migration days ago
-- **Resolution**: Updated all documentation to reflect Weaviate as primary vector store
+- **Issue**: System Handbook claimed "NEVER use Qdrant" despite migration days ago
+- **Resolution**: Updated all documentation to reflect Qdrant as primary vector store
 - **Files Updated**: 
   - `docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md`
   - `.cursorrules` 

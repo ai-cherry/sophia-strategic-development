@@ -21,7 +21,7 @@ Railway was amateur hour. This is the **real deal** - a Lambda Labs K3s/K8s hybr
 ├─────────────────────────────────────────────────────────────┤
 │  K3s Core (Bare Metal)     │  K8s Serverless (Auto-scale)  │
 │  ├─ MCP Servers (53)       │  ├─ Blackwell GPU Pods        │
-│  ├─ Weaviate v1.26         │  ├─ LangGraph 0.5.1           │
+│  ├─ Qdrant v1.26         │  ├─ LangGraph 0.5.1           │
 │  ├─ Core APIs <150ms       │  ├─ Spike Handlers 1000 QPS   │
 │  └─ Always-on Services     │  └─ Auto-provision B200s      │
 ├─────────────────────────────────────────────────────────────┤
@@ -83,7 +83,7 @@ python scripts/deploy_lambda_labs_fortress.py --validate-only
 ### **GPU-Hot Performance**
 - **Blackwell B200 GPUs** with 2.5x efficiency gains
 - **Karpenter auto-scaling** for 1000 QPS spikes
-- **<50ms** vector search with Weaviate v1.26
+- **<50ms** vector search with Qdrant v1.26
 - **Lambda Labs bare metal** for maximum performance
 
 ### **Chaos-Tested Resilience**

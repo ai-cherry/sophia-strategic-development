@@ -9,7 +9,7 @@
 - ✅ **Backend API**: Running at https://api.sophia-intel.ai
 - ✅ **SSL Certificates**: Valid until October 2025
 - ❌ **Frontend**: NOT deployed (showing backend JSON instead)
-- ❌ **Docker Services**: NOT running (PostgreSQL, Redis, Weaviate)
+- ❌ **Docker Services**: NOT running (PostgreSQL, Redis, Qdrant)
 - ❌ **MCP Servers**: NOT running
 - ✅ **DNS**: Correctly pointing to 192.222.58.232
 
@@ -36,7 +36,7 @@ chmod +x scripts/deploy_sophia_production_real.sh
 ```
 
 This script will:
-1. ✅ Install Docker services (PostgreSQL, Redis, Weaviate)
+1. ✅ Install Docker services (PostgreSQL, Redis, Qdrant)
 2. ✅ Deploy the backend with proper configuration
 3. ✅ Build and deploy the frontend
 4. ✅ Configure nginx correctly
@@ -67,7 +67,7 @@ ssh -i ~/.ssh/sophia_correct_key ubuntu@192.222.58.232
 ```bash
 # On the server
 cd ~
-mkdir -p sophia-deployment sophia-logs sophia-data/{postgres,redis,weaviate}
+mkdir -p sophia-deployment sophia-logs sophia-data/{postgres,redis,Qdrant}
 
 # Create docker-compose.yml
 cat > sophia-deployment/docker-compose.yml << 'EOF'
@@ -95,17 +95,17 @@ services:
       - ~/sophia-data/redis:/data
     restart: always
 
-  weaviate:
-    image: semitechnologies/weaviate:1.25.4
-    container_name: sophia-weaviate
+  Qdrant:
+    image: semitechnologies/Qdrant:1.25.4
+    container_name: sophia-Qdrant
     ports:
       - "8080:8080"
     environment:
-      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      PERSISTENCE_DATA_PATH: /var/lib/Qdrant
       DEFAULT_VECTORIZER_MODULE: text2vec-transformers
       ENABLE_MODULES: text2vec-transformers
     volumes:
-      - ~/sophia-data/weaviate:/var/lib/weaviate
+      - ~/sophia-data/Qdrant:/var/lib/Qdrant
     restart: always
 EOF
 

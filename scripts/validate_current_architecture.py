@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Architecture Validation Script
-Validates current state of Weaviate vs Qdrant usage
+Validates current state of Qdrant usage only (Weaviate eliminated)
 """
 
 import os
@@ -15,10 +15,10 @@ class ArchitectureValidator:
     def __init__(self):
         self.results = {
             "timestamp": datetime.now().isoformat(),
-            "weaviate_references": 0,
+            "qdrant_references": 0,
             "QDRANT_references": 0,
             "architecture_conflicts": [],
-            "files_with_weaviate": [],
+            "files_with_qdrant": [],
             "files_with_qdrant": [],
             "critical_issues": [],
             "recommendations": []
@@ -28,7 +28,7 @@ class ArchitectureValidator:
         """Scan entire codebase for architecture references"""
         print("🔍 Scanning codebase for architecture references...")
         
-        excluded_dirs = {'.git', 'node_modules', '__pycache__', '.venv', 'venv', 'backup', 'weaviate_elimination_backup_20250714_145747'}
+        excluded_dirs = {'.git', 'node_modules', '__pycache__', '.venv', 'venv', 'backup', 'qdrant_elimination_backup_20250714_145747'}
         
         for root, dirs, files in os.walk("."):
             dirs[:] = [d for d in dirs if d not in excluded_dirs]
@@ -47,15 +47,15 @@ class ArchitectureValidator:
             content_lower = content.lower()
             
             # Count references
-            weaviate_count = content_lower.count('weaviate')
+            qdrant_count = content_lower.count('qdrant')
             QDRANT_count = content_lower.count('qdrant')
             
-            if weaviate_count > 0:
-                self.results["weaviate_references"] += weaviate_count
-                self.results["files_with_weaviate"].append({
+            if qdrant_count > 0:
+                self.results["qdrant_references"] += qdrant_count
+                self.results["files_with_qdrant"].append({
                     "file": file_path,
-                    "count": weaviate_count,
-                    "lines": self.find_reference_lines(content, 'weaviate')
+                    "count": qdrant_count,
+                    "lines": self.find_reference_lines(content, 'qdrant')
                 })
             
             if QDRANT_count > 0:
@@ -67,10 +67,10 @@ class ArchitectureValidator:
                 })
             
             # Check for architecture conflicts
-            if weaviate_count > 0 and QDRANT_count > 0:
+            if qdrant_count > 0 and QDRANT_count > 0:
                 self.results["architecture_conflicts"].append({
                     "file": file_path,
-                    "weaviate_count": weaviate_count,
+                    "qdrant_count": qdrant_count,
                     "QDRANT_count": QDRANT_count,
                     "severity": "HIGH"
                 })
@@ -87,17 +87,17 @@ class ArchitectureValidator:
         """Generate recommendations based on analysis"""
         print("💡 Generating recommendations...")
         
-        weaviate_files = len(self.results["files_with_weaviate"])
+        qdrant_files = len(self.results["files_with_qdrant"])
         QDRANT_files = len(self.results["files_with_qdrant"])
         
-        if weaviate_files > 0:
+        if qdrant_files > 0:
             self.results["recommendations"].append({
                 "priority": "MEDIUM",
-                "action": "Review remaining Weaviate references",
-                "description": f"Found {weaviate_files} files with Weaviate references (may be documentation or backups)"
+                "action": "Review remaining legacy references",
+                "description": f"Found {qdrant_files} files with legacy references (may be documentation or backups)"
             })
         
-        if weaviate_files == 0 and QDRANT_files > 0:
+        if qdrant_files == 0 and QDRANT_files > 0:
             self.results["recommendations"].append({
                 "priority": "LOW",
                 "action": "Architecture validation complete",
@@ -110,24 +110,24 @@ class ArchitectureValidator:
         print("📊 ARCHITECTURE VALIDATION SUMMARY")
         print("="*60)
         
-        print(f"🔍 Total Weaviate references: {self.results['weaviate_references']}")
+        print(f"🔍 Total legacy references: {self.results['qdrant_references']}")
         print(f"🔍 Total Qdrant references: {self.results['QDRANT_references']}")
-        print(f"📁 Files with Weaviate: {len(self.results['files_with_weaviate'])}")
+        print(f"📁 Files with legacy refs: {len(self.results['files_with_qdrant'])}")
         print(f"📁 Files with Qdrant: {len(self.results['files_with_qdrant'])}")
         print(f"⚠️  Architecture conflicts: {len(self.results['architecture_conflicts'])}")
         
         # Architecture status
-        if self.results['weaviate_references'] == 0:
+        if self.results['qdrant_references'] == 0:
             print("\n✅ ARCHITECTURE STATUS: Pure Qdrant (EXCELLENT)")
-        elif self.results['weaviate_references'] < 50:
+        elif self.results['qdrant_references'] < 50:
             print("\n⚠️  ARCHITECTURE STATUS: Mostly Qdrant (GOOD - minor cleanup needed)")
         else:
             print("\n❌ ARCHITECTURE STATUS: Mixed architecture (NEEDS CLEANUP)")
         
         # Top Weaviate files (if any)
-        if self.results['files_with_weaviate']:
-            print("\n🔍 REMAINING WEAVIATE FILES:")
-            sorted_files = sorted(self.results['files_with_weaviate'], key=lambda x: x['count'], reverse=True)
+        if self.results['files_with_qdrant']:
+            print("\n🔍 REMAINING LEGACY FILES:")
+            sorted_files = sorted(self.results['files_with_qdrant'], key=lambda x: x['count'], reverse=True)
             for file_info in sorted_files[:5]:
                 print(f"  {file_info['count']:3d} refs - {file_info['file']}")
         
@@ -163,11 +163,11 @@ if __name__ == "__main__":
     results = validator.validate()
     
     # Exit with appropriate code
-    if results['weaviate_references'] > 100:
-        print("\n❌ Validation failed - Too many Weaviate references remain")
+    if results['qdrant_references'] > 100:
+        print("\n❌ Validation failed - Too many legacy references remain")
         exit(1)
-    elif results['weaviate_references'] > 0:
-        print("\n⚠️  Validation warning - Some Weaviate references remain (likely documentation)")
+    elif results['qdrant_references'] > 0:
+        print("\n⚠️  Validation warning - Some legacy references remain (likely documentation)")
         exit(0)
     else:
         print("\n✅ Validation passed - Pure Qdrant architecture achieved")

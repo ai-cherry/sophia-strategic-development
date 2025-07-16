@@ -83,21 +83,21 @@ docker run -d \
   redis-server --appendonly yes
 ```
 
-#### Weaviate Vector Database
+#### Qdrant Vector Database
 ```bash
-# Deploy Weaviate
+# Deploy Qdrant
 docker run -d \
-  --name weaviate \
+  --name Qdrant \
   --restart unless-stopped \
   -e AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true \
-  -e PERSISTENCE_DATA_PATH=/var/lib/weaviate \
+  -e PERSISTENCE_DATA_PATH=/var/lib/Qdrant \
   -e DEFAULT_VECTORIZER_MODULE=text2vec-transformers \
   -e ENABLE_MODULES=text2vec-transformers \
   -e TRANSFORMERS_INFERENCE_API=http://t2v-transformers:8080 \
-  -v weaviate_data:/var/lib/weaviate \
+  -v Qdrant_data:/var/lib/Qdrant \
   -p 8080:8080 \
   -p 50051:50051 \
-  semitechnologies/weaviate:1.25.4
+  semitechnologies/Qdrant:1.25.4
 
 # Deploy transformer model
 docker run -d \
@@ -126,11 +126,11 @@ docker run -d \
   -e PULUMI_ORG=scoobyjava-org \
   -e DATABASE_URL=postgresql://postgres:password@postgres:5432/sophia_ai_db \
   -e REDIS_URL=redis://redis:6379 \
-  -e WEAVIATE_URL=http://weaviate:8080 \
+  -e QDRANT_URL=http://Qdrant:8080 \
   -p 8000:8000 \
   --link postgres \
   --link redis \
-  --link weaviate \
+  --link Qdrant \
   scoobyjava15/sophia-backend:latest
 ```
 
@@ -147,7 +147,7 @@ docker run -d \
   --name mcp-ai-memory \
   --restart unless-stopped \
   -e ENVIRONMENT=prod \
-  -e WEAVIATE_URL=http://weaviate:8080 \
+  -e QDRANT_URL=http://Qdrant:8080 \
   -e REDIS_URL=redis://redis:6379 \
   -p 9001:9001 \
   scoobyjava15/mcp-ai-memory:latest
@@ -173,7 +173,7 @@ Lambda Labs --prod
 
 ### Health Check Endpoints
 - **Backend**: http://api.sophia-intel.ai/health
-- **Weaviate**: http://api.sophia-intel.ai:8080/v1/.well-known/ready
+- **Qdrant**: http://api.sophia-intel.ai:8080/v1/.well-known/ready
 - **Redis**: `redis-cli ping`
 - **PostgreSQL**: `pg_isready`
 
@@ -276,7 +276,7 @@ VACUUM ANALYZE;
 
 ### Caching Strategy
 - **L1 (Redis)**: 5-minute TTL for hot data
-- **L2 (Weaviate)**: 1-hour TTL for warm data
+- **L2 (Qdrant)**: 1-hour TTL for warm data
 - **L3 (PostgreSQL)**: 24-hour TTL for cold data
 
 ### GPU Utilization
@@ -298,7 +298,7 @@ docker run -e CUDA_VISIBLE_DEVICES=0 ...
 # PostgreSQL backup
 pg_dump -h localhost -U postgres sophia_ai_db > backup_$(date +%Y%m%d).sql
 
-# Weaviate backup
+# Qdrant backup
 curl -X POST http://localhost:8080/v1/backups/filesystem \
   -H "Content-Type: application/json" \
   -d '{"id": "backup-'$(date +%Y%m%d)'"}'

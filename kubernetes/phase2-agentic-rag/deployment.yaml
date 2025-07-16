@@ -314,7 +314,7 @@ data:
         multimodal_support: false
         self_pruning: true
       semantic:
-        storage_type: weaviate
+        storage_type: qdrant
         ttl_seconds: 2592000  # 30 days
         max_entries: 100000
         embedding_model: lambda-gpu

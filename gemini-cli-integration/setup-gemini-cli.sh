@@ -127,7 +127,7 @@ Sophia AI is an advanced business intelligence platform with AI-powered regulato
 - **Backend**: Python FastAPI with qdrant Cortex AI integration
 - **Frontend**: React with TypeScript and Tailwind CSS
 - **MCP Servers**: 4-tier architecture (AI Intelligence, Data Intelligence, Infrastructure, Business Intelligence)
-- **Deployment**: Vercel frontend, containerized backend services
+- **Deployment**: Lambda Labs frontend, containerized backend services
 - **Monitoring**: Prometheus + Grafana with comprehensive observability
 
 ## Key Components

@@ -145,7 +145,7 @@ services:
   - bright-data             # Data Intelligence (Port 9105)
   - apify-intelligence      # Automation (Port 9016)
   - redis                   # AI Cache (Port 6379)
-  - vector-db               # Weaviate (Port 8088)
+  - vector-db               # Qdrant (Port 8088)
 ```
 
 ### MCP Orchestrator Instance (A6000)

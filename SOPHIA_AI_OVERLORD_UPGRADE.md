@@ -27,7 +27,7 @@ CEO: "Analyze our revenue trends, compare to competitors, and suggest optimizati
 Sophia: *Complexity: NUCLEAR* 
     → Sub-task 1: Fetch revenue from HubSpot
     → Sub-task 2: Get competitor intel from external sources
-    → Sub-task 3: Analyze patterns with Weaviate RAG
+    → Sub-task 3: Analyze patterns with Qdrant RAG
     → Sub-task 4: Generate strategies with Portkey
     → Synthesize: Coherent report with actionable insights
     → Self-Critique: "Is this good enough?" → Loop if needed
@@ -38,7 +38,7 @@ Sophia: *Complexity: NUCLEAR*
 - Complex queries: 25% better accuracy through decomposition
 - Nuclear queries: Complete analysis that would take humans hours
 
-## 🔍 SMARTER RAG: Weaviate v1.26 Personalization
+## 🔍 SMARTER RAG: Qdrant v1.26 Personalization
 
 ### What We Built
 **File**: `backend/services/unified_memory_service_v2.py` (enhanced)
@@ -104,7 +104,7 @@ Response: "MWAHAHAHA! OPTIMIZE? Let's OBLITERATE that latency!
 ### What We Built
 **File**: `infrastructure/n8n/workflows/self_optimizing_mcp_router.json`
 - **Performance Monitoring**: Checks MCP latencies every minute
-- **Automatic Rerouting**: Weaviate slow? → Route to PostgreSQL
+- **Automatic Rerouting**: Qdrant slow? → Route to PostgreSQL
 - **External Intelligence**: Fetches optimization tips from X
 - **Self-Healing**: Applies fixes without human intervention
 
@@ -112,9 +112,9 @@ Response: "MWAHAHAHA! OPTIMIZE? Let's OBLITERATE that latency!
 ```
 Every minute:
 1. Check Prometheus: mcp_request_duration_seconds > 0.15?
-2. Identify bottlenecks: {weaviate: 0.18s, gong: 0.22s}
+2. Identify bottlenecks: {Qdrant: 0.18s, gong: 0.22s}
 3. Apply rerouting:
-   - weaviate → postgresql (for structured queries)
+   - Qdrant → postgresql (for structured queries)
    - gong → redis_cache (serve from cache)
 4. Update Estuary priorities
 5. Notify Slack: "Rerouted for speedup - latency fixed"
@@ -142,7 +142,7 @@ Query: "Current AI market trends"
 External Service:
     → Fetch X posts about AI (last 24h, >10 likes)
     → Fetch news articles (last 7 days)
-    → Store in Weaviate with "external" flag
+    → Store in Qdrant with "external" flag
     → Search with enriched context
     ↓
 Response: Includes real-time market sentiment and breaking news
@@ -210,7 +210,7 @@ curl -X POST http://localhost:8000/api/v4/sophia/chat \
 
 ## 🎯 What's Next?
 
-1. **Weaviate v1.26 Multimodal**: Add Gong call video analysis
+1. **Qdrant v1.26 Multimodal**: Add Gong call video analysis
 2. **Blackwell GPU Integration**: 30x inference when available
 3. **Advanced Personalities**: GPT-4 fine-tuned on CEO communication style
 4. **Predictive Orchestration**: Anticipate queries before they're asked

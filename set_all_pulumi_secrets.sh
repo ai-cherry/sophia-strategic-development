@@ -40,8 +40,7 @@ pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrast
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.redis.password "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.lambda_labs.api_key "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.lambda_labs.api_key "${github_secret}"
-pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.vercel.api_token "${github_secret}"
-pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.vercel.project_id "${github_secret}"
+# ELIMINATED: Vercel secrets removed - using Lambda Labs deployment
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.infrastructure.pulumi.access_token "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.development.github.token "${github_secret}"
 pulumi env set scoobyjava-org/default/sophia-ai-production values.sophia.development.github.token "${github_secret}"

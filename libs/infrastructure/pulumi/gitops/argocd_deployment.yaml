@@ -332,7 +332,7 @@ data:
           - image: scoobyjava15/sophia-mcp-gpu
             tag: latest
             update-strategy: latest
-          - image: semitechnologies/weaviate
+          - image: semitechnologies/qdrant
             tag: 1.26.0
             update-strategy: semver
             

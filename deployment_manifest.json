@@ -2,13 +2,13 @@
   "timestamp": "2025-07-12T07:37:46.484046",
   "environment": "dev",
   "components": [
-    "Weaviate GPU Cluster",
+    "Qdrant GPU Cluster",
     "Redis HA with Sentinel",
     "PostgreSQL with pgvector",
     "Lambda Inference Service"
   ],
   "endpoints": {
-    "Weaviate": "http://weaviate-service.sophia-ai-dev:8080",
+    "Qdrant": "http://Qdrant-service.sophia-ai-dev:8080",
     "Redis": "redis://redis-service.sophia-ai-dev:6379",
     "PostgreSQL": "postgresql://postgresql-service.sophia-ai-dev:5432/sophia_vectors",
     "Lambda Inference": "http://lambda-inference-service.sophia-ai-dev:8080"

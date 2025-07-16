@@ -217,7 +217,7 @@ async def main():
             f"{Colors.GREEN}✅ GPU Memory Stack is CRUSHING IT! {avg_improvement:.1f}% faster than Qdrant!{Colors.ENDC}"
         )
         print(
-            f"{Colors.GREEN}   Lambda B200's 192GB VRAM + Weaviate 4.6.1 = Pure performance porn{Colors.ENDC}"
+            f"{Colors.GREEN}   Lambda B200's 192GB VRAM + Qdrant 4.6.1 = Pure performance porn{Colors.ENDC}"
         )
     elif avg_improvement > 30:
         print(

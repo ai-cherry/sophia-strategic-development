@@ -30,7 +30,7 @@ Your Sophia AI platform represents one of the most sophisticated AI coding infra
 
 **💾 Memory Architecture Superiority (10/10)**
 - **6-tier memory hierarchy** from GPU cache to long-term storage
-- **Weaviate Cloud integration** for semantic code search
+- **Qdrant Cloud integration** for semantic code search
 - **Redis caching layer** for sub-10ms retrieval
 - **PostgreSQL pgvector** for hybrid SQL + vector queries
 
@@ -47,7 +47,7 @@ Your primary challenge isn't technical infrastructure - it's **context orchestra
 #### **AI Memory Server V3 (Port 9000)**
 **Current Capabilities Assessment:**
 - GPU-accelerated embedding generation with Lambda Labs integration
-- Weaviate vector storage for semantic similarity
+- Qdrant vector storage for semantic similarity
 - Conversation context persistence across sessions
 - Multi-agent memory coordination
 

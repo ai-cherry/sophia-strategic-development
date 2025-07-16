@@ -72,7 +72,7 @@ I'm deploying Sophia AI, an executive intelligence assistant platform with multi
 ### Database & Storage
 - **Primary**: Modern Stack (L3/L4/L5 in unified memory architecture)
 - **Cache**: Redis (L1 layer)
-- **Vector Search**: Lambda GPU AI (replacing Pinecone/Weaviate)
+- **Vector Search**: Lambda GPU AI (replacing Pinecone/Qdrant)
 - **Memory Service**: UnifiedMemoryService handling all memory operations
 
 ### Infrastructure & Deployment

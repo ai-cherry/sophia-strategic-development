@@ -351,7 +351,7 @@ const api = {
         stats: {
           tiers: {
             'Redis (L1)': 'available',
-            'Weaviate (L2)': 'available',
+            'Qdrant (L2)': 'available',
             'PostgreSQL (L3)': 'available',
             'Mem0 (L4)': 'available'
           },

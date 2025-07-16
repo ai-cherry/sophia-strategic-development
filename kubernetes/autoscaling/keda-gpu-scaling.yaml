@@ -112,7 +112,7 @@ spec:
   - type: prometheus
     metadata:
       serverAddress: http://prometheus:9090
-      metricName: weaviate_gpu_memory_usage
+              metricName: qdrant_gpu_memory_usage
       threshold: "70"
       query: avg(nvidia_gpu_memory_used_percent{job="qdrant-gpu-exporter"})
   # Cache miss rate (scale up if cache is ineffective)

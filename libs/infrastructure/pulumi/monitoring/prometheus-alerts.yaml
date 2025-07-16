@@ -9,26 +9,26 @@ data:
     - name: sophia-ai-memory-alerts
       interval: 30s
       rules:
-      # Weaviate Performance Alerts
-      - alert: WeaviateHighQueryLatency
-        expr: histogram_quantile(0.95, sum(rate(weaviate_query_duration_seconds_bucket[5m])) by (le)) > 0.05
+      # Qdrant Performance Alerts
+      - alert: QdrantHighQueryLatency
+        expr: histogram_quantile(0.95, sum(rate(qdrant_query_duration_seconds_bucket[5m])) by (le)) > 0.05
         for: 5m
         labels:
           severity: warning
-          component: weaviate
+          component: qdrant
         annotations:
-          summary: "Weaviate P95 query latency exceeds 50ms"
-          description: "Weaviate queries are taking {{ $value | humanizeDuration }} at P95 (target: <50ms)"
+          summary: "Qdrant P95 query latency exceeds 50ms"
+          description: "Qdrant queries are taking {{ $value | humanizeDuration }} at P95 (target: <50ms)"
           
-      - alert: WeaviateCriticalLatency
-        expr: histogram_quantile(0.99, sum(rate(weaviate_query_duration_seconds_bucket[5m])) by (le)) > 0.2
+      - alert: QdrantCriticalLatency
+        expr: histogram_quantile(0.99, sum(rate(qdrant_query_duration_seconds_bucket[5m])) by (le)) > 0.2
         for: 2m
         labels:
           severity: critical
-          component: weaviate
+          component: qdrant
         annotations:
-          summary: "Weaviate P99 query latency exceeds 200ms"
-          description: "Weaviate experiencing severe latency: {{ $value | humanizeDuration }} at P99"
+          summary: "Qdrant P99 query latency exceeds 200ms"
+          description: "Qdrant experiencing severe latency: {{ $value | humanizeDuration }} at P99"
       
       # ETL Pipeline Alerts
       - alert: ETLPipelineHighLatency
@@ -136,7 +136,7 @@ data:
           description: "Search latency at {{ $value | humanizeDuration }} P95"
       
       - alert: MemoryStackUnhealthy
-        expr: (up{job=~"weaviate|redis|postgresql|lambda-inference"} == 0) > 0
+        expr: (up{job=~"qdrant|redis|postgresql|lambda-inference"} == 0) > 0
         for: 2m
         labels:
           severity: critical

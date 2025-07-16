@@ -74,7 +74,7 @@
     "qdrant": {
       "port": 8080,
       "status": "available",
-      "description": "Weaviate vector database"
+      "description": "Qdrant vector database"
     },
     "redis": {
       "port": 6379,

@@ -100,7 +100,7 @@ class OrganizationalCompetitiveIntelligenceService:
     async def initialize(self):
         """Initialize the service with database connections"""
         # Initialize cortex service for SQL queries
-        # This would connect to your Snowflake/Cortex instance
+        # ELIMINATED: Using Qdrant vector database instead
         pass
     
     # =====================================================================
@@ -511,7 +511,7 @@ class OrganizationalCompetitiveIntelligenceService:
     async def _execute_foundational_query(self, query: str, parameters: List[Any] = None) -> List[Any]:
         """Execute SQL query against foundational knowledge database"""
         try:
-            # This would use your actual Snowflake/Cortex connection
+            # ELIMINATED: Using Qdrant unified memory service instead
             # For now, return mock data structure
             logger.info(f"Executing foundational query: {query[:100]}...")
             

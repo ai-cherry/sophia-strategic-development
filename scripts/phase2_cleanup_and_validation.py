@@ -186,9 +186,9 @@ class Phase2CleanupValidator:
                     "from backend.services.unified_memory_service import": "from backend.services.unified_memory_service import",
                     "UnifiedMemoryService": "UnifiedMemoryService",
                     "get_unified_memory_service()": "get_unified_memory_service_v3()",
-                    "from backend.services.QDRANT_memory_service import": "# MIGRATED: Updated to current service version
-                    "await self.lambda_gpu.embed_text": "# MIGRATED: Updated to current service version
-                    "QDRANT_unified": "# MIGRATED: Updated to current service version
+                    "from backend.services.QDRANT_memory_service import": "# MIGRATED: Updated to current service version",
+                    "await self.lambda_gpu.embed_text": "# MIGRATED: Updated to current service version",
+                    "QDRANT_unified": "# MIGRATED: Updated to current service version"
                 }
                 
                 for old_pattern, new_pattern in replacements.items():
@@ -824,4 +824,4 @@ async def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

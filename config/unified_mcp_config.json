@@ -1,6 +1,6 @@
 {
   "version": "6.0-gpu",
-  "description": "GPU-Accelerated MCP Configuration with Weaviate/Redis/PostgreSQL",
+  "description": "GPU-Accelerated MCP Configuration with Qdrant/Redis/PostgreSQL",
   "last_updated": "2025-07-12T16:00:00.000Z",
   "lambda_labs": {
     "host": "192.222.58.232",
@@ -11,7 +11,7 @@
   "memory_stack": {
     "qdrant": {
       "endpoint": "${QDRANT_URL}",
-      "default": "http://weaviate-service:8080"
+      "default": "http://qdrant-service:8080"
     },
     "redis": {
       "endpoint": "${REDIS_URL}",

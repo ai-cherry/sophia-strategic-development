@@ -311,7 +311,7 @@ The backend is organized into specialized services following clean architecture 
 
 ##### **Unified Memory Service V2**
 - **Purpose**: GPU-accelerated memory and knowledge management
-- **Features**: Weaviate vector storage, Redis caching, Lambda GPU embeddings
+- **Features**: Qdrant vector storage, Redis caching, Lambda GPU embeddings
 - **Performance**: <50ms embeddings, <100ms vector search
 - **Cost**: 80% reduction vs. Modern Stack ($3.5k→$700/month)
 
@@ -612,7 +612,7 @@ dependencies = [
     "anthropic>=0.25.0",
     "openai>=1.30.0",
     "langchain>=0.2.0",
-    "weaviate-client>=4.0.0",
+    "Qdrant-client>=4.0.0",
     "pulumi>=3.0.0"
 ]
 ```
@@ -731,7 +731,7 @@ Other:            61 files (3.0%)
 - **Impact**: Improved development velocity
 
 ### AI Enhancement
-- **Memory Architecture**: Weaviate + Lambda GPU integration
+- **Memory Architecture**: Qdrant + Lambda GPU integration
 - **Performance**: 10x faster embeddings, 5x faster search
 - **Cost Optimization**: 80% reduction in AI processing costs
 - **Scalability**: Support for 100K+ concurrent users

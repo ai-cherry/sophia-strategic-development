@@ -1,6 +1,6 @@
 name: 🚀 Qdrant Production Deployment (DISABLED)
 # Clean deployment workflow focused on Qdrant architecture
-# Replaces contaminated Weaviate workflows
+# Replaces contaminated Qdrant workflows
 # DISABLED: Use sophia-main-deployment.yml instead
 
 on:
@@ -102,14 +102,14 @@ jobs:
           # Add Qdrant connection validation logic here
           curl -X GET "${{ secrets.QDRANT_URL }}/collections"             -H "Authorization: Bearer ${{ secrets.QDRANT_API_KEY }}"             -H "Content-Type: application/json"
       
-      - name: Check for Weaviate contamination
+      - name: Check for Qdrant contamination
         run: |
-          echo "🔍 Checking for Weaviate contamination..."
-          if grep -r "weaviate" --include="*.yml" --include="*.yaml" .github/workflows/; then
-            echo "❌ Weaviate contamination detected in workflows"
+          echo "🔍 Checking for Qdrant contamination..."
+          if grep -r "Qdrant" --include="*.yml" --include="*.yaml" .github/workflows/; then
+            echo "❌ Qdrant contamination detected in workflows"
             exit 1
           else
-            echo "✅ No Weaviate contamination found"
+            echo "✅ No Qdrant contamination found"
           fi
 
   build-and-deploy:

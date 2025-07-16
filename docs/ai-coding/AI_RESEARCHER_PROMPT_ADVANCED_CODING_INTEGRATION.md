@@ -9,7 +9,7 @@
 ### **Current Sophia AI Infrastructure (To Build Upon)**
 - **MCP Server Architecture**: 17 specialized servers with real infrastructure capabilities
 - **AI Gateway**: Portkey + OpenRouter integration with 200+ models
-- **Memory Architecture**: GPU-accelerated Weaviate + Redis + PostgreSQL + Mem0
+- **Memory Architecture**: GPU-accelerated Qdrant + Redis + PostgreSQL + Mem0
 - **Cloud Infrastructure**: Lambda Labs GPU instances + K3s Kubernetes
 - **Development Environment**: Cursor AI IDE with extensive MCP integration
 - **Authentication**: Revolutionary AI Agent Authentication system for real infrastructure changes

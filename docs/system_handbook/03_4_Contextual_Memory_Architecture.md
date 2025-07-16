@@ -33,7 +33,7 @@ graph TD
     end
 
     subgraph Deep Knowledge Layer
-        F[Vector Search<br>(Pinecone/Weaviate)]
+        F[Vector Search<br>(Pinecone/Qdrant)]
         G[Structured Data<br>(Modern Stack)]
         H[AI SQL Generation<br>(Lambda GPU)]
     end
@@ -85,7 +85,7 @@ graph TD
 
 4.  **L2 AI Memory Recall:** On a cache miss, the gateway calls the `recall_memory` tool. Our **AI Memory Service** (the FastAPI server) searches its PostgreSQL database for memories, conversation history, and documents explicitly tagged with `"ACME Corp"`.
 
-5.  **L3 Vector Search (Pinecone/Weaviate):** Concurrently, the entity `"ACME Corp"` is used to perform a vector search across our deep knowledge bases in Pinecone/Weaviate. This finds semantically similar concepts, such as call transcripts where ACME's new product line was discussed, even if the exact company name wasn't tagged.
+5.  **L3 Vector Search (Pinecone/Qdrant):** Concurrently, the entity `"ACME Corp"` is used to perform a vector search across our deep knowledge bases in Pinecone/Qdrant. This finds semantically similar concepts, such as call transcripts where ACME's new product line was discussed, even if the exact company name wasn't tagged.
 
 6.  **L4 Structured Data Search (Lambda GPU):** The system recognizes that "call outcome" and "ACME Corp" relate to structured data. It uses **Lambda GPU** to translate the natural language query into an optimized SQL query (e.g., `SELECT call_summary, sentiment FROM gong_calls WHERE company_name = 'ACME Corp' ORDER BY call_date DESC LIMIT 1;`). This AI-SQL query is executed against our structured data warehouse.
 
@@ -130,7 +130,7 @@ Once data is ingested, it goes through a sophisticated processing pipeline to ma
     -   `timestamp`: The original creation date.
     -   `security_level`: (e.g., "Public", "Internal", "Confidential", "Unified-Only")
     -   `document_id`: A unique ID to group all chunks from the same source.
-3.  **Embedding & Semantic Search:** Each chunk is converted into a vector embedding using state-of-the-art models and stored in our vector database (Pinecone/Weaviate) for fast, accurate semantic search.
+3.  **Embedding & Semantic Search:** Each chunk is converted into a vector embedding using state-of-the-art models and stored in our vector database (Pinecone/Qdrant) for fast, accurate semantic search.
 
 ## 6. The Training Loop: Interactive & Weighted Fine-Tuning
 

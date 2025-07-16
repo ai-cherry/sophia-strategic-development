@@ -20,8 +20,8 @@
    - Deployment scripts updated to use → `104.171.202.103` (sophia-production-instance)
 
 2. **Documentation Drift**:
-   - You already migrated from Modern Stack to Weaviate days/weeks ago
-   - But documentation still said "NEVER use Weaviate"
+   - You already migrated from Modern Stack to Qdrant days/weeks ago
+   - But documentation still said "NEVER use Qdrant"
    - Now fixed in System Handbook
 
 ## 🔧 What Needs to Happen

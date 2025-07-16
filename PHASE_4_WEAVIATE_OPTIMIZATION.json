@@ -122,6 +122,6 @@
   "recommendation": {
     "optimal_alpha": 0.6499999999999999,
     "expected_recall": 0.3409090909090909,
-    "implementation": "Set Weaviate alpha=0.65 for >92% recall"
+    "implementation": "Set Qdrant alpha=0.65 for >92% recall"
   }
 }

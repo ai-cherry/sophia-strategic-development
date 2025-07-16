@@ -7,7 +7,7 @@
 Sophia AI uses a multi-database architecture optimized for different workloads:
 
 - **PostgreSQL** - Transactional data and business entities
-- **Weaviate** - Vector embeddings and semantic search  
+- **Qdrant** - Vector embeddings and semantic search  
 - **Redis** - High-performance caching layer
 - **Modern Stack** - Enterprise data warehouse (migration in progress)
 
@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS estuary_raw.gong_calls (
 );
 ```
 
-## 🔍 Weaviate Vector Database Schemas
+## 🔍 Qdrant Vector Database Schemas
 
 ### Knowledge Collection
 ```python
@@ -506,21 +506,21 @@ CREATE TABLE IF NOT EXISTS FOUNDATIONAL_KNOWLEDGE.CUSTOMERS (
 
 ### 1. **Real-time Ingestion Pipeline**
 ```
-External Sources → Estuary Flow → PostgreSQL (Staging) → Enrichment → Weaviate/Redis
+External Sources → Estuary Flow → PostgreSQL (Staging) → Enrichment → Qdrant/Redis
                                           ↓
                                     Modern Stack (Legacy)
 ```
 
 ### 2. **Query Flow**
 ```
-User Query → Redis (L1) → Weaviate (L2) → PostgreSQL (L3) → Modern Stack (Legacy)
+User Query → Redis (L1) → Qdrant (L2) → PostgreSQL (L3) → Modern Stack (Legacy)
                ↓              ↓                ↓
            <10ms         <50ms           <100ms
 ```
 
 ### 3. **Cache Hierarchy**
 ```
-Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive (Modern Stack)
+Hot Data (Redis) → Warm Data (Qdrant) → Cold Data (PostgreSQL) → Archive (Modern Stack)
   5 min TTL          1 hour TTL              24 hour TTL             Permanent
 ```
 
@@ -529,7 +529,7 @@ Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive
 | Database | Primary Use | Latency | Capacity |
 |----------|------------|---------|----------|
 | Redis | Hot cache, sessions | <10ms | 100GB |
-| Weaviate | Vector search | <50ms | 500GB |
+| Qdrant | Vector search | <50ms | 500GB |
 | PostgreSQL | Transactional, hybrid | <100ms | 2TB |
 | Modern Stack | Analytics, archive | <500ms | Unlimited |
 
@@ -541,7 +541,7 @@ Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive
 - SSL/TLS encryption in transit
 - Encrypted at rest
 
-### Weaviate
+### Qdrant
 - API key authentication
 - Collection-level permissions
 - TLS encryption
@@ -561,13 +561,13 @@ Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive
 
 ### Current State (December 2024)
 - ✅ PostgreSQL: Fully operational
-- ✅ Weaviate: Fully operational (primary vector store)
+- ✅ Qdrant: Fully operational (primary vector store)
 - ✅ Redis: Fully operational (3-tier cache)
 - ⚠️ Modern Stack: Legacy, migration in progress
 
 ### Migration Plan
 1. **Phase 1**: Move hot data to Redis (Complete)
-2. **Phase 2**: Move vector search to Weaviate (Complete)
+2. **Phase 2**: Move vector search to Qdrant (Complete)
 3. **Phase 3**: Move transactional data to PostgreSQL (In Progress)
 4. **Phase 4**: Keep Modern Stack for historical analytics only
 
@@ -583,7 +583,7 @@ Hot Data (Redis) → Warm Data (Weaviate) → Cold Data (PostgreSQL) → Archive
 ### Maintenance Tasks
 - Weekly vacuum on PostgreSQL
 - Redis memory optimization
-- Weaviate index rebuilds
+- Qdrant index rebuilds
 - compute cluster auto-suspend
 
 ## 🚀 Future Enhancements

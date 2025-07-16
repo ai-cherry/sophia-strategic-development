@@ -229,7 +229,6 @@ ipython_config.py
 
 # Auto-generated secrets
 .env.secrets
-.vercel
 
 # GitHub Personal Access Tokens
 github_pat_*
@@ -288,13 +287,10 @@ modern_stack.config.*
 # ELIMINATION PREVENTION - Never allow these back
 *snowflake*
 *weaviate*
-*vercel*
 *.snowflake
 *.weaviate
-*.vercel
 snowflake.config.*
 weaviate.config.*
-vercel.config.*
 *modern_stack*
 SNOWFLAKE_*
 WEAVIATE_*
@@ -304,13 +300,10 @@ elimination_backup_*
 # ELIMINATION PREVENTION - Never allow these back
 *snowflake*
 *weaviate*
-*vercel*
 *.snowflake
 *.weaviate
-*.vercel
 snowflake.config.*
 qdrant_client.config.*
-vercel.config.*
 *qdrant_memory*
 QDRANT_*
 WEAVIATE_*
@@ -320,13 +313,10 @@ elimination_backup_*
 # ELIMINATION PREVENTION - Never allow these back
 *snowflake*
 *weaviate*
-*vercel*
 *.snowflake
 *.weaviate
-*.vercel
 snowflake.config.*
 QDRANT_client.config.*
-vercel.config.*
 *QDRANT_memory*
 QDRANT_*
 WEAVIATE_*

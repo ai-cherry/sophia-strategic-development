@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-frontend-gpu-fixed
+  namespace: sophia-ai-prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sophia-frontend-gpu-fixed
+  template:
+    metadata:
+      labels:
+        app: sophia-frontend-gpu-fixed
+    spec:
+      containers:
+      - name: frontend
+        image: scoobyjava15/sophia-ai-frontend:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+            nvidia.com/gpu: "0"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+            nvidia.com/gpu: "0"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sophia-frontend-gpu-fixed-service
+  namespace: sophia-ai-prod
+spec:
+  selector:
+    app: sophia-frontend-gpu-fixed
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP 

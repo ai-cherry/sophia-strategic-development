@@ -300,11 +300,11 @@ else
     echo "✗ Redis: Down"
 fi
 
-# Weaviate
+# Qdrant
 if curl -s http://localhost:8080/v1/.well-known/ready > /dev/null 2>&1; then
-    echo "✓ Weaviate: Running"
+    echo "✓ Qdrant: Running"
 else
-    echo "✗ Weaviate: Down"
+    echo "✗ Qdrant: Down"
 fi
 
 # Check disk space

@@ -174,10 +174,7 @@ class SophiaIaCOrchestrator:
             "apollo", PlatformType.DATA_STACK
         )
 
-        # Dev Stack
-        self.platform_adapters["lambda_labs"] = VercelAdapter(
-            "lambda_labs", PlatformType.DEV_STACK
-        )
+        # Dev Stack (Vercel eliminated - using Lambda Labs)
         self.platform_adapters["lambda_labs"] = LambdaLabsAdapter(
             "lambda_labs", PlatformType.DEV_STACK
         )

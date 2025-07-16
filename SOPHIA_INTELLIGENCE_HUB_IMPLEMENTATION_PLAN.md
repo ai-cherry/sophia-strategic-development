@@ -10,7 +10,7 @@
 ### ❌ **Current Architecture Issues**
 1. **Fragmented Dashboards**: 4 competing dashboard components
 2. **Backend Port Confusion**: Components targeting ports 8000, 8001
-3. **Outdated Memory References**: Still references Weaviate (should be pure Qdrant)
+3. **Outdated Memory References**: Still references Qdrant (should be pure Qdrant)
 4. **Missing Intelligence**: No external intelligence monitoring
 5. **Limited MCP Visibility**: Only basic MCP server monitoring
 
@@ -49,7 +49,7 @@ interface MemoryArchitectureVisualization {
   tierVisualization: {
     L0_GPUCache: TierStatus & PerformanceMetrics;
     L1_Redis: TierStatus & CacheMetrics;
-    L2_Qdrant: TierStatus & VectorMetrics;        // ✅ FIXED: Was Weaviate
+    L2_Qdrant: TierStatus & VectorMetrics;        // ✅ FIXED: Was Qdrant
     L3_PostgresPGVector: TierStatus & HybridMetrics;
     L4_Mem0: TierStatus & ConversationalMetrics;
     L5_LegacyStack: TierStatus & LegacyMetrics;   // ✅ FIXED: Was ModernStack

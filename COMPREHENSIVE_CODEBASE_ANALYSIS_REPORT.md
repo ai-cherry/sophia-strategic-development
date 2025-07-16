@@ -89,7 +89,7 @@ unified_chat_orchestrator_v3.py
 ├── personality_engine.py
 └── unified_memory_service_v2.py
     ├── portkey_gateway.py
-    └── weaviate client
+    └── Qdrant client
 ```
 
 #### **Memory Service Dependencies**
@@ -97,7 +97,7 @@ unified_chat_orchestrator_v3.py
 unified_memory_service_v2.py
 ├── Redis (external)
 ├── PostgreSQL (external)
-├── Weaviate (external)
+├── Qdrant (external)
 └── Portkey AI (external)
 ```
 
@@ -143,7 +143,7 @@ unified_memory_service_v2.py
 1. **Service Proliferation:** 50+ backend services may indicate over-engineering
 2. **Multiple Chat Services:** Several chat orchestrators with overlapping functionality
 3. **Configuration Complexity:** Multiple config systems (pyproject.toml, JSON, YAML)
-4. **External Dependencies:** Heavy reliance on external services (Weaviate, Modern Stack, etc.)
+4. **External Dependencies:** Heavy reliance on external services (Qdrant, Modern Stack, etc.)
 
 ---
 
@@ -170,7 +170,7 @@ requires-python = ">=3.12,<3.13"
 
 #### **Missing Dependencies**
 - **aiohttp:** Listed but may need version pinning
-- **weaviate-client:** 4.6.1 (verify compatibility)
+- **Qdrant-client:** 4.6.1 (verify compatibility)
 
 ---
 

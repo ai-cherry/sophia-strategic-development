@@ -103,7 +103,7 @@ materializations:
           flush_interval: 1s
           index_name: sophia-conversations
         image: ghcr.io/estuary/materialize-pinecone:dev
-  sophia/weaviate:
+  sophia/Qdrant:
     bindings:
       - resource:
           class: SophiaConversation
@@ -114,7 +114,7 @@ materializations:
     endpoint:
       connector:
         config:
-          api_key: ${WEAVIATE_API_KEY}
+          api_key: ${QDRANT_API_KEY}
           batch_size: 100
           url: ${QDRANT_URL}
-        image: ghcr.io/estuary/materialize-weaviate:dev
+        image: ghcr.io/estuary/materialize-Qdrant:dev

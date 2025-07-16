@@ -19,7 +19,7 @@ We've successfully climbed out of import hell and are approaching K8s heaven. Th
 
 ### 3. Upgraded Dependencies
 - ✅ LangGraph: 0.1.1 → 0.5.1 (July 2025 latest)
-- ✅ Weaviate client: 4.6.1 (optimal for v1.25+ hybrid)
+- ✅ Qdrant client: 4.6.1 (optimal for v1.25+ hybrid)
 - ✅ Added pgvector for PostgreSQL vector operations
 
 ### 4. Fixed Docker Build
@@ -43,30 +43,30 @@ GPU Memory Stack vs Modern Stack:
 ## 🟡 Current Issues
 
 ### 1. Memory Stack Services
-- ❌ Weaviate not running (port 8080)
+- ❌ Qdrant not running (port 8080)
 - ✅ Redis running (port 6379)
 - ✅ PostgreSQL running (port 5432)
 - ❌ Environment variables not set in shell
 
 ### 2. Chat Service Errors
 - API responding but encountering processing errors
-- Likely due to missing Weaviate connection
+- Likely due to missing Qdrant connection
 
 ## 🔧 Next Steps (To Reach 100%)
 
 ### Phase 1: Complete Local Setup (1 hour)
 ```bash
-# 1. Start Weaviate
+# 1. Start Qdrant
 docker run -d \
-  --name weaviate \
+  --name Qdrant \
   -p 8080:8080 \
   -e AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true \
-  -e PERSISTENCE_DATA_PATH=/var/lib/weaviate \
+  -e PERSISTENCE_DATA_PATH=/var/lib/Qdrant \
   -e DEFAULT_VECTORIZER_MODULE=none \
-  semitechnologies/weaviate:1.25.4
+  semitechnologies/Qdrant:1.25.4
 
 # 2. Set environment variables permanently
-echo 'export WEAVIATE_URL=http://localhost:8080' >> ~/.zshrc
+echo 'export QDRANT_URL=http://localhost:8080' >> ~/.zshrc
 echo 'export REDIS_URL=redis://localhost:6379' >> ~/.zshrc
 echo 'export POSTGRESQL_URL=postgresql://sophia:sophia@localhost:5432/sophia' >> ~/.zshrc
 source ~/.zshrc
@@ -105,7 +105,7 @@ kubectl apply -k k8s/overlays/production
 ## 🚀 Final Push Required
 
 We're 40% away from full operational status:
-- 20% - Start Weaviate and configure environment
+- 20% - Start Qdrant and configure environment
 - 10% - Fix chat service errors
 - 10% - Deploy to Kubernetes
 

@@ -23,7 +23,7 @@
     "backend/.env.qdrant",
     "backend/services/multimodal_memory_service.py",
     "backend/services/unified_memory_service_v3.py",
-    "scripts/execute_weaviate_elimination.py",
+    "scripts/execute_qdrant_migration.py",
     "scripts/QDRANT_http_assessment.py",
     "scripts/update_all_QDRANT_configurations.py",
     "scripts/QDRANT_assessment_and_setup.py",

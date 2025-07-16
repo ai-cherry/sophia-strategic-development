@@ -10,7 +10,7 @@
 ## Changes Made
 1. Disabled contaminated workflow: .github/workflows/lambda_labs_fortress_deploy.yml
 2. Disabled contaminated workflow: .github/workflows/deploy-lambda-labs-aligned.yml
-3. Added Dependabot exclusions for Weaviate packages
+3. Added Dependabot exclusions for Qdrant packages
 4. Created new Qdrant-centric deployment workflow
 5. Created contamination monitoring workflow
 6. Created Kubernetes secrets manifest for Qdrant
@@ -25,7 +25,7 @@
 ## Files Modified
 - GitHub workflows (disabled contaminated ones)
 - Kubernetes manifests (updated for Qdrant)
-- Docker Compose files (removed Weaviate services)
+- Docker Compose files (removed Qdrant services)
 - Configuration files (updated references)
 - Dependabot config (added exclusions)
 

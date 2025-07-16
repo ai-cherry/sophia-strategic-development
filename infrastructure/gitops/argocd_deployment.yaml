@@ -332,7 +332,8 @@ data:
           - image: scoobyjava15/sophia-mcp-gpu
             tag: latest
             update-strategy: latest
-          - image: semitechnologies/weaviate
+                          # ELIMINATED: Qdrant replaced with Qdrant
+                - image: qdrant/qdrant
             tag: 1.26.0
             update-strategy: semver
             

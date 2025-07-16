@@ -1,5 +1,5 @@
 name: 🔍 Contamination Check
-# Daily check for Weaviate contamination in codebase
+# Daily check for Qdrant contamination in codebase
 # Ensures clean Qdrant-centric architecture
 
 on:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   contamination-check:
-    name: 🔍 Check for Weaviate Contamination
+    name: 🔍 Check for Qdrant Contamination
     runs-on: ubuntu-latest
     
     steps:
@@ -20,7 +20,7 @@ jobs:
       
       - name: Check workflows for contamination
         run: |
-          echo "🔍 Checking GitHub workflows for Weaviate references..."
+          echo "🔍 Checking GitHub workflows for Qdrant references..."
           contamination_found=false
           
           # Check active workflows (not disabled ones)
@@ -32,9 +32,9 @@ jobs:
                 continue
               fi
               
-              # Check for Weaviate references
-              if grep -i "weaviate" "$workflow"; then
-                echo "  ❌ Weaviate contamination found in: $workflow"
+              # Check for Qdrant references
+              if grep -i "qdrant" "$workflow"; then
+                echo "  ❌ Qdrant contamination found in: $workflow"
                 contamination_found=true
               fi
             fi
@@ -49,13 +49,13 @@ jobs:
       
       - name: Check K8s manifests for contamination
         run: |
-          echo "🔍 Checking K8s manifests for Weaviate references..."
+          echo "🔍 Checking K8s manifests for Qdrant references..."
           contamination_found=false
           
           for manifest in k8s/**/*.yml k8s/**/*.yaml; do
             if [ -f "$manifest" ]; then
-              if grep -i "weaviate" "$manifest"; then
-                echo "  ❌ Weaviate contamination found in: $manifest"
+              if grep -i "qdrant" "$manifest"; then
+                echo "  ❌ Qdrant contamination found in: $manifest"
                 contamination_found=true
               fi
             fi
@@ -70,13 +70,13 @@ jobs:
       
       - name: Check Docker Compose for contamination
         run: |
-          echo "🔍 Checking Docker Compose files for Weaviate references..."
+          echo "🔍 Checking Docker Compose files for Qdrant references..."
           contamination_found=false
           
           for compose in docker-compose*.yml docker-compose*.yaml; do
             if [ -f "$compose" ]; then
-              if grep -i "weaviate" "$compose"; then
-                echo "  ❌ Weaviate contamination found in: $compose"
+              if grep -i "qdrant" "$compose"; then
+                echo "  ❌ Qdrant contamination found in: $compose"
                 contamination_found=true
               fi
             fi

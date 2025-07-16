@@ -436,7 +436,7 @@ class EnhancedUnifiedChatServiceWithMem0:
     ) -> dict:
         """
         Process message through enhanced 5-tier memory system
-        Priority: Weaviate (L2) is the primary vector intelligence
+        Priority: Qdrant (L2) is the primary vector intelligence
         """
 
         # 1. L1: Session context with Mem0 awareness
@@ -444,7 +444,7 @@ class EnhancedUnifiedChatServiceWithMem0:
             session_id, user_id
         )
 
-        # 2. L2: Weaviate - PRIMARY VECTOR INTELLIGENCE
+        # 2. L2: Qdrant - PRIMARY VECTOR INTELLIGENCE
         ELIMINATED_context = await self.ELIMINATED_cortex.vector_search_business_table(
             table_name="SOPHIA_AI_MEMORY.MEMORY_RECORDS_ENHANCED",
             query_text=message,
