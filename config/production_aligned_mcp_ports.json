@@ -35,8 +35,7 @@
         "services": {
           "github_mcp": 8200,
           "notion_mcp": 8201,
-          "postgres_mcp": 8202,
-          "snowflake_mcp": 8203
+          "postgres_mcp": 8202
         }
       },
       "production_services": {
@@ -167,13 +166,6 @@
         "endpoint": "http://104.171.202.134:8202",
         "health_check": "http://104.171.202.134:8202/health",
         "systemd_service": "sophia-postgres_mcp"
-      },
-      {
-        "name": "snowflake_mcp",
-        "port": 8203,
-        "endpoint": "http://104.171.202.134:8203",
-        "health_check": "http://104.171.202.134:8203/health",
-        "systemd_service": "sophia-snowflake_mcp"
       }
     ],
     "production_services": [
@@ -218,8 +210,7 @@
       "data_pipeline_services": [
         "104.171.202.134:8200",
         "104.171.202.134:8201",
-        "104.171.202.134:8202",
-        "104.171.202.134:8203"
+        "104.171.202.134:8202"
       ],
       "production_services": [
         "104.171.202.103:8300",
@@ -283,4 +274,4 @@
       "nginx_load_balancing_vs_k8s_service_discovery"
     ]
   }
-} 
+}
