@@ -1,10 +1,6 @@
-name: Deploy to Lambda Labs (Aligned)
+name: Deploy to Lambda Labs (Aligned) - DISABLED
 
 on:
-  push:
-    branches:
-      - main
-      - develop
   workflow_dispatch:
     inputs:
       environment:
@@ -27,6 +23,7 @@ jobs:
   deploy-frontend:
     name: Deploy Frontend to Lambda Labs
     runs-on: ubuntu-latest
+    if: false  # DISABLED - Use sophia-main-deployment.yml instead
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

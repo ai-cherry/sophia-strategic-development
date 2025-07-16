@@ -1,6 +1,7 @@
-name: 🚀 Lambda Labs K3s Fortress Deployment
+name: 🚀 Lambda Labs K3s Fortress Deployment (DISABLED)
 # Zero-touch GitOps deployment to Lambda Labs K3s cluster
 # Chaos-tested, GPU-optimized, 10M events/day ready
+# DISABLED: Use sophia-main-deployment.yml instead
 
 on:
   push:
@@ -64,6 +65,7 @@ jobs:
     name: 🔨 Build & Test
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    if: false  # DISABLED - Use sophia-main-deployment.yml instead
     
     outputs:
       backend-image: ${{ steps.backend-build.outputs.image }}

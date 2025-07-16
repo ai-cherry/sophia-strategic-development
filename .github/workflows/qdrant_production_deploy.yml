@@ -1,36 +1,15 @@
-name: 🚀 Qdrant Production Deployment
+name: 🚀 Qdrant Production Deployment (DISABLED)
 # Clean deployment workflow focused on Qdrant architecture
 # Replaces contaminated Weaviate workflows
+# DISABLED: Use sophia-main-deployment.yml instead
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'infrastructure/**'
-      - 'k8s/**'
-      - 'mcp-servers/**'
-      - '.github/workflows/QDRANT_production_deploy.yml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'infrastructure/**'
-      - 'k8s/**'
-      - 'mcp-servers/**'
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Deployment environment'
-        required: true
-        default: 'production'
-        type: choice
-        options:
-          - production
-          - staging
-          - development
+      _disabled:
+        description: 'This workflow is disabled - Use sophia-main-deployment.yml instead'
+        required: false
+        default: 'disabled'
 
 env:
   ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
@@ -52,6 +31,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
+    if: false  # DISABLED - Use sophia-main-deployment.yml instead
     
     steps:
       - name: Checkout code

@@ -1,0 +1,457 @@
+name: 🚀 Sophia AI Unified Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+      force_deploy:
+        description: 'Force deployment even if no changes'
+        required: false
+        default: false
+        type: boolean
+      component:
+        description: 'Component to deploy (all, backend, frontend, mcp-servers)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - backend
+          - frontend
+          - mcp-servers
+
+env:
+  PULUMI_ORG: scoobyjava-org
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
+  # Version will be determined dynamically
+  REGISTRY: docker.io
+  REGISTRY_USERNAME: scoobyjava15
+
+jobs:
+  determine-deployment:
+    runs-on: ubuntu-latest
+    name: 📋 Determine Deployment Configuration
+    outputs:
+      should_deploy: ${{ steps.changes.outputs.should_deploy }}
+      stack_name: ${{ steps.config.outputs.stack_name }}
+      version: ${{ steps.version.outputs.version }}
+      components: ${{ steps.components.outputs.components }}
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: 🔍 Detect Changes
+        id: changes
+        run: |
+          if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+            echo "🔄 Force deploy requested"
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            # Check for relevant changes
+            if git diff --name-only HEAD~1 HEAD | grep -E "(backend/|frontend/|mcp-servers/|requirements\.txt|pyproject\.toml|Dockerfile|k8s/)" > /dev/null; then
+              echo "✅ Relevant changes detected"
+              echo "should_deploy=true" >> $GITHUB_OUTPUT
+            else
+              echo "⏭️ No relevant changes, skipping deployment"
+              echo "should_deploy=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+      
+      - name: ⚙️ Configure Deployment
+        id: config
+        run: |
+          case "${{ env.ENVIRONMENT }}" in
+            production)
+              echo "stack_name=sophia-ai-production" >> $GITHUB_OUTPUT
+              ;;
+            staging)
+              echo "stack_name=sophia-ai-platform-staging" >> $GITHUB_OUTPUT
+              ;;
+            development)
+              echo "stack_name=sophia-ai-platform-dev" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "❌ Invalid environment: ${{ env.ENVIRONMENT }}"
+              exit 1
+              ;;
+          esac
+      
+      - name: 🏷️ Generate Version
+        id: version
+        run: |
+          # Generate semantic version based on date and commit
+          VERSION="v$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Generated version: $VERSION"
+      
+      - name: 🎯 Determine Components
+        id: components
+        run: |
+          COMPONENT="${{ github.event.inputs.component || 'all' }}"
+          echo "components=$COMPONENT" >> $GITHUB_OUTPUT
+          echo "🎯 Deploying components: $COMPONENT"
+
+  validate-secrets:
+    runs-on: ubuntu-latest
+    name: 🔑 Validate Secrets
+    needs: determine-deployment
+    if: needs.determine-deployment.outputs.should_deploy == 'true'
+    outputs:
+      secrets_valid: ${{ steps.validation.outputs.valid }}
+    
+    steps:
+      - name: 🔍 Validate Required Secrets
+        id: validation
+        run: |
+          echo "🔑 Validating GitHub Organization Secrets for ${{ env.ENVIRONMENT }}..."
+          
+          # Core secrets validation
+          required_secrets=(
+            "PULUMI_ACCESS_TOKEN"
+            "OPENAI_API_KEY" 
+            "ANTHROPIC_API_KEY"
+            "QDRANT_API_KEY"
+            "LAMBDA_API_KEY"
+            "DOCKER_HUB_USERNAME"
+            "DOCKER_HUB_ACCESS_TOKEN"
+            "HUBSPOT_ACCESS_TOKEN"
+            "GONG_ACCESS_KEY"
+            "SLACK_BOT_TOKEN"
+            "LINEAR_API_KEY"
+            "ASANA_API_TOKEN"
+            "NOTION_API_KEY"
+            "LAMBDA_LABS_SSH_KEY"
+          )
+          
+          missing_secrets=()
+          for secret in "${required_secrets[@]}"; do
+            if [[ -z "${!secret:-}" ]]; then
+              missing_secrets+=("$secret")
+              echo "❌ Missing: $secret"
+            else
+              echo "✅ Found: $secret"
+            fi
+          done
+          
+          if [[ ${#missing_secrets[@]} -eq 0 ]]; then
+            echo "✅ All required secrets are available"
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Missing ${#missing_secrets[@]} required secrets"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          HUBSPOT_ACCESS_TOKEN: ${{ secrets.HUBSPOT_ACCESS_TOKEN }}
+          GONG_ACCESS_KEY: ${{ secrets.GONG_ACCESS_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          ASANA_API_TOKEN: ${{ secrets.ASANA_API_TOKEN }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          LAMBDA_LABS_SSH_KEY: ${{ secrets.LAMBDA_LABS_SSH_KEY }}
+
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    name: 🏗️ Deploy Infrastructure
+    needs: [determine-deployment, validate-secrets]
+    if: needs.validate-secrets.outputs.secrets_valid == 'true'
+    environment: ${{ needs.determine-deployment.outputs.stack_name }}
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: 🔧 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pulumi>=3.100.0
+          pip install -r requirements.txt
+          
+      - name: 🔑 Configure Pulumi
+        run: |
+          pulumi login
+          pulumi stack select ${{ needs.determine-deployment.outputs.stack_name }} || \
+            pulumi stack init ${{ needs.determine-deployment.outputs.stack_name }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          
+      - name: 🏗️ Deploy Infrastructure
+        run: |
+          echo "🏗️ Deploying infrastructure with Pulumi ESC..."
+          echo "📍 Stack: ${{ needs.determine-deployment.outputs.stack_name }}"
+          echo "🌍 Environment: ${{ env.ENVIRONMENT }}"
+          
+          # Deploy through Pulumi ESC for automatic secret injection
+          pulumi esc env run ${{ env.PULUMI_ORG }}/default/${{ needs.determine-deployment.outputs.stack_name }} -- \
+            pulumi up --yes --stack ${{ needs.determine-deployment.outputs.stack_name }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    name: 🐳 Build & Push Images
+    needs: [determine-deployment, validate-secrets]
+    if: needs.validate-secrets.outputs.secrets_valid == 'true'
+    strategy:
+      matrix:
+        component: 
+          - name: backend
+            dockerfile: Dockerfile.backend
+            context: .
+          - name: frontend  
+            dockerfile: frontend/Dockerfile
+            context: frontend
+          - name: mcp-servers
+            dockerfile: mcp-servers/Dockerfile
+            context: mcp-servers
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🐳 Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          
+      - name: 🏗️ Build and Push
+        if: contains(needs.determine-deployment.outputs.components, 'all') || contains(needs.determine-deployment.outputs.components, matrix.component.name)
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.component.context }}
+          file: ${{ matrix.component.dockerfile }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REGISTRY_USERNAME }}/sophia-ai-${{ matrix.component.name }}:${{ needs.determine-deployment.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.REGISTRY_USERNAME }}/sophia-ai-${{ matrix.component.name }}:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-kubernetes:
+    runs-on: ubuntu-latest
+    name: ☸️ Deploy to Kubernetes
+    needs: [determine-deployment, validate-secrets, deploy-infrastructure, build-and-push]
+    if: always() && needs.validate-secrets.outputs.secrets_valid == 'true'
+    environment: ${{ needs.determine-deployment.outputs.stack_name }}
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+          
+      - name: 🔧 Setup Kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+          
+      - name: ⚙️ Configure Kubernetes Access
+        run: |
+          echo "☸️ Configuring kubectl for ${{ env.ENVIRONMENT }}..."
+          
+          # Configure kubectl for Lambda Labs K3s cluster
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.LAMBDA_KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+          
+          # Verify connection
+          kubectl cluster-info
+          kubectl get nodes
+        env:
+          LAMBDA_KUBECONFIG: ${{ secrets.LAMBDA_KUBECONFIG }}
+          
+      - name: 📦 Update Manifests
+        run: |
+          echo "📦 Updating Kubernetes manifests..."
+          
+          # Navigate to environment-specific overlay
+          cd k8s/overlays/${{ env.ENVIRONMENT }}
+          
+          # Update image versions
+          kustomize edit set image \
+            backend=${{ env.REGISTRY }}/${{ env.REGISTRY_USERNAME }}/sophia-ai-backend:${{ needs.determine-deployment.outputs.version }} \
+            frontend=${{ env.REGISTRY }}/${{ env.REGISTRY_USERNAME }}/sophia-ai-frontend:${{ needs.determine-deployment.outputs.version }} \
+            mcp-servers=${{ env.REGISTRY }}/${{ env.REGISTRY_USERNAME }}/sophia-ai-mcp-servers:${{ needs.determine-deployment.outputs.version }}
+          
+          echo "✅ Manifests updated with version ${{ needs.determine-deployment.outputs.version }}"
+          
+      - name: 🚀 Deploy to Cluster
+        run: |
+          echo "🚀 Deploying to Kubernetes cluster..."
+          
+          # Apply manifests
+          kubectl apply -k k8s/overlays/${{ env.ENVIRONMENT }}
+          
+          echo "✅ Kubernetes deployment initiated"
+          
+      - name: ⏳ Wait for Rollout
+        run: |
+          echo "⏳ Waiting for deployment rollout..."
+          
+          # Determine namespace based on environment
+          NAMESPACE="sophia-ai-${ENVIRONMENT}"
+          
+          # Wait for deployments to be ready (5 minute timeout)
+          kubectl rollout status deployment/sophia-ai-backend -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/sophia-ai-frontend -n $NAMESPACE --timeout=300s
+          kubectl rollout status deployment/sophia-ai-mcp-servers -n $NAMESPACE --timeout=300s
+          
+          echo "✅ All deployments are ready"
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+
+  validate-deployment:
+    runs-on: ubuntu-latest
+    name: 🧪 Validate Deployment
+    needs: [determine-deployment, deploy-kubernetes]
+    if: always() && needs.deploy-kubernetes.result == 'success'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: 🔧 Install Validation Dependencies
+        run: |
+          pip install aiohttp requests pydantic
+          
+      - name: 🧪 Run Health Checks
+        run: |
+          echo "🧪 Running comprehensive health checks..."
+          
+          # Determine base URL based on environment
+          case "${{ env.ENVIRONMENT }}" in
+            production)
+              BASE_URL="https://sophia-ai.lambda-labs.com"
+              ;;
+            staging)
+              BASE_URL="https://sophia-ai-staging.lambda-labs.com"
+              ;;
+            development)
+              BASE_URL="https://sophia-ai-dev.lambda-labs.com"
+              ;;
+          esac
+          
+          echo "🔗 Testing endpoint: $BASE_URL"
+          
+          # Health check
+          curl -f "$BASE_URL/health" || exit 1
+          
+          # API check
+          curl -f "$BASE_URL/docs" || exit 1
+          
+          # System status check
+          curl -f "$BASE_URL/system/status" || exit 1
+          
+          echo "✅ All health checks passed"
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+
+  notify-success:
+    runs-on: ubuntu-latest
+    name: 📢 Notify Success
+    needs: [determine-deployment, validate-deployment]
+    if: always() && needs.validate-deployment.result == 'success'
+    
+    steps:
+      - name: 📢 Send Success Notification
+        run: |
+          echo "📢 Sending deployment success notification..."
+          
+          # Determine environment URL
+          case "${{ env.ENVIRONMENT }}" in
+            production)
+              URL="https://sophia-ai.lambda-labs.com"
+              ;;
+            staging)
+              URL="https://sophia-ai-staging.lambda-labs.com"
+              ;;
+            development)
+              URL="https://sophia-ai-dev.lambda-labs.com"
+              ;;
+          esac
+          
+          # Send Slack notification
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"🚀 Sophia AI ${{ env.ENVIRONMENT }} Deployment Successful!\",
+              \"attachments\": [{
+                \"color\": \"good\",
+                \"fields\": [
+                  {\"title\": \"Environment\", \"value\": \"${{ env.ENVIRONMENT }}\", \"short\": true},
+                  {\"title\": \"Version\", \"value\": \"${{ needs.determine-deployment.outputs.version }}\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": true},
+                  {\"title\": \"URL\", \"value\": \"$URL\", \"short\": true}
+                ]
+              }]
+            }" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}"
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    name: 🆘 Notify Failure
+    needs: [determine-deployment, validate-secrets, deploy-infrastructure, build-and-push, deploy-kubernetes, validate-deployment]
+    if: always() && (needs.validate-secrets.result == 'failure' || needs.deploy-infrastructure.result == 'failure' || needs.build-and-push.result == 'failure' || needs.deploy-kubernetes.result == 'failure' || needs.validate-deployment.result == 'failure')
+    
+    steps:
+      - name: 🆘 Send Failure Notification
+        run: |
+          echo "🆘 Sending deployment failure notification..."
+          
+          # Send Slack notification
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"❌ Sophia AI ${{ env.ENVIRONMENT }} Deployment Failed!\",
+              \"attachments\": [{
+                \"color\": \"danger\",
+                \"fields\": [
+                  {\"title\": \"Environment\", \"value\": \"${{ env.ENVIRONMENT }}\", \"short\": true},
+                  {\"title\": \"Version\", \"value\": \"${{ needs.determine-deployment.outputs.version }}\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": true},
+                  {\"title\": \"Run\", \"value\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\", \"short\": true}
+                ]
+              }]
+            }" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}"
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}

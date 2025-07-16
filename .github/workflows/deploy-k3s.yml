@@ -1,15 +1,18 @@
-name: Deploy to K3s
+name: Deploy to K3s (DISABLED)
 'on':
-  push:
-    branches:
-    - main
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      _disabled:
+        description: 'This workflow is disabled - Use sophia-main-deployment.yml instead'
+        required: false
+        default: 'disabled'
 env:
   DOCKER_REGISTRY: scoobyjava15
   K3S_SERVER: 192.222.58.232
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: false  # DISABLED - Use sophia-main-deployment.yml instead
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
