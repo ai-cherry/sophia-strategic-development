@@ -22,7 +22,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from core.agents.base_agent import BaseAgent
+from backend.agents.base_agent import BaseAgent
 from infrastructure.services.enhanced_knowledge_base_service import (
     EnhancedKnowledgeBaseService,
 )

@@ -134,7 +134,7 @@ def _get_security_config():
     """Get SecurityConfig class (imported lazily to avoid circular imports)"""
     try:
         # Updated import path July 2025 – SecurityConfig resides in shared.security_config
-        from shared.security_config import SecurityConfig
+        from backend.security.config import SecurityConfig
 
         return SecurityConfig
     except ImportError:

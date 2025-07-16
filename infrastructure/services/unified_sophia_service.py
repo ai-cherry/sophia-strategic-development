@@ -9,17 +9,17 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from core.workflows.continuous_learning_framework import (
+from backend.workflows.continuous_learning_framework import (
     ContinuousLearningFramework,
     Feedback,
 )
-from core.workflows.cross_group_intelligence_hub import CrossGroupIntelligenceHub
-from core.workflows.intelligent_meta_orchestrator import (
+from backend.workflows.cross_group_intelligence_hub import CrossGroupIntelligenceHub
+from backend.workflows.intelligent_meta_orchestrator import (
     IntelligentMetaOrchestrator,
 )
 
 # Placeholder for workflow designer integration
-# from core.workflows.nl_workflow_integration import NaturalLanguageWorkflowIntegration
+# from backend.workflows.nl_workflow_integration import NaturalLanguageWorkflowIntegration
 
 logger = logging.getLogger(__name__)
 

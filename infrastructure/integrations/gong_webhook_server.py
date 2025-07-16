@@ -25,7 +25,7 @@ from pydantic_settings import BaseSettings
 from infrastructure.integrations.gong_webhook_processor import WebhookProcessor
 
 # Import shared error classes
-from shared.utils.errors import RateLimitError
+from backend.utils.errors import RateLimitError
 
 # Configure structured logging
 structlog.configure(

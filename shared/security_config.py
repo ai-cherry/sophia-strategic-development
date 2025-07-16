@@ -7,7 +7,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
-from core.auto_esc_config import get_config_value
+from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 

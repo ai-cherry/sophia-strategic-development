@@ -8,9 +8,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from core.agents.base_agent import BaseAgent
-from core.services.llm_service import llm_service
-from core.workflows.multi_agent_workflow import (
+from backend.agents.base_agent import BaseAgent
+from backend.services.llm_service import llm_service
+from backend.workflows.multi_agent_workflow import (
     AgentRole,
     AgentWorkflowInterface,
     TaskStatus,

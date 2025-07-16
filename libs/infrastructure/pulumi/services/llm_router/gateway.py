@@ -11,7 +11,7 @@ from typing import Any
 import aiohttp
 
 from backend.core.auto_esc_config import get_config_value
-from shared.utils.custom_logger import logger
+from backend.utils.logging import logger
 
 from .config_schema import LLMRouterConfig, ModelConfig
 from .enums import TaskComplexity, TaskType

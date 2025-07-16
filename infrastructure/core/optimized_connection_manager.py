@@ -62,7 +62,7 @@ except ImportError:
 
 # Configuration and monitoring
 from backend.core.auto_esc_config import get_config_value
-from core.performance_monitor import performance_monitor
+from backend.monitoring.performance import performance_monitor
 
 # Try to import optional dependencies
 try:

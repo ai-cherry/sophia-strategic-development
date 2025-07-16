@@ -29,7 +29,7 @@ from dataclasses import dataclass
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
-from config.production_infrastructure import PRODUCTION_INFRASTRUCTURE
+from infrastructure.config.production import PRODUCTION_INFRASTRUCTURE
 
 # Configure logging
 logging.basicConfig(

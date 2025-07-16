@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 
-from core.agents.langgraph_agent_base import LangGraphAgentBase
+from backend.agents.langgraph_agent_base import LangGraphAgentBase
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )

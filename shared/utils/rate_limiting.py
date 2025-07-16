@@ -10,7 +10,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Optional
 
-from shared.utils.errors import RateLimitError
+from backend.utils.errors import RateLimitError
 
 @dataclass
 class RateLimitConfig:

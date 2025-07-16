@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
-from core.agents.langgraph_agent_base import (
+from backend.agents.langgraph_agent_base import (
     AgentCapability,
     AgentContext,
     LangGraphAgentBase,

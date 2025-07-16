@@ -59,7 +59,7 @@ except ImportError:
     redis = None
 
 # Internal imports
-from core.performance_monitor import performance_monitor
+from backend.monitoring.performance import performance_monitor
 
 logger = logging.getLogger(__name__)
 

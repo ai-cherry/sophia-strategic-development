@@ -22,7 +22,7 @@ except ImportError:
 
 import contextlib
 
-from core.config_manager import get_config_value as config
+from backend.core.auto_esc_config import get_config_value as config
 
 logger = logging.getLogger(__name__)
 

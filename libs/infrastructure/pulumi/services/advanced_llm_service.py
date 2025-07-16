@@ -4,7 +4,7 @@ from typing import Any
 
 import tiktoken
 
-from core.services.constitutional_ai import ConstitutionalAI
+from backend.services.constitutional_ai import ConstitutionalAI
 from infrastructure.services.enhanced_portkey_llm_gateway import (
     TaskComplexity,
     get_enhanced_portkey_gateway,

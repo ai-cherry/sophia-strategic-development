@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # Import unified memory service v2
 
-from core.services.data_transformer import DataTransformer
+from backend.services.data_transformer import DataTransformer
 from infrastructure.services.advanced_llm_service import AdvancedLLMService
 
 class UnifiedIntelligenceService:

@@ -9,8 +9,8 @@ from typing import Any
 
 import aiohttp
 
-from core.auto_esc_config import config
-from shared.utils.custom_logger import setup_logger
+from backend.core.auto_esc_config import config
+from backend.utils.logging import setup_logger
 
 logger = setup_logger("portkey_integration")
 

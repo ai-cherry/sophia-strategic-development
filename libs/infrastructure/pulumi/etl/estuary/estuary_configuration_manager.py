@@ -31,7 +31,7 @@ from typing import Any
 import aiohttp
 import structlog
 
-from core.config_manager import get_config_value
+from backend.core.auto_esc_config import get_config_value
 
 logger = structlog.get_logger(__name__)
 

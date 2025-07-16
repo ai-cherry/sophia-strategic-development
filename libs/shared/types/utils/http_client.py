@@ -11,7 +11,7 @@ from urllib.parse import urljoin
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 
-from shared.utils.errors import (
+from backend.utils.errors import (
     APIError,
     AuthenticationError,
     ConnectionError,

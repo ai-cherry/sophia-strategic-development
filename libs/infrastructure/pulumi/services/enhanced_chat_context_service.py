@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from core.optimized_connection_manager import connection_manager
-from core.performance_monitor import performance_monitor
+from backend.core.database import connection_manager
+from backend.monitoring.performance import performance_monitor
 
 """
 Enhanced Chat Context Service for Sophia AI

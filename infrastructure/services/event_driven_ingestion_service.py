@@ -18,7 +18,7 @@ from uuid import uuid4
 
 import aioredis
 
-from core.config_manager import get_config_value
+from backend.core.auto_esc_config import get_config_value
 
 # Import our existing enhanced ingestion service
 from infrastructure.services.enhanced_ingestion_service import (

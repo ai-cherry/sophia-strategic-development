@@ -9,7 +9,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from shared.utils.custom_logger import logger
+from backend.utils.logging import logger
 
 class DocumentationTier(Enum):
     """Documentation tiers for auto-loading"""

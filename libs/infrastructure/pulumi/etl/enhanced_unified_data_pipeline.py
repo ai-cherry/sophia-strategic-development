@@ -27,7 +27,7 @@ from typing import Any
 import asyncpg
 import redis.asyncio as redis
 
-from core.config_manager import get_config_value
+from backend.core.auto_esc_config import get_config_value
 from infrastructure.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
 
 logger = logging.getLogger(__name__)

@@ -47,7 +47,7 @@ import aiohttp
 import structlog
 from pydantic import BaseModel, Field
 
-from core.config_manager import get_config_value as config
+from backend.core.auto_esc_config import get_config_value as config
 
 logger = structlog.get_logger()
 

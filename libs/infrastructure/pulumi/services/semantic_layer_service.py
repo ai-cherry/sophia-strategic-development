@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from core.performance_monitor import performance_monitor
+from backend.monitoring.performance import performance_monitor
 
 logger = logging.getLogger(__name__)
 

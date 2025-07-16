@@ -7,7 +7,7 @@ import time
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from shared.utils.custom_logger import logger
+from backend.utils.logging import logger
 
 from .cache import SemanticCache
 from .config_schema import LLMRouterConfig

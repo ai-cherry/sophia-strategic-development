@@ -6,7 +6,9 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_complete_calls_execute():
-    from core.infra.cortex_gateway import get_gateway
+    # TODO: Update this import to correct location
+    # from core.infra.cortex_gateway import get_gateway
+    pass
 
     gw = get_gateway()
 
@@ -23,7 +25,9 @@ async def test_complete_calls_execute():
 
 @pytest.mark.asyncio
 async def test_embed_parses_json():
-    from core.infra.cortex_gateway import get_gateway
+    # TODO: Update this import to correct location
+    # from core.infra.cortex_gateway import get_gateway
+    pass
 
     gw = get_gateway()
     fake_rows = [{"EMBED": "[1.0, 2.0, 3.0]"}]

@@ -34,7 +34,7 @@ from datetime import datetime
 from enum import Enum
 import os
 
-from config.infrastructure import InfrastructureConfig, ServiceType, LambdaInstance
+from infrastructure.config import InfrastructureConfig, ServiceType, LambdaInstance
 
 logger = logging.getLogger(__name__)
 

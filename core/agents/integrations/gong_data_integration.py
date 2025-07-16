@@ -30,7 +30,7 @@ from uuid import uuid4
 import structlog
 from pydantic import BaseModel, Field
 
-from core.agents.langgraph_agent_base import AgentContext
+from backend.agents.langgraph_agent_base import AgentContext
 from core.integration_registry import IntegrationRegistry
 from infrastructure.integrations.gong_redis_client import (
     NotificationPriority,
@@ -41,7 +41,7 @@ from infrastructure.integrations.gong_redis_client import (
 
 # Try to import LangGraph agent pool - this resolves the F821 undefined name error
 try:
-    from core.agents.langgraph_agent_base import LangGraphAgentPool
+    from backend.agents.langgraph_agent_base import LangGraphAgentPool
 except ImportError:
     # Define a placeholder if not available
     LangGraphAgentPool = None

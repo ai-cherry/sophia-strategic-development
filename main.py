@@ -72,7 +72,7 @@ async def main():
         
         # Import required modules
         try:
-            from config.infrastructure import InfrastructureConfig, InstanceRole
+            from infrastructure.config import InfrastructureConfig, InstanceRole
             from services.service_discovery import ServiceDiscovery
             from utils.health_check import HealthChecker
             from api.main import create_app
@@ -190,14 +190,14 @@ async def create_application():
         FastAPI: The configured application instance
     """
     try:
-        from config.infrastructure import InfrastructureConfig
+        from infrastructure.config import InfrastructureConfig
         from api.main import create_app
         
         # Determine current instance
         current_instance = InfrastructureConfig.get_current_instance()
         if not current_instance:
             # Fallback to development instance for testing
-            from config.infrastructure import InstanceRole
+            from infrastructure.config import InstanceRole
             current_instance = InfrastructureConfig.get_instance_by_role(
                 InstanceRole.DEVELOPMENT
             )
@@ -246,7 +246,7 @@ def validate_environment():
         bool: True if environment is valid, False otherwise
     """
     try:
-        from config.infrastructure import InfrastructureConfig
+        from infrastructure.config import InfrastructureConfig
         
         # Validate infrastructure configuration
         errors = InfrastructureConfig.validate_configuration()

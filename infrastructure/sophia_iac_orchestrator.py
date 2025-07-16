@@ -25,29 +25,29 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.tools import BaseTool
 from langchain_openai import ChatOpenAI
 
-from backend.infrastructure.adapters.apollo_adapter import ApolloAdapter
-from backend.infrastructure.adapters.asana_adapter import AsanaAdapter
-from backend.infrastructure.adapters.estuary_adapter import EstuaryAdapter
-from backend.infrastructure.adapters.figma_adapter import FigmaAdapter
-from backend.infrastructure.adapters.gong_adapter import GongAdapter
-from backend.infrastructure.adapters.hubspot_adapter import HubSpotAdapter
-from backend.infrastructure.adapters.lambda_labs_adapter import LambdaLabsAdapter
-from backend.infrastructure.adapters.linear_adapter import LinearAdapter
-from backend.infrastructure.adapters.openrouter_adapter import OpenRouterAdapter
-from backend.infrastructure.adapters.portkey_adapter import PortkeyAdapter
-from backend.infrastructure.adapters.slack_adapter import SlackAdapter
+from infrastructure.adapters.apollo_adapter import ApolloAdapter
+from infrastructure.adapters.asana_adapter import AsanaAdapter
+from infrastructure.adapters.estuary_adapter import EstuaryAdapter
+from infrastructure.adapters.figma_adapter import FigmaAdapter
+from infrastructure.adapters.gong_adapter import GongAdapter
+from infrastructure.adapters.hubspot_adapter import HubSpotAdapter
+from infrastructure.adapters.lambda_labs_adapter import LambdaLabsAdapter
+from infrastructure.adapters.linear_adapter import LinearAdapter
+from infrastructure.adapters.openrouter_adapter import OpenRouterAdapter
+from infrastructure.adapters.portkey_adapter import PortkeyAdapter
+from infrastructure.adapters.slack_adapter import SlackAdapter
 
 # Platform adapters
-from backend.infrastructure.adapters.QDRANT_adapter import QdrantAdapter
-from backend.infrastructure.adapters.usergems_adapter import UserGemsAdapter
+from infrastructure.adapters.QDRANT_adapter import QdrantAdapter
+from infrastructure.adapters.usergems_adapter import UserGemsAdapter
 lambda_labs_adapter lambda_labsAdapter
-from backend.infrastructure.core.dependency_manager import DependencyManager
-from backend.infrastructure.core.policy_engine import PolicyEngine
+from infrastructure.core.dependency_manager import DependencyManager
+from infrastructure.core.policy_engine import PolicyEngine
 
 # Core infrastructure components
-from backend.infrastructure.core.state_manager import InfrastructureStateManager
-from backend.infrastructure.core.webhook_router import WebhookRouter
-from core.config_manager import get_config_value
+from infrastructure.core.state_manager import InfrastructureStateManager
+from infrastructure.core.webhook_router import WebhookRouter
+from backend.core.auto_esc_config import get_config_value
 
 class PlatformType(Enum):
     """Platform categories for organized management."""

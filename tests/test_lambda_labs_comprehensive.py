@@ -11,7 +11,7 @@ import pytest
 
 from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
 from backend.services.lambda_labs_service import LambdaLabsService
-from core.services.natural_language_infrastructure_controller import (
+from backend.services.natural_language_infrastructure_controller import (
     NaturalLanguageInfrastructureController,
 )
 

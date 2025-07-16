@@ -19,7 +19,7 @@ import jwt
 import yaml
 from pydantic import BaseModel
 
-from core.config_manager import get_config_value, get_QDRANT_serviceection
+from backend.core.auto_esc_config import get_config_value, get_QDRANT_serviceection
 
 logger = logging.getLogger(__name__)
 

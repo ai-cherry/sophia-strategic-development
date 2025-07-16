@@ -25,7 +25,7 @@ except ImportError:
     PASSLIB_AVAILABLE = False
     import hashlib
 
-from shared.utils.custom_logger import setup_logger
+from backend.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
 

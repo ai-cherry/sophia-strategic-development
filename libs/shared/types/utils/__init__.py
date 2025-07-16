@@ -3,7 +3,7 @@ Shared utilities for Sophia AI
 Centralized location for common patterns and utilities
 """
 
-from shared.utils.errors import (
+from backend.utils.errors import (
     APIError,
     AuthenticationError,
     ConfigurationError,

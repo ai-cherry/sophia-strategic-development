@@ -24,7 +24,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from core.config_manager import get_config_value
+from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 

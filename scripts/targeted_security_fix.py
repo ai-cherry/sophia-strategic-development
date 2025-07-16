@@ -182,7 +182,7 @@ class TargetedSecurityFix:
         try:
             import sys
             sys.path.append('backend')
-            from core.auto_esc_config import get_lambda_labs_config
+            from backend.core.auto_esc_config import get_lambda_labs_config
             
             config = get_lambda_labs_config()
             

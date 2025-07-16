@@ -10,7 +10,7 @@ Recommended decomposition:
 
 """
 
-from core.services.knowledge_service import KnowledgeService
+from backend.services.knowledge_service import KnowledgeService
 
 """
 Foundational Knowledge Service
@@ -23,7 +23,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from core.logger import logger
+from backend.utils.logging import logger
 
 # logger = logging.getLogger(__name__)
 

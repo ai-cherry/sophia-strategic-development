@@ -31,7 +31,7 @@ from datetime import datetime
 from enum import Enum
 import json
 
-from config.infrastructure import InfrastructureConfig, ServiceType
+from infrastructure.config import InfrastructureConfig, ServiceType
 
 logger = logging.getLogger(__name__)
 

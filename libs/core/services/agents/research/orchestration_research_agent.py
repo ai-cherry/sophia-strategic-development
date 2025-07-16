@@ -3,13 +3,13 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from core.agents.base_agent import BaseAgent, Task
+from backend.agents.base_agent import BaseAgent, Task
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 
 # Assuming an MCP orchestrator exists to call other MCPs
-# from core.workflows.langgraph_mcp_orchestrator import LangGraphMCPOrchestrator
+# from backend.workflows.langgraph_mcp_orchestrator import LangGraphMCPOrchestrator
 
 logger = logging.getLogger(__name__)
 

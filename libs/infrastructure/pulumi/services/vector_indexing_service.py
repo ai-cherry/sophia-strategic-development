@@ -6,7 +6,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from core.config_manager import get_config_value
+from backend.core.auto_esc_config import get_config_value
 from infrastructure.integrations.gong_api_client import GongAPIClient
 from infrastructure.services.semantic_layer_service import SemanticLayerService
 

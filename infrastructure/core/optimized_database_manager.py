@@ -21,7 +21,7 @@ import asyncpg
 import redis.asyncio as redis
 from prometheus_client import Counter, Gauge, Histogram
 
-from core.config_manager import get_config_value
+from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
