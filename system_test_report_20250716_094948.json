@@ -1,0 +1,202 @@
+{
+  "timestamp": "2025-07-16T09:49:48.564431",
+  "total_tests": 11,
+  "successful_tests": 10,
+  "failed_tests": 1,
+  "success_rate": 90.9090909090909,
+  "performance": {
+    "avg_response_time_ms": 3.95,
+    "min_response_time_ms": 1.45,
+    "max_response_time_ms": 8.52,
+    "total_data_kb": 8.57
+  },
+  "detailed_results": [
+    {
+      "endpoint": "Health Check",
+      "success": true,
+      "response_time_ms": 8.519172668457031,
+      "status_code": 200,
+      "response_size": 110,
+      "error": null,
+      "data_sample": {
+        "status": "healthy",
+        "timestamp": "2025-07-16T09:49:48.518526",
+        "environment": "prod"
+      }
+    },
+    {
+      "endpoint": "System Status",
+      "success": true,
+      "response_time_ms": 2.1059513092041016,
+      "status_code": 200,
+      "response_size": 559,
+      "error": null,
+      "data_sample": {
+        "status": "healthy",
+        "timestamp": "2025-07-16T09:49:48.521189",
+        "version": "1.0.0-production"
+      }
+    },
+    {
+      "endpoint": "API Documentation",
+      "success": true,
+      "response_time_ms": 1.9028186798095703,
+      "status_code": 200,
+      "response_size": 952,
+      "error": null,
+      "data_sample": {
+        "html_length": 952,
+        "title_found": true
+      }
+    },
+    {
+      "endpoint": "Root Endpoint",
+      "success": true,
+      "response_time_ms": 1.8379688262939453,
+      "status_code": 200,
+      "response_size": 215,
+      "error": null,
+      "data_sample": {
+        "message": "Sophia AI Production Backend",
+        "status": "operational",
+        "version": "1.0.0-production"
+      }
+    },
+    {
+      "endpoint": "Dashboard Data",
+      "success": true,
+      "response_time_ms": 1.8999576568603516,
+      "status_code": 200,
+      "response_size": 914,
+      "error": null,
+      "data_sample": {
+        "revenue": {
+          "current_month": 208333.33,
+          "ytd": 1458333.33,
+          "target": 2500000,
+          "growth_rate": 12.5,
+          "trend": "increasing",
+          "forecast_next_month": 225000.0
+        },
+        "customers": {
+          "total_customers": 1247,
+          "active_customers": 1156,
+          "new_this_month": 23,
+          "churn_rate": 2.1,
+          "satisfaction_score": 8.7,
+          "support_tickets": 45,
+          "response_time_avg": "2.3 hours"
+        },
+        "sales": {
+          "total_opportunities": 156,
+          "qualified_leads": 89,
+          "proposals_sent": 34,
+          "negotiations": 12,
+          "closing_this_month": 8,
+          "pipeline_value": 1890000,
+          "close_rate": 23.5,
+          "avg_deal_size": 45000
+        }
+      }
+    },
+    {
+      "endpoint": "API Stats",
+      "success": true,
+      "response_time_ms": 1.4529228210449219,
+      "status_code": 200,
+      "response_size": 158,
+      "error": null,
+      "data_sample": {
+        "uptime_seconds": 115.729558,
+        "total_requests": 10,
+        "chat_requests": 1
+      }
+    },
+    {
+      "endpoint": "Frontend",
+      "success": true,
+      "response_time_ms": 8.150100708007812,
+      "status_code": 200,
+      "response_size": 1826,
+      "error": null,
+      "data_sample": {
+        "html_length": 1826,
+        "title_found": true
+      }
+    },
+    {
+      "endpoint": "Chat Revenue",
+      "success": true,
+      "response_time_ms": 7.875204086303711,
+      "status_code": 200,
+      "response_size": 1249,
+      "error": null,
+      "data_sample": {
+        "response": "**Revenue Analysis Update**\n\nCurrent month revenue: $208,333.33\nYear-to-date: $1,458,333.33\nAnnual target: $2,500,000.00\n\nWe're showing a 12.5% year-over-year growth trend, which is excellent. The revenue is increasing and our forecast for next month is $225,000.00.\n\nKey insight: We're performing -0.0% below our monthly target pace.",
+        "sources": [
+          "real_time_business_intelligence",
+          "sophia_ai_analytics_engine",
+          "financial_reporting_system"
+        ],
+        "insights": [
+          "Strong revenue growth at 12.5% YoY indicates healthy business expansion",
+          "Low churn rate of 2.1% demonstrates excellent customer retention",
+          "High satisfaction score of 8.7/10 correlates with revenue growth",
+          "Close rate of 23.5% exceeds industry average of 15-18%"
+        ]
+      }
+    },
+    {
+      "endpoint": "Chat Customers",
+      "success": true,
+      "response_time_ms": 2.6569366455078125,
+      "status_code": 200,
+      "response_size": 1284,
+      "error": null,
+      "data_sample": {
+        "response": "**Customer Intelligence Report**\n\nTotal Customers: 1,247\nActive This Month: 1,156\nNew Acquisitions: 23\nChurn Rate: 2.1%\n\nCustomer Satisfaction Score: 8.7/10\nSupport Performance: 45 tickets with 2.3 hours avg response time.\n\nStrategic insight: Our 2.1% churn rate is excellent for the industry, and satisfaction scores above 8.5 indicate strong customer loyalty.",
+        "sources": [
+          "real_time_business_intelligence",
+          "sophia_ai_analytics_engine",
+          "customer_relationship_management"
+        ],
+        "insights": [
+          "Strong revenue growth at 12.5% YoY indicates healthy business expansion",
+          "Low churn rate of 2.1% demonstrates excellent customer retention",
+          "High satisfaction score of 8.7/10 correlates with revenue growth",
+          "Close rate of 23.5% exceeds industry average of 15-18%"
+        ]
+      }
+    },
+    {
+      "endpoint": "Chat Business Overview",
+      "success": true,
+      "response_time_ms": 3.1261444091796875,
+      "status_code": 200,
+      "response_size": 1505,
+      "error": null,
+      "data_sample": {
+        "response": "**Executive Business Intelligence Summary**\n\n**Financial Performance**\n\u2022 Monthly Revenue: $208,333.33 (12.5% YoY growth)\n\u2022 YTD Performance: $1,458,333.33\n\n**Customer Success**  \n\u2022 Active Customers: 1,156 (8.7/10 satisfaction)\n\u2022 New Acquisitions: 23 this month\n\n**Sales Performance**\n\u2022 Pipeline Value: $1,890,000\n\u2022 Close Rate: 23.5%\n\u2022 Deals Closing: 8 this month\n\n**Team Excellence**\n\u2022 80 employees with 87.3/100 productivity\n\u2022 94.2% project completion rate\n\n**Strategic Insight**: All KPIs are trending positive with strong customer satisfaction and team performance driving revenue growth.",
+        "sources": [
+          "real_time_business_intelligence",
+          "sophia_ai_analytics_engine"
+        ],
+        "insights": [
+          "Strong revenue growth at 12.5% YoY indicates healthy business expansion",
+          "Low churn rate of 2.1% demonstrates excellent customer retention",
+          "High satisfaction score of 8.7/10 correlates with revenue growth",
+          "Close rate of 23.5% exceeds industry average of 15-18%"
+        ]
+      }
+    },
+    {
+      "endpoint": "WebSocket Connection",
+      "success": false,
+      "response_time_ms": 12.867212295532227,
+      "status_code": 0,
+      "response_size": 0,
+      "error": "create_connection() got an unexpected keyword argument 'timeout'",
+      "data_sample": null
+    }
+  ]
+}

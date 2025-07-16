@@ -62,7 +62,7 @@ class SophiaAIUnifiedOrchestrator:
     """
     
     def __init__(self):
-        self.memory_service = SophiaSophiaUnifiedMemoryService()
+        self.memory_service = SophiaUnifiedMemoryService()
         self.portkey = PortkeyGateway()
         
         # Routing configuration

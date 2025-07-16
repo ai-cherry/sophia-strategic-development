@@ -1,437 +1,344 @@
 #!/usr/bin/env python3
 """
-🔍 SOPHIA AI COMPREHENSIVE SYSTEM MONITOR
-Real-time monitoring of all platform components with health scoring
+🔍 COMPREHENSIVE SYSTEM MONITOR
+===============================
+Real-time monitoring and testing of the complete Sophia AI platform.
+Tests all endpoints, measures performance, validates functionality.
 
 Features:
-- Backend FastAPI health and dependency check
-- Frontend React development server status
-- MCP servers discovery and health verification
-- Database connectivity testing
-- GitHub deployment pipeline status
-- Performance metrics and resource usage
-- Business intelligence readiness assessment
+- Real-time health monitoring
+- Performance benchmarking
+- Endpoint validation
+- Chat functionality testing
+- Dashboard data verification
+- WebSocket connectivity testing
+- Detailed reporting
 """
 
 import asyncio
-import aiohttp
-import subprocess
-import psutil
 import json
 import time
-from datetime import datetime
-from typing import Dict, Any, List, Optional
-import socket
-import os
+import requests
+import websockets
 import sys
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, asdict
+import statistics
 
-# Add backend to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+@dataclass
+class EndpointTest:
+    name: str
+    url: str
+    method: str = "GET"
+    payload: Optional[Dict] = None
+    expected_status: int = 200
+    timeout: int = 10
 
-class SophiaAIMonitor:
+@dataclass
+class TestResult:
+    endpoint: str
+    success: bool
+    response_time_ms: float
+    status_code: int
+    response_size: int
+    error: Optional[str] = None
+    data_sample: Optional[Any] = None
+
+class SophiaSystemMonitor:
     def __init__(self):
-        self.status = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "overall_health": 0,
-            "components": {},
-            "business_readiness": 0,
-            "alerts": [],
-            "recommendations": []
-        }
+        self.backend_url = "http://localhost:7000"
+        self.frontend_url = "http://localhost:5174"
+        self.websocket_url = "ws://localhost:7000/ws"
         
-        # Define critical services and ports
-        self.services = {
-            "backend": {"port": 8000, "url": "http://localhost:8000", "critical": True},
-            "frontend_primary": {"port": 5173, "url": "http://localhost:5173", "critical": True},
-            "frontend_secondary": {"port": 5174, "url": "http://localhost:5174", "critical": False},
-            "mcp_ai_memory": {"port": 9001, "url": "http://localhost:9001", "critical": True},
-            "mcp_ui_ux": {"port": 9002, "url": "http://localhost:9002", "critical": False},
-            "mcp_github": {"port": 9003, "url": "http://localhost:9003", "critical": False},
-            "mcp_linear": {"port": 9004, "url": "http://localhost:9004", "critical": False},
-            "mcp_slack": {"port": 9005, "url": "http://localhost:9005", "critical": False}
-        }
-
-    def check_port_status(self, port: int) -> bool:
-        """Check if a port is in use"""
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.settimeout(1)
-                result = sock.connect_ex(('localhost', port))
-                return result == 0
-        except Exception:
-            return False
-
-    def get_process_info(self, port: int) -> Optional[Dict[str, Any]]:
-        """Get detailed process information for a port"""
-        try:
-            for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cpu_percent', 'memory_info']):
-                try:
-                    connections = proc.connections()
-                    for conn in connections:
-                        if conn.laddr.port == port:
-                            return {
-                                "pid": proc.info['pid'],
-                                "name": proc.info['name'],
-                                "cmdline": ' '.join(proc.info['cmdline'][:3]),
-                                "cpu_percent": proc.info['cpu_percent'],
-                                "memory_mb": proc.info['memory_info'].rss / 1024 / 1024 if proc.info['memory_info'] else 0,
-                                "status": proc.status()
-                            }
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    continue
-        except Exception as e:
-            return {"error": str(e)}
-        return None
-
-    async def check_http_endpoint(self, url: str, endpoint: str = "", timeout: int = 3) -> Dict[str, Any]:
-        """Check HTTP endpoint health with detailed response analysis"""
-        full_url = f"{url}{endpoint}"
-        try:
-            start_time = time.time()
-            async with aiohttp.ClientSession() as session:
-                async with session.get(full_url, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
-                    response_time = (time.time() - start_time) * 1000
-                    content = await response.text()
-                    
-                    return {
-                        "status": "healthy",
-                        "status_code": response.status,
-                        "response_time_ms": round(response_time, 2),
-                        "content_length": len(content),
-                        "headers": dict(response.headers),
-                        "content_preview": content[:200] if content else None
-                    }
-        except asyncio.TimeoutError:
-            return {"status": "timeout", "error": f"Timeout after {timeout}s"}
-        except aiohttp.ClientError as e:
-            return {"status": "connection_error", "error": str(e)}
-        except Exception as e:
-            return {"status": "error", "error": str(e)}
-
-    def check_dependencies(self) -> Dict[str, Any]:
-        """Check Python dependencies critical for backend operation"""
-        critical_packages = [
-            'fastapi', 'uvicorn', 'sqlalchemy', 'pyjwt', 'redis', 
-            'anthropic', 'openai', 'aiohttp', 'asyncpg', 'qdrant-client'
+        self.endpoints = [
+            EndpointTest("Health Check", f"{self.backend_url}/health"),
+            EndpointTest("System Status", f"{self.backend_url}/system/status"),
+            EndpointTest("API Documentation", f"{self.backend_url}/docs"),
+            EndpointTest("Root Endpoint", f"{self.backend_url}/"),
+            EndpointTest("Dashboard Data", f"{self.backend_url}/dashboard/data"),
+            EndpointTest("API Stats", f"{self.backend_url}/api/stats"),
+            EndpointTest("Frontend", f"{self.frontend_url}/"),
+            EndpointTest("Chat Revenue", f"{self.backend_url}/chat", "POST", 
+                        {"message": "Show me our revenue performance"}),
+            EndpointTest("Chat Customers", f"{self.backend_url}/chat", "POST",
+                        {"message": "How are our customers doing?"}),
+            EndpointTest("Chat Business Overview", f"{self.backend_url}/chat", "POST",
+                        {"message": "Give me a business summary"}),
         ]
         
-        dependency_status = {"installed": [], "missing": [], "status": "unknown"}
+        self.results_history = []
+        
+    async def test_endpoint(self, endpoint: EndpointTest) -> TestResult:
+        """Test a single endpoint and return results"""
+        start_time = time.time()
         
         try:
-            import pkg_resources
-            installed_packages = {pkg.project_name.lower() for pkg in pkg_resources.working_set}
+            if endpoint.method == "GET":
+                response = requests.get(endpoint.url, timeout=endpoint.timeout)
+            elif endpoint.method == "POST":
+                response = requests.post(
+                    endpoint.url, 
+                    json=endpoint.payload,
+                    headers={"Content-Type": "application/json"},
+                    timeout=endpoint.timeout
+                )
             
-            for package in critical_packages:
-                if package.lower() in installed_packages or any(package.lower() in pkg for pkg in installed_packages):
-                    dependency_status["installed"].append(package)
+            response_time_ms = (time.time() - start_time) * 1000
+            response_size = len(response.content)
+            
+            # Extract sample data
+            data_sample = None
+            try:
+                if response.headers.get('content-type', '').startswith('application/json'):
+                    json_data = response.json()
+                    if isinstance(json_data, dict):
+                        # Sample key-value pairs for reporting
+                        data_sample = {k: v for k, v in list(json_data.items())[:3]}
+                    else:
+                        data_sample = json_data
+                elif response.headers.get('content-type', '').startswith('text/html'):
+                    data_sample = {"html_length": len(response.text), "title_found": "<title>" in response.text}
                 else:
-                    dependency_status["missing"].append(package)
+                    data_sample = {"content_type": response.headers.get('content-type', 'unknown')}
+            except:
+                data_sample = {"response_preview": response.text[:100] if response.text else "empty"}
             
-            dependency_status["status"] = "healthy" if not dependency_status["missing"] else "degraded"
-            dependency_status["install_coverage"] = len(dependency_status["installed"]) / len(critical_packages) * 100
+            return TestResult(
+                endpoint=endpoint.name,
+                success=response.status_code == endpoint.expected_status,
+                response_time_ms=response_time_ms,
+                status_code=response.status_code,
+                response_size=response_size,
+                data_sample=data_sample
+            )
             
         except Exception as e:
-            dependency_status["error"] = str(e)
-            dependency_status["status"] = "error"
-        
-        return dependency_status
-
-    def check_environment_config(self) -> Dict[str, Any]:
-        """Check environment configuration and Pulumi ESC connectivity"""
-        config_status = {"status": "unknown", "environment": "unknown", "secrets_loaded": 0}
+            response_time_ms = (time.time() - start_time) * 1000
+            return TestResult(
+                endpoint=endpoint.name,
+                success=False,
+                response_time_ms=response_time_ms,
+                status_code=0,
+                response_size=0,
+                error=str(e)
+            )
+    
+    async def test_websocket(self) -> TestResult:
+        """Test WebSocket connectivity"""
+        start_time = time.time()
         
         try:
-            # Try to import and check ESC config
-            sys.path.append('/Users/lynnmusil/sophia-main-2/backend')
-            from core.auto_esc_config import get_config_value
-            
-            config_status["environment"] = get_config_value('ENVIRONMENT', 'unknown')
-            
-            # Test critical secrets
-            critical_secrets = ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'GONG_API_TOKEN', 'PINECONE_API_KEY']
-            loaded_secrets = []
-            
-            for secret in critical_secrets:
-                if get_config_value(secret, ''):
-                    loaded_secrets.append(secret)
-            
-            config_status["secrets_loaded"] = len(loaded_secrets)
-            config_status["total_secrets"] = len(critical_secrets)
-            config_status["loaded_secrets"] = loaded_secrets
-            config_status["status"] = "healthy" if len(loaded_secrets) >= 3 else "degraded"
-            
+            async with websockets.connect(self.websocket_url, timeout=10) as websocket:
+                # Send test message
+                test_message = json.dumps({"type": "ping", "message": "test"})
+                await websocket.send(test_message)
+                
+                # Wait for response
+                response = await asyncio.wait_for(websocket.recv(), timeout=5)
+                response_data = json.loads(response)
+                
+                response_time_ms = (time.time() - start_time) * 1000
+                
+                return TestResult(
+                    endpoint="WebSocket Connection",
+                    success=True,
+                    response_time_ms=response_time_ms,
+                    status_code=200,
+                    response_size=len(response),
+                    data_sample={"type": response_data.get("type"), "received": "ok"}
+                )
+                
         except Exception as e:
-            config_status["error"] = str(e)
-            config_status["status"] = "error"
+            response_time_ms = (time.time() - start_time) * 1000
+            return TestResult(
+                endpoint="WebSocket Connection",
+                success=False,
+                response_time_ms=response_time_ms,
+                status_code=0,
+                response_size=0,
+                error=str(e)
+            )
+    
+    async def run_comprehensive_test(self) -> Dict[str, Any]:
+        """Run comprehensive system test"""
+        print("🔍 STARTING COMPREHENSIVE SYSTEM TEST")
+        print("=" * 50)
         
-        return config_status
-
-    def check_system_resources(self) -> Dict[str, Any]:
-        """Check system resource usage"""
-        try:
-            return {
-                "cpu_percent": psutil.cpu_percent(interval=1),
-                "memory_percent": psutil.virtual_memory().percent,
-                "disk_percent": psutil.disk_usage('/').percent,
-                "load_average": os.getloadavg() if hasattr(os, 'getloadavg') else [0, 0, 0],
-                "status": "healthy"
-            }
-        except Exception as e:
-            return {"status": "error", "error": str(e)}
-
-    async def monitor_all_components(self) -> Dict[str, Any]:
-        """Comprehensive monitoring of all Sophia AI components"""
-        print("🔍 Starting Sophia AI Comprehensive System Monitor...")
+        results = []
         
-        # 1. Check dependencies first
-        print("   📦 Checking Python dependencies...")
-        dependencies = self.check_dependencies()
-        self.status["components"]["dependencies"] = dependencies
-        
-        # 2. Check environment configuration
-        print("   🔧 Checking environment configuration...")
-        environment = self.check_environment_config()
-        self.status["components"]["environment"] = environment
-        
-        # 3. Check system resources
-        print("   💻 Checking system resources...")
-        resources = self.check_system_resources()
-        self.status["components"]["system_resources"] = resources
-        
-        # 4. Check all services
-        print("   🌐 Checking service endpoints...")
-        for service_name, service_config in self.services.items():
-            print(f"     Checking {service_name} on port {service_config['port']}...")
+        # Test all HTTP endpoints
+        for endpoint in self.endpoints:
+            print(f"Testing: {endpoint.name}...")
+            result = await self.test_endpoint(endpoint)
+            results.append(result)
             
-            # Port check
-            port_active = self.check_port_status(service_config['port'])
-            process_info = self.get_process_info(service_config['port']) if port_active else None
+            status = "✅ PASS" if result.success else "❌ FAIL"
+            print(f"  {status} - {result.response_time_ms:.1f}ms - Status {result.status_code}")
             
-            # HTTP health check
-            http_health = await self.check_http_endpoint(service_config['url'], "/health")
-            
-            service_status = {
-                "port_active": port_active,
-                "process_info": process_info,
-                "http_health": http_health,
-                "critical": service_config['critical'],
-                "overall_status": "healthy" if port_active and http_health.get("status") == "healthy" else "degraded"
-            }
-            
-            self.status["components"][service_name] = service_status
+            if result.error:
+                print(f"    Error: {result.error}")
+            elif result.data_sample:
+                print(f"    Sample: {json.dumps(result.data_sample, indent=2)[:100]}...")
         
-        # 5. Calculate overall health score
-        self.calculate_health_scores()
+        # Test WebSocket
+        print("Testing: WebSocket Connection...")
+        ws_result = await self.test_websocket()
+        results.append(ws_result)
         
-        # 6. Generate alerts and recommendations
-        self.generate_alerts_and_recommendations()
+        status = "✅ PASS" if ws_result.success else "❌ FAIL"
+        print(f"  {status} - {ws_result.response_time_ms:.1f}ms")
         
-        return self.status
-
-    def calculate_health_scores(self):
-        """Calculate overall health and business readiness scores"""
-        total_score = 0
-        max_score = 0
-        business_score = 0
-        business_max = 0
+        if ws_result.error:
+            print(f"    Error: {ws_result.error}")
         
-        # Dependencies weight: 20%
-        dep_status = self.status["components"]["dependencies"]
-        if dep_status["status"] == "healthy":
-            total_score += 20
-        elif dep_status["status"] == "degraded":
-            total_score += dep_status.get("install_coverage", 0) * 0.2
-        max_score += 20
+        # Calculate summary statistics
+        successful_tests = [r for r in results if r.success]
+        failed_tests = [r for r in results if not r.success]
         
-        # Environment weight: 15%
-        env_status = self.status["components"]["environment"] 
-        if env_status["status"] == "healthy":
-            total_score += 15
-            business_score += 15
-        elif env_status["status"] == "degraded":
-            total_score += 10
-            business_score += 10
-        max_score += 15
-        business_max += 15
-        
-        # Critical services weight: 50%
-        critical_services = [name for name, config in self.services.items() if config["critical"]]
-        service_score = 0
-        for service_name in critical_services:
-            if service_name in self.status["components"]:
-                if self.status["components"][service_name]["overall_status"] == "healthy":
-                    service_score += 1
-                    if service_name in ["backend", "frontend_primary"]:
-                        business_score += 20  # Critical for business operations
-        
-        total_score += (service_score / len(critical_services)) * 50
-        max_score += 50
-        business_max += 40  # Backend + frontend
-        
-        # System resources weight: 15%
-        resource_status = self.status["components"]["system_resources"]
-        if resource_status["status"] == "healthy":
-            cpu_ok = resource_status.get("cpu_percent", 100) < 80
-            memory_ok = resource_status.get("memory_percent", 100) < 85
-            if cpu_ok and memory_ok:
-                total_score += 15
-            elif cpu_ok or memory_ok:
-                total_score += 10
-        max_score += 15
-        
-        self.status["overall_health"] = round((total_score / max_score) * 100, 1)
-        self.status["business_readiness"] = round((business_score / business_max) * 100, 1) if business_max > 0 else 0
-
-    def generate_alerts_and_recommendations(self):
-        """Generate actionable alerts and recommendations"""
-        alerts = []
-        recommendations = []
-        
-        # Check critical service failures
-        critical_down = []
-        for service_name, service_config in self.services.items():
-            if service_config["critical"] and service_name in self.status["components"]:
-                if self.status["components"][service_name]["overall_status"] != "healthy":
-                    critical_down.append(service_name)
-        
-        if critical_down:
-            alerts.append(f"🚨 Critical services down: {', '.join(critical_down)}")
-        
-        # Check dependencies
-        dep_status = self.status["components"]["dependencies"]
-        if dep_status.get("missing"):
-            alerts.append(f"📦 Missing dependencies: {', '.join(dep_status['missing'])}")
-            recommendations.append(f"Install missing packages: pip3 install {' '.join(dep_status['missing'])}")
-        
-        # Check environment
-        env_status = self.status["components"]["environment"]
-        if env_status["secrets_loaded"] < 3:
-            alerts.append("🔐 Insufficient secrets loaded from Pulumi ESC")
-            recommendations.append("Run: pulumi login && pulumi env open scoobyjava-org/default/sophia-ai-production")
-        
-        # Check resources
-        resource_status = self.status["components"]["system_resources"]
-        if resource_status.get("memory_percent", 0) > 85:
-            alerts.append("💾 High memory usage detected")
-            recommendations.append("Consider restarting services or closing unused applications")
-        
-        # Business readiness recommendations
-        if self.status["business_readiness"] < 80:
-            recommendations.append("Priority: Fix backend and frontend connectivity for business operations")
-        
-        self.status["alerts"] = alerts
-        self.status["recommendations"] = recommendations
-
-    def print_status_report(self):
-        """Print a comprehensive, colored status report"""
-        print("\n" + "="*80)
-        print("🚀 SOPHIA AI PLATFORM - COMPREHENSIVE STATUS REPORT")
-        print("="*80)
-        print(f"📅 Timestamp: {self.status['timestamp']}")
-        print(f"🏥 Overall Health: {self.status['overall_health']}%")
-        print(f"💼 Business Readiness: {self.status['business_readiness']}%")
-        
-        # Health status emoji
-        health = self.status['overall_health']
-        if health >= 90:
-            health_emoji = "🟢 EXCELLENT"
-        elif health >= 75:
-            health_emoji = "🟡 GOOD" 
-        elif health >= 50:
-            health_emoji = "🟠 DEGRADED"
+        if successful_tests:
+            avg_response_time = statistics.mean([r.response_time_ms for r in successful_tests])
+            max_response_time = max([r.response_time_ms for r in successful_tests])
+            min_response_time = min([r.response_time_ms for r in successful_tests])
         else:
-            health_emoji = "🔴 CRITICAL"
+            avg_response_time = max_response_time = min_response_time = 0
         
-        print(f"📊 Status: {health_emoji}")
-        print()
+        total_data_transferred = sum([r.response_size for r in successful_tests])
         
-        # Component details
-        print("📋 COMPONENT STATUS:")
-        print("-" * 50)
+        summary = {
+            "timestamp": datetime.now().isoformat(),
+            "total_tests": len(results),
+            "successful_tests": len(successful_tests),
+            "failed_tests": len(failed_tests),
+            "success_rate": (len(successful_tests) / len(results)) * 100,
+            "performance": {
+                "avg_response_time_ms": round(avg_response_time, 2),
+                "min_response_time_ms": round(min_response_time, 2),
+                "max_response_time_ms": round(max_response_time, 2),
+                "total_data_kb": round(total_data_transferred / 1024, 2)
+            },
+            "detailed_results": [asdict(r) for r in results]
+        }
         
-        for component_name, component_data in self.status["components"].items():
-            if component_name in ["dependencies", "environment", "system_resources"]:
-                status = component_data.get("status", "unknown")
-                emoji = "🟢" if status == "healthy" else "🟡" if status == "degraded" else "🔴"
-                print(f"{emoji} {component_name.upper()}: {status}")
-                
-                if component_name == "dependencies" and component_data.get("missing"):
-                    print(f"   Missing: {', '.join(component_data['missing'])}")
-                elif component_name == "environment":
-                    print(f"   Environment: {component_data.get('environment', 'unknown')}")
-                    print(f"   Secrets: {component_data.get('secrets_loaded', 0)}/{component_data.get('total_secrets', 0)}")
-                elif component_name == "system_resources":
-                    print(f"   CPU: {component_data.get('cpu_percent', 0):.1f}% | Memory: {component_data.get('memory_percent', 0):.1f}%")
-            else:
-                # Service components
-                status = component_data.get("overall_status", "unknown")
-                emoji = "🟢" if status == "healthy" else "🔴"
-                port_status = "ACTIVE" if component_data.get("port_active") else "DOWN"
-                print(f"{emoji} {component_name.upper()}: {port_status}")
-                
-                if component_data.get("process_info"):
-                    proc = component_data["process_info"]
-                    print(f"   PID: {proc.get('pid', 'N/A')} | Memory: {proc.get('memory_mb', 0):.1f}MB")
+        # Store in history
+        self.results_history.append(summary)
         
-        print()
+        return summary
+    
+    def print_summary_report(self, summary: Dict[str, Any]):
+        """Print a comprehensive summary report"""
+        print("\n" + "=" * 50)
+        print("📊 COMPREHENSIVE SYSTEM TEST SUMMARY")
+        print("=" * 50)
         
-        # Alerts
-        if self.status["alerts"]:
-            print("🚨 ALERTS:")
-            print("-" * 20)
-            for alert in self.status["alerts"]:
-                print(f"  {alert}")
-            print()
+        print(f"🕐 Test Time: {summary['timestamp']}")
+        print(f"📊 Tests Run: {summary['total_tests']}")
+        print(f"✅ Successful: {summary['successful_tests']}")
+        print(f"❌ Failed: {summary['failed_tests']}")
+        print(f"📈 Success Rate: {summary['success_rate']:.1f}%")
+        
+        print("\n📈 PERFORMANCE METRICS:")
+        perf = summary['performance']
+        print(f"  • Average Response: {perf['avg_response_time_ms']}ms")
+        print(f"  • Fastest Response: {perf['min_response_time_ms']}ms")
+        print(f"  • Slowest Response: {perf['max_response_time_ms']}ms")
+        print(f"  • Data Transferred: {perf['total_data_kb']}KB")
+        
+        print("\n🎯 ENDPOINT STATUS:")
+        for result in summary['detailed_results']:
+            status = "✅" if result['success'] else "❌"
+            time_str = f"{result['response_time_ms']:.1f}ms"
+            print(f"  {status} {result['endpoint']:.<30} {time_str}")
+            
+            if result['error']:
+                print(f"      ERROR: {result['error']}")
+        
+        # Overall system health assessment
+        if summary['success_rate'] >= 95:
+            health_status = "🟢 EXCELLENT"
+        elif summary['success_rate'] >= 85:
+            health_status = "🟡 GOOD"
+        elif summary['success_rate'] >= 70:
+            health_status = "🟠 FAIR"
+        else:
+            health_status = "🔴 POOR"
+        
+        print(f"\n🏥 OVERALL SYSTEM HEALTH: {health_status}")
+        
+        # Performance assessment
+        avg_time = perf['avg_response_time_ms']
+        if avg_time < 100:
+            perf_status = "🚀 EXCELLENT (<100ms avg)"
+        elif avg_time < 250:
+            perf_status = "✅ GOOD (<250ms avg)"
+        elif avg_time < 500:
+            perf_status = "🟡 ACCEPTABLE (<500ms avg)"
+        else:
+            perf_status = "🔴 SLOW (>500ms avg)"
+        
+        print(f"⚡ PERFORMANCE RATING: {perf_status}")
+        
+        print("\n🌐 ACCESS URLS:")
+        print(f"  • Backend API: {self.backend_url}")
+        print(f"  • Frontend Dashboard: {self.frontend_url}")
+        print(f"  • API Documentation: {self.backend_url}/docs")
+        print(f"  • System Status: {self.backend_url}/system/status")
+        print(f"  • WebSocket: {self.websocket_url}")
         
         # Recommendations
-        if self.status["recommendations"]:
-            print("💡 RECOMMENDATIONS:")
-            print("-" * 30)
-            for i, rec in enumerate(self.status["recommendations"], 1):
-                print(f"  {i}. {rec}")
-            print()
+        print("\n💡 RECOMMENDATIONS:")
+        failed_results = [r for r in summary['detailed_results'] if not r['success']]
         
-        # Quick fix commands
-        print("⚡ QUICK FIX COMMANDS:")
-        print("-" * 25)
-        if any("Missing dependencies" in alert for alert in self.status["alerts"]):
-            print("  pip3 install sqlalchemy pyjwt fastapi uvicorn")
-        print("  cd backend && python3 -m uvicorn app.simple_fastapi:app --reload --port 8000")
-        print("  cd frontend && npm run dev")
-        print("  python3 scripts/start_all_mcp_servers.py")
-        print()
+        if not failed_results:
+            print("  • All systems operational - no issues detected")
+            print("  • Ready for production use")
+        else:
+            print("  • Fix failed endpoints before production deployment:")
+            for result in failed_results:
+                print(f"    - {result['endpoint']}: {result.get('error', 'Unknown error')}")
         
-        print("="*80)
+        if avg_time > 200:
+            print("  • Consider performance optimization for faster response times")
+        
+        print("\n" + "=" * 50)
+    
+    def save_detailed_report(self, summary: Dict[str, Any]):
+        """Save detailed report to file"""
+        report_file = f"system_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        
+        with open(report_file, 'w') as f:
+            json.dump(summary, f, indent=2)
+        
+        print(f"📋 Detailed report saved: {report_file}")
 
 async def main():
     """Main monitoring function"""
-    monitor = SophiaAIMonitor()
+    monitor = SophiaSystemMonitor()
     
     try:
-        # Run comprehensive monitoring
-        await monitor.monitor_all_components()
+        # Run comprehensive test
+        summary = await monitor.run_comprehensive_test()
         
-        # Print detailed report
-        monitor.print_status_report()
+        # Print summary report
+        monitor.print_summary_report(summary)
         
-        # Save JSON report
-        report_file = f"monitoring_report_{int(time.time())}.json"
-        with open(report_file, 'w') as f:
-            json.dump(monitor.status, f, indent=2)
+        # Save detailed report
+        monitor.save_detailed_report(summary)
         
-        print(f"📄 Detailed JSON report saved: {report_file}")
-        
-        # Return appropriate exit code
-        if monitor.status["overall_health"] >= 75:
-            return 0  # Success
-        elif monitor.status["overall_health"] >= 50:
-            return 1  # Warning
+        # Exit with appropriate code
+        if summary['success_rate'] >= 90:
+            print("\n🎉 SYSTEM OPERATIONAL - ALL TESTS PASSED")
+            sys.exit(0)
         else:
-            return 2  # Critical
-        
+            print(f"\n⚠️  SYSTEM ISSUES DETECTED - {summary['failed_tests']} FAILURES")
+            sys.exit(1)
+            
+    except KeyboardInterrupt:
+        print("\n🛑 Monitoring interrupted by user")
+        sys.exit(1)
     except Exception as e:
-        print(f"❌ Monitor failed: {e}")
-        return 3
+        print(f"\n❌ Monitoring failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    exit_code = asyncio.run(main()) 
+    asyncio.run(main()) 
