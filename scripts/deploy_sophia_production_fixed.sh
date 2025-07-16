@@ -140,7 +140,7 @@ fi
 # Create directories
 mkdir -p ~/sophia-deployment
 mkdir -p ~/sophia-logs
-mkdir -p ~/sophia-data/{postgres,redis,qdrant}
+mkdir -p ~/sophia-data/{postgres,redis}
 
 echo "Server environment ready"
 REMOTE_SCRIPT
@@ -156,4 +156,4 @@ echo "Next steps:"
 echo "  1. Run './scripts/deploy_sophia_production_fixed.sh test' to test connection"
 echo "  2. Run './scripts/deploy_sophia_production_fixed.sh' to start deployment"
 echo "  3. Use './scripts/quick_backend_deploy.sh' for backend only"
-echo "  4. Use './scripts/quick_frontend_deploy.sh' for frontend only" 
+echo "  4. Use './scripts/quick_frontend_deploy.sh' for frontend only"

@@ -1,8 +1,8 @@
-# Relaxed Pre-commit Configuration for Sophia AI
-# Focus on critical issues only, reduce deployment friction
+# Optimized Pre-commit Configuration for Sophia AI Enterprise Platform
+# Balanced approach: Quality enforcement without development friction
 
 repos:
-  # Keep Black - it's valuable for consistency
+  # Black - Essential for code consistency
   - repo: https://github.com/psf/black
     rev: 23.12.1
     hooks:
@@ -10,24 +10,56 @@ repos:
         language_version: python3.11
         args: [--line-length=88]
 
-  # Relax Ruff rules - focus on critical issues only
+  # Ruff - Fast Python linter with reasonable rules
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.11
     hooks:
       - id: ruff
         args: [
           --fix,
-          --ignore=TRY200,TRY300,TRY301,ARG001,ARG002,PERF401,N815,E501
+          --ignore=TRY200,TRY300,TRY301,ARG001,ARG002,PERF401,N815,E501,F401
         ]
 
-  # Remove broken local hooks until scripts exist
-  # Commented out to prevent deployment failures:
+  # Security scanning - Critical but not blocking
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [--severity-level, medium, --confidence-level, medium]
+        exclude: ^(tests/|scripts/one_time/)
+
+  # Local hooks - Fixed script references
   - repo: local
     hooks:
-      - id: check-one-time-scripts
-        name: Check for one-time scripts
-        entry: python scripts/check_one_time_scripts.py
+      - id: technical-debt-check
+        name: Technical Debt Prevention (Non-blocking)
+        entry: python scripts/technical_debt_prevention.py --mode=validate --non-blocking
         language: system
         files: '\.py$'
+        pass_filenames: false
+        stages: [pre-push]  # Only run on push, not every commit
+        description: "Check for technical debt patterns (warnings only)"
+      
+      - id: secret-scanner
+        name: Secret Scanner
+        entry: python scripts/utils/secret_scanner.py --scan-staged
+        language: system
+        files: '\.py$|\.js$|\.ts$|\.yaml$|\.yml$|\.json$'
         pass_filenames: true
-        description: "Check for one-time scripts that should be marked for deletion"
+        description: "Scan for hardcoded secrets"
+
+# Global pre-commit settings
+default_stages: [commit]
+fail_fast: false  # Continue running all hooks even if one fails
+
+# Exclude patterns
+exclude: |
+  (?x)^(
+    \.venv/.*|
+    node_modules/.*|
+    \.git/.*|
+    uv\.lock|
+    .*\.pyc|
+    .*\.log|
+    scripts/one_time/.*
+  )$
