@@ -16,10 +16,10 @@ import json
 import numpy as np
 from collections import defaultdict, deque
 
-from QDRANT_client import QdrantClient
-from QDRANT_client.models import Filter, FieldCondition, MatchValue, UpdateStatus
+from qdrant_client import QdrantClient
+from qdrant_client.models import Filter, FieldCondition, MatchValue, UpdateStatus
 
-from ..core.truthful_config import get_real_QDRANT_config
+from backend.core.truthful_config import get_real_QDRANT_config
 from .advanced_hybrid_search_service import SearchResult, SearchContext, BusinessInsights
 
 logger = logging.getLogger(__name__)

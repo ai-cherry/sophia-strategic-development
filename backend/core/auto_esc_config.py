@@ -225,33 +225,17 @@ def set_config_value(key: str, value: Any) -> None:
     _config_cache[key] = value
 
 
-def get_QDRANT_config() -> Dict[str, str]:
-    """Get Qdrant configuration from Pulumi ESC"""
+
+def get_qdrant_config() -> Dict[str, str]:
+    """Get Qdrant configuration from Pulumi ESC (unified function)"""
     return {
-        "api_key": get_config_value("QDRANT_api_key") or get_config_value("QDRANT_API_KEY"),
-        "url": get_config_value("QDRANT_URL") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
+        "api_key": get_config_value("QDRANT_API_KEY") or get_config_value("QDRANT_api_key"),
+        "url": get_config_value("QDRANT_URL") or "https://cloud.qdrant.io",
         "cluster_name": get_config_value("QDRANT_cluster_name", "sophia-ai-production"),
         "timeout": int(get_config_value("QDRANT_timeout", "30")),
         "prefer_grpc": get_config_value("QDRANT_prefer_grpc", "false").lower() == "true"
     }
 
-
-def get_postgres_config() -> Dict[str, Any]:
-    """
-    Get PostgreSQL configuration
-
-    Returns:
-        PostgreSQL configuration dictionary
-    """
-    return {
-        "host": get_config_value("postgres_host", "postgres"),
-        "port": int(get_config_value("postgres_port", "5432")),
-        "database": get_config_value("postgres_database", "sophia_ai"),
-        "user": get_config_value("postgres_user", "postgres"),
-        "password": get_config_value(
-            "postgres_password"
-        ),  # Separate password from Qdrant
-    }
 
 
 def get_estuary_config() -> Dict[str, Any]:
@@ -800,60 +784,17 @@ def validate_lambda_labs_config() -> bool:
     return True
 
 
-def get_QDRANT_config() -> Dict[str, str]:
-    """Get Qdrant configuration from Pulumi ESC"""
+
+def get_qdrant_config() -> Dict[str, str]:
+    """Get Qdrant configuration from Pulumi ESC (unified function)"""
     return {
-        "api_key": get_config_value("QDRANT_api_key") or get_config_value("QDRANT_API_KEY"),
-        "url": get_config_value("QDRANT_URL") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
+        "api_key": get_config_value("QDRANT_API_KEY") or get_config_value("QDRANT_api_key"),
+        "url": get_config_value("QDRANT_URL") or "https://cloud.qdrant.io",
         "cluster_name": get_config_value("QDRANT_cluster_name", "sophia-ai-production"),
         "timeout": int(get_config_value("QDRANT_timeout", "30")),
         "prefer_grpc": get_config_value("QDRANT_prefer_grpc", "false").lower() == "true"
     }
-
-
-def get_redis_config() -> Dict[str, Any]:
-    """
-    Get Redis configuration for all environments
-    
-    Returns:
-        Redis configuration with host, port, password, and connection options
-    """
-    # Determine environment and set appropriate host
-    environment = get_config_value("ENVIRONMENT", "prod")
-    
-    # Redis host determination based on environment
-    if environment == "prod" and get_config_value("KUBERNETES_SERVICE_HOST"):
-        # Kubernetes environment - use service name
-        redis_host = "redis-master"
-        redis_port = 6379
-    elif get_config_value("REDIS_URL"):
-        # Use explicit Redis URL if provided
-        import urllib.parse as urlparse
-        redis_url = get_config_value("REDIS_URL")
-        parsed = urlparse.urlparse(redis_url)
-        redis_host = parsed.hostname or "localhost"
-        redis_port = parsed.port or 6379
-    else:
-        # Local development fallback
-        redis_host = get_config_value("REDIS_HOST", "localhost")
-        redis_port = int(get_config_value("REDIS_PORT", "6379"))
-    
-    # Redis password from GitHub secrets
-    redis_password = get_config_value("REDIS_PASSWORD")
-    
-    # Connection pool configuration
-    redis_config = {
-        "host": redis_host,
-        "port": redis_port,
-        "password": redis_password,
-        "db": int(get_config_value("REDIS_DB", "0")),
-        "decode_responses": True,
-        "encoding": "utf-8",
-        "retry_on_timeout": True,
-        "socket_timeout": int(get_config_value("REDIS_SOCKET_TIMEOUT", "30")),
-        "socket_connect_timeout": int(get_config_value("REDIS_CONNECT_TIMEOUT", "30")),
-        "socket_keepalive": True,
-        "socket_keepalive_options": {},
+,
         "connection_pool_kwargs": {
             "max_connections": int(get_config_value("REDIS_MAX_CONNECTIONS", "50")),
             "retry_on_timeout": True,

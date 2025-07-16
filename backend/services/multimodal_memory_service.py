@@ -43,8 +43,8 @@ except ImportError:
 
 # Qdrant imports with fallback
 try:
-    from QDRANT_client import QdrantClient
-    from QDRANT_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False
@@ -122,7 +122,7 @@ class MultimodalMemoryService:
         self.QDRANT_api_key = get_config_value("QDRANT_api_key", None)
         
         # Clients
-        self.QDRANT_client = None
+        self.qdrant_client = None
         self.document_converter = None
         
         # Collections
@@ -156,12 +156,12 @@ class MultimodalMemoryService:
         if QDRANT_AVAILABLE:
             try:
                 if self.QDRANT_api_key:
-                    self.QDRANT_client = QdrantClient(
+                    self.qdrant_client = QdrantClient(
                         url=self.QDRANT_URL,
                         api_key=self.QDRANT_api_key
                     )
                 else:
-                    self.QDRANT_client = QdrantClient(url=self.QDRANT_URL)
+                    self.qdrant_client = QdrantClient(url=self.QDRANT_URL)
                 
                 # Create collections
                 await self._create_QDRANT_collections()
@@ -169,7 +169,7 @@ class MultimodalMemoryService:
                 
             except Exception as e:
                 logger.error(f"❌ Qdrant initialization failed: {e}")
-                self.QDRANT_client = None
+                self.qdrant_client = None
         else:
             logger.warning("⚠️ Qdrant not available - install with: pip install qdrant-client")
         
@@ -189,12 +189,12 @@ class MultimodalMemoryService:
     
     async def _create_QDRANT_collections(self):
         """Create Qdrant collections for visual embeddings"""
-        if not self.QDRANT_client:
+        if not self.qdrant_client:
             return
         
         try:
             # Visual embeddings collection
-            self.QDRANT_client.create_collection(
+            self.qdrant_client.create_collection(
                 collection_name=self.visual_collection,
                 vectors_config=VectorParams(
                     size=self.embedding_dim,
@@ -208,7 +208,7 @@ class MultimodalMemoryService:
         
         try:
             # Document analysis collection
-            self.QDRANT_client.create_collection(
+            self.qdrant_client.create_collection(
                 collection_name=self.document_collection,
                 vectors_config=VectorParams(
                     size=self.embedding_dim,
@@ -456,7 +456,7 @@ class MultimodalMemoryService:
         metadata: Dict[str, Any]
     ):
         """Store visual elements in Qdrant"""
-        if not self.QDRANT_client:
+        if not self.qdrant_client:
             return
         
         points = []
@@ -484,7 +484,7 @@ class MultimodalMemoryService:
         
         if points:
             try:
-                self.QDRANT_client.upsert(
+                self.qdrant_client.upsert(
                     collection_name=self.visual_collection,
                     points=points
                 )
@@ -500,7 +500,7 @@ class MultimodalMemoryService:
         confidence_threshold: float = 0.5
     ) -> List[Dict[str, Any]]:
         """Search visual elements by text query"""
-        if not self.QDRANT_client:
+        if not self.qdrant_client:
             return []
         
         try:
@@ -528,7 +528,7 @@ class MultimodalMemoryService:
             search_filter = Filter(must=filter_conditions) if filter_conditions else None
             
             # Search in Qdrant
-            search_results = self.QDRANT_client.search(
+            search_results = self.qdrant_client.search(
                 collection_name=self.visual_collection,
                 query_vector=query_embedding.tolist(),
                 query_filter=search_filter,

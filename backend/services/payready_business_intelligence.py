@@ -15,10 +15,10 @@ from enum import Enum
 import json
 import numpy as np
 
-from QDRANT_client import QdrantClient
-from QDRANT_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
+from qdrant_client import QdrantClient
+from qdrant_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
 
-from ..core.truthful_config import get_real_QDRANT_config
+from backend.core.truthful_config import get_real_QDRANT_config
 from .advanced_hybrid_search_service import SearchResult, SearchContext, BusinessInsights
 from .adaptive_memory_system import AdaptiveMemorySystem
 

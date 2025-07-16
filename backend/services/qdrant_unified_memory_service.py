@@ -33,8 +33,8 @@ import numpy as np
 
 # Qdrant imports
 try:
-    from QDRANT_client import QdrantClient, models
-    from QDRANT_client.models import (
+    from qdrant_client import QdrantClient, models
+    from qdrant_client.models import (
         Distance, VectorParams, PointStruct, Filter, FieldCondition, 
         MatchValue, SearchRequest, ScoredPoint, UpdateResult,
         CollectionInfo, OptimizersConfigDiff, HnswConfigDiff
@@ -142,7 +142,7 @@ class QdrantUnifiedMemoryService:
         )
         
         # Clients
-        self.QDRANT_client: Optional[QdrantClient] = None
+        self.qdrant_client: Optional[QdrantClient] = None
         self.redis_client: Optional[Redis] = None
         self.pg_pool: Optional[asyncpg.Pool] = None
         self.router_service: Optional[RouterService] = None
@@ -243,7 +243,7 @@ class QdrantUnifiedMemoryService:
             if not QDRANT_AVAILABLE:
                 raise ImportError("qdrant-client not available")
                 
-            self.QDRANT_client = QdrantClient(
+            self.qdrant_client = QdrantClient(
                 url=self.config.url,
                 api_key=self.config.api_key,
                 timeout=self.config.timeout,
@@ -251,7 +251,7 @@ class QdrantUnifiedMemoryService:
             )
             
             # Test connection
-            collections = await asyncio.to_thread(self.QDRANT_client.get_collections)
+            collections = await asyncio.to_thread(self.qdrant_client.get_collections)
             logger.info(f"✅ Qdrant connected: {len(collections.collections)} collections")
             
         except Exception as e:
@@ -329,7 +329,7 @@ class QdrantUnifiedMemoryService:
         """Create a single collection with configuration"""
         try:
             # Check if collection exists
-            collections = await asyncio.to_thread(self.QDRANT_client.get_collections)
+            collections = await asyncio.to_thread(self.qdrant_client.get_collections)
             existing_names = [c.name for c in collections.collections]
             
             if config.name in existing_names:
@@ -338,7 +338,7 @@ class QdrantUnifiedMemoryService:
                 
             # Create collection
             await asyncio.to_thread(
-                self.QDRANT_client.create_collection,
+                self.qdrant_client.create_collection,
                 collection_name=config.name,
                 vectors_config=VectorParams(
                     size=config.vector_size,
@@ -419,7 +419,7 @@ class QdrantUnifiedMemoryService:
                 
                 # Upsert to Qdrant
                 result = await asyncio.to_thread(
-                    self.QDRANT_client.upsert,
+                    self.qdrant_client.upsert,
                     collection_name=collection_name,
                     points=[point]
                 )
@@ -550,7 +550,7 @@ class QdrantUnifiedMemoryService:
         
         # Dense vector search
         dense_results = await asyncio.to_thread(
-            self.QDRANT_client.search,
+            self.qdrant_client.search,
             collection_name=collection_name,
             query_vector=query_embedding,
             query_filter=filter_condition,
@@ -596,7 +596,7 @@ class QdrantUnifiedMemoryService:
             filter_condition = Filter(must=conditions)
         
         results = await asyncio.to_thread(
-            self.QDRANT_client.search,
+            self.qdrant_client.search,
             collection_name=collection_name,
             query_vector=query_embedding,
             query_filter=filter_condition,
@@ -746,7 +746,7 @@ class QdrantUnifiedMemoryService:
         try:
             collection_name = self.collections[collection].name
             info = await asyncio.to_thread(
-                self.QDRANT_client.get_collection,
+                self.qdrant_client.get_collection,
                 collection_name
             )
             
@@ -777,7 +777,7 @@ class QdrantUnifiedMemoryService:
             collection_name = self.collections[collection].name
             
             result = await asyncio.to_thread(
-                self.QDRANT_client.delete,
+                self.qdrant_client.delete,
                 collection_name=collection_name,
                 points_selector=models.PointIdsList(points=point_ids)
             )
@@ -821,7 +821,7 @@ class QdrantUnifiedMemoryService:
         
         # Check Qdrant
         try:
-            await asyncio.to_thread(self.QDRANT_client.get_collections)
+            await asyncio.to_thread(self.qdrant_client.get_collections)
             health["services"]["qdrant"] = "healthy"
         except Exception as e:
             health["services"]["qdrant"] = f"unhealthy: {e}"
@@ -856,8 +856,8 @@ class QdrantUnifiedMemoryService:
             await self.redis_client.close()
         if self.pg_pool:
             await self.pg_pool.close()
-        if self.QDRANT_client:
-            self.QDRANT_client.close()
+        if self.qdrant_client:
+            self.qdrant_client.close()
             
         logger.info("✅ Qdrant Unified Memory Service cleaned up")
 
