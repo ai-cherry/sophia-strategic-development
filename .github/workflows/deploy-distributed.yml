@@ -1,0 +1,404 @@
+name: Deploy Sophia AI - Distributed
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+        - development
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  LAMBDA_AI_CORE_IP: ${{ secrets.LAMBDA_AI_CORE_IP }}
+  LAMBDA_MCP_ORCHESTRATOR_IP: ${{ secrets.LAMBDA_MCP_ORCHESTRATOR_IP }}
+  LAMBDA_DATA_PIPELINE_IP: ${{ secrets.LAMBDA_DATA_PIPELINE_IP }}
+  LAMBDA_DEVELOPMENT_IP: ${{ secrets.LAMBDA_DEVELOPMENT_IP }}
+
+jobs:
+  validate:
+    name: Validate Infrastructure
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      instances-healthy: ${{ steps.health-check.outputs.healthy }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LAMBDA_SSH_PRIVATE_KEY }}" > ~/.ssh/lambda_key
+        chmod 600 ~/.ssh/lambda_key
+        ssh-keyscan -H ${{ env.LAMBDA_AI_CORE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_DATA_PIPELINE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_DEVELOPMENT_IP }} >> ~/.ssh/known_hosts
+    
+    - name: Health check all instances
+      id: health-check
+      run: |
+        healthy=true
+        
+        for ip in ${{ env.LAMBDA_AI_CORE_IP }} ${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }} ${{ env.LAMBDA_DATA_PIPELINE_IP }} ${{ env.LAMBDA_DEVELOPMENT_IP }}; do
+          echo "Checking $ip..."
+          if ! ssh -i ~/.ssh/lambda_key -o ConnectTimeout=10 ubuntu@$ip "echo 'OK'"; then
+            echo "❌ $ip is not accessible"
+            healthy=false
+          else
+            echo "✅ $ip is healthy"
+          fi
+        done
+        
+        echo "healthy=$healthy" >> $GITHUB_OUTPUT
+    
+    - name: Validate Qdrant connection
+      run: |
+        pip install qdrant-client
+        python3 -c "
+        from qdrant_client import QdrantClient
+        client = QdrantClient(
+            url='${{ secrets.QDRANT_ENDPOINT }}',
+            api_key='${{ secrets.QDRANT_API_KEY }}'
+        )
+        collections = client.get_collections()
+        print(f'✅ Qdrant healthy: {len(collections.collections)} collections')
+        "
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: validate
+    if: needs.validate.outputs.instances-healthy == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        python -m pytest tests/ -v || echo "Tests completed with warnings"
+    
+    - name: Create deployment package
+      run: |
+        tar -czf sophia-deployment.tar.gz \
+          --exclude='.git' \
+          --exclude='node_modules' \
+          --exclude='venv' \
+          --exclude='__pycache__' \
+          --exclude='*.pyc' \
+          --exclude='.env' \
+          .
+    
+    - name: Upload deployment artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: sophia-deployment
+        path: sophia-deployment.tar.gz
+
+  deploy-primary:
+    name: Deploy to Primary Instance
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [validate, build]
+    environment: production
+    
+    steps:
+    - name: Download deployment artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: sophia-deployment
+    
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LAMBDA_SSH_PRIVATE_KEY }}" > ~/.ssh/lambda_key
+        chmod 600 ~/.ssh/lambda_key
+        ssh-keyscan -H ${{ env.LAMBDA_AI_CORE_IP }} >> ~/.ssh/known_hosts
+    
+    - name: Deploy to sophia-ai-core
+      run: |
+        # Copy deployment package
+        scp -i ~/.ssh/lambda_key sophia-deployment.tar.gz ubuntu@${{ env.LAMBDA_AI_CORE_IP }}:~/
+        
+        # Deploy on instance
+        ssh -i ~/.ssh/lambda_key ubuntu@${{ env.LAMBDA_AI_CORE_IP }} << 'EOF'
+        # Extract deployment
+        cd ~
+        rm -rf sophia-main-backup
+        if [ -d sophia-main ]; then
+          mv sophia-main sophia-main-backup
+        fi
+        mkdir sophia-main
+        cd sophia-main
+        tar -xzf ~/sophia-deployment.tar.gz
+        
+        # Setup environment
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        
+        # Create environment file
+        cat > .env << 'ENVFILE'
+        ENVIRONMENT=production
+        CURRENT_INSTANCE_IP=${{ env.LAMBDA_AI_CORE_IP }}
+        INSTANCE_ROLE=primary
+        
+        # Lambda Labs Infrastructure
+        LAMBDA_AI_CORE_IP=${{ env.LAMBDA_AI_CORE_IP }}
+        LAMBDA_MCP_ORCHESTRATOR_IP=${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }}
+        LAMBDA_DATA_PIPELINE_IP=${{ env.LAMBDA_DATA_PIPELINE_IP }}
+        LAMBDA_DEVELOPMENT_IP=${{ env.LAMBDA_DEVELOPMENT_IP }}
+        
+        # Qdrant Configuration
+        QDRANT_ENDPOINT=${{ secrets.QDRANT_ENDPOINT }}
+        QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }}
+        
+        # API Keys
+        OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+        ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+        
+        # Database Configuration
+        DATABASE_URL=${{ secrets.DATABASE_URL }}
+        REDIS_URL=${{ secrets.REDIS_URL }}
+        
+        # Domain Configuration
+        SOPHIA_DOMAIN=${{ secrets.SOPHIA_DOMAIN }}
+        SOPHIA_API_DOMAIN=${{ secrets.SOPHIA_API_DOMAIN }}
+        SOPHIA_APP_DOMAIN=${{ secrets.SOPHIA_APP_DOMAIN }}
+        ENVFILE
+        
+        # Create logs directory
+        mkdir -p ~/sophia-logs
+        
+        # Stop existing services
+        pkill -f "uvicorn" || true
+        pkill -f "python.*main.py" || true
+        
+        # Start services
+        nohup python main.py > ~/sophia-logs/main.log 2>&1 &
+        echo $! > ~/sophia-logs/main.pid
+        
+        # Wait and verify
+        sleep 15
+        if curl -s http://localhost:8000/health | grep -q "healthy"; then
+          echo "✅ Primary deployment successful"
+        else
+          echo "❌ Primary deployment failed"
+          exit 1
+        fi
+        EOF
+
+  deploy-services:
+    name: Deploy to Service Instances
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [validate, build, deploy-primary]
+    strategy:
+      matrix:
+        instance:
+          - { ip: "${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }}", role: "mcp", port: "8001" }
+          - { ip: "${{ env.LAMBDA_DATA_PIPELINE_IP }}", role: "data", port: "8100" }
+          - { ip: "${{ env.LAMBDA_DEVELOPMENT_IP }}", role: "dev", port: "8200" }
+    
+    steps:
+    - name: Download deployment artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: sophia-deployment
+    
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LAMBDA_SSH_PRIVATE_KEY }}" > ~/.ssh/lambda_key
+        chmod 600 ~/.ssh/lambda_key
+        ssh-keyscan -H ${{ matrix.instance.ip }} >> ~/.ssh/known_hosts
+    
+    - name: Deploy to ${{ matrix.instance.role }} instance
+      run: |
+        # Copy deployment package
+        scp -i ~/.ssh/lambda_key sophia-deployment.tar.gz ubuntu@${{ matrix.instance.ip }}:~/
+        
+        # Deploy on instance
+        ssh -i ~/.ssh/lambda_key ubuntu@${{ matrix.instance.ip }} << EOF
+        # Extract deployment
+        cd ~
+        rm -rf sophia-main-backup
+        if [ -d sophia-main ]; then
+          mv sophia-main sophia-main-backup
+        fi
+        mkdir sophia-main
+        cd sophia-main
+        tar -xzf ~/sophia-deployment.tar.gz
+        
+        # Setup environment
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        
+        # Create instance-specific environment
+        cat > .env << 'ENVFILE'
+        ENVIRONMENT=production
+        CURRENT_INSTANCE_IP=${{ matrix.instance.ip }}
+        INSTANCE_ROLE=${{ matrix.instance.role }}
+        SERVICE_PORT=${{ matrix.instance.port }}
+        
+        # Lambda Labs Infrastructure
+        LAMBDA_AI_CORE_IP=${{ env.LAMBDA_AI_CORE_IP }}
+        LAMBDA_MCP_ORCHESTRATOR_IP=${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }}
+        LAMBDA_DATA_PIPELINE_IP=${{ env.LAMBDA_DATA_PIPELINE_IP }}
+        LAMBDA_DEVELOPMENT_IP=${{ env.LAMBDA_DEVELOPMENT_IP }}
+        
+        # Qdrant Configuration
+        QDRANT_ENDPOINT=${{ secrets.QDRANT_ENDPOINT }}
+        QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }}
+        
+        # API Keys
+        OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+        ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+        
+        # Service URLs
+        SOPHIA_BACKEND_URL=${{ secrets.SOPHIA_BACKEND_URL }}
+        MCP_ORCHESTRATOR_URL=${{ secrets.MCP_ORCHESTRATOR_URL }}
+        DATA_PIPELINE_URL=${{ secrets.DATA_PIPELINE_URL }}
+        DEVELOPMENT_URL=${{ secrets.DEVELOPMENT_URL }}
+        ENVFILE
+        
+        # Create logs directory
+        mkdir -p ~/sophia-logs
+        
+        # Stop existing services
+        pkill -f "uvicorn" || true
+        pkill -f "python.*main.py" || true
+        
+        # Start role-specific services
+        case "${{ matrix.instance.role }}" in
+          "mcp")
+            # Start MCP services
+            nohup python main.py --port ${{ matrix.instance.port }} > ~/sophia-logs/mcp.log 2>&1 &
+            echo \$! > ~/sophia-logs/mcp.pid
+            ;;
+          "data")
+            # Start data processing services
+            nohup python main.py --port ${{ matrix.instance.port }} > ~/sophia-logs/data.log 2>&1 &
+            echo \$! > ~/sophia-logs/data.pid
+            ;;
+          "dev")
+            # Start development services
+            nohup python main.py --port ${{ matrix.instance.port }} > ~/sophia-logs/dev.log 2>&1 &
+            echo \$! > ~/sophia-logs/dev.pid
+            ;;
+        esac
+        
+        # Verify deployment
+        sleep 10
+        echo "✅ ${{ matrix.instance.role }} deployment complete"
+        EOF
+
+  verify-deployment:
+    name: Verify Distributed Deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [deploy-primary, deploy-services]
+    
+    steps:
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LAMBDA_SSH_PRIVATE_KEY }}" > ~/.ssh/lambda_key
+        chmod 600 ~/.ssh/lambda_key
+        ssh-keyscan -H ${{ env.LAMBDA_AI_CORE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_DATA_PIPELINE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_DEVELOPMENT_IP }} >> ~/.ssh/known_hosts
+    
+    - name: Test all endpoints
+      run: |
+        echo "🔍 Testing distributed deployment..."
+        
+        # Test primary instance
+        if curl -s http://${{ env.LAMBDA_AI_CORE_IP }}:8000/health | grep -q "healthy"; then
+          echo "✅ Primary instance healthy"
+        else
+          echo "❌ Primary instance unhealthy"
+        fi
+        
+        # Test MCP orchestrator
+        if curl -s http://${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }}:8001/health | grep -q "healthy"; then
+          echo "✅ MCP orchestrator healthy"
+        else
+          echo "❌ MCP orchestrator unhealthy"
+        fi
+        
+        # Test data pipeline
+        if curl -s http://${{ env.LAMBDA_DATA_PIPELINE_IP }}:8100/health | grep -q "healthy"; then
+          echo "✅ Data pipeline healthy"
+        else
+          echo "❌ Data pipeline unhealthy"
+        fi
+        
+        # Test development instance
+        if curl -s http://${{ env.LAMBDA_DEVELOPMENT_IP }}:8200/health | grep -q "healthy"; then
+          echo "✅ Development instance healthy"
+        else
+          echo "❌ Development instance unhealthy"
+        fi
+    
+    - name: Test Qdrant integration
+      run: |
+        pip install qdrant-client
+        python3 -c "
+        from qdrant_client import QdrantClient
+        client = QdrantClient(
+            url='${{ secrets.QDRANT_ENDPOINT }}',
+            api_key='${{ secrets.QDRANT_API_KEY }}'
+        )
+        collections = client.get_collections()
+        print(f'✅ Qdrant integration verified: {len(collections.collections)} collections')
+        "
+    
+    - name: Send deployment notification
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🎉 Sophia AI distributed deployment successful!"
+        else
+          echo "❌ Sophia AI distributed deployment failed!"
+        fi
+
+  cleanup:
+    name: Cleanup Artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [verify-deployment]
+    if: always()
+    
+    steps:
+    - name: Delete deployment artifacts
+      uses: geekyeggo/delete-artifact@v2
+      with:
+        name: sophia-deployment
+

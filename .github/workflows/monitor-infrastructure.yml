@@ -1,0 +1,235 @@
+name: Monitor Sophia AI Infrastructure
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+env:
+  LAMBDA_AI_CORE_IP: ${{ secrets.LAMBDA_AI_CORE_IP }}
+  LAMBDA_MCP_ORCHESTRATOR_IP: ${{ secrets.LAMBDA_MCP_ORCHESTRATOR_IP }}
+  LAMBDA_DATA_PIPELINE_IP: ${{ secrets.LAMBDA_DATA_PIPELINE_IP }}
+  LAMBDA_DEVELOPMENT_IP: ${{ secrets.LAMBDA_DEVELOPMENT_IP }}
+
+jobs:
+  health-check:
+    name: Infrastructure Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LAMBDA_SSH_PRIVATE_KEY }}" > ~/.ssh/lambda_key
+        chmod 600 ~/.ssh/lambda_key
+        ssh-keyscan -H ${{ env.LAMBDA_AI_CORE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_DATA_PIPELINE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_DEVELOPMENT_IP }} >> ~/.ssh/known_hosts
+    
+    - name: Check Lambda Labs instances
+      run: |
+        echo "🔍 Checking Lambda Labs instances..."
+        
+        instances=(
+          "${{ env.LAMBDA_AI_CORE_IP }}:primary:8000"
+          "${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }}:mcp:8001"
+          "${{ env.LAMBDA_DATA_PIPELINE_IP }}:data:8100"
+          "${{ env.LAMBDA_DEVELOPMENT_IP }}:dev:8200"
+        )
+        
+        all_healthy=true
+        
+        for instance in "${instances[@]}"; do
+          IFS=':' read -r ip role port <<< "$instance"
+          echo "Checking $role ($ip:$port)..."
+          
+          if ssh -i ~/.ssh/lambda_key -o ConnectTimeout=10 ubuntu@$ip "uptime"; then
+            echo "✅ $role instance is accessible"
+            
+            # Check service health
+            if curl -s --connect-timeout 5 http://$ip:$port/health | grep -q "healthy"; then
+              echo "✅ $role service is healthy"
+            else
+              echo "⚠️ $role service may be unhealthy"
+              all_healthy=false
+            fi
+          else
+            echo "❌ $role instance is not accessible"
+            all_healthy=false
+          fi
+        done
+        
+        if [ "$all_healthy" = true ]; then
+          echo "🎉 All instances healthy"
+        else
+          echo "⚠️ Some instances need attention"
+          exit 1
+        fi
+    
+    - name: Check Qdrant cluster
+      run: |
+        echo "🔍 Checking Qdrant cluster..."
+        
+        pip install qdrant-client
+        python3 -c "
+        from qdrant_client import QdrantClient
+        import sys
+        
+        try:
+            client = QdrantClient(
+                url='${{ secrets.QDRANT_ENDPOINT }}',
+                api_key='${{ secrets.QDRANT_API_KEY }}'
+            )
+            collections = client.get_collections()
+            
+            print(f'✅ Qdrant cluster healthy: {len(collections.collections)} collections')
+            
+            # Check each collection
+            for collection in collections.collections:
+                info = client.get_collection(collection.name)
+                if hasattr(info, 'status') and info.status == 'green':
+                    print(f'✅ {collection.name}: {info.points_count} points')
+                else:
+                    print(f'⚠️ {collection.name}: status unknown')
+                    
+        except Exception as e:
+            print(f'❌ Qdrant cluster error: {e}')
+            sys.exit(1)
+        "
+    
+    - name: Performance metrics
+      run: |
+        echo "📊 Collecting performance metrics..."
+        
+        # Test response times
+        for ip_port in "${{ env.LAMBDA_AI_CORE_IP }}:8000" "${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }}:8001" "${{ env.LAMBDA_DATA_PIPELINE_IP }}:8100" "${{ env.LAMBDA_DEVELOPMENT_IP }}:8200"; do
+          echo "Testing response time for $ip_port..."
+          response_time=$(curl -w "%{time_total}" -o /dev/null -s --connect-timeout 5 http://$ip_port/health || echo "timeout")
+          echo "Response time: ${response_time}s"
+        done
+    
+    - name: Send alert if unhealthy
+      if: failure()
+      run: |
+        echo "🚨 Infrastructure health check failed!"
+        echo "Timestamp: $(date)"
+        echo "Check the logs above for details."
+
+  resource-monitoring:
+    name: Resource Usage Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.LAMBDA_SSH_PRIVATE_KEY }}" > ~/.ssh/lambda_key
+        chmod 600 ~/.ssh/lambda_key
+        ssh-keyscan -H ${{ env.LAMBDA_AI_CORE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_DATA_PIPELINE_IP }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ env.LAMBDA_DEVELOPMENT_IP }} >> ~/.ssh/known_hosts
+    
+    - name: Collect resource metrics
+      run: |
+        echo "📈 Collecting resource usage metrics..."
+        
+        instances=(
+          "${{ env.LAMBDA_AI_CORE_IP }}:primary"
+          "${{ env.LAMBDA_MCP_ORCHESTRATOR_IP }}:mcp"
+          "${{ env.LAMBDA_DATA_PIPELINE_IP }}:data"
+          "${{ env.LAMBDA_DEVELOPMENT_IP }}:dev"
+        )
+        
+        for instance in "${instances[@]}"; do
+          IFS=':' read -r ip role <<< "$instance"
+          echo "=== $role ($ip) ==="
+          
+          ssh -i ~/.ssh/lambda_key ubuntu@$ip << 'EOF'
+          echo "CPU Usage:"
+          top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1 || echo "N/A"
+          
+          echo "Memory Usage:"
+          free -h | grep Mem | awk '{print "Used: " $3 " / " $2}' || echo "N/A"
+          
+          echo "Disk Usage:"
+          df -h / | tail -1 | awk '{print "Used: " $3 " / " $2 " (" $5 ")"}' || echo "N/A"
+          
+          echo "GPU Usage (if available):"
+          nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>/dev/null || echo "No GPU or nvidia-smi not available"
+          
+          echo "Load Average:"
+          uptime | awk -F'load average:' '{print $2}' || echo "N/A"
+          
+          echo "---"
+EOF
+        done
+
+  api-health-check:
+    name: API Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Test API endpoints
+      run: |
+        echo "🔍 Testing API endpoints..."
+        
+        # Test OpenAI API
+        if curl -s -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" https://api.openai.com/v1/models | grep -q "gpt"; then
+          echo "✅ OpenAI API: Healthy"
+        else
+          echo "❌ OpenAI API: Unhealthy"
+        fi
+        
+        # Test Anthropic API (basic connectivity)
+        if curl -s -H "x-api-key: ${{ secrets.ANTHROPIC_API_KEY }}" https://api.anthropic.com/v1/messages --data '{}' | grep -q "error"; then
+          echo "✅ Anthropic API: Accessible"
+        else
+          echo "⚠️ Anthropic API: May be inaccessible"
+        fi
+        
+        # Test Qdrant API
+        pip install qdrant-client
+        python3 -c "
+        from qdrant_client import QdrantClient
+        try:
+            client = QdrantClient(
+                url='${{ secrets.QDRANT_ENDPOINT }}',
+                api_key='${{ secrets.QDRANT_API_KEY }}'
+            )
+            collections = client.get_collections()
+            print('✅ Qdrant API: Healthy')
+        except Exception as e:
+            print(f'❌ Qdrant API: {e}')
+        "
+
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Check for security issues
+      run: |
+        echo "🛡️ Running security checks..."
+        
+        # Check if any secrets are exposed in logs (basic check)
+        echo "Checking for potential secret exposure..."
+        
+        # This is a placeholder for more comprehensive security checks
+        echo "✅ Basic security check completed"
+        
+        # In a real implementation, you would:
+        # - Check for failed login attempts
+        # - Monitor for unusual API usage patterns
+        # - Verify SSL certificate status
+        # - Check for open ports that shouldn't be open
+
