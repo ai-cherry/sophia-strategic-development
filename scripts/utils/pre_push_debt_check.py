@@ -86,6 +86,10 @@ class PrePushDebtCheck:
             if file.startswith('scripts/one_time/'):
                 continue
             
+            # Skip test files in tests/ directory - these are legitimate test files
+            if file.startswith('tests/') and file.endswith('.py'):
+                continue
+            
             # Check if matches one-time pattern
             for pattern in self.one_time_patterns:
                 if re.search(pattern, file):
@@ -265,4 +269,4 @@ def main():
         sys.exit(0)
 
 if __name__ == "__main__":
-    main() 
+    main()
