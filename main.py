@@ -275,36 +275,6 @@ def validate_environment():
         return False
 
 
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint for service discovery"""
-    import os
-    from datetime import datetime
-    
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "instance": {
-            "ip": os.getenv("CURRENT_INSTANCE_IP", "unknown"),
-            "role": os.getenv("INSTANCE_ROLE", "unknown"),
-            "port": os.getenv("SERVICE_PORT", "unknown")
-        },
-        "services": {
-            "backend": "running",
-            "database": "connected" if os.getenv("INSTANCE_ROLE") == "primary" else "remote",
-            "redis": "connected" if os.getenv("INSTANCE_ROLE") == "primary" else "remote"
-        },
-        "version": "1.0.0",
-        "uptime": time.time() - system_metrics.start_time if 'system_metrics' in globals() else 0
-    }
-
-@app.get("/status")
-async def status_check():
-    """Alias for health check"""
-    return await health_check()
-
-
 if __name__ == "__main__":
     # Validate environment before starting
     if not validate_environment():
