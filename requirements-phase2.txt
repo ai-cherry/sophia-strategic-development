@@ -1,0 +1,59 @@
+# Phase 2 Cleanup and Validation Dependencies
+# Created to fix workflow failures in cleanup-validation.yml
+# Based on analysis of cleanup scripts and existing requirements
+
+# Security patches applied - July 16, 2025
+setuptools>=78.1.1  # Security fix
+pip>=23.3  # Security fix
+wheel>=0.38.1  # Security fix
+future>=0.18.3  # Security fix
+
+# Core dependencies (from main requirements.txt)
+fastapi==0.116.1
+uvicorn[standard]==0.34.0
+pydantic==2.11.7
+pydantic-settings==2.10.1
+redis==6.2.0
+asyncpg==0.30.0
+psycopg2-binary
+pgvector
+openai==1.95.1
+anthropic==0.57.1
+portkey-ai==1.14.1
+python-dotenv==1.1.1
+structlog
+httpx
+aiohttp==3.12.14
+orjson
+pandas
+numpy==2.2.4
+sqlalchemy
+prometheus-client
+psutil==7.0.0
+mcp==1.11.0
+python-multipart==0.0.20
+jinja2==3.1.4
+typing-extensions==4.14.1
+qdrant-client==1.7.0
+
+# Cleanup and validation specific dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
+bandit>=1.7.0
+safety>=2.3.0
+
+# File system and process management for cleanup scripts
+pathlib2>=2.3.0
+watchdog>=3.0.0
+click>=8.0.0
+rich>=13.0.0
+
+# Additional dependencies for technical debt analysis
+ast-grep>=0.5.0
+vulture>=2.7.0
+radon>=6.0.0
+
