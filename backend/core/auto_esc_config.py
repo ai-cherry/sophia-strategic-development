@@ -762,7 +762,27 @@ def get_qdrant_config() -> Dict[str, str]:
         "timeout": int(get_config_value("QDRANT_timeout", "30")),
         "prefer_grpc": get_config_value("QDRANT_prefer_grpc", "false").lower() == "true"
     }
-,
+
+
+def get_redis_config() -> Dict[str, Any]:
+    """
+    Get Redis configuration from Pulumi ESC
+    
+    Returns:
+        Redis configuration dictionary
+    """
+    redis_host = get_config_value("REDIS_HOST", "localhost")
+    redis_port = int(get_config_value("REDIS_PORT", "6379"))
+    redis_password = get_config_value("REDIS_PASSWORD")
+    redis_db = int(get_config_value("REDIS_DB", "0"))
+    
+    redis_config = {
+        "host": redis_host,
+        "port": redis_port,
+        "db": redis_db,
+        "decode_responses": True,
+        "socket_timeout": int(get_config_value("REDIS_SOCKET_TIMEOUT", "30")),
+        "socket_connect_timeout": int(get_config_value("REDIS_CONNECT_TIMEOUT", "10")),
         "connection_pool_kwargs": {
             "max_connections": int(get_config_value("REDIS_MAX_CONNECTIONS", "50")),
             "retry_on_timeout": True,
