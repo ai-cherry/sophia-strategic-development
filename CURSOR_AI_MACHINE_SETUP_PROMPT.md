@@ -6,10 +6,23 @@
 ---
 
 ## 🎯 OBJECTIVE
-Set up identical virtual environment consistency across all AI coding tools (Cursor, Cline, etc.) with aligned FastAPI applications and eliminate shell errors when switching between tools.
+Set up identical development environment consistency across all AI coding tools (Cursor, Cline, etc.) with aligned FastAPI applications and eliminate shell errors when switching between tools.
 
 ## 📋 BACKGROUND CONTEXT
-This setup solves a critical issue where Python environment mismatches cause shell errors between AI coding tools. The solution creates a unified virtual environment configuration with proper Python 3.11.6 setup and eliminates conflicting system Python aliases.
+This setup solves a critical issue where Python environment mismatches cause shell errors between AI coding tools. We provide **TWO SOLUTIONS** - choose the one that best fits your needs:
+
+### **OPTION 1: Virtual Environment Setup** (Recommended for most users)
+- ✅ Fast setup (2-3 minutes)
+- ✅ Minimal resource usage
+- ✅ Excellent for individual development
+- ✅ Works with existing Python installations
+
+### **OPTION 2: Devcontainer Setup** (Ultimate consistency)
+- 🚀 Docker-level isolation
+- 🚀 Ultimate consistency across ALL machines
+- 🚀 Professional/enterprise standard
+- 🚀 Works with VS Code, Cursor AI, GitHub Codespaces
+- 🚀 Zero environment conflicts ever
 
 ## 🔧 IMPLEMENTATION REQUIREMENTS
 
@@ -335,6 +348,8 @@ Env: /path/to/project/.venv
 
 ## 🚀 EXECUTION STEPS
 
+### **OPTION 1: Virtual Environment Setup (Choose this OR Option 2)**
+
 1. **Run the activation script**: `chmod +x activate_sophia_env.sh && source activate_sophia_env.sh`
 
 2. **Verify setup**: `check-env`
@@ -349,12 +364,48 @@ Env: /path/to/project/.venv
 
 4. **Verify AI tool integration**: Check that all rule files are created and environment works consistently
 
+### **OPTION 2: Devcontainer Setup (Ultimate Consistency - Choose this OR Option 1)**
+
+1. **Install Docker Desktop**: Download from https://www.docker.com/products/docker-desktop
+
+2. **Open in Container**:
+   ```bash
+   # With VS Code
+   code .
+   # Command Palette → "Dev Containers: Reopen in Container"
+
+   # With Cursor AI  
+   cursor .
+   # Should auto-detect devcontainer.json and prompt to open in container
+   ```
+
+3. **Wait for automatic setup** (5-10 minutes first time) - everything installs automatically!
+
+4. **Start developing immediately** - all tools pre-configured and ready
+
+5. **Test applications** (same commands as Option 1):
+   ```bash
+   run-working    # Test port 8000
+   run-simple     # Test port 8001  
+   run-minimal    # Test port 8002
+   run-distributed # Test port 8003
+   ```
+
 ## ✅ SUCCESS CRITERIA
+
+### **For Option 1 (Virtual Environment):**
 - (.venv) appears in terminal prompt
 - Python 3.11.6 from virtual environment
 - All four FastAPI applications start without errors
 - Environment consistent across AI coding tools
 - No shell errors when switching between tools
+
+### **For Option 2 (Devcontainer):**
+- Container builds and starts successfully
+- All applications accessible via forwarded ports
+- Development environment completely isolated in Docker
+- Ultimate consistency across all machines and platforms
+- Zero environment conflicts ever
 
 ## 🆘 EMERGENCY RECOVERY
 If anything goes wrong:

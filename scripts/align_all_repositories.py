@@ -58,7 +58,10 @@ def main():
         ".cline-rules",
         ".ai-assistant-rules",
         "VIRTUAL_ENVIRONMENT_CONSISTENCY_GUIDE.md",
-        "CURSOR_AI_MACHINE_SETUP_PROMPT.md"
+        "CURSOR_AI_MACHINE_SETUP_PROMPT.md",
+        ".devcontainer/devcontainer.json",
+        ".devcontainer/setup.sh",
+        ".devcontainer/README.md"
     ]
     
     missing_files = []
@@ -94,6 +97,9 @@ def main():
         ".ai-assistant-rules",
         "VIRTUAL_ENVIRONMENT_CONSISTENCY_GUIDE.md",
         "CURSOR_AI_MACHINE_SETUP_PROMPT.md",
+        ".devcontainer/devcontainer.json",
+        ".devcontainer/setup.sh", 
+        ".devcontainer/README.md",
         "scripts/align_all_repositories.py"
     ]
     

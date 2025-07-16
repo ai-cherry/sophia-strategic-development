@@ -1,0 +1,140 @@
+{
+  "name": "Sophia AI Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.ruff",
+        "ms-python.mypy-type-checker",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "eamodio.gitlens",
+        "formulahendry.auto-rename-tag",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "python.formatting.provider": "black",
+        "python.linting.enabled": true,
+        "python.linting.ruffEnabled": true,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        },
+        "files.associations": {
+          "*.md": "markdown"
+        },
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "containerEnv": {
+    "ENVIRONMENT": "prod",
+    "PULUMI_ORG": "scoobyjava-org",
+    "PYTHONPATH": "/workspaces/sophia-main-2",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "LOG_LEVEL": "info",
+    "DOCKER_HOST": "unix:///var/run/docker.sock"
+  },
+
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+
+  "forwardPorts": [
+    8000,
+    8001, 
+    8002,
+    8003,
+    3000,
+    5173,
+    9000,
+    9001,
+    9002,
+    9003,
+    6379,
+    5432
+  ],
+
+  "portsAttributes": {
+    "8000": {
+      "label": "Working FastAPI",
+      "onAutoForward": "notify"
+    },
+    "8001": {
+      "label": "Simple FastAPI", 
+      "onAutoForward": "notify"
+    },
+    "8002": {
+      "label": "Minimal FastAPI",
+      "onAutoForward": "silent"
+    },
+    "8003": {
+      "label": "Distributed API",
+      "onAutoForward": "silent"
+    },
+    "3000": {
+      "label": "Frontend Dev Server",
+      "onAutoForward": "openPreview"
+    },
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "openPreview"
+    },
+    "9000": {
+      "label": "AI Memory MCP",
+      "onAutoForward": "silent"
+    },
+    "9001": {
+      "label": "Figma MCP",
+      "onAutoForward": "silent"
+    },
+    "9002": {
+      "label": "UI/UX Agent MCP",
+      "onAutoForward": "silent"
+    },
+    "9003": {
+      "label": "GitHub MCP",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "remoteUser": "vscode",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/sophia-main-2,type=bind,consistency=cached",
+  "workspaceFolder": "/workspaces/sophia-main-2",
+
+  "initializeCommand": "echo '🚀 Initializing Sophia AI Devcontainer...'",
+  "onCreateCommand": "echo '📦 Installing dependencies...'",
+  "updateContentCommand": "echo '🔄 Updating container content...'",
+  "postStartCommand": "echo '✅ Sophia AI devcontainer ready!'",
+
+  "shutdownAction": "stopContainer"
+} 
