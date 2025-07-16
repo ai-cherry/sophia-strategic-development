@@ -245,7 +245,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
 from backend.services.portkey_gateway import PortkeyGateway
 from backend.utils.logger import get_logger
 
@@ -650,7 +650,7 @@ from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 
 # Import V3 as base implementation
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryServiceV3
 
 logger = get_logger(__name__)
 
@@ -720,7 +720,7 @@ Unified Memory Service - Main Entry Point
 Redirects to primary implementation
 """
 
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
 
 # Export primary service
 __all__ = ['UnifiedMemoryService']
@@ -1047,8 +1047,8 @@ if __name__ == "__main__":
             # Common import conflict patterns
             import_fixes = [
                 {
-                    "pattern": "from backend.services.unified_memory_service_primary import UnifiedMemoryService",
-                    "replacement": "from backend.services.unified_memory_service_primary import UnifiedMemoryService"
+                    "pattern": "from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService",
+                    "replacement": "from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService"
                 },
                 {
                     "pattern": "from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator",

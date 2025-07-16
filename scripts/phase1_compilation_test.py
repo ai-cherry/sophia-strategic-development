@@ -47,7 +47,7 @@ def test_imports():
     # Test 2: UnifiedMemoryService Import
     tests_total += 1
     try:
-        from backend.services.unified_memory_service_primary import UnifiedMemoryService
+        from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
         print("✅ UnifiedMemoryService imports successfully")
         tests_passed += 1
     except Exception as e:
@@ -166,7 +166,7 @@ def test_service_instantiation():
     # Test 2: UnifiedMemoryService Instantiation
     tests_total += 1
     try:
-        from backend.services.unified_memory_service_primary import UnifiedMemoryService
+        from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
         service = UnifiedMemoryService()
         print("✅ UnifiedMemoryService instantiated successfully")
         tests_passed += 1

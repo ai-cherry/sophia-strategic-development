@@ -20,7 +20,7 @@ from playwright.async_api import Browser, Page, async_playwright
 
 from backend.core.auto_esc_config import get_config_value
 from backend.services.ai_memory_service import AIMemoryService
-from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service QdrantUnifiedMemoryService
 from infrastructure.services.unified_ai_orchestrator import (
     AIRequest,
     UnifiedAIOrchestrator,

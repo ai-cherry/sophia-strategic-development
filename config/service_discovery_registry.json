@@ -1,0 +1,176 @@
+{
+  "version": "1.0.0",
+  "services": {
+    "ai_memory": {
+      "port": 9000,
+      "health_port": 9100,
+      "tier": "core_ai",
+      "replicas": 3,
+      "gpu_required": true,
+      "priority": "CRITICAL",
+      "dns_name": "ai_memory-mcp.mcp-servers.svc.cluster.local"
+    },
+    "mcp_orchestrator": {
+      "port": 9001,
+      "health_port": 9101,
+      "tier": "core_ai",
+      "replicas": 2,
+      "gpu_required": false,
+      "priority": "CRITICAL",
+      "dns_name": "mcp_orchestrator-mcp.mcp-servers.svc.cluster.local"
+    },
+    "qdrant_admin": {
+      "port": 9002,
+      "health_port": 9102,
+      "tier": "core_ai",
+      "replicas": 2,
+      "gpu_required": false,
+      "priority": "HIGH",
+      "dns_name": "qdrant_admin-mcp.mcp-servers.svc.cluster.local"
+    },
+    "lambda_inference": {
+      "port": 9003,
+      "health_port": 9103,
+      "tier": "core_ai",
+      "replicas": 2,
+      "gpu_required": true,
+      "priority": "HIGH",
+      "dns_name": "lambda_inference-mcp.mcp-servers.svc.cluster.local"
+    },
+    "unified_chat": {
+      "port": 9004,
+      "health_port": 9104,
+      "tier": "core_ai",
+      "replicas": 3,
+      "gpu_required": false,
+      "priority": "CRITICAL",
+      "dns_name": "unified_chat-mcp.mcp-servers.svc.cluster.local"
+    },
+    "portkey_gateway": {
+      "port": 9005,
+      "health_port": 9105,
+      "tier": "core_ai",
+      "replicas": 2,
+      "gpu_required": false,
+      "priority": "HIGH",
+      "dns_name": "portkey_gateway-mcp.mcp-servers.svc.cluster.local"
+    },
+    "redis_cache": {
+      "port": 9006,
+      "health_port": 9106,
+      "tier": "core_ai",
+      "replicas": 2,
+      "gpu_required": false,
+      "priority": "HIGH",
+      "dns_name": "redis_cache-mcp.mcp-servers.svc.cluster.local"
+    },
+    "postgres_manager": {
+      "port": 9007,
+      "health_port": 9107,
+      "tier": "core_ai",
+      "replicas": 2,
+      "gpu_required": false,
+      "priority": "HIGH",
+      "dns_name": "postgres_manager-mcp.mcp-servers.svc.cluster.local"
+    },
+    "hubspot": {
+      "port": 9020,
+      "health_port": 9120,
+      "tier": "business_intelligence",
+      "replicas": 2,
+      "gpu_required": false,
+      "priority": "HIGH",
+      "dns_name": "hubspot-mcp.mcp-servers.svc.cluster.local"
+    },
+    "gong": {
+      "port": 9021,
+      "health_port": 9121,
+      "tier": "business_intelligence",
+      "replicas": 2,
+      "gpu_required": true,
+      "priority": "HIGH",
+      "dns_name": "gong-mcp.mcp-servers.svc.cluster.local"
+    },
+    "slack": {
+      "port": 9022,
+      "health_port": 9122,
+      "tier": "business_intelligence",
+      "replicas": 2,
+      "gpu_required": false,
+      "priority": "MEDIUM",
+      "dns_name": "slack-mcp.mcp-servers.svc.cluster.local"
+    },
+    "linear": {
+      "port": 9023,
+      "health_port": 9123,
+      "tier": "business_intelligence",
+      "replicas": 1,
+      "gpu_required": false,
+      "priority": "MEDIUM",
+      "dns_name": "linear-mcp.mcp-servers.svc.cluster.local"
+    },
+    "asana": {
+      "port": 9024,
+      "health_port": 9124,
+      "tier": "business_intelligence",
+      "replicas": 1,
+      "gpu_required": false,
+      "priority": "MEDIUM",
+      "dns_name": "asana-mcp.mcp-servers.svc.cluster.local"
+    },
+    "notion": {
+      "port": 9025,
+      "health_port": 9125,
+      "tier": "business_intelligence",
+      "replicas": 1,
+      "gpu_required": false,
+      "priority": "MEDIUM",
+      "dns_name": "notion-mcp.mcp-servers.svc.cluster.local"
+    },
+    "github": {
+      "port": 9040,
+      "health_port": 9140,
+      "tier": "development_tools",
+      "replicas": 1,
+      "gpu_required": false,
+      "priority": "MEDIUM",
+      "dns_name": "github-mcp.mcp-servers.svc.cluster.local"
+    },
+    "codacy": {
+      "port": 9041,
+      "health_port": 9141,
+      "tier": "development_tools",
+      "replicas": 1,
+      "gpu_required": false,
+      "priority": "LOW",
+      "dns_name": "codacy-mcp.mcp-servers.svc.cluster.local"
+    },
+    "ui_ux_agent": {
+      "port": 9042,
+      "health_port": 9142,
+      "tier": "development_tools",
+      "replicas": 1,
+      "gpu_required": false,
+      "priority": "LOW",
+      "dns_name": "ui_ux_agent-mcp.mcp-servers.svc.cluster.local"
+    },
+    "monitoring": {
+      "port": 9060,
+      "health_port": 9160,
+      "tier": "infrastructure",
+      "replicas": 1,
+      "gpu_required": false,
+      "priority": "HIGH",
+      "dns_name": "monitoring-mcp.mcp-servers.svc.cluster.local"
+    },
+    "logging": {
+      "port": 9061,
+      "health_port": 9161,
+      "tier": "infrastructure",
+      "replicas": 1,
+      "gpu_required": false,
+      "priority": "HIGH",
+      "dns_name": "logging-mcp.mcp-servers.svc.cluster.local"
+    }
+  }
+}

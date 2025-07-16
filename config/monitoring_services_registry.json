@@ -1,0 +1,175 @@
+{
+  "services": [
+    {
+      "name": "Ai Memory",
+      "service": "ai_memory",
+      "port": 9000,
+      "health_port": 9100,
+      "tier": "core_ai",
+      "priority": "CRITICAL",
+      "gpu_required": true
+    },
+    {
+      "name": "Mcp Orchestrator",
+      "service": "mcp_orchestrator",
+      "port": 9001,
+      "health_port": 9101,
+      "tier": "core_ai",
+      "priority": "CRITICAL",
+      "gpu_required": false
+    },
+    {
+      "name": "Qdrant Admin",
+      "service": "qdrant_admin",
+      "port": 9002,
+      "health_port": 9102,
+      "tier": "core_ai",
+      "priority": "HIGH",
+      "gpu_required": false
+    },
+    {
+      "name": "Lambda Inference",
+      "service": "lambda_inference",
+      "port": 9003,
+      "health_port": 9103,
+      "tier": "core_ai",
+      "priority": "HIGH",
+      "gpu_required": true
+    },
+    {
+      "name": "Unified Chat",
+      "service": "unified_chat",
+      "port": 9004,
+      "health_port": 9104,
+      "tier": "core_ai",
+      "priority": "CRITICAL",
+      "gpu_required": false
+    },
+    {
+      "name": "Portkey Gateway",
+      "service": "portkey_gateway",
+      "port": 9005,
+      "health_port": 9105,
+      "tier": "core_ai",
+      "priority": "HIGH",
+      "gpu_required": false
+    },
+    {
+      "name": "Redis Cache",
+      "service": "redis_cache",
+      "port": 9006,
+      "health_port": 9106,
+      "tier": "core_ai",
+      "priority": "HIGH",
+      "gpu_required": false
+    },
+    {
+      "name": "Postgres Manager",
+      "service": "postgres_manager",
+      "port": 9007,
+      "health_port": 9107,
+      "tier": "core_ai",
+      "priority": "HIGH",
+      "gpu_required": false
+    },
+    {
+      "name": "Hubspot",
+      "service": "hubspot",
+      "port": 9020,
+      "health_port": 9120,
+      "tier": "business_intelligence",
+      "priority": "HIGH",
+      "gpu_required": false
+    },
+    {
+      "name": "Gong",
+      "service": "gong",
+      "port": 9021,
+      "health_port": 9121,
+      "tier": "business_intelligence",
+      "priority": "HIGH",
+      "gpu_required": true
+    },
+    {
+      "name": "Slack",
+      "service": "slack",
+      "port": 9022,
+      "health_port": 9122,
+      "tier": "business_intelligence",
+      "priority": "MEDIUM",
+      "gpu_required": false
+    },
+    {
+      "name": "Linear",
+      "service": "linear",
+      "port": 9023,
+      "health_port": 9123,
+      "tier": "business_intelligence",
+      "priority": "MEDIUM",
+      "gpu_required": false
+    },
+    {
+      "name": "Asana",
+      "service": "asana",
+      "port": 9024,
+      "health_port": 9124,
+      "tier": "business_intelligence",
+      "priority": "MEDIUM",
+      "gpu_required": false
+    },
+    {
+      "name": "Notion",
+      "service": "notion",
+      "port": 9025,
+      "health_port": 9125,
+      "tier": "business_intelligence",
+      "priority": "MEDIUM",
+      "gpu_required": false
+    },
+    {
+      "name": "Github",
+      "service": "github",
+      "port": 9040,
+      "health_port": 9140,
+      "tier": "development_tools",
+      "priority": "MEDIUM",
+      "gpu_required": false
+    },
+    {
+      "name": "Codacy",
+      "service": "codacy",
+      "port": 9041,
+      "health_port": 9141,
+      "tier": "development_tools",
+      "priority": "LOW",
+      "gpu_required": false
+    },
+    {
+      "name": "Ui Ux Agent",
+      "service": "ui_ux_agent",
+      "port": 9042,
+      "health_port": 9142,
+      "tier": "development_tools",
+      "priority": "LOW",
+      "gpu_required": false
+    },
+    {
+      "name": "Monitoring",
+      "service": "monitoring",
+      "port": 9060,
+      "health_port": 9160,
+      "tier": "infrastructure",
+      "priority": "HIGH",
+      "gpu_required": false
+    },
+    {
+      "name": "Logging",
+      "service": "logging",
+      "port": 9061,
+      "health_port": 9161,
+      "tier": "infrastructure",
+      "priority": "HIGH",
+      "gpu_required": false
+    }
+  ]
+}

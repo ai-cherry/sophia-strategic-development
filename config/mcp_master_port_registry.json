@@ -1,0 +1,205 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-07-16T13:56:42.862282Z",
+  "description": "Master MCP Port Registry - Single Source of Truth",
+  "source": "MCP_COMPREHENSIVE_PORT_STRATEGY.md",
+  "environments": {
+    "production": {
+      "range": "9000-9099",
+      "offset": 0,
+      "tiers": {
+        "core_ai": {
+          "range": "9000-9019",
+          "description": "Mission-critical AI services with GPU support",
+          "services": {
+            "ai_memory": {
+              "port": 9000,
+              "health_port": 9100,
+              "replicas": 3,
+              "gpu": true,
+              "priority": "CRITICAL",
+              "description": "Primary AI memory and context management"
+            },
+            "mcp_orchestrator": {
+              "port": 9001,
+              "health_port": 9101,
+              "replicas": 2,
+              "gpu": false,
+              "priority": "CRITICAL",
+              "description": "Central MCP service routing and orchestration"
+            },
+            "qdrant_admin": {
+              "port": 9002,
+              "health_port": 9102,
+              "replicas": 2,
+              "gpu": false,
+              "priority": "HIGH",
+              "description": "Vector database management and administration"
+            },
+            "lambda_inference": {
+              "port": 9003,
+              "health_port": 9103,
+              "replicas": 2,
+              "gpu": true,
+              "priority": "HIGH",
+              "description": "GPU-accelerated inference processing"
+            },
+            "unified_chat": {
+              "port": 9004,
+              "health_port": 9104,
+              "replicas": 3,
+              "gpu": false,
+              "priority": "CRITICAL",
+              "description": "Primary chat interface and coordination"
+            },
+            "portkey_gateway": {
+              "port": 9005,
+              "health_port": 9105,
+              "replicas": 2,
+              "gpu": false,
+              "priority": "HIGH",
+              "description": "LLM routing and management gateway"
+            },
+            "redis_cache": {
+              "port": 9006,
+              "health_port": 9106,
+              "replicas": 2,
+              "gpu": false,
+              "priority": "HIGH",
+              "description": "High-speed caching layer"
+            },
+            "postgres_manager": {
+              "port": 9007,
+              "health_port": 9107,
+              "replicas": 2,
+              "gpu": false,
+              "priority": "HIGH",
+              "description": "Database operations and management"
+            }
+          }
+        },
+        "business_intelligence": {
+          "range": "9020-9039",
+          "description": "Business tools and CRM integrations",
+          "services": {
+            "hubspot": {
+              "port": 9020,
+              "health_port": 9120,
+              "replicas": 2,
+              "gpu": false,
+              "priority": "HIGH",
+              "description": "CRM data integration and management"
+            },
+            "gong": {
+              "port": 9021,
+              "health_port": 9121,
+              "replicas": 2,
+              "gpu": true,
+              "priority": "HIGH",
+              "description": "Sales call analysis and insights"
+            },
+            "slack": {
+              "port": 9022,
+              "health_port": 9122,
+              "replicas": 2,
+              "gpu": false,
+              "priority": "MEDIUM",
+              "description": "Team communication integration"
+            },
+            "linear": {
+              "port": 9023,
+              "health_port": 9123,
+              "replicas": 1,
+              "gpu": false,
+              "priority": "MEDIUM",
+              "description": "Project management and tracking"
+            },
+            "asana": {
+              "port": 9024,
+              "health_port": 9124,
+              "replicas": 1,
+              "gpu": false,
+              "priority": "MEDIUM",
+              "description": "Task management and coordination"
+            },
+            "notion": {
+              "port": 9025,
+              "health_port": 9125,
+              "replicas": 1,
+              "gpu": false,
+              "priority": "MEDIUM",
+              "description": "Knowledge base and documentation"
+            }
+          }
+        },
+        "development_tools": {
+          "range": "9040-9059",
+          "description": "Development and code management tools",
+          "services": {
+            "github": {
+              "port": 9040,
+              "health_port": 9140,
+              "replicas": 1,
+              "gpu": false,
+              "priority": "MEDIUM",
+              "description": "Code repository management"
+            },
+            "codacy": {
+              "port": 9041,
+              "health_port": 9141,
+              "replicas": 1,
+              "gpu": false,
+              "priority": "LOW",
+              "description": "Code quality analysis"
+            },
+            "ui_ux_agent": {
+              "port": 9042,
+              "health_port": 9142,
+              "replicas": 1,
+              "gpu": false,
+              "priority": "LOW",
+              "description": "UI/UX development assistance"
+            }
+          }
+        },
+        "infrastructure": {
+          "range": "9060-9079",
+          "description": "Infrastructure and system services",
+          "services": {
+            "monitoring": {
+              "port": 9060,
+              "health_port": 9160,
+              "replicas": 1,
+              "gpu": false,
+              "priority": "HIGH",
+              "description": "System monitoring and metrics"
+            },
+            "logging": {
+              "port": 9061,
+              "health_port": 9161,
+              "replicas": 1,
+              "gpu": false,
+              "priority": "HIGH",
+              "description": "Centralized logging service"
+            }
+          }
+        }
+      }
+    },
+    "staging": {
+      "range": "9100-9199",
+      "offset": 100,
+      "description": "Staging environment with +100 port offset"
+    },
+    "development": {
+      "range": "9200-9299",
+      "offset": 200,
+      "description": "Development environment with +200 port offset"
+    },
+    "testing": {
+      "range": "9300-9399",
+      "offset": 300,
+      "description": "Testing environment with +300 port offset"
+    }
+  }
+}

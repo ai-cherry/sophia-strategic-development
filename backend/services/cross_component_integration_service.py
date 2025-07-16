@@ -32,7 +32,7 @@ from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
 from backend.services.n8n_workflow_service import N8nWorkflowService
-from backend.services.unified_memory_service_v3 import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
 from backend.services.project_management_service import ProjectManagementService
 
 logger = get_logger(__name__)

@@ -11,7 +11,7 @@ Builds on existing Gong integration to extract insights for multiple business fu
 Date: July 9, 2025
 """
 
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
 import json
 import logging
 from dataclasses import dataclass

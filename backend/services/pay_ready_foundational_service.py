@@ -15,7 +15,7 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 
 from backend.core.auto_esc_config import get_config_value, get_redis_config
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
 from backend.services.entity_resolution.entity_resolution_service import EntityResolutionService
 from backend.database.database_service import DatabaseService
 from backend.services.openai_service import OpenAIService

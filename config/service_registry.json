@@ -1,0 +1,146 @@
+{
+  "timestamp": "2025-07-16T04:59:42.038208",
+  "instances": {
+    "sophia-ai-core": {
+      "ip": "192.222.58.232",
+      "gpu": "GH200",
+      "health_url": "http://192.222.58.232:8080/health"
+    },
+    "sophia-mcp-orchestrator": {
+      "ip": "104.171.202.117",
+      "gpu": "A6000",
+      "health_url": "http://104.171.202.117:8080/health"
+    },
+    "sophia-data-pipeline": {
+      "ip": "104.171.202.134",
+      "gpu": "A100",
+      "health_url": "http://104.171.202.134:8080/health"
+    },
+    "sophia-development": {
+      "ip": "155.248.194.183",
+      "gpu": "A10",
+      "health_url": "http://155.248.194.183:8080/health"
+    },
+    "sophia-production-instance": {
+      "ip": "104.171.202.103",
+      "gpu": "RTX6000",
+      "health_url": "http://104.171.202.103:8080/health"
+    }
+  },
+  "services": {
+    "vector_search_mcp": {
+      "instance": "sophia-ai-core",
+      "ip": "192.222.58.232",
+      "port": 8001,
+      "url": "http://192.222.58.232:8001",
+      "health_url": "http://192.222.58.232:8001/health"
+    },
+    "real_time_chat_mcp": {
+      "instance": "sophia-ai-core",
+      "ip": "192.222.58.232",
+      "port": 8002,
+      "url": "http://192.222.58.232:8002",
+      "health_url": "http://192.222.58.232:8002/health"
+    },
+    "gong_mcp": {
+      "instance": "sophia-mcp-orchestrator",
+      "ip": "104.171.202.117",
+      "port": 8110,
+      "url": "http://104.171.202.117:8110",
+      "health_url": "http://104.171.202.117:8110/health"
+    },
+    "hubspot_mcp": {
+      "instance": "sophia-mcp-orchestrator",
+      "ip": "104.171.202.117",
+      "port": 8111,
+      "url": "http://104.171.202.117:8111",
+      "health_url": "http://104.171.202.117:8111/health"
+    },
+    "linear_mcp": {
+      "instance": "sophia-mcp-orchestrator",
+      "ip": "104.171.202.117",
+      "port": 8112,
+      "url": "http://104.171.202.117:8112",
+      "health_url": "http://104.171.202.117:8112/health"
+    },
+    "asana_mcp": {
+      "instance": "sophia-mcp-orchestrator",
+      "ip": "104.171.202.117",
+      "port": 8113,
+      "url": "http://104.171.202.117:8113",
+      "health_url": "http://104.171.202.117:8113/health"
+    },
+    "github_mcp": {
+      "instance": "sophia-data-pipeline",
+      "ip": "104.171.202.134",
+      "port": 8210,
+      "url": "http://104.171.202.134:8210",
+      "health_url": "http://104.171.202.134:8210/health"
+    },
+    "notion_mcp": {
+      "instance": "sophia-data-pipeline",
+      "ip": "104.171.202.134",
+      "port": 8211,
+      "url": "http://104.171.202.134:8211",
+      "health_url": "http://104.171.202.134:8211/health"
+    },
+    "slack_mcp": {
+      "instance": "sophia-data-pipeline",
+      "ip": "104.171.202.134",
+      "port": 8212,
+      "url": "http://104.171.202.134:8212",
+      "health_url": "http://104.171.202.134:8212/health"
+    },
+    "postgres_mcp": {
+      "instance": "sophia-data-pipeline",
+      "ip": "104.171.202.134",
+      "port": 8213,
+      "url": "http://104.171.202.134:8213",
+      "health_url": "http://104.171.202.134:8213/health"
+    },
+    "filesystem_mcp": {
+      "instance": "sophia-development",
+      "ip": "155.248.194.183",
+      "port": 8310,
+      "url": "http://155.248.194.183:8310",
+      "health_url": "http://155.248.194.183:8310/health"
+    },
+    "brave_search_mcp": {
+      "instance": "sophia-development",
+      "ip": "155.248.194.183",
+      "port": 8311,
+      "url": "http://155.248.194.183:8311",
+      "health_url": "http://155.248.194.183:8311/health"
+    },
+    "everything_mcp": {
+      "instance": "sophia-development",
+      "ip": "155.248.194.183",
+      "port": 8312,
+      "url": "http://155.248.194.183:8312",
+      "health_url": "http://155.248.194.183:8312/health"
+    },
+    "legacy_support_mcp": {
+      "instance": "sophia-production-instance",
+      "ip": "104.171.202.103",
+      "port": 8410,
+      "url": "http://104.171.202.103:8410",
+      "health_url": "http://104.171.202.103:8410/health"
+    }
+  },
+  "health_endpoints": {
+    "vector_search_mcp": "http://192.222.58.232:8001/health",
+    "real_time_chat_mcp": "http://192.222.58.232:8002/health",
+    "gong_mcp": "http://104.171.202.117:8110/health",
+    "hubspot_mcp": "http://104.171.202.117:8111/health",
+    "linear_mcp": "http://104.171.202.117:8112/health",
+    "asana_mcp": "http://104.171.202.117:8113/health",
+    "github_mcp": "http://104.171.202.134:8210/health",
+    "notion_mcp": "http://104.171.202.134:8211/health",
+    "slack_mcp": "http://104.171.202.134:8212/health",
+    "postgres_mcp": "http://104.171.202.134:8213/health",
+    "filesystem_mcp": "http://155.248.194.183:8310/health",
+    "brave_search_mcp": "http://155.248.194.183:8311/health",
+    "everything_mcp": "http://155.248.194.183:8312/health",
+    "legacy_support_mcp": "http://104.171.202.103:8410/health"
+  }
+}

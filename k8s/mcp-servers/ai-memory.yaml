@@ -19,7 +19,7 @@ spec:
         image: scoobyjava15/sophia-mcp-base:latest
         command: ["python", "-m", "mcp_servers.ai_memory.server"]
         ports:
-        - containerPort: 9001
+        - containerPort: 9000
         resources:
           requests:
             nvidia.com/gpu: "1"
@@ -33,7 +33,7 @@ spec:
         - name: ENVIRONMENT
           value: "prod"
         - name: MCP_PORT
-          value: "9001"
+          value: "9000"
         - name: QDRANT_URL
           value: "https://cloud.qdrant.io"
         - name: REDIS_URL
@@ -63,6 +63,6 @@ spec:
   selector:
     app: ai-memory-mcp
   ports:
-  - port: 9001
+  - port: 9000
     targetPort: 9001
   type: ClusterIP 

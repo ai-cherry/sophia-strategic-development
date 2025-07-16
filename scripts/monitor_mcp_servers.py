@@ -12,14 +12,14 @@ import time
 # MCP Server Configuration
 MCP_SERVERS = [
     {"name": "Backend API", "port": 8001, "url": "http://localhost:8001/health"},
-    {"name": "AI Memory", "port": 9001, "url": "http://localhost:9001/health"},
+    {"name": "AI Memory", "port": 9000, "url": "http://localhost:9001/health"},
     {"name": "Codacy", "port": 3008, "url": "http://localhost:3008/health"},
     {"name": "GitHub", "port": 9003, "url": "http://localhost:9003/health"},
     {"name": "Linear", "port": 9004, "url": "http://localhost:9004/health"},
     {"name": "Asana", "port": 9006, "url": "http://localhost:9006/health"},
     {"name": "Notion", "port": 9102, "url": "http://localhost:9102/health"},
     {"name": "Slack", "port": 9101, "url": "http://localhost:9101/health"},
-    {"name": "Qdrant", "port": 9001, "url": "http://localhost:9001/health"},
+    {"name": "Qdrant", "port": 9000, "url": "http://localhost:9001/health"},
     {"name": "Gong", "port": 9100, "url": "http://localhost:9100/health"},
     {"name": "HubSpot", "port": 9105, "url": "http://localhost:9105/health"},
 ]

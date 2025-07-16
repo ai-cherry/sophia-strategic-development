@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 
 """

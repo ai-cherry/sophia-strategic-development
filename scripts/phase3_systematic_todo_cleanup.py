@@ -115,7 +115,7 @@ class SystematicTODOCleaner:
                 "replacement": '''# Initialize Qdrant services
 # Implement actual memory storage call
         try:
-            from backend.services.unified_memory_service_primary import UnifiedMemoryService
+            from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
             memory_service = UnifiedMemoryService()
             await memory_service.store_knowledge(
                 content=content,
@@ -162,7 +162,7 @@ class SystematicTODOCleaner:
         await self.feedback_integrator.enable_feedback_loops()
         
         logger.info("✅ Analytics and feedback systems initialized")
-            from backend.services.unified_memory_service_primary import UnifiedMemoryService
+            from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
             memory_service = UnifiedMemoryService()
             await memory_service.store_knowledge(
                 content=content,
