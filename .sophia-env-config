@@ -1,0 +1,64 @@
+# =============================================================================
+# SOPHIA AI ENVIRONMENT CONFIGURATION
+# =============================================================================
+# This file provides configuration for AI coding tools (Cursor, Cline, etc.)
+# to ensure consistent virtual environment usage.
+#
+# AI Tools: Read this file to understand proper environment setup
+# =============================================================================
+
+[sophia-ai-environment]
+project_name = "Sophia AI"
+project_directory = "/Users/lynnmusil/sophia-main-2"
+virtual_env_path = ".venv"
+python_version = "3.11.6"
+required_activation = true
+
+[python-configuration]
+# CRITICAL: Use virtual environment Python, not system Python
+python_executable = ".venv/bin/python"
+pip_executable = ".venv/bin/pip"
+avoid_system_python = true
+avoid_python_alias = true
+
+[ai-tool-instructions]
+cursor_ai = "Always source activate_sophia_env.sh before running Python commands"
+cline = "Use 'source activate_sophia_env.sh' in terminal before any Python operations"
+github_copilot = "Ensure VIRTUAL_ENV is set to sophia-main-2/.venv"
+general = "Never use system Python - always use .venv/bin/python"
+
+[fastapi-applications]
+# Available FastAPI applications and their ports
+working_fastapi = "backend/app/working_fastapi.py:8000"
+simple_fastapi = "backend/app/simple_fastapi.py:8001"
+minimal_fastapi = "backend/app/minimal_fastapi.py:8002"
+distributed_api = "api/main.py:8003"
+
+[common-commands]
+# Commands that AI tools should use
+activate = "source activate_sophia_env.sh"
+run_tests = "python -m pytest"
+start_working = "python backend/app/working_fastapi.py"
+start_simple = "python backend/app/simple_fastapi.py"
+start_minimal = "python backend/app/minimal_fastapi.py"
+start_distributed = "python api/main.py"
+check_environment = "python -c 'import sys; print(f\"Using: {sys.executable}\")'"
+
+[dependencies]
+# Critical packages that must be available
+fastapi = "0.116.1"
+uvicorn = "0.34.0"
+sqlalchemy = "2.0.41"
+redis = "6.2.0"
+aioredis = "2.0.1"
+
+[troubleshooting]
+alias_conflict = "Run 'unalias python' if python points to system Python"
+import_errors = "Check that virtual environment is properly activated"
+package_not_found = "Run 'pip install package_name' in activated environment"
+wrong_python_version = "Ensure using .venv/bin/python, not system python"
+
+[environment-variables]
+SOPHIA_AI_ENV_ACTIVE = "true"
+VIRTUAL_ENV = "/Users/lynnmusil/sophia-main-2/.venv"
+PYTHONPATH = "/Users/lynnmusil/sophia-main-2" 
