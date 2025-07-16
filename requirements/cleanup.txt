@@ -1,0 +1,32 @@
+# Cleanup and Validation Dependencies
+# Dependencies for technical debt cleanup and validation scripts
+
+-r base.txt
+
+# Testing Framework
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Code Quality Tools
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
+bandit>=1.7.0
+safety>=2.3.0
+
+# File System and Process Management
+pathlib2>=2.3.0
+watchdog>=3.0.0
+click>=8.0.0
+rich>=13.0.0
+
+# Code Analysis for Technical Debt
+ast-grep>=0.5.0
+vulture>=2.7.0
+radon>=6.0.0
+
+# Additional utilities for cleanup scripts
+gitpython>=3.1.0
+toml>=0.10.0
+
