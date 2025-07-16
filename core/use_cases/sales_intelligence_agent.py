@@ -48,7 +48,6 @@ from .sales_intelligence_agent_utils import (
 
 logger = logging.getLogger(__name__)
 
-
 class SalesIntelligenceAgent(SalesIntelligenceAgentCore):
     """
     Enhanced Sales Intelligence Agent with Workflow Integration
@@ -72,7 +71,6 @@ class SalesIntelligenceAgent(SalesIntelligenceAgentCore):
     # All methods are inherited from SalesIntelligenceAgentCore
     # This maintains complete backward compatibility
 
-
 # Export all classes and functions for backward compatibility
 __all__ = [
     "AgentCapabilities",
@@ -93,12 +91,10 @@ __all__ = [
     "WorkflowTaskResult",
 ]
 
-
 # Convenience factory function for backward compatibility
 def create_sales_intelligence_agent() -> SalesIntelligenceAgent:
     """Factory function to create a Sales Intelligence Agent instance"""
     return SalesIntelligenceAgent()
-
 
 # Legacy compatibility - maintain original class name
 SalesIntelligenceAgent.__name__ = "SalesIntelligenceAgent"

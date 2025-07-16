@@ -13,7 +13,6 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
 
 logger = logging.getLogger(__name__)
 
-
 class ResearchReport:
     # A dataclass or Pydantic model would be better here
     def __init__(
@@ -27,7 +26,6 @@ class ResearchReport:
         self.key_patterns = key_patterns
         self.implementation_recommendations = implementation_recommendations
         self.architecture_insights = architecture_insights
-
 
 class OrchestrationResearchAgent(BaseAgent):
     """Specialized AI agent for deep research on Sophia AI orchestration patterns"""
@@ -134,8 +132,7 @@ class OrchestrationResearchAgent(BaseAgent):
 
 # Implement actual memory storage call
         try:
-            from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
-            memory_service = SophiaUnifiedMemoryService()
+                        memory_service = SophiaUnifiedMemoryService()
             await memory_service.store_knowledge(
                 content=content,
                 source="research_agent",

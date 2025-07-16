@@ -25,6 +25,5 @@
     print("📊 Monitoring: https://grafana.sophia-ai.lambda-labs.com")
     print("🎯 Ready for 10M events/day with <150ms response times!")
 
-
 if __name__ == "__main__":
     asyncio.run(main()) 

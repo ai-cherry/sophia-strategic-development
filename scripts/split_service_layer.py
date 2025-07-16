@@ -1,7 +1,6 @@
 import ast
 from pathlib import Path
 
-
 class ServiceAnalyzer(ast.NodeVisitor):
     """Analyze service files to determine if they're business logic or infrastructure"""
 
@@ -60,7 +59,6 @@ class ServiceAnalyzer(ast.NodeVisitor):
             self.has_io_operations = True
         self.generic_visit(node)
 
-
 def analyze_service_file(file_path):
     """Determine if service file should go to core or infrastructure"""
     with open(file_path) as f:
@@ -76,7 +74,6 @@ def analyze_service_file(file_path):
                 return "core"
         except:
             return "manual_review"
-
 
 def split_services():
     """Split service files between core and infrastructure"""
@@ -118,7 +115,6 @@ def split_services():
         f.write(f"\nManual Review Required ({len(manual_review)}):\n")
         for svc in manual_review:
             f.write(f"  - {svc}\n")
-
 
 if __name__ == "__main__":
     split_services()

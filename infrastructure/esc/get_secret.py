@@ -36,7 +36,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class SecureSecretRetriever:
     """
     Secure secret retrieval from Pulumi ESC with enterprise-grade features
@@ -440,7 +439,6 @@ class SecureSecretRetriever:
             self.logger.exception(f"Error getting environment info: {e}")
             raise
 
-
 def main():
     """Main function for CLI usage"""
     parser = argparse.ArgumentParser(
@@ -593,7 +591,6 @@ Examples:
         else:
             pass
         sys.exit(2)
-
 
 if __name__ == "__main__":
     main()

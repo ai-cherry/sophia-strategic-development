@@ -29,14 +29,12 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
-
 class InstanceRole(Enum):
     """Enumeration of instance roles in the distributed architecture."""
     PRIMARY = "primary"
     MCP_ORCHESTRATOR = "mcp_orchestrator"
     DATA_PIPELINE = "data_pipeline"
     DEVELOPMENT = "development"
-
 
 class ServiceType(Enum):
     """Enumeration of service types across the infrastructure."""
@@ -51,7 +49,6 @@ class ServiceType(Enum):
     EMBEDDINGS = "embeddings"
     TESTING = "testing"
     DEVELOPMENT = "development"
-
 
 @dataclass
 class PortAllocation:
@@ -71,7 +68,6 @@ class PortAllocation:
     def is_available(self, port: int) -> bool:
         """Check if a port is available."""
         return self.start <= port <= self.end and port not in self.reserved
-
 
 @dataclass
 class LambdaInstance:
@@ -118,7 +114,6 @@ class LambdaInstance:
         # Other services get allocated ports
         service_index = self.services.index(service)
         return self.port_allocation.start + service_index
-
 
 class InfrastructureConfig:
     """
@@ -371,7 +366,6 @@ class InfrastructureConfig:
             'retry_delay': 2.0,
             'circuit_breaker_threshold': 5
         }
-
 
 # Global configuration validation on module import
 _validation_errors = InfrastructureConfig.validate_configuration()

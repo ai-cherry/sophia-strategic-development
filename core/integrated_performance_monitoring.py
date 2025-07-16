@@ -43,7 +43,6 @@ import redis.asyncio as redis
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class PerformanceMetric:
     """Performance metric data structure"""
@@ -63,7 +62,6 @@ class PerformanceMetric:
             "tags": self.tags or {},
         }
 
-
 @dataclass
 class ServiceHealthStatus:
     """Service health status data structure"""
@@ -74,7 +72,6 @@ class ServiceHealthStatus:
     error_rate: float
     last_check: datetime
     details: dict[str, Any] = None
-
 
 class PerformanceMonitoringIntegration:
     """
@@ -574,10 +571,8 @@ class PerformanceMonitoringIntegration:
             await self.redis_client.aclose()
         logger.info("✅ Performance monitoring system closed")
 
-
 # Global monitoring instance
 performance_monitoring = PerformanceMonitoringIntegration()
-
 
 # Decorator for automatic performance tracking
 def track_performance(metric_name: str | None = None, service_name: str | None = None):
@@ -657,17 +652,14 @@ def track_performance(metric_name: str | None = None, service_name: str | None =
 
     return decorator
 
-
 # Convenience functions
 async def initialize_performance_monitoring() -> bool:
     """Initialize the performance monitoring system"""
     return await performance_monitoring.initialize_monitoring()
 
-
 async def get_performance_dashboard() -> dict[str, Any]:
     """Get performance dashboard data"""
     return await performance_monitoring.get_performance_dashboard()
-
 
 async def track_metric(
     service_name: str,
@@ -679,7 +671,6 @@ async def track_metric(
     await performance_monitoring.track_performance(
         service_name, metric_name, value, tags
     )
-
 
 if __name__ == "__main__":
 

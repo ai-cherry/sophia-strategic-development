@@ -3,7 +3,6 @@ LLM Router - Core routing engine
 Stateless, observable, and performance-optimized
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import time
 from collections.abc import AsyncGenerator
 from typing import Any
@@ -22,7 +21,6 @@ from .metrics import (
     llm_requests_total,
     llm_router_version,
 )
-
 
 class LLMRouter:
     """

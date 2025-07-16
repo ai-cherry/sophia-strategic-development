@@ -10,7 +10,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-
 class DealRiskLevel(str, Enum):
     """Deal risk assessment levels"""
 
@@ -18,7 +17,6 @@ class DealRiskLevel(str, Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
-
 
 class SalesStage(str, Enum):
     """Sales pipeline stages"""
@@ -32,7 +30,6 @@ class SalesStage(str, Enum):
     WON = "won"
     LOST = "lost"
 
-
 class EmailType(str, Enum):
     """Types of sales emails"""
 
@@ -43,7 +40,6 @@ class EmailType(str, Enum):
     CLOSING = "closing"
     THANK_YOU = "thank_you"
     RE_ENGAGEMENT = "re_engagement"
-
 
 @dataclass
 class DealRiskAssessment:
@@ -75,7 +71,6 @@ class DealRiskAssessment:
     confidence_score: float
     analysis_timestamp: datetime = datetime.now()
 
-
 @dataclass
 class SalesEmailRequest:
     """Request for AI-generated sales email"""
@@ -90,7 +85,6 @@ class SalesEmailRequest:
     tone: str = "professional"
     include_attachments: bool = False
     urgency_level: str = "normal"
-
 
 @dataclass
 class CompetitorTalkingPoints:
@@ -110,7 +104,6 @@ class CompetitorTalkingPoints:
     recommended_approach: str
 
     confidence_score: float
-
 
 @dataclass
 class PipelineAnalysis:
@@ -138,7 +131,6 @@ class PipelineAnalysis:
 
     analysis_timestamp: datetime = datetime.now()
 
-
 @dataclass
 class SalesEmailResult:
     """Result of sales email generation"""
@@ -153,7 +145,6 @@ class SalesEmailResult:
     metadata: dict[str, Any]
     generated_at: datetime = datetime.now()
 
-
 @dataclass
 class WorkflowTaskResult:
     """Result of workflow task execution"""
@@ -165,7 +156,6 @@ class WorkflowTaskResult:
     execution_time: float
     error_message: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
-
 
 @dataclass
 class AgentCapabilities:

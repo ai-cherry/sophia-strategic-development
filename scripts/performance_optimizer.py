@@ -9,7 +9,6 @@ from typing import Any
 
 import requests
 
-
 class SophiaPerformanceOptimizer:
     """Performance optimization for Sophia AI infrastructure."""
 
@@ -346,7 +345,6 @@ class SophiaPerformanceOptimizer:
             "bottlenecks": bottlenecks,
         }
 
-
 async def main():
     """Main optimization function."""
     optimizer = SophiaPerformanceOptimizer()
@@ -355,7 +353,6 @@ async def main():
     # Save results
     with open("performance_optimization_report.json", "w") as f:
         json.dump(results, f, indent=2)
-
 
 if __name__ == "__main__":
     asyncio.run(main())

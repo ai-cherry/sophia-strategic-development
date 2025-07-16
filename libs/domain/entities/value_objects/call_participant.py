@@ -8,7 +8,6 @@ a participant in a sales call.
 from dataclasses import dataclass
 from enum import Enum
 
-
 class ParticipantRole(Enum):
     """Enumeration of participant roles in a call."""
 
@@ -17,7 +16,6 @@ class ParticipantRole(Enum):
     MANAGER = "manager"
     TECHNICAL_EXPERT = "technical_expert"
     UNKNOWN = "unknown"
-
 
 @dataclass(frozen=True)
 class CallParticipant:

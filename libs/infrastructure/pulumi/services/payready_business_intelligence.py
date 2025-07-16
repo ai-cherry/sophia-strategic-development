@@ -32,7 +32,6 @@ from infrastructure.mcp_servers.mcp_gateway import MCPGateway
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class BusinessIntelligenceRequest(BaseModel):
     """Request model for business intelligence operations"""
 
@@ -42,7 +41,6 @@ class BusinessIntelligenceRequest(BaseModel):
     target: str | None = None  # Company name or competitor
     parameters: dict[str, Any] = {}
     user_context: dict[str, Any] = {}
-
 
 class BusinessIntelligenceResponse(BaseModel):
     """Response model for business intelligence operations"""
@@ -54,7 +52,6 @@ class BusinessIntelligenceResponse(BaseModel):
     recommendations: list[str] = []
     action_items: list[dict[str, Any]] = []
     timestamp: datetime
-
 
 class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
     """Orchestrator for Pay Ready business intelligence operations"""
@@ -777,7 +774,6 @@ These metrics demonstrate strong ROI for Buzz AI implementations. Would you like
             """
 
         return "I've completed the analysis. Please let me know if you need any additional information."
-
 
 # Integration with existing Sophia chat
 async def register_bi_capabilities(sophia_engine: SophiaAIEngine):

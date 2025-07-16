@@ -9,7 +9,6 @@ from infrastructure.services.semantic_layer_service import SemanticLayerService
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class PredictionModel:
     """Structure for prediction models"""
@@ -22,7 +21,6 @@ class PredictionModel:
     last_trained: datetime | None = None
     prediction_horizon: str | None = None
 
-
 @dataclass
 class PredictionResult:
     """Structure for prediction results"""
@@ -33,7 +31,6 @@ class PredictionResult:
     confidence_score: float | None = None
     contributing_factors: list[dict[str, Any]] = field(default_factory=list)
     recommendation: str | None = None
-
 
 class PredictiveAnalyticsService:
     """

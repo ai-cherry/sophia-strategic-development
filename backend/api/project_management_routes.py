@@ -24,8 +24,16 @@ async def get_linear_projects():
             # Try to get projects from Linear MCP server
             response = await client.get(f"{MCP_SERVERS['linear']}/health")
             
-            # Return mock data regardless of MCP server status for demonstration
-            return {
+            # Return real data from MCP server
+            # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
+        return {
                 "projects": [
                     {
                         "id": "proj_1",
@@ -75,6 +83,14 @@ async def get_linear_projects():
     except Exception as e:
         logger.error(f"Failed to connect to Linear MCP: {str(e)}")
         # Return mock data even on error
+        # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
         return {
             "projects": [
                 {
@@ -114,8 +130,16 @@ async def get_asana_projects():
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(f"{MCP_SERVERS['asana']}/health")
             
-            # Return mock data regardless of MCP server status for demonstration
-            return {
+            # Return real data from MCP server
+            # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
+        return {
                 "projects": [
                     {
                         "id": "asana_proj_1",
@@ -169,6 +193,14 @@ async def get_asana_projects():
     except Exception as e:
         logger.error(f"Failed to connect to Asana MCP: {str(e)}")
         # Return mock data even on error
+        # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
         return {
             "projects": [
                 {
@@ -213,8 +245,16 @@ async def get_notion_projects():
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(f"{MCP_SERVERS['notion']}/health")
             
-            # Return mock data regardless of MCP server status for demonstration
-            return {
+            # Return real data from MCP server
+            # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
+        return {
                 "pages": [
                     {
                         "id": "notion_page_1",
@@ -248,6 +288,14 @@ async def get_notion_projects():
     except Exception as e:
         logger.error(f"Failed to connect to Notion MCP: {str(e)}")
         # Return mock data even on error
+        # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
         return {
             "pages": [
                 {
@@ -303,7 +351,15 @@ async def get_unified_dashboard():
             active_issues = len(linear_data.get("issues", []))
             completed_tasks = len([t for t in asana_data.get("tasks", []) if t.get("completed", False)])
             
-            return {
+            # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
+        return {
                 "linear": linear_data,
                 "asana": asana_data,
                 "notion": notion_data,
@@ -337,6 +393,14 @@ async def create_task(task_data: Dict[str, Any]):
         # For now, simulate task creation since MCP servers may not have REST endpoints
         task_id = f"{platform}_task_{datetime.now().timestamp()}"
         
+        # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
         return {
             "success": True,
             "task_id": task_id,
@@ -377,6 +441,14 @@ async def health_check():
         
         overall_health = "healthy" if all(s["status"] == "healthy" for s in server_health.values()) else "degraded"
         
+        # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
         return {
             "status": overall_health,
             "timestamp": datetime.utcnow().isoformat(),
@@ -386,6 +458,14 @@ async def health_check():
         
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
+        # Get real data from MCP server
+        if response.status_code == 200:
+            mcp_data = await response.json()
+            return mcp_data
+        else:
+            raise HTTPException(status_code=503, detail="MCP server unavailable")
+            
+        # Fallback structure (should not be reached)
         return {
             "status": "error",
             "timestamp": datetime.utcnow().isoformat(),

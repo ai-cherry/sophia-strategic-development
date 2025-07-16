@@ -11,7 +11,6 @@ from datetime import datetime
 
 import docker
 
-
 class SwarmResourceOptimizer:
     def __init__(self):
         self.client = docker.from_env()
@@ -208,7 +207,6 @@ class SwarmResourceOptimizer:
         with open(filename, "w") as f:
             json.dump(report, f, indent=2)
 
-
 def main():
     """Main execution function"""
 
@@ -231,7 +229,6 @@ def main():
 
     # Save report
     optimizer.save_report(results)
-
 
 if __name__ == "__main__":
     main()

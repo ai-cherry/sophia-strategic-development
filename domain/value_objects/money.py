@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
 
-
 class Currency(Enum):
     """Enumeration of supported currencies."""
 
@@ -20,7 +19,6 @@ class Currency(Enum):
     AUD = "AUD"
     JPY = "JPY"
     CNY = "CNY"
-
 
 @dataclass(frozen=True)
 class Money:

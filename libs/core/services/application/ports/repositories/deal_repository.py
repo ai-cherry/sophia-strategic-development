@@ -10,7 +10,6 @@ from datetime import datetime
 
 from domain.entities.deal import Deal, DealStage
 
-
 class DealRepository(ABC):
     """
     Abstract repository interface for Deal entities.

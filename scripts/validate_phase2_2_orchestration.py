@@ -136,7 +136,7 @@ class Phase2_2ValidationSuite:
                 content = f.read()
             
             design_elements = {
-                "orchestration_engine": "AdvancedMCPOrchestrationEngine" in content,
+                "orchestration_engine": "CodingMCPOrchestrator" in content,
                 "task_decomposition": "_decompose_business_task" in content,
                 "agent_selection": "_select_optimal_agents" in content,
                 "context_enrichment": "_enrich_with_intelligence_context" in content,
@@ -851,7 +851,7 @@ class Phase2_2ValidationSuite:
                 f.read()
             
             # Check integration points
-            if "AdvancedMCPOrchestrationEngine" in pipeline_content:
+            if "CodingMCPOrchestrator" in pipeline_content:
                 integration_score += 1
             
             if "BusinessTask" in pipeline_content:

@@ -1,4 +1,3 @@
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from __future__ import annotations
 
 import os
@@ -36,7 +35,6 @@ from backend.core.auto_esc_config import get_config_value as config
 
 logger = logging.getLogger(__name__)
 
-
 class SecretType(str, Enum):
     """Types of secrets managed by the platform."""
 
@@ -52,7 +50,6 @@ class SecretType(str, Enum):
     )  # SECURITY FIX: Use environment variable
     CERTIFICATE = "certificate"
 
-
 class SecretStatus(str, Enum):
     """Secret status enumeration."""
 
@@ -62,7 +59,6 @@ class SecretStatus(str, Enum):
     ROTATING = "rotating"
     FAILED = "failed"
 
-
 class SecurityLevel(str, Enum):
     """Security levels for different operations."""
 
@@ -70,7 +66,6 @@ class SecurityLevel(str, Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
-
 
 class SecretMetadata(BaseModel):
     """Metadata for a managed secret."""
@@ -87,7 +82,6 @@ class SecretMetadata(BaseModel):
     owner: str = "sophia-platform"
     description: str | None = None
 
-
 class SecretRotationResult(BaseModel):
     """Result of a secret rotation operation."""
 
@@ -98,7 +92,6 @@ class SecretRotationResult(BaseModel):
     rotated_at: datetime
     error_message: str | None = None
     next_rotation: datetime | None = None
-
 
 class SecurityAuditEvent(BaseModel):
     """Security audit event."""
@@ -113,7 +106,6 @@ class SecurityAuditEvent(BaseModel):
     ip_address: str | None = None
     user_agent: str | None = None
     additional_data: dict[str, Any] = Field(default_factory=dict)
-
 
 class SecretManager:
     """Enhanced secret management with Pulumi ESC integration."""
@@ -799,7 +791,6 @@ class SecretManager:
             "encryption_key_set": self._encryption_key is not None,
             "audit_log_size": len(self._audit_log),
         }
-
 
 # Global instance
 secret_manager = SecretManager()

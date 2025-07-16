@@ -6,7 +6,6 @@ from collections import defaultdict
 from fastapi import WebSocket, WebSocketDisconnect
 from loguru import logger
 
-
 class ConnectionManager:
     """Manages active WebSocket connections."""
 
@@ -63,7 +62,6 @@ class ConnectionManager:
     def get_active_clients(self) -> list[str]:
         """Get a list of all active client IDs."""
         return list(self.active_connections.keys())
-
 
 # Singleton instance
 manager = ConnectionManager()

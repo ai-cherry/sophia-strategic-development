@@ -14,7 +14,6 @@ from typing import Any
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class CursorConfigOptimizer:
     """Optimizes Cursor configuration for GitHub integration"""
 
@@ -347,7 +346,6 @@ class CursorConfigOptimizer:
 
         return report
 
-
 def main():
     """Main optimization function"""
     parser = argparse.ArgumentParser(
@@ -424,7 +422,6 @@ def main():
     except Exception as e:
         logger.exception(f"❌ Optimization failed: {e}")
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

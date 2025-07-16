@@ -1,7 +1,6 @@
 import json
 from datetime import datetime
 
-
 def handler(request):
     # Simple echo response for now
     body = json.loads(request.body) if request.body else {}

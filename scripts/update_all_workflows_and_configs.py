@@ -53,7 +53,6 @@ STANDARD_SECRET_NAMES = {
     "ASANA_TOKEN": "ASANA_API_TOKEN",
 }
 
-
 def update_file_secrets(file_path, content):
     """Update secret names in file content"""
     updated_content = content
@@ -84,7 +83,6 @@ def update_file_secrets(file_path, content):
 
     return updated_content, changes_made
 
-
 def update_workflows():
     """Update all GitHub Actions workflows"""
     print("🔄 Updating GitHub Actions workflows...")
@@ -109,7 +107,6 @@ def update_workflows():
 
         except Exception as e:
             print(f"❌ Error updating {workflow_file}: {e}")
-
 
 def update_docker_files():
     """Update all Docker files and docker-compose files"""
@@ -138,7 +135,6 @@ def update_docker_files():
         except Exception as e:
             print(f"❌ Error updating {docker_file}: {e}")
 
-
 def update_scripts():
     """Update all shell and Python scripts"""
     print("\n📜 Updating scripts...")
@@ -166,7 +162,6 @@ def update_scripts():
 
         except Exception as e:
             print(f"❌ Error updating {script_file}: {e}")
-
 
 def update_config_files():
     """Update all configuration files"""
@@ -198,7 +193,6 @@ def update_config_files():
         except Exception as e:
             print(f"❌ Error updating {config_file}: {e}")
 
-
 def update_kubernetes_manifests():
     """Update Kubernetes manifests"""
     print("\n☸️  Updating Kubernetes manifests...")
@@ -224,7 +218,6 @@ def update_kubernetes_manifests():
         except Exception as e:
             print(f"❌ Error updating {k8s_file}: {e}")
 
-
 def main():
     print(
         "🚀 Updating ALL workflows, CI/CD, CLI, and configs for consistent secret names"
@@ -249,7 +242,6 @@ def main():
     print("3. GitHub Actions will use correct secret names")
     print("4. Pulumi ESC will load secrets automatically")
     print("5. Deploy to Lambda Labs")
-
 
 if __name__ == "__main__":
     main()

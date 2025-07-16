@@ -10,11 +10,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from infrastructure.services.enhanced_unified_chat_service import (
     EnhancedSophiaUnifiedOrchestrator,
 )
-from infrastructure.services.mcp_orchestration_service import MCPOrchestrationService
 
 # Security
 security = HTTPBearer(auto_error=False)
-
 
 async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
@@ -22,7 +20,6 @@ async def get_current_user(
     """Get current user from token"""
     if not credentials:
         return {"user_id": "anonymous", "role": "guest"}
-
 
         # Architecture implementation: Authentication
         from libs.core.security.auth_manager import AuthManager
@@ -33,11 +30,9 @@ async def get_current_user(
         return await auth_manager.get_user_context(token)
     return {"user_id": "user123", "role": "user"}
 
-
 # Services
 _mcp_service = None
 _chat_service = None
-
 
 def get_mcp_service() -> MCPOrchestrationService:
     """Get MCP orchestration service singleton"""
@@ -46,7 +41,6 @@ def get_mcp_service() -> MCPOrchestrationService:
         _mcp_service = MCPOrchestrationService()
     return _mcp_service
 
-
 async def get_chat_service() -> EnhancedSophiaUnifiedOrchestrator:
     """Get chat service singleton"""
     global _chat_service
@@ -54,7 +48,6 @@ async def get_chat_service() -> EnhancedSophiaUnifiedOrchestrator:
         _chat_service = EnhancedSophiaUnifiedOrchestrator()
         await _chat_service.initialize()
     return _chat_service
-
 
 # Dependency aliases
 CurrentUser = Annotated[dict, Depends(get_current_user)]

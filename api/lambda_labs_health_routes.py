@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 # Router setup
 router = APIRouter(prefix="/api/v1/lambda-labs", tags=["lambda-labs-health"])
 
-
 # Data models
 class LambdaLabsInstance(BaseModel):
     id: str
@@ -40,7 +39,6 @@ class LambdaLabsInstance(BaseModel):
     temperature: float
     power_consumption: float
 
-
 class MCPServer(BaseModel):
     id: str
     name: str
@@ -57,7 +55,6 @@ class MCPServer(BaseModel):
     tools_count: int
     active_connections: int
 
-
 class HealthAlert(BaseModel):
     id: str
     severity: str
@@ -67,13 +64,11 @@ class HealthAlert(BaseModel):
     instance: str | None = None
     server: str | None = None
 
-
 class PerformanceTrends(BaseModel):
     labels: list[str]
     cpu: list[float]
     memory: list[float]
     gpu: list[float]
-
 
 class HealthMetrics(BaseModel):
     overall_health: float
@@ -81,7 +76,6 @@ class HealthMetrics(BaseModel):
     mcp_servers: list[MCPServer]
     alerts: list[HealthAlert]
     performance_trends: PerformanceTrends
-
 
 # Configuration
 LAMBDA_LABS_INSTANCES = [
@@ -451,7 +445,6 @@ MCP_SERVERS = [
         "instance_id": "mcp-prod",
     },
 ]
-
 
 class LambdaLabsHealthService:
     """Service for monitoring Lambda Labs infrastructure health"""
@@ -960,10 +953,8 @@ class LambdaLabsHealthService:
         }
         return conn_map.get(server_id, 3)
 
-
 # Service instance
 health_service = LambdaLabsHealthService()
-
 
 # API Routes
 @router.get("/health", response_model=HealthMetrics)
@@ -976,7 +967,6 @@ async def get_lambda_labs_health():
         logger.exception(f"Error getting Lambda Labs health: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve health metrics")
 
-
 @router.get("/instances")
 async def get_instances():
     """Get Lambda Labs instances status"""
@@ -986,7 +976,6 @@ async def get_instances():
     except Exception as e:
         logger.exception(f"Error getting instances: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve instances")
-
 
 @router.get("/servers")
 async def get_mcp_servers():
@@ -998,7 +987,6 @@ async def get_mcp_servers():
         logger.exception(f"Error getting MCP servers: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve MCP servers")
 
-
 @router.get("/alerts")
 async def get_alerts():
     """Get current health alerts"""
@@ -1008,7 +996,6 @@ async def get_alerts():
     except Exception as e:
         logger.exception(f"Error getting alerts: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve alerts")
-
 
 @router.get("/trends")
 async def get_performance_trends():
@@ -1021,7 +1008,6 @@ async def get_performance_trends():
         raise HTTPException(
             status_code=500, detail="Failed to retrieve performance trends"
         )
-
 
 @router.post("/refresh")
 async def refresh_health_data():

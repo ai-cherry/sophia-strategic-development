@@ -8,7 +8,6 @@ from pathlib import Path
 
 from pydantic import BaseSettings, Field, validator
 
-
 class ModelConfig(BaseSettings):
     """Model-specific configuration"""
 
@@ -19,7 +18,6 @@ class ModelConfig(BaseSettings):
     context_window: int
     strengths: list[str] = Field(default_factory=list)
     use_cases: list[str] = Field(default_factory=list)
-
 
 class RoutingConfig(BaseSettings):
     """Routing configuration"""
@@ -38,7 +36,6 @@ class RoutingConfig(BaseSettings):
                 raise ValueError(f"All routing items for {key} must be strings")
         return v
 
-
 class CacheConfig(BaseSettings):
     """Cache configuration"""
 
@@ -47,7 +44,6 @@ class CacheConfig(BaseSettings):
     semantic_similarity_threshold: float = 0.95
     max_size: int = 1000
     redis_url: str | None = None
-
 
 class LLMRouterConfig(BaseSettings):
     """Main LLM Router configuration"""

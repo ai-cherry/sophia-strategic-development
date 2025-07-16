@@ -1,4 +1,3 @@
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 from datetime import UTC, datetime
 
 #!/usr/bin/env python3
@@ -36,7 +35,6 @@ from core.config_manager import get_config_value
 
 logger = structlog.get_logger(__name__)
 
-
 class ErrorType(Enum):
     """Categorized error types for enhanced error handling"""
 
@@ -51,7 +49,6 @@ class ErrorType(Enum):
     INFRASTRUCTURE_ERROR = "infrastructure_error"
     UNKNOWN_ERROR = "unknown_error"
 
-
 class EstuaryOperationStatus(Enum):
     """Status indicators for Estuary operations"""
 
@@ -62,7 +59,6 @@ class EstuaryOperationStatus(Enum):
     VALIDATION_FAILED = "validation_failed"
     RATE_LIMITED = "rate_limited"
 
-
 class SourceType(Enum):
     """Supported source types for Estuary integration"""
 
@@ -71,7 +67,6 @@ class SourceType(Enum):
     NETSUITE = "netsuite"
     HUBSPOT = "hubspot"
     SLACK = "slack"
-
 
 @dataclass
 class RetryConfig:
@@ -82,7 +77,6 @@ class RetryConfig:
     max_delay: float = 60.0
     exponential_base: float = 2.0
     jitter: bool = True
-
 
 @dataclass
 class DataQualityMetrics:
@@ -97,7 +91,6 @@ class DataQualityMetrics:
     quality_score: float = 0.0
     validation_timestamp: datetime | None = None
     issues: list[str] = field(default_factory=list)
-
 
 @dataclass
 class EstuaryOperationResult:
@@ -114,7 +107,6 @@ class EstuaryOperationResult:
     metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
-
 class EnhancedEstuaryManager:
     """Enhanced Estuary Configuration Manager with production-ready features"""
 
@@ -127,7 +119,6 @@ class EnhancedEstuaryManager:
         self.estuary_config = self._load_estuary_config()
         self.gong_config = self._load_gong_config()
         self.asana_config = self._load_asana_config()
-
 
         # Retry configuration
         self.retry_config = RetryConfig()
@@ -183,8 +174,6 @@ class EnhancedEstuaryManager:
             "project_gids": get_config_value("asana_project_gids", []),
             "team_gids": get_config_value("asana_team_gids", []),
         }
-
-
 
         return {
             "host": f"{get_config_value('postgres_host')}.qdrantcomputing.com",
@@ -365,12 +354,6 @@ class EnhancedEstuaryManager:
             destination_config = {
                 "destinationDefinitionId": "424892c4-daac-4491-b35d-c6688ba547ba",  # Qdrant destination ID
                 "connectionConfiguration": {
-
-
-
-
-
-
 
                     "jdbc_url_params": "",
 
@@ -832,7 +815,6 @@ class EnhancedEstuaryManager:
         else:
             raise ValueError(f"Unsupported source type: {source_type}")
 
-
 # CLI Interface
 async def main():
     """CLI interface for Estuary configuration management"""
@@ -874,7 +856,6 @@ async def main():
         pass
     finally:
         await manager.cleanup()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

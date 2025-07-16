@@ -20,7 +20,6 @@ from ...models.chat_models import (
 
 logger = logging.getLogger(__name__)
 
-
 class BaseChatService(ABC):
     """
     Abstract base class for all chat services

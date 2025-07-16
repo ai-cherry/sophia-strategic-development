@@ -12,7 +12,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class StreamChunk:
     """Individual chunk of streaming response"""
@@ -22,7 +21,6 @@ class StreamChunk:
     content: Any
     timestamp: datetime
     metadata: dict[str, Any] = None
-
 
 class StreamingResponseService:
     """Real-time streaming response service"""

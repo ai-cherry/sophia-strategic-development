@@ -34,7 +34,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class LambdaLabsCLIMCPServer(StandardizedMCPServer):
     """Lambda Labs CLI MCP Server for GPU management"""
 
@@ -426,7 +425,6 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 "success": False,
                 "error": str(e),
             }
-
 
 # Create and run server
 if __name__ == "__main__":

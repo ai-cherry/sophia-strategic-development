@@ -426,8 +426,7 @@ class MultiPlatformDataProvider:
             return self._get_notion_fallback_with_reasoning()
             
         self.reasoning.add_step("Initiating Notion knowledge management analysis", "start", confidence=0.9)
-        
-        
+
         # Search for pages (requires database ID in real implementation)
         # For now, we'll use the reasoning approach with Pay Ready correlation
         

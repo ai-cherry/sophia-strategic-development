@@ -16,7 +16,6 @@ except ImportError:
     STRUCTLOG_AVAILABLE = False
     structlog = None  # Define as None when not available
 
-
 class SophiaAILogger:
     """Enhanced logger for Sophia AI with structured logging."""
 
@@ -103,11 +102,9 @@ class SophiaAILogger:
         else:
             self.logger.exception(self._format_message(message, **kwargs))
 
-
 def setup_logger(name: str, level: int = logging.INFO) -> SophiaAILogger:
     """Setup standardized logger for Sophia AI."""
     return SophiaAILogger(name, level)
-
 
 # Default logger instance
 logger = setup_logger("sophia_ai")

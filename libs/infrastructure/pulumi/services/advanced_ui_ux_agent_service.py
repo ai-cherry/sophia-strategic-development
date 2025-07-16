@@ -15,7 +15,6 @@ from ..core.simple_config import SophiaConfig
 
 logger = logging.getLogger(__name__)
 
-
 class DesignTaskType(Enum):
     """Types of design tasks for optimal model routing"""
 
@@ -26,7 +25,6 @@ class DesignTaskType(Enum):
     CODE_GENERATION = "code_generation"  # DeepSeek V3
     DESIGN_REVIEW = "design_review"  # Claude 3.5 Sonnet
 
-
 class UIFramework(Enum):
     """Supported UI frameworks for code generation"""
 
@@ -35,7 +33,6 @@ class UIFramework(Enum):
     VUE = "vue"
     ANGULAR = "angular"
     SVELTE = "svelte"
-
 
 class DesignStyle(Enum):
     """Design style preferences"""
@@ -46,7 +43,6 @@ class DesignStyle(Enum):
     CORPORATE = "corporate"
     MODERN = "modern"
     DARK_MODE = "dark_mode"
-
 
 @dataclass
 class DesignContext:
@@ -60,7 +56,6 @@ class DesignContext:
     responsive: bool = True
     dark_mode: bool = True
     performance_optimized: bool = True
-
 
 @dataclass
 class DesignOption:
@@ -76,7 +71,6 @@ class DesignOption:
     color_scheme: dict[str, str]
     layout: str
 
-
 @dataclass
 class DesignAsset:
     """Generated design asset"""
@@ -86,7 +80,6 @@ class DesignAsset:
     download_url: str | None = None
     interactive_url: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
-
 
 @dataclass
 class DesignResponse:
@@ -98,7 +91,6 @@ class DesignResponse:
     next_steps: list[str]
     processing_time: float = 0.0
     model_used: str = ""
-
 
 class UnifiedLLMServiceService:
     """Interface to Portkey AI Gateway for multi-model routing"""
@@ -162,7 +154,6 @@ class UnifiedLLMServiceService:
         except Exception as e:
             logger.exception(f"Portkey completion error: {e}")
             return f"Error in AI completion: {e!s}"
-
 
 class AdvancedUIUXAgentService:
     """Advanced UI/UX Agent Service with multi-model AI capabilities"""

@@ -63,7 +63,6 @@ async def fetch_gong_data_fixed(self) -> Dict[str, Any]:
         logger.error(f"❌ Gong connection error: {e}")
         return {'status': f'❌ Connection Error', 'data': [], 'calls': 0, 'has_credentials': True}
 
-
 # ASANA API FIX - Get workspace first, then projects
 async def fetch_asana_data_fixed(self) -> Dict[str, Any]:
     """Fetch real data from Asana - FIXED with workspace"""
@@ -132,7 +131,6 @@ async def fetch_asana_data_fixed(self) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"❌ Asana connection error: {e}")
         return {'status': f'❌ Connection Error', 'data': [], 'projects': 0, 'has_credentials': True}
-
 
 # ALTERNATIVE GONG API APPROACH - Try different endpoint
 async def fetch_gong_data_alternative(self) -> Dict[str, Any]:

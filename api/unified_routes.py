@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 # Create router
 router = APIRouter(prefix="/api/v1", tags=["Unified API"])
 
-
 # Request/Response Models
 class ChatAPIRequest(BaseModel):
     """API request model for chat"""
@@ -34,7 +33,6 @@ class ChatAPIRequest(BaseModel):
         default=None, description="Additional chat context"
     )
 
-
 class ChatAPIResponse(BaseModel):
     """API response model for chat"""
 
@@ -43,7 +41,6 @@ class ChatAPIResponse(BaseModel):
     metadata: dict[str, Any]
     workflow_id: str
     session_id: str
-
 
 # WebSocket Connection Manager
 class ConnectionManager:
@@ -86,17 +83,14 @@ class ConnectionManager:
         for session_id in disconnected:
             self.disconnect(session_id)
 
-
 # Global connection manager
 manager = ConnectionManager()
-
 
 # Health check endpoint
 @router.get("/health")
 def health_check():
     """Health check endpoint"""
     return {"status": "ok", "timestamp": datetime.now().isoformat()}
-
 
 # Unified chat endpoint (REST)
 @router.post("/chat", response_model=ChatAPIResponse)
@@ -145,7 +139,6 @@ async def chat(
     except Exception as e:
         logger.exception(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 # WebSocket endpoint for real-time chat
 @router.websocket("/ws/chat/{session_id}")

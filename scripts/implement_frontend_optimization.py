@@ -28,7 +28,6 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 class FrontendOptimizer:
     """Implements frontend performance optimizations"""
     
@@ -1021,7 +1020,6 @@ export default performanceMonitor;
                 import shutil
                 shutil.copy2(backup_file, original_file)
                 logger.info(f"✅ Restored {original_file}")
-
 
 def main():
     """Main frontend optimization implementation function"""

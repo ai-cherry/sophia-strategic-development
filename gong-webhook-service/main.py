@@ -36,7 +36,6 @@ JNlDeAvGXWrjI1gl+VIqYDJvfOb8gNLADo7oftGHVxUt3DrmAQt/Tyc0R5jd+L04
 1QIDAQAB
 -----END PUBLIC KEY-----"""
 
-
 @app.get("/")
 async def root():
     """Root endpoint."""
@@ -45,7 +44,6 @@ async def root():
         "status": "running",
         "timestamp": datetime.now(UTC).isoformat(),
     }
-
 
 @app.get("/health")
 async def health_check():
@@ -57,7 +55,6 @@ async def health_check():
         "version": "1.0.0",
     }
 
-
 @app.get("/webhook/gong/health")
 async def webhook_health():
     """Health check endpoint specifically for Gong webhooks."""
@@ -67,12 +64,10 @@ async def webhook_health():
         "timestamp": datetime.now(UTC).isoformat(),
     }
 
-
 @app.get("/webhook/gong/public-key")
 async def get_public_key():
     """Return the public key for Gong webhook verification."""
     return PlainTextResponse(content=GONG_PUBLIC_KEY, media_type="text/plain")
-
 
 @app.post("/webhook/gong/calls")
 async def handle_call_webhook(request: Request):
@@ -120,7 +115,6 @@ async def handle_call_webhook(request: Request):
             },
         )
 
-
 @app.post("/webhook/gong/emails")
 async def handle_email_webhook(request: Request):
     """Handle Gong email webhooks."""
@@ -153,7 +147,6 @@ async def handle_email_webhook(request: Request):
                 "timestamp": datetime.now(UTC).isoformat(),
             },
         )
-
 
 @app.post("/webhook/gong/meetings")
 async def handle_meeting_webhook(request: Request):
@@ -188,7 +181,6 @@ async def handle_meeting_webhook(request: Request):
             },
         )
 
-
 # Catch-all webhook handler for any other endpoints
 @app.post("/webhook/{path:path}")
 async def handle_generic_webhook(path: str, request: Request):
@@ -202,7 +194,6 @@ async def handle_generic_webhook(path: str, request: Request):
             "timestamp": datetime.now(UTC).isoformat(),
         },
     )
-
 
 # Error handlers to ensure we always try to return 200
 @app.exception_handler(404)
@@ -218,7 +209,6 @@ async def not_found_handler(request: Request, exc):
         },
     )
 
-
 @app.exception_handler(500)
 async def internal_error_handler(request: Request, exc):
     """Handle 500 errors."""
@@ -231,7 +221,6 @@ async def internal_error_handler(request: Request, exc):
             "timestamp": datetime.now(UTC).isoformat(),
         },
     )
-
 
 if __name__ == "__main__":
     # Get configuration from environment or use defaults

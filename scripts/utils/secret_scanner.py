@@ -366,7 +366,6 @@ Line: {secret.line_content[:100]}...
         # For now, just add a comment - more sophisticated replacement could be added
         return line.rstrip() + f"  # FIXME: Use {replacement}\n"
 
-
 def main():
     """Main scanner function"""
     parser = argparse.ArgumentParser(description="Hardcoded Secret Scanner")

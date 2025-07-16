@@ -10,7 +10,6 @@ from typing import Any
 
 from pydantic import BaseModel, Field, validator
 
-
 # Enums for better type safety
 class ChatMode(str, Enum):
     """Chat operation modes"""
@@ -18,7 +17,6 @@ class ChatMode(str, Enum):
     UNIVERSAL = "universal"
     SOPHIA = "sophia"
     EXECUTIVE = "executive"
-
 
 class ChatProvider(str, Enum):
     """AI providers"""
@@ -28,14 +26,12 @@ class ChatProvider(str, Enum):
     ANTHROPIC = "anthropic"
     AZURE = "azure"
 
-
 class MessageRole(str, Enum):
     """Message roles in conversation"""
 
     USER = "user"
     ASSISTANT = "assistant"
     SYSTEM = "system"
-
 
 class ChatStatus(str, Enum):
     """Chat processing status"""
@@ -44,7 +40,6 @@ class ChatStatus(str, Enum):
     PROCESSING = "processing"
     COMPLETED = "completed"
     FAILED = "failed"
-
 
 # Core Models
 class ChatMessage(BaseModel):
@@ -56,7 +51,6 @@ class ChatMessage(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     metadata: dict[str, Any] | None = None
 
-
 class ChatContext(BaseModel):
     """Chat context information"""
 
@@ -66,7 +60,6 @@ class ChatContext(BaseModel):
     department: str | None = None
     preferences: dict[str, Any] | None = None
     business_context: dict[str, Any] | None = None
-
 
 class ChatConfiguration(BaseModel):
     """Chat configuration settings"""
@@ -80,7 +73,6 @@ class ChatConfiguration(BaseModel):
     frequency_penalty: float | None = Field(default=None, ge=-2.0, le=2.0)
     presence_penalty: float | None = Field(default=None, ge=-2.0, le=2.0)
     stop_sequences: list[str] | None = None
-
 
 # Request Models
 class ChatRequest(BaseModel):
@@ -110,12 +102,10 @@ class ChatRequest(BaseModel):
             return ChatConfiguration(mode=mode)
         return v
 
-
 class StreamChatRequest(ChatRequest):
     """Streaming chat request"""
 
     stream: bool = Field(default=True, description="Enable streaming response")
-
 
 # Response Models
 class ChatMetadata(BaseModel):
@@ -128,7 +118,6 @@ class ChatMetadata(BaseModel):
     processing_time_ms: int | None = None
     confidence_score: float | None = None
 
-
 class ChatUsage(BaseModel):
     """Token and cost usage information"""
 
@@ -137,7 +126,6 @@ class ChatUsage(BaseModel):
     total_tokens: int = 0
     estimated_cost: float = 0.0
     cost_currency: str = "USD"
-
 
 class ChatResponse(BaseModel):
     """Unified chat response"""
@@ -153,7 +141,6 @@ class ChatResponse(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     usage: ChatUsage | None = None
 
-
 class StreamChatResponse(BaseModel):
     """Streaming chat response chunk"""
 
@@ -163,7 +150,6 @@ class StreamChatResponse(BaseModel):
     finished: bool = Field(default=False, description="Whether this is the final chunk")
     metadata: dict[str, Any] | None = None
 
-
 class ChatError(BaseModel):
     """Chat error response"""
 
@@ -171,7 +157,6 @@ class ChatError(BaseModel):
     error_message: str
     details: dict[str, Any] | None = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-
 
 # Session Models
 class ChatSession(BaseModel):
@@ -188,7 +173,6 @@ class ChatSession(BaseModel):
     configuration: ChatConfiguration | None = None
     is_active: bool = True
 
-
 class ChatHistory(BaseModel):
     """Chat conversation history"""
 
@@ -197,7 +181,6 @@ class ChatHistory(BaseModel):
     created_at: datetime
     updated_at: datetime
     total_messages: int = 0
-
 
 # Analytics Models
 class ChatAnalytics(BaseModel):
@@ -215,7 +198,6 @@ class ChatAnalytics(BaseModel):
     period_start: datetime
     period_end: datetime
 
-
 class ChatMetrics(BaseModel):
     """Aggregated chat metrics"""
 
@@ -229,7 +211,6 @@ class ChatMetrics(BaseModel):
     period_start: datetime
     period_end: datetime
 
-
 # Batch Processing Models
 class BatchChatRequest(BaseModel):
     """Batch chat processing request"""
@@ -237,7 +218,6 @@ class BatchChatRequest(BaseModel):
     requests: list[ChatRequest] = Field(..., max_items=100)
     batch_id: str | None = Field(default_factory=lambda: str(uuid.uuid4()))
     priority: int = Field(default=1, ge=1, le=10)
-
 
 class BatchChatResponse(BaseModel):
     """Batch chat processing response"""
@@ -249,7 +229,6 @@ class BatchChatResponse(BaseModel):
     failed_requests: int
     processing_time_ms: int
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-
 
 # Configuration Models
 class ProviderConfig(BaseModel):
@@ -263,7 +242,6 @@ class ProviderConfig(BaseModel):
     timeout_seconds: int = 30
     retry_attempts: int = 3
 
-
 class ModeConfig(BaseModel):
     """Chat mode configuration"""
 
@@ -274,7 +252,6 @@ class ModeConfig(BaseModel):
     system_prompt: str
     max_context_length: int = 4000
     features: list[str] = []
-
 
 class UnifiedChatConfig(BaseModel):
     """Complete unified chat configuration"""
@@ -287,7 +264,6 @@ class UnifiedChatConfig(BaseModel):
     enable_analytics: bool = True
     enable_caching: bool = True
     cache_ttl_seconds: int = 300
-
 
 # Export all models
 __all__ = [

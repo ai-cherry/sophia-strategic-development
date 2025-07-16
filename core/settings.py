@@ -4,7 +4,6 @@ Enhanced Settings for Sophia AI Platform - 2025 Best Practices
 
 from pydantic_settings import BaseSettings
 
-
 class Settings(BaseSettings):
     """Modern settings with Pydantic v2"""
 
@@ -30,10 +29,6 @@ class Settings(BaseSettings):
     pinecone_api_key: str = ""
 
     # Qdrant
-    
-    
-    
-    
 
     # Rate Limiting
     rate_limit_per_minute: int = 60

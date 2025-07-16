@@ -31,7 +31,6 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 # Configuration with Pulumi ESC integration
 def get_figma_credentials():
     """Get Figma credentials using Pulumi ESC strategy"""
@@ -56,13 +55,11 @@ def get_figma_credentials():
     logger.warning("⚠️  No Figma PAT found - running in mock mode")
     return None
 
-
 FIGMA_PAT = get_figma_credentials()
 OPENAI_API_KEY = get_config_value("openai_api_key")
 OPENROUTER_API_KEY = get_config_value("openrouter_api_key")
 
 FIGMA_API_BASE = "https://api.figma.com/v1"
-
 
 @dataclass
 class DesignToken:
@@ -74,7 +71,6 @@ class DesignToken:
     category: str
     description: str | None = None
 
-
 @dataclass
 class ComponentMetadata:
     """Component metadata from Figma"""
@@ -84,7 +80,6 @@ class ComponentMetadata:
     type: str
     description: str | None = None
     properties: dict[str, Any] = None
-
 
 @dataclass
 class DesignContext:
@@ -96,7 +91,6 @@ class DesignContext:
     component_metadata: ComponentMetadata
     implementation_hints: dict[str, Any]
     extraction_timestamp: str
-
 
 class SecureCredentialManager:
     """Secure credential management following Sophia AI patterns"""
@@ -110,7 +104,6 @@ class SecureCredentialManager:
     def validate_credentials() -> bool:
         """Validate that all required credentials are available"""
         return bool(FIGMA_PAT)
-
 
 class FigmaAPIClient:
     """Figma API client with enterprise-grade error handling"""
@@ -141,7 +134,6 @@ class FigmaAPIClient:
         except requests.RequestException as e:
             logger.error(f"Failed to get file metadata: {e}")
             raise HTTPException(status_code=500, detail=f"Figma API error: {e}") from e
-
 
 class FigmaDevModeMCPServer:
     """Main Figma Dev Mode MCP Server class"""
@@ -271,7 +263,6 @@ class FigmaDevModeMCPServer:
             implementation_hints=hints,
             extraction_timestamp=datetime.now(UTC).isoformat(),
         )
-
 
 # FastAPI app instance
 server = FigmaDevModeMCPServer()

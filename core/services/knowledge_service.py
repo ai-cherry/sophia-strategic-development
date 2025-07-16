@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-
 class KnowledgeService:
     def __init__(...):
         # Basic implementation

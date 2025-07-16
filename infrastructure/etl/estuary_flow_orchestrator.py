@@ -4,7 +4,6 @@ Replaces estuary with Estuary Flow for real-time data pipeline management
 Implements ELT pattern: Estuary Flow → PostgreSQL → Redis → Qdrant
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import backend.utils.path_utils  # noqa: F401, must be before other imports
 
 import asyncio
@@ -21,10 +20,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(project_root))
 
-
-
 logger = logging.getLogger(__name__)
-
 
 @dataclass
 class EstuaryFlowConfig:
@@ -33,7 +29,6 @@ class EstuaryFlowConfig:
     api_url: str
     access_token: str
     tenant: str
-
 
 @dataclass
 class DataFlowSpec:
@@ -45,7 +40,6 @@ class DataFlowSpec:
     destination_type: str
     destination_config: dict[str, Any]
     transforms: list[dict[str, Any]] | None = None
-
 
 class EstuaryFlowOrchestrator:
     """
@@ -418,7 +412,6 @@ class EstuaryFlowOrchestrator:
         ELT pattern: Transform and load processed data to Qdrant
         """
 
-
         flow_spec = DataFlowSpec(
             name="postgresql-to-qdrant",
             source_type="source-postgres",
@@ -532,13 +525,11 @@ class EstuaryFlowOrchestrator:
             logger.exception(f"Pipeline setup failed: {e}")
             raise
 
-
 # Utility functions for easy integration
 async def setup_estuary_pipeline():
     """Convenience function to set up the complete Estuary Flow pipeline"""
     async with EstuaryFlowOrchestrator() as orchestrator:
         return await orchestrator.setup_complete_pipeline()
-
 
 async def get_pipeline_status():
     """Get status of all data flows"""

@@ -6,7 +6,6 @@ Track your AI inference costs in real-time
 import time
 from typing import Dict, List
 
-
 class CostTracker:
     def __init__(self):
         self.requests: List[Dict] = []
@@ -53,7 +52,6 @@ class CostTracker:
 Compare to OpenAI GPT-4:
 - You saved: ${(self.total_cost * 100) - self.total_cost:.6f} (99% savings!)
 """
-
 
 # Global tracker
 cost_tracker = CostTracker()

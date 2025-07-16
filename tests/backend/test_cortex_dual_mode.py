@@ -1,6 +1,5 @@
 """Tests for dual-mode Lambda GPU adapter."""
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import os
 from unittest.mock import MagicMock, patch
 
@@ -13,7 +12,6 @@ from shared.utils.QDRANT_cortex import (
     MCPMode,
     QdrantUnifiedMemoryService,
 )
-
 
 @pytest.fixture
 def mock_QDRANT_serviceection():
@@ -31,14 +29,12 @@ def mock_QDRANT_serviceection():
 
     return conn
 
-
 @pytest.fixture
 def mock_mcp_response():
     """Mock MCP server response."""
     return httpx.Response(
         200, json={"completion": "Test response", "vector": [0.1] * 768}
     )
-
 
 class TestQdrantUnifiedMemoryService:
     """Test QdrantUnifiedMemoryService dual-mode functionality."""

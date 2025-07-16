@@ -17,12 +17,11 @@ from backend.services.gong_multi_purpose_intelligence import (
     GongMultiPurposeIntelligence,
 )
 from backend.services.project_management_service import ProjectManagementService
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/project-intelligence", tags=["project-intelligence"])
-
 
 @router.get("/gong-insights")
 async def get_gong_project_insights(
@@ -74,7 +73,6 @@ async def get_gong_project_insights(
         logger.error(f"Error getting Gong project insights: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/unified-project-status")
 async def get_unified_project_status():
     """Get unified project status combining formal tools and conversation intelligence"""
@@ -118,7 +116,6 @@ async def get_unified_project_status():
         logger.error(f"Error getting unified project status: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post("/natural-language-query")
 async def process_natural_language_query(request: dict[str, Any]):
     """Process natural language queries about project intelligence"""
@@ -158,7 +155,6 @@ async def process_natural_language_query(request: dict[str, Any]):
     except Exception as e:
         logger.error(f"Error processing natural language query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/risk-dashboard")
 async def get_project_risk_dashboard():
@@ -223,7 +219,6 @@ async def get_project_risk_dashboard():
         logger.error(f"Error getting project risk dashboard: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/team-intelligence")
 async def get_team_intelligence_from_conversations():
     """Get team performance and communication insights from conversations"""
@@ -280,9 +275,7 @@ async def get_team_intelligence_from_conversations():
         logger.error(f"Error getting team intelligence: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 # Helper functions
-
 
 async def _correlate_formal_and_conversation_data(
     formal_data: dict[str, Any], conversation_insights
@@ -330,7 +323,6 @@ async def _correlate_formal_and_conversation_data(
 
     return correlations
 
-
 async def _correlate_conversation_and_formal_risks(
     conversation_risks: list[dict], formal_risks: list[dict]
 ) -> dict[str, Any]:
@@ -376,7 +368,6 @@ async def _correlate_conversation_and_formal_risks(
 
     return correlation
 
-
 async def _generate_risk_recommendations(
     conversation_risks: list[dict], formal_risks: list[dict]
 ) -> list[str]:
@@ -415,7 +406,6 @@ async def _generate_risk_recommendations(
 
     return recommendations
 
-
 def _calculate_health_distribution(projects: list[dict]) -> dict[str, int]:
     """Calculate health score distribution for projects"""
 
@@ -431,7 +421,6 @@ def _calculate_health_distribution(projects: list[dict]) -> dict[str, int]:
             distribution["at_risk"] += 1
 
     return distribution
-
 
 async def _analyze_communication_patterns(team_insights: list) -> dict[str, Any]:
     """Analyze team communication patterns from insights"""
@@ -459,7 +448,6 @@ async def _analyze_communication_patterns(team_insights: list) -> dict[str, Any]
             patterns["communication_quality"] = "needs_improvement"
 
     return patterns
-
 
 async def _analyze_meeting_effectiveness(team_insights: list) -> dict[str, Any]:
     """Analyze meeting effectiveness from team insights"""
@@ -490,7 +478,6 @@ async def _analyze_meeting_effectiveness(team_insights: list) -> dict[str, Any]:
         ]
 
     return effectiveness
-
 
 async def _analyze_collaboration_patterns(team_insights: list) -> dict[str, Any]:
     """Analyze team collaboration patterns"""

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 Estuary Flow Manager for Sophia AI Platform
 Comprehensive integration replacing Estuary with Estuary Flow
@@ -36,7 +35,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class EstuaryConnectorType(Enum):
     """Supported Estuary connector types"""
 
@@ -47,7 +45,6 @@ class EstuaryConnectorType(Enum):
     PINECONE = "ghcr.io/estuary/materialize-pinecone:dev"
     HTTP_INBOUND = "ghcr.io/estuary/source-http-inbound:dev"
     WEBHOOK = "ghcr.io/estuary/source-webhook:dev"
-
 
 @dataclass
 class EstuaryCredentials:
@@ -125,7 +122,6 @@ class EstuaryCredentials:
             logger.exception(f"Failed to load Estuary credentials: {e}")
             raise
 
-
 @dataclass
 class EstuaryCapture:
     """Estuary capture configuration"""
@@ -152,7 +148,6 @@ class EstuaryCapture:
             }
         }
 
-
 @dataclass
 class EstuaryMaterialization:
     """Estuary materialization configuration"""
@@ -178,7 +173,6 @@ class EstuaryMaterialization:
                 }
             }
         }
-
 
 class EstuaryFlowManager:
     """Comprehensive Estuary Flow management for Sophia AI"""
@@ -413,13 +407,6 @@ class EstuaryFlowManager:
 
         config = {
 
-
-
-
-
-
-
-
             "advanced": {
                 "updateDelay": "0s",  # Real-time processing
                 "deltaUpdates": True,
@@ -640,7 +627,6 @@ class EstuaryFlowManager:
 
         try:
 
-            
                 "account": "ZNB04675.us-east-1",
                 "user": "SCOOBYJAVA15",
                 "password": "${QDRANT_PAT_TOKEN}",  # Will be replaced with actual token
@@ -649,8 +635,6 @@ class EstuaryFlowManager:
                 "database": "SOPHIA_AI",
                 "schema": "ESTUARY_STAGING",
             }
-
-
 
             # Save configuration for manual deployment
             config_file = self.config_dir / "qdrant-materialization.flow.yaml"
@@ -797,18 +781,15 @@ echo "📊 Check status with: flowctl catalog list"
         logger.info(f"📜 Deployment script created: {script_path}")
         return str(script_path)
 
-
 # Convenience functions for easy import
 def get_estuary_manager() -> EstuaryFlowManager:
     """Get configured Estuary Flow manager"""
     return EstuaryFlowManager()
 
-
 def create_sophia_ai_foundation() -> dict[str, Any]:
     """Create complete Sophia AI foundation"""
     manager = get_estuary_manager()
     return manager.create_sophia_ai_foundation()
-
 
 if __name__ == "__main__":
     # Example usage

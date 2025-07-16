@@ -8,7 +8,6 @@ to prevent circular imports.
 from abc import ABC, abstractmethod
 from typing import Any
 
-
 class BaseConfig(ABC):
     """Base configuration interface with no dependencies."""
 
@@ -21,7 +20,6 @@ class BaseConfig(ABC):
     def set_value(self, key: str, value: Any) -> None:
         """Set a configuration value."""
         pass
-
 
 class BaseSecurityConfig(BaseConfig):
     """Base security configuration interface."""
@@ -36,7 +34,6 @@ class BaseSecurityConfig(BaseConfig):
         """Check if a key should be treated as secure."""
         pass
 
-
 class BaseConnectionManager(ABC):
     """Base connection manager interface."""
 
@@ -49,7 +46,6 @@ class BaseConnectionManager(ABC):
     async def close_all(self) -> None:
         """Close all connections."""
         pass
-
 
 class ServiceRegistry:
     """Central service registry to avoid circular imports."""
@@ -73,7 +69,6 @@ class ServiceRegistry:
     def clear(self) -> None:
         """Clear all registered services."""
         self._services.clear()
-
 
 # Global service registry instance
 service_registry = ServiceRegistry()

@@ -4,17 +4,14 @@ Ensures correct configuration is loaded at application startup
 This file permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import logging
 import os
 from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 def configure_QDRANT_environment():
     """Configure Qdrant environment variables at startup - PERMANENT FIX"""
-
 
     correct_config = {
         "QDRANT_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
@@ -29,11 +26,9 @@ def configure_QDRANT_environment():
         os.environ[key] = value
         logger.info(f"✅ PERMANENT FIX: Set {key}: {value}")
 
-
     logger.info(
         "   This permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue"
     )
-
 
 def apply_startup_configuration():
     """Apply all startup configuration - CALLED AUTOMATICALLY"""
@@ -47,7 +42,6 @@ def apply_startup_configuration():
     get_config_value("PULUMI_ORG") = "scoobyjava-org"
 
     logger.info("✅ Startup configuration complete - Qdrant fix applied")
-
 
 # AUTOMATIC APPLICATION - This runs when module is imported
 apply_startup_configuration()

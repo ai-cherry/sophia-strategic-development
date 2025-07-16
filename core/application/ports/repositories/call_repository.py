@@ -10,7 +10,6 @@ from datetime import datetime
 
 from domain.entities.call import Call
 
-
 class CallRepository(ABC):
     """
     Interface for call data persistence.

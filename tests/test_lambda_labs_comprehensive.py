@@ -11,11 +11,9 @@ import pytest
 
 from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
 from backend.services.lambda_labs_service import LambdaLabsService
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
 from core.services.natural_language_infrastructure_controller import (
     NaturalLanguageInfrastructureController,
 )
-
 
 class TestLambdaLabsService:
     """Test Lambda Labs service functionality"""
@@ -99,7 +97,6 @@ class TestLambdaLabsService:
             health = await service.health_check()
             assert health is True
 
-
 class TestLambdaLabsChatIntegration:
     """Test Lambda Labs chat integration"""
 
@@ -144,7 +141,6 @@ class TestLambdaLabsChatIntegration:
         intent = await integration.analyze_intent("Hello")
         assert intent["intent"] == "simple_query"
         assert intent["recommended_model"] == "llama3.1-8b-instruct"
-
 
 class TestSophiaUnifiedOrchestratorIntegration:
     """Test unified chat service Lambda Labs integration"""
@@ -196,7 +192,6 @@ class TestSophiaUnifiedOrchestratorIntegration:
             )
             assert result["success"] is True
 
-
 class TestNaturalLanguageController:
     """Test natural language infrastructure controller"""
 
@@ -237,7 +232,6 @@ class TestNaturalLanguageController:
                 assert health["lambda_labs"]["status"] == "healthy"
                 assert health["qdrant"]["status"] == "healthy"
 
-
 class TestCostOptimization:
     """Test cost optimization features"""
 
@@ -267,7 +261,6 @@ class TestCostOptimization:
         savings_percentage = (savings / gpu_monthly_cost) * 100
 
         assert savings_percentage > 90  # Should be >90% savings
-
 
 class TestEndToEndScenarios:
     """Test end-to-end scenarios"""
@@ -313,7 +306,6 @@ class TestEndToEndScenarios:
             assert result["success"] is True
             assert "SELECT" in result["generated_sql"]
 
-
 # Performance benchmarks
 class TestPerformanceBenchmarks:
     """Test performance requirements"""
@@ -348,7 +340,6 @@ class TestPerformanceBenchmarks:
 
         results = await asyncio.gather(*tasks)
         assert len(results) == 10
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

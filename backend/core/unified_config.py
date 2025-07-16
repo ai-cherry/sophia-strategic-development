@@ -15,7 +15,6 @@ from backend.core.auto_esc_config import get_config_value
 
 T = TypeVar("T")
 
-
 class UnifiedConfig:
     """
     Centralized configuration with clear precedence.
@@ -263,22 +262,18 @@ class UnifiedConfig:
 
         return config
 
-
 # Convenience functions
 def get_config(key: str, default: Optional[Any] = None) -> Any:
     """Shorthand for UnifiedConfig.get()"""
     return UnifiedConfig.get(key, default)
 
-
 def get_required_config(key: str) -> Any:
     """Shorthand for UnifiedConfig.get_required()"""
     return UnifiedConfig.get_required(key)
 
-
 def config_bool(key: str, default: bool = False) -> bool:
     """Shorthand for UnifiedConfig.get_bool()"""
     return UnifiedConfig.get_bool(key, default)
-
 
 def config_int(key: str, default: int = 0) -> int:
     """Shorthand for UnifiedConfig.get_int()"""

@@ -18,10 +18,9 @@ from backend.core.date_time_manager import date_manager
 from backend.services.enhanced_multi_agent_orchestrator import (
     EnhancedMultiAgentOrchestrator,
 )
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
-
 
 class WebSocketChannel(BaseModel):
     """WebSocket channel configuration"""
@@ -30,7 +29,6 @@ class WebSocketChannel(BaseModel):
     description: str
     active: bool = True
     subscribers: set[str] = set()
-
 
 class EnhancedWebSocketMessage(BaseModel):
     """Enhanced WebSocket message structure"""
@@ -42,7 +40,6 @@ class EnhancedWebSocketMessage(BaseModel):
     message_id: str | None = None
     user_id: str | None = None
     session_id: str | None = None
-
 
 class WebSocketSession:
     """WebSocket session management"""
@@ -79,7 +76,6 @@ class WebSocketSession:
     def is_subscribed_to(self, channel: str) -> bool:
         """Check if subscribed to channel"""
         return channel in self.subscribed_channels
-
 
 class EnhancedWebSocketHandler:
     """

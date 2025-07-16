@@ -8,7 +8,7 @@ metadata:
   namespace: sophia-ai-prod
 spec:
   rules:
-  - host: api.sophia-ai.com
+  - host: api.sophia-intel.ai
     http:
       paths:
       - backend:
@@ -20,5 +20,5 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - api.sophia-ai.com
+    - api.sophia-intel.ai
     secretName: sophia-ai-tls

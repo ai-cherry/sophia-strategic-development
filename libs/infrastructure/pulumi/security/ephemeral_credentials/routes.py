@@ -42,7 +42,6 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 # OAuth2 security scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
-
 async def get_credentials_service() -> EphemeralCredentialsService:
     """
     Get the ephemeral credentials service.
@@ -54,7 +53,6 @@ async def get_credentials_service() -> EphemeralCredentialsService:
     service = EphemeralCredentialsService()
     await service.initialize()
     return service
-
 
 @router.post(
     "/",
@@ -105,7 +103,6 @@ async def create_credential(
 
     return response
 
-
 @router.post(
     "/validate",
     response_model=CredentialValidationResponse,
@@ -148,7 +145,6 @@ async def validate_credential(
     )
 
     return response
-
 
 @router.post(
     "/revoke",
@@ -197,7 +193,6 @@ async def revoke_credential(
 
     return {"success": success}
 
-
 @router.get(
     "/",
     response_model=list[dict],
@@ -231,7 +226,6 @@ async def list_credentials(
 
     # Convert to response format
     return [cred.to_response_dict() for cred in credentials]
-
 
 @router.get(
     "/{credential_id}",
@@ -269,7 +263,6 @@ async def get_credential(
     # Convert to response format
     return credential.to_response_dict()
 
-
 @router.post(
     "/cleanup",
     summary="Clean up expired credentials",
@@ -301,7 +294,6 @@ async def cleanup_credentials(
     )
 
     return {"removed_count": removed_count}
-
 
 # Authentication middleware for API routes
 @router.middleware("http")

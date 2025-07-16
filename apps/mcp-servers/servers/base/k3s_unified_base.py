@@ -29,7 +29,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class ServerConfig(BaseModel):
     """Configuration for K3s MCP servers"""
 
@@ -40,7 +39,6 @@ class ServerConfig(BaseModel):
     tier: str = "SECONDARY"  # PRIMARY, SECONDARY, TERTIARY
     capabilities: list[str] = Field(default_factory=list)
     gpu_enabled: bool = False
-
 
 class K3sUnifiedMCPServer(ABC):
     """
@@ -324,10 +322,8 @@ mcp_server_info{{server="{self.config.name}",version="{self.config.version}",tie
         finally:
             await self.cleanup()
 
-
 # Alias for backward compatibility
 UnifiedStandardizedMCPServer = K3sUnifiedMCPServer
-
 
 # Example implementation for reference
 class ExampleK3sMCPServer(K3sUnifiedMCPServer):
@@ -385,12 +381,10 @@ class ExampleK3sMCPServer(K3sUnifiedMCPServer):
         else:
             raise ValueError(f"Unknown tool: {name}")
 
-
 async def main():
     """Main entry point"""
     server = ExampleK3sMCPServer()
     await server.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

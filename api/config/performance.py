@@ -16,7 +16,6 @@ import aiohttp
 # Configure logging
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class PerformanceConfig:
     """Performance configuration settings."""
@@ -49,7 +48,6 @@ class PerformanceConfig:
     # Monitoring
     metrics_enabled: bool = True
     profiling_enabled: bool = False
-
 
 class PerformanceOptimizer:
     """Performance optimization utilities for Sophia AI."""
@@ -255,10 +253,8 @@ class PerformanceOptimizer:
             return 0.0
         return min(len(self._cache) / self.config.cache_max_size, 1.0)
 
-
 # Global performance optimizer instance
 performance_optimizer = PerformanceOptimizer()
-
 
 # Decorator for caching function results
 def cached(ttl: int | None = None):
@@ -286,7 +282,6 @@ def cached(ttl: int | None = None):
 
     return decorator
 
-
 # Decorator for rate limiting
 def rate_limited(identifier_func=None):
     """Decorator to apply rate limiting."""
@@ -309,7 +304,6 @@ def rate_limited(identifier_func=None):
 
     return decorator
 
-
 # Async context manager for session management
 class SessionManager:
     """Async context manager for HTTP session management."""
@@ -324,7 +318,6 @@ class SessionManager:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         # Don't close the session here as it's pooled
         pass
-
 
 # Performance monitoring utilities
 class PerformanceMonitor:
@@ -356,7 +349,6 @@ class PerformanceMonitor:
         asyncio.create_task(performance_optimizer.get_session_pool())
 
         logger.info("Cold start optimization completed")
-
 
 # Export key components
 __all__ = [

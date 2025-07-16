@@ -15,7 +15,6 @@ from typing import Any
 
 import yaml
 
-
 class ComprehensiveSyntaxScanner:
     """Comprehensive syntax validation for all file types"""
 
@@ -378,7 +377,6 @@ class ComprehensiveSyntaxScanner:
         self.logger.info(f"💾 Results saved to: {output_path}")
         return output_path
 
-
 def main():
     """Main function"""
     project_root = Path("/home/ubuntu/sophia-main")
@@ -400,7 +398,6 @@ def main():
         return 1
     else:
         return 2
-
 
 if __name__ == "__main__":
     exit_code = main()

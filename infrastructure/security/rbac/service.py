@@ -45,7 +45,6 @@ from infrastructure.security.rbac.models import (
 
 logger = logging.getLogger(__name__)
 
-
 class RBACService:
     """
     RBAC Service for managing roles, permissions, and role assignments.
@@ -702,10 +701,8 @@ class RBACService:
             context=context,
         )
 
-
 # Global RBAC service instance
 _rbac_service: RBACService | None = None
-
 
 def initialize_rbac_service(
     storage_path: str | None = None,
@@ -745,7 +742,6 @@ def initialize_rbac_service(
         )
 
     return _rbac_service
-
 
 def get_rbac_service() -> RBACService:
     """

@@ -20,7 +20,6 @@ from core.enhanced_cache_manager import (
     initialize_cache_system,
 )
 
-
 # Backward compatibility - maintain the same interface
 class DashboardCacheManager(EnhancedCacheManager):
     """
@@ -132,7 +131,6 @@ class DashboardCacheManager(EnhancedCacheManager):
                 return loop.run_until_complete(super().clear(cache_type))
         except Exception:
             return False
-
 
 # Export the enhanced cache manager for new code
 __all__ = [

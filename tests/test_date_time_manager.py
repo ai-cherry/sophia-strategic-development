@@ -7,7 +7,6 @@ from datetime import datetime
 
 from backend.core.date_time_manager import DateTimeManager, date_manager
 
-
 class TestDateTimeManager(unittest.TestCase):
     """Test cases for DateTimeManager"""
 
@@ -106,7 +105,6 @@ class TestDateTimeManager(unittest.TestCase):
         DateTimeManager.now()
         # datetime objects are immutable, so this test just confirms behavior
         self.assertEqual(DateTimeManager.now(), datetime(2025, 7, 9))
-
 
 if __name__ == "__main__":
     unittest.main()

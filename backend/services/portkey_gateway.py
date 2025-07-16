@@ -6,7 +6,6 @@ Simple wrapper for Portkey AI integration
 from typing import Dict, Any, List, Optional
 from portkey_ai import Portkey
 
-
 class PortkeyGateway:
     """
     Simplified Portkey Gateway for backend services
@@ -73,13 +72,11 @@ class PortkeyGateway:
             # Return mock response on error
             return MockResponse(f"Error: {str(e)}")
 
-
 class MockResponse:
     """Mock response object to match OpenAI API structure"""
     
     def __init__(self, content: str):
         self.choices = [MockChoice(content)]
-
 
 class MockChoice:
     """Mock choice object"""
@@ -87,13 +84,11 @@ class MockChoice:
     def __init__(self, content: str):
         self.message = MockMessage(content)
 
-
 class MockMessage:
     """Mock message object"""
     
     def __init__(self, content: str):
         self.content = content
-
 
 # Global instance
 portkey_gateway = PortkeyGateway() 

@@ -15,7 +15,6 @@ from core.constitutional_ai import SophiaConstitutionalFramework
 
 logger = logging.getLogger(__name__)
 
-
 class PerformanceTracker:
     """Tracks performance metrics for optimization"""
 
@@ -48,7 +47,6 @@ class PerformanceTracker:
         # Keep only recent metrics (last 1000)
         if len(self.metrics[metric_name]) > 1000:
             self.metrics[metric_name] = self.metrics[metric_name][-1000:]
-
 
 class SophiaSelfOptimizer:
     """Self-optimization engine that learns from usage patterns"""

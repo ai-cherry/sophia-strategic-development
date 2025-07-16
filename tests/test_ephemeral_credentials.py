@@ -33,7 +33,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 async def test_ephemeral_credentials():
     """Test the ephemeral credentials system."""
     logger.info("Starting ephemeral credentials test")
@@ -253,7 +252,6 @@ async def test_ephemeral_credentials():
     logger.info("Ephemeral credentials service shut down")
 
     logger.info("All tests passed!")
-
 
 if __name__ == "__main__":
     asyncio.run(test_ephemeral_credentials())

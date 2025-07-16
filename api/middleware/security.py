@@ -22,7 +22,6 @@ from werkzeug.exceptions import BadRequest, TooManyRequests, Unauthorized
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class SecurityMiddleware:
     """Comprehensive security middleware for Sophia AI API"""
 
@@ -338,7 +337,6 @@ class SecurityMiddleware:
                     logger.warning(f"Potential XSS attempt detected: {pattern}")
                     raise BadRequest("Invalid input data")
 
-
 def require_auth(f: Callable) -> Callable:
     """Decorator to require authentication for endpoints"""
 
@@ -367,7 +365,6 @@ def require_auth(f: Callable) -> Callable:
 
     return decorated_function
 
-
 def require_api_key(f: Callable) -> Callable:
     """Decorator to require API key for endpoints"""
 
@@ -388,7 +385,6 @@ def require_api_key(f: Callable) -> Callable:
         return f(*args, **kwargs)
 
     return decorated_function
-
 
 def init_security_middleware(app: Flask) -> SecurityMiddleware:
     """Initialize security middleware for Flask app"""

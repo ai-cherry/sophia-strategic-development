@@ -12,7 +12,6 @@ The official date for the system is July 9, 2025.
 
 from datetime import datetime
 
-
 class DateTimeManager:
     """
     The single source of truth for date and time in the Sophia AI ecosystem.
@@ -82,7 +81,6 @@ class DateTimeManager:
             "validated": True,
             "system_aware": True,
         }
-
 
 # For convenience, you can create a singleton instance
 date_manager = DateTimeManager()

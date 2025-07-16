@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 Sophia AI - Estuary Platform Adapter
 Optimal mix of API, CLI, and webhook integration for data pipeline management
@@ -26,7 +25,6 @@ from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformType,
 )
 from core.config_manager import get_config_value
-
 
 class EstuaryAdapter(PlatformAdapter):
     """
@@ -531,7 +529,6 @@ class EstuaryAdapter(PlatformAdapter):
         self, parameters: dict[str, Any]
     ) -> dict[str, Any]:
 
-        
             "name": "Sophia AI Qdrant",
             "destination_type": "qdrant",
             "configuration": {
@@ -544,9 +541,6 @@ class EstuaryAdapter(PlatformAdapter):
                 "password": os.getenv("SOPHIA_AI_TOKEN"),
             },
         }
-
-
-
 
 # CLI interface for testing
 async def main():
@@ -573,7 +567,6 @@ async def main():
 
     elif args.command == "create-source":
         await adapter.execute_create_gong_source({"start_date": "2024-01-01T00:00:00Z"})
-
 
 if __name__ == "__main__":
     asyncio.run(main())

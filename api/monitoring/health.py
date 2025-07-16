@@ -20,7 +20,6 @@ from flask import Flask, jsonify
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class HealthMonitor:
     """Comprehensive health monitoring for Sophia AI"""
 
@@ -497,7 +496,6 @@ class HealthMonitor:
             metrics[f"sophia_{component}_healthy"] = status_value
 
         return metrics
-
 
 def init_health_monitor(app: Flask) -> HealthMonitor:
     """Initialize health monitoring for Flask app"""

@@ -8,14 +8,12 @@ from typing import Any, Protocol
 
 logger = logging.getLogger(__name__)
 
-
 class MCPServerProtocol(Protocol):
     """Protocol for MCP server interface"""
 
     async def handle_request(self, request: Any) -> Any: ...
 
     async def list_tools(self) -> list: ...
-
 
 def get_mcp_server_class():
     """Dynamic MCP server class based on available version"""
@@ -36,7 +34,6 @@ def get_mcp_server_class():
             logger.error("No MCP SDK found. Please install mcp-python.")
             raise ImportError("No compatible MCP SDK available")
 
-
 def get_mcp_types():
     """Get MCP types based on available version"""
     try:
@@ -53,7 +50,6 @@ def get_mcp_types():
         except ImportError:
             logger.error("No MCP types found.")
             return None
-
 
 class CompatibilityMCPServer:
     """Compatibility wrapper for MCP servers"""
@@ -85,7 +81,6 @@ class CompatibilityMCPServer:
                 return await self.server.get_tools()
             else:
                 return []
-
 
 # Export for use in MCP servers
 MCPServer = get_mcp_server_class()

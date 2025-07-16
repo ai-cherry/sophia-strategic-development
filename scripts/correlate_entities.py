@@ -12,7 +12,6 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class EmployeeCorrelator:
     """Correlate employees across multiple systems."""
 
@@ -291,7 +290,6 @@ class EmployeeCorrelator:
 
         return self.correlations
 
-
 def main():
     """Main correlation function."""
     parser = argparse.ArgumentParser(description="Correlate employees across systems")
@@ -317,7 +315,6 @@ def main():
 
     # Save results
     correlator.save_results(args.output)
-
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,5 @@
 from fastapi.responses import HTMLResponse
 
-
 async def handler(request, response):
     return HTMLResponse(
         """

@@ -19,7 +19,6 @@ import jwt
 import yaml
 from pydantic import BaseModel
 
-
 from core.config_manager import get_config_value, get_QDRANT_serviceection
 
 logger = logging.getLogger(__name__)
@@ -28,7 +27,6 @@ logger = logging.getLogger(__name__)
 JWT_SECRET = get_config_value("jwt_secret", "sophia-ai-cortex-secret")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
-
 
 # Agent Request/Response Models
 class AgentRequest(BaseModel):
@@ -48,7 +46,6 @@ class AgentRequest(BaseModel):
     temperature: float | None = 0.7
     stream: bool | None = False
 
-
 class AgentResponse(BaseModel):
     """Response model for agent execution"""
 
@@ -59,7 +56,6 @@ class AgentResponse(BaseModel):
     execution_time: float
     metadata: dict[str, Any] = {}
 
-
 class CortexTool(BaseModel):
     """Tool definition for Cortex agents"""
 
@@ -67,7 +63,6 @@ class CortexTool(BaseModel):
     description: str
     parameters: dict[str, Any]
     handler: str | None = None
-
 
 class CortexAgentConfig(BaseModel):
     """Configuration for a Cortex agent"""
@@ -79,7 +74,6 @@ class CortexAgentConfig(BaseModel):
     tools: list[CortexTool] = []
     system_prompt: str | None = None
     jwt_required: bool = True
-
 
 class CortexAgentService:
     """Service for managing Lambda GPU AI agents"""
@@ -549,10 +543,8 @@ class CortexAgentService:
         """Forecast business trends"""
         return {"message": "Trend forecasting not yet implemented"}
 
-
 # Singleton instance
 _cortex_service = None
-
 
 def get_cortex_service() -> CortexAgentService:
     """Get or create Cortex Agent Service instance"""
@@ -560,7 +552,6 @@ def get_cortex_service() -> CortexAgentService:
     if _cortex_service is None:
         _cortex_service = CortexAgentService()
     return _cortex_service
-
 
 # FastAPI dependency
 async def get_cortex_agent_service() -> CortexAgentService:

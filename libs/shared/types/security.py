@@ -14,7 +14,6 @@ from .settings import Settings
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """Create JWT access token"""
     settings = Settings()
@@ -33,7 +32,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     )
     return encoded_jwt
 
-
 def verify_jwt_token(token: str) -> dict:
     """Verify JWT token and return payload"""
     settings = Settings()
@@ -49,7 +47,6 @@ def verify_jwt_token(token: str) -> dict:
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -70,11 +67,9 @@ async def get_current_user(
     pass
     return {"username": username, "is_active": True}
 
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify password against hash"""
     return pwd_context.verify(plain_password, hashed_password)
-
 
 def get_password_hash(password: str) -> str:
     """Hash password"""

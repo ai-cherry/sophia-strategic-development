@@ -22,7 +22,6 @@ CEO_COMMON_QUERIES = [
     "How is the team performing?",
 ]
 
-
 class GPTCacheService:
     """
     Intelligent caching service with semantic similarity
@@ -248,14 +247,11 @@ class GPTCacheService:
             "threshold": self.similarity_threshold,
         }
 
-
 # Singleton instance
 cache_service = GPTCacheService()
 
-
 # Initialize on import
 import asyncio
-
 
 def _init_cache():
     """Initialize cache service synchronously"""
@@ -269,6 +265,5 @@ def _init_cache():
             loop.run_until_complete(cache_service.initialize())
     except Exception as e:
         logger.warning(f"Cache initialization deferred: {e}")
-
 
 _init_cache()

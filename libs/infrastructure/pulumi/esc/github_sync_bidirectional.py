@@ -10,7 +10,6 @@ import os
 import subprocess
 from pathlib import Path
 
-
 class BiDirectionalSync:
     def __init__(self):
         self.mappings_path = Path(__file__).parent / "secret_mappings.json"
@@ -109,7 +108,6 @@ class BiDirectionalSync:
                     all_valid = False
 
         return all_valid
-
 
 if __name__ == "__main__":
     sync = BiDirectionalSync()

@@ -18,14 +18,12 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-
 class ServerTier(Enum):
     """Server priority tiers"""
 
     PRIMARY = "primary"
     SECONDARY = "secondary"
     TERTIARY = "tertiary"
-
 
 class LangGraphMCPOrchestrator:
     """Simplified but effective MCP server orchestration using LangGraph concepts"""
@@ -259,7 +257,6 @@ class LangGraphMCPOrchestrator:
             if capability in config.get("capabilities", []):
                 servers.append(server_name)
         return servers
-
 
 class SimpleOrchestrationGraph:
     """Simple orchestration workflow without LangGraph dependency"""

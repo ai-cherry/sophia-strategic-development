@@ -84,7 +84,6 @@ validation_rule_violations = Counter(
     ["rule_name", "severity"],
 )
 
-
 class AlertSeverity(str, Enum):
     """Alert severity levels."""
 
@@ -93,7 +92,6 @@ class AlertSeverity(str, Enum):
     MEDIUM = "medium"
     LOW = "low"
     INFO = "info"
-
 
 class AlertType(str, Enum):
     """Types of quality alerts."""
@@ -105,7 +103,6 @@ class AlertType(str, Enum):
     VALIDATION_FAILURE = "validation_failure"
     SYSTEM_ERROR = "system_error"
 
-
 class QualityDimension(str, Enum):
     """Data quality dimensions."""
 
@@ -114,7 +111,6 @@ class QualityDimension(str, Enum):
     TIMELINESS = "timeliness"
     CONSISTENCY = "consistency"
     VALIDITY = "validity"
-
 
 class DataQualityConfig(BaseSettings):
     """Configuration for data quality monitoring."""
@@ -147,7 +143,6 @@ class DataQualityConfig(BaseSettings):
         env_file = ".env"
         case_sensitive = True
 
-
 class QualityReport(BaseModel):
     """Comprehensive quality assessment report."""
 
@@ -160,7 +155,6 @@ class QualityReport(BaseModel):
     processing_metrics: ProcessingMetrics
     issues: list[QualityIssue] = Field(default_factory=list)
 
-
 class ValidationResult(BaseModel):
     """Individual validation rule result."""
 
@@ -172,7 +166,6 @@ class ValidationResult(BaseModel):
     expected_value: Any | None = None
     actual_value: Any | None = None
 
-
 class ProcessingMetrics(BaseModel):
     """Processing performance metrics."""
 
@@ -183,7 +176,6 @@ class ProcessingMetrics(BaseModel):
     api_calls_made: int = 0
     api_calls_failed: int = 0
 
-
 class QualityIssue(BaseModel):
     """Identified quality issue."""
 
@@ -192,7 +184,6 @@ class QualityIssue(BaseModel):
     description: str
     impact: str
     recommendation: str | None = None
-
 
 class EnhancementReport(BaseModel):
     """API enhancement tracking report."""
@@ -205,7 +196,6 @@ class EnhancementReport(BaseModel):
     enhancement_duration_ms: float
     failures: list[dict[str, Any]] = Field(default_factory=list)
 
-
 class CompletenessReport(BaseModel):
     """Data completeness assessment."""
 
@@ -217,7 +207,6 @@ class CompletenessReport(BaseModel):
     completeness_percentage: float = Field(ge=0.0, le=100.0)
     field_quality_scores: dict[str, float] = Field(default_factory=dict)
 
-
 class MappingReport(BaseModel):
     """Participant mapping accuracy report."""
 
@@ -227,7 +216,6 @@ class MappingReport(BaseModel):
     mapping_failures: list[dict[str, Any]] = Field(default_factory=list)
     accuracy_percentage: float = Field(ge=0.0, le=100.0)
     confidence_scores: dict[str, float] = Field(default_factory=dict)
-
 
 class GongDataQualityMonitor:
     """
@@ -1131,7 +1119,6 @@ class GongDataQualityMonitor:
             "missing_fields": missing_fields,
         }
 
-
 class QualityRuleEngine:
     """
     Configurable data quality validation rules.
@@ -1423,7 +1410,6 @@ class QualityRuleEngine:
         return ValidationResult(
             rule_name="metadata_completeness", passed=True, severity=AlertSeverity.LOW
         )
-
 
 class QualityMetricsCollector:
     """

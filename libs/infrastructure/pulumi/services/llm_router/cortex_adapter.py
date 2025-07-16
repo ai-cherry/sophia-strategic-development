@@ -9,15 +9,11 @@ from collections.abc import AsyncGenerator
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-
-
-
 from backend.core.auto_esc_config import get_config_value
 from shared.utils.custom_logger import logger
 
 from .enums import TaskType
 from .metrics import llm_errors_total, llm_tokens_total
-
 
 class CortexAdapter:
     """

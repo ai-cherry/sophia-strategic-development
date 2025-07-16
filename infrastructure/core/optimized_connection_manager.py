@@ -64,17 +64,10 @@ except ImportError:
 from backend.core.auto_esc_config import get_config_value
 from core.performance_monitor import performance_monitor
 
-
-
-
-
 # Try to import optional dependencies
 try:
-    
 
-    
 except ImportError:
-    
 
     # Create placeholder for qdrant.connector
     class MockQdrantConnector:
@@ -99,7 +92,6 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-
 class ConnectionType(str, Enum):
     """Supported connection types"""
 
@@ -108,7 +100,6 @@ class ConnectionType(str, Enum):
     MYSQL = "mysql"
     REDIS = "redis"
 
-
 class ConnectionStatus(str, Enum):
     """Connection health status"""
 
@@ -116,7 +107,6 @@ class ConnectionStatus(str, Enum):
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
     CIRCUIT_OPEN = "circuit_open"
-
 
 @dataclass
 class ConnectionStats:
@@ -135,7 +125,6 @@ class ConnectionStats:
     last_health_check: datetime | None = None
     uptime_seconds: float = 0.0
 
-
 @dataclass
 class BatchQuery:
     """Batch query structure for N+1 elimination"""
@@ -143,7 +132,6 @@ class BatchQuery:
     query: str
     params: tuple | dict | None = None
     query_id: str | None = None
-
 
 @dataclass
 class BatchResult:
@@ -154,7 +142,6 @@ class BatchResult:
     result: Any | None = None
     error: str | None = None
     execution_time_ms: float = 0.0
-
 
 class CircuitBreaker:
     """Circuit breaker for connection resilience"""
@@ -193,7 +180,6 @@ class CircuitBreaker:
             logger.warning(
                 f"Circuit breaker opened after {self.failure_count} failures"
             )
-
 
 class OptimizedConnectionPool:
     """High-performance connection pool with intelligent management"""
@@ -289,7 +275,6 @@ class OptimizedConnectionPool:
             return None
 
     async def _create_QDRANT_serviceection(self):
-
 
         # Get secure connection parameters using lazy initialization
 
@@ -536,7 +521,6 @@ class OptimizedConnectionPool:
                 else None
             ),
         }
-
 
 class OptimizedConnectionManager:
     """
@@ -845,26 +829,21 @@ class OptimizedConnectionManager:
             },
         }
 
-
 # Global connection manager instance
 connection_manager = OptimizedConnectionManager()
-
 
 # Convenience functions for backward compatibility
 async def get_connection():
     """Get connection from global connection manager"""
     return connection_manager.get_connection()
 
-
 async def execute_query(query: str, params: tuple | None = None):
     """Execute query using global connection manager"""
     return await connection_manager.execute_query(query, params)
 
-
 async def execute_batch_queries(queries: list):
     """Execute batch queries using global connection manager"""
     return await connection_manager.execute_batch_queries(queries)
-
 
 async def get_health_status():
     """Get health status from global connection manager"""

@@ -21,7 +21,6 @@ from .sales_intelligence_agent_utils import SalesIntelligenceUtils
 
 logger = logging.getLogger(__name__)
 
-
 class DealRiskHandler:
     """Handler for deal risk assessment operations"""
 
@@ -140,7 +139,6 @@ class DealRiskHandler:
         # Implementation would generate actions
         return ["Action placeholder"]
 
-
 class EmailGenerationHandler:
     """Handler for sales email generation operations"""
 
@@ -219,7 +217,6 @@ class EmailGenerationHandler:
         # Implementation would generate subject lines
         return ["Subject line placeholder"]
 
-
 class CompetitorAnalysisHandler:
     """Handler for competitor analysis operations"""
 
@@ -247,7 +244,6 @@ class CompetitorAnalysisHandler:
         except Exception as e:
             logger.exception(f"Error getting competitor talking points: {e}")
             return None
-
 
 class PipelineAnalysisHandler:
     """Handler for pipeline analysis operations"""

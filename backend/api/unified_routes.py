@@ -40,7 +40,6 @@ project_service = ProjectManagementService()
 
 router = APIRouter(prefix="/api/v3", tags=["Enhanced Unified Chat"])
 
-
 class EcosystemQueryRequest(BaseModel):
     """Request model for ecosystem queries"""
 
@@ -59,7 +58,6 @@ class EcosystemQueryRequest(BaseModel):
     include_project_health: bool = Field(
         default=True, description="Include project health assessment"
     )
-
 
 class EcosystemQueryResponse(BaseModel):
     """Response model for ecosystem queries"""
@@ -89,7 +87,6 @@ class EcosystemQueryResponse(BaseModel):
     complexity_level: str
     requires_cross_system_analysis: bool
 
-
 class ProjectHealthRequest(BaseModel):
     """Request model for project health assessment"""
 
@@ -111,7 +108,6 @@ class ProjectHealthRequest(BaseModel):
     time_range_days: int = Field(
         default=30, description="Time range for analysis in days"
     )
-
 
 @router.post("/chat/ecosystem", response_model=EcosystemQueryResponse)
 async def process_ecosystem_query(request: EcosystemQueryRequest):
@@ -143,7 +139,6 @@ async def process_ecosystem_query(request: EcosystemQueryRequest):
         raise HTTPException(
             status_code=500, detail=f"Ecosystem query processing failed: {e!s}"
         )
-
 
 @router.post("/chat/ecosystem/stream")
 async def stream_ecosystem_query(request: EcosystemQueryRequest):
@@ -178,7 +173,6 @@ async def stream_ecosystem_query(request: EcosystemQueryRequest):
         },
     )
 
-
 @router.get("/ecosystem/status")
 async def get_ecosystem_status():
     """
@@ -203,7 +197,6 @@ async def get_ecosystem_status():
         raise HTTPException(
             status_code=500, detail=f"Failed to get ecosystem status: {e!s}"
         )
-
 
 @router.post("/project/health/comprehensive")
 async def get_comprehensive_project_health(request: ProjectHealthRequest):
@@ -285,7 +278,6 @@ async def get_comprehensive_project_health(request: ProjectHealthRequest):
             detail=f"Failed to assess comprehensive project health: {e!s}",
         )
 
-
 @router.get("/gong/intelligence")
 async def get_gong_intelligence_integrated():
     """
@@ -332,7 +324,6 @@ async def get_gong_intelligence_integrated():
             status_code=500, detail=f"Failed to get Gong intelligence: {e!s}"
         )
 
-
 @router.get("/ecosystem/examples")
 async def get_ecosystem_query_examples():
     """
@@ -376,7 +367,6 @@ async def get_ecosystem_query_examples():
         "current_date": "July 9, 2025",
     }
 
-
 @router.post("/chat/natural-language")
 async def process_natural_language_query(
     query: str,
@@ -416,7 +406,6 @@ async def process_natural_language_query(
         logger.error(f"Natural language query error: {e}")
         raise HTTPException(status_code=500, detail=f"Query processing failed: {e!s}")
 
-
 @router.get("/health")
 async def health_check():
     """Health check endpoint with ecosystem status"""
@@ -453,7 +442,6 @@ async def health_check():
             "current_date": "July 9, 2025",
             "timestamp": datetime.now().isoformat(),
         }
-
 
 # Background task for ecosystem data refresh
 @router.post("/ecosystem/refresh")

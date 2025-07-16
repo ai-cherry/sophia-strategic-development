@@ -8,7 +8,6 @@ from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 
-
 class OKRService:
     """Service for managing Objectives and Key Results (OKRs)"""
     
@@ -74,7 +73,6 @@ class OKRService:
             "initialized": self.initialized,
             "version": "1.0.0"
         }
-
 
 # Create a global instance for easy import
 okr_service = OKRService() 

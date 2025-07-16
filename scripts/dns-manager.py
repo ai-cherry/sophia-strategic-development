@@ -17,7 +17,6 @@ from dataclasses import dataclass
 import requests
 from backend.core.auto_esc_config import get_config_value
 
-
 @dataclass
 class DNSRecord:
     """DNS record configuration"""
@@ -27,7 +26,6 @@ class DNSRecord:
     value: str
     ttl: int = 300
 
-
 @dataclass
 class IPContext:
     """IP context for API calls"""
@@ -36,7 +34,6 @@ class IPContext:
     ip_address: str
     confidence: int
     details: str
-
 
 class PulumiESCIntegration:
     """Integration with Pulumi ESC for configuration management"""
@@ -89,7 +86,6 @@ class PulumiESCIntegration:
 
         except subprocess.CalledProcessError:
             return None
-
 
 class IPContextDetector:
     """Detect execution context and determine appropriate IP"""
@@ -145,7 +141,6 @@ class IPContextDetector:
             get_config_value("KUBERNETES_SERVICE_HOST") is not None,
         ]
         return sum(indicators) >= 2
-
 
 class NamecheapDNSManager:
     """Namecheap DNS API management"""
@@ -289,7 +284,6 @@ class NamecheapDNSManager:
         filtered_records.append(new_record)
         return filtered_records
 
-
 class SophiaDNSManager:
     """Main DNS management class for Sophia Intelligence Platform"""
 
@@ -409,7 +403,6 @@ class SophiaDNSManager:
 
         return results
 
-
 async def main():
     """Main CLI interface"""
     parser = argparse.ArgumentParser(
@@ -437,7 +430,6 @@ async def main():
 
     except Exception:
         sys.exit(1)
-
 
 if __name__ == "__main__":
     asyncio.run(main())

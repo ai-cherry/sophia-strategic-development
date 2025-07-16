@@ -14,7 +14,6 @@ THRESHOLDS = {"jscpd_duplication": 5.0, "cyclic_imports": 0}
 reports = Path("reports")
 reports.mkdir(exist_ok=True)
 
-
 def run(cmd: str, outfile: Path, env: dict[str, str] | None = None) -> None:
     print(">>", cmd)
 
@@ -46,7 +45,6 @@ def run(cmd: str, outfile: Path, env: dict[str, str] | None = None) -> None:
             print(f"Command not found: {cmd}")
         except subprocess.CalledProcessError as exc:
             print(f"Command failed with code {exc.returncode}")
-
 
 # JSCPD duplication check - temporarily disabled
 run(

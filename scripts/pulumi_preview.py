@@ -15,7 +15,6 @@ from typing import Dict, List, Any, Tuple
 
 logger = logging.getLogger(__name__)
 
-
 class PulumiPreview:
     """Pulumi infrastructure preview and cost analysis"""
     
@@ -319,7 +318,6 @@ class PulumiPreview:
         
         return report
 
-
 def main():
     """Run Pulumi preview and generate report"""
     print("🔍 Pulumi Infrastructure Preview")
@@ -391,7 +389,6 @@ def main():
     print(f"Validation: {'✅ PASSED' if summary['validation_passed'] else '❌ FAILED'}")
     
     return 0 if summary["validation_passed"] else 1
-
 
 if __name__ == "__main__":
     sys.exit(main()) 

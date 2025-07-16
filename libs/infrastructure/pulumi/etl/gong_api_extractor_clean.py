@@ -20,7 +20,6 @@ import asyncpg
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class GongConfig:
     """Gong API configuration"""
@@ -30,7 +29,6 @@ class GongConfig:
     base_url: str = "https://api.gong.io"
     rate_limit_delay: float = 0.34  # 3 calls/second
     max_retries: int = 3
-
 
 class GongAPIExtractor:
     """Secure Gong API data extraction service"""
@@ -160,7 +158,6 @@ class GongAPIExtractor:
 
         logger.info(f"Extracted {len(entities)} CRM entities")
         return entities
-
 
 class PostgreSQLStaging:
     """PostgreSQL staging database manager"""
@@ -331,7 +328,6 @@ class PostgreSQLStaging:
         finally:
             await conn.close()
 
-
 async def main():
     """Main extraction pipeline"""
     pipeline_id = f"gong_extraction_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -364,7 +360,6 @@ async def main():
         logger.exception(f"Pipeline failed: {e}")
         await staging.update_pipeline_status(pipeline_id, "failed", 0, str(e))
         raise
-
 
 if __name__ == "__main__":
     asyncio.run(main())

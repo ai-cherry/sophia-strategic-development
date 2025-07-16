@@ -19,7 +19,6 @@ from mcp.types import Tool
 
 from backend.core.auto_esc_config import get_config_value
 
-
 class CodacyMCPServer(StandardizedMCPServer):
     """Codacy MCP Server using official SDK"""
 
@@ -403,12 +402,10 @@ class CodacyMCPServer(StandardizedMCPServer):
             self.logger.error(f"Error getting coverage report: {e}")
             raise
 
-
 async def main():
     """Main entry point"""
     server = CodacyMCPServer()
     await server.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

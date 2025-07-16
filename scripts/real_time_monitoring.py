@@ -13,7 +13,6 @@ from typing import Any
 
 import aiohttp
 
-
 class RealTimeMonitor:
     def __init__(self):
         self.services = {
@@ -249,12 +248,10 @@ class RealTimeMonitor:
         except Exception:
             self.running = False
 
-
 async def main():
     """Main function"""
     monitor = RealTimeMonitor()
     await monitor.run_monitoring()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

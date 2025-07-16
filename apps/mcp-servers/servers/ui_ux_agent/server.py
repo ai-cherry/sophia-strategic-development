@@ -17,7 +17,6 @@ from pydantic import Field
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class UIUXAgentServer:
     """MCP server for UI/UX design automation"""
 
@@ -118,7 +117,6 @@ export const {component_name}: React.FC<{component_name}Props> = (props) => {{
                 "performance_gain": "10%",
             }
 
-
 async def main():
     """Main entry point"""
     server_instance = UIUXAgentServer()
@@ -130,7 +128,6 @@ async def main():
             write_stream,
             server_instance.server.create_initialization_options(),
         )
-
 
 if __name__ == "__main__":
     asyncio.run(main())

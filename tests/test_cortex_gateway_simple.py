@@ -9,14 +9,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.infra.cortex_gateway import get_gateway
 
-
 def test_singleton_pattern():
     """Test that CortexGateway follows singleton pattern"""
     gateway1 = get_gateway()
     gateway2 = get_gateway()
     assert gateway1 is gateway2
     print("✅ Singleton pattern working correctly")
-
 
 def test_gateway_attributes():
     """Test that gateway has expected attributes"""
@@ -39,7 +37,6 @@ def test_gateway_attributes():
 
     print("✅ Gateway has all expected attributes")
 
-
 def test_gateway_methods():
     """Test that gateway has all required methods"""
     gateway = get_gateway()
@@ -61,7 +58,6 @@ def test_gateway_methods():
         assert callable(getattr(gateway, method))
 
     print("✅ Gateway has all required methods")
-
 
 if __name__ == "__main__":
     print("Testing CortexGateway...")

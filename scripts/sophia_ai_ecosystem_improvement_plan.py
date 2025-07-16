@@ -240,7 +240,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service, CodingMCPUnifiedMemoryService
 from backend.services.portkey_gateway import PortkeyGateway
 from backend.utils.logger import get_logger
 
@@ -270,7 +270,7 @@ class OrchestrationResult:
     confidence_score: float
     metadata: Dict[str, Any]
 
-class SophiaAIUnifiedOrchestrator:
+class CodingMCPOrchestrator:
     """
     Unified orchestrator consolidating all previous versions
     
@@ -282,7 +282,7 @@ class SophiaAIUnifiedOrchestrator:
     """
     
     def __init__(self):
-        self.memory_service = SophiaUnifiedMemoryService()
+        self.memory_service = CodingMCPUnifiedMemoryService()
         self.portkey = PortkeyGateway()
         
         # Routing configuration
@@ -587,13 +587,13 @@ class SophiaAIUnifiedOrchestrator:
                         content = f.read()
                     
                     deprecation_notice = f'''"""
-DEPRECATED: This orchestrator has been consolidated into SophiaAIUnifiedOrchestrator
-Please use: from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+DEPRECATED: This orchestrator has been consolidated into CodingMCPOrchestrator
+Please use: from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator
 Date deprecated: {datetime.now().strftime('%Y-%m-%d')}
 """
 
 # Redirect to new unified orchestrator
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator
 
 # Backward compatibility
 {content}
@@ -645,7 +645,7 @@ from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 
 # Import V3 as base implementation
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryServiceV3
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service, CodingMCPUnifiedMemoryServiceV3
 
 logger = get_logger(__name__)
 
@@ -715,7 +715,7 @@ Unified Memory Service - Main Entry Point
 Redirects to primary implementation
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service, CodingMCPUnifiedMemoryService
 
 # Export primary service
 __all__ = ['UnifiedMemoryService']
@@ -1042,12 +1042,12 @@ if __name__ == "__main__":
             # Common import conflict patterns
             import_fixes = [
                 {
-                    "pattern": "from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService",
-                    "replacement": "from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService"
+                    "pattern": "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service, CodingMCPUnifiedMemoryService",
+                    "replacement": "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service, CodingMCPUnifiedMemoryService"
                 },
                 {
-                    "pattern": "from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator",
-                    "replacement": "from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator"
+                    "pattern": "from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator",
+                    "replacement": "from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator"
                 }
             ]
             

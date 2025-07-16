@@ -12,7 +12,6 @@ from datetime import datetime
 
 from locust import HttpUser, task, between, events
 
-
 class SophiaAIUser(HttpUser):
     """Simulated user for Sophia AI platform"""
     
@@ -137,7 +136,6 @@ class SophiaAIUser(HttpUser):
         
         self.client.post("/api/v4/batch/ingest", json=payload)
 
-
 class AdminUser(HttpUser):
     """Admin user for monitoring endpoints"""
     
@@ -153,7 +151,6 @@ class AdminUser(HttpUser):
         """Get performance report"""
         self.client.get("/api/v4/admin/performance")
 
-
 # Custom event handlers for detailed reporting
 @events.request.add_listener
 def on_request(request_type, name, response_time, response_length, response, **kwargs):
@@ -161,14 +158,12 @@ def on_request(request_type, name, response_time, response_length, response, **k
     if response_time > 150:
         print(f"⚠️  Slow request: {name} took {response_time}ms")
 
-
 @events.test_start.add_listener
 def on_test_start(environment, **kwargs):
     """Initialize test"""
     print("🚀 Starting Sophia AI load test")
     print("Target: 2000 QPS, <0.5% errors, <150ms P95")
     print("=" * 50)
-
 
 @events.test_stop.add_listener
 def on_test_stop(environment, **kwargs):
@@ -219,7 +214,6 @@ def on_test_stop(environment, **kwargs):
             json.dump(report, f, indent=2)
         
         print("\nDetailed results saved to: PHASE_4_LOAD_TEST_RESULTS.json")
-
 
 # Configuration for running standalone
 if __name__ == "__main__":

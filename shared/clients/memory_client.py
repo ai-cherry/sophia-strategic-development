@@ -13,14 +13,12 @@ import aiohttp
 
 logger = logging.getLogger(__name__)
 
-
 class MemoryType(str, Enum):
     CHAT = "chat"
     EVENT = "event"
     INSIGHT = "insight"
     CONTEXT = "context"
     DECISION = "decision"
-
 
 class MemoryClient:
     """
@@ -291,7 +289,6 @@ class MemoryClient:
             logger.exception(f"Error getting stats: {e}")
             return {}
 
-
 # Convenience functions for quick operations
 async def store_event(
     source: str, event_type: str, content: dict[str, Any], severity: str = "info"
@@ -307,7 +304,6 @@ async def store_event(
                 **content,
             },
         )
-
 
 async def store_insight(
     category: str,
@@ -326,7 +322,6 @@ async def store_insight(
                 "recommendations": recommendations or [],
             },
         )
-
 
 async def store_chat(
     user_id: str,

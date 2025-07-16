@@ -45,7 +45,6 @@ logging.basicConfig(
 # Create audit logger
 audit_logger = logging.getLogger("sophia.audit")
 
-
 class AuditEventType(Enum):
     """Audit event types for categorization and filtering"""
 
@@ -89,7 +88,6 @@ class AuditEventType(Enum):
     # Custom events
     CUSTOM = "custom"
 
-
 class AuditLogLevel(Enum):
     """Audit log severity levels"""
 
@@ -98,7 +96,6 @@ class AuditLogLevel(Enum):
     WARNING = "WARNING"
     ERROR = "ERROR"
     CRITICAL = "CRITICAL"
-
 
 class SensitiveDataType(Enum):
     """Types of sensitive data for redaction"""
@@ -113,10 +110,8 @@ class SensitiveDataType(Enum):
     ADDRESS = "ADDRESS"
     CUSTOM = "CUSTOM"
 
-
 # Thread-local storage for request context
 _thread_local = threading.local()
-
 
 class AuditLogger:
     """
@@ -573,7 +568,6 @@ from backend.core.auto_esc_config import get_config_value
 
         return decorator
 
-
 # Create default audit logger instance
 default_audit_logger = AuditLogger(
     app_name="sophia",
@@ -584,7 +578,6 @@ default_audit_logger = AuditLogger(
     enable_sentry=False,
     redact_sensitive_data=True,
 )
-
 
 # Convenience functions using the default audit logger
 def set_request_context(
@@ -600,16 +593,13 @@ def set_request_context(
         user_id, session_id, request_id, ip_address, user_agent, additional_context
     )
 
-
 def clear_request_context():
     """Clear the request context for the current thread"""
     default_audit_logger.clear_request_context()
 
-
 def get_request_context() -> dict[str, Any]:
     """Get the current request context"""
     return default_audit_logger.get_request_context()
-
 
 def log(
     event_type: AuditEventType,
@@ -620,7 +610,6 @@ def log(
     """Log an audit event"""
     default_audit_logger.log(event_type, message, level, details)
 
-
 def debug(
     event_type: AuditEventType,
     message: str,
@@ -628,7 +617,6 @@ def debug(
 ):
     """Log a DEBUG level audit event"""
     default_audit_logger.debug(event_type, message, details)
-
 
 def info(
     event_type: AuditEventType,
@@ -638,7 +626,6 @@ def info(
     """Log an INFO level audit event"""
     default_audit_logger.info(event_type, message, details)
 
-
 def warning(
     event_type: AuditEventType,
     message: str,
@@ -646,7 +633,6 @@ def warning(
 ):
     """Log a WARNING level audit event"""
     default_audit_logger.warning(event_type, message, details)
-
 
 def error(
     event_type: AuditEventType,
@@ -657,7 +643,6 @@ def error(
     """Log an ERROR level audit event"""
     default_audit_logger.error(event_type, message, details, exc_info)
 
-
 def critical(
     event_type: AuditEventType,
     message: str,
@@ -666,7 +651,6 @@ def critical(
 ):
     """Log a CRITICAL level audit event"""
     default_audit_logger.critical(event_type, message, details, exc_info)
-
 
 def audit_decorator(
     event_type: AuditEventType,
@@ -679,7 +663,6 @@ def audit_decorator(
     return default_audit_logger.audit_decorator(
         event_type, level, include_args, include_result, message_template
     )
-
 
 # Configure default audit logger based on environment variables
 def configure_from_env():
@@ -712,7 +695,6 @@ def configure_from_env():
         sentry_dsn=sentry_dsn,
         redact_sensitive_data=redact_sensitive_data,
     )
-
 
 # Configure from environment if running as main module
 if __name__ == "__main__":

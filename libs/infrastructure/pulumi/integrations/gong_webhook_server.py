@@ -5,7 +5,6 @@ This server processes Gong webhooks, enhances data via API calls, stores in Qdra
 and notifies Sophia agents via Redis pub/sub.
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from __future__ import annotations
 
 import asyncio
@@ -67,7 +66,6 @@ active_background_tasks = Gauge(
     "active_background_tasks", "Number of active background tasks"
 )
 
-
 class WebhookServerConfig(BaseSettings):
     """Configuration for the Gong webhook server."""
 
@@ -86,12 +84,6 @@ class WebhookServerConfig(BaseSettings):
     GONG_API_BURST_LIMIT: int = 10
 
     # Database settings
-    
-    
-    
-    
-    
-    
 
     # Redis settings
     REDIS_URL: str = Field(default="redis://localhost:6379", env="REDIS_URL")
@@ -106,10 +98,8 @@ class WebhookServerConfig(BaseSettings):
         env_file = ".env"
         case_sensitive = True
 
-
 # Global configuration instance for lazy initialization
 _server_config: WebhookServerConfig | None = None
-
 
 def get_server_config() -> WebhookServerConfig:
     """Get the global server configuration instance with lazy initialization"""
@@ -117,7 +107,6 @@ def get_server_config() -> WebhookServerConfig:
     if _server_config is None:
         _server_config = WebhookServerConfig()
     return _server_config
-
 
 # Pydantic models for webhook data
 class GongWebhookBase(BaseModel):
@@ -129,7 +118,6 @@ class GongWebhookBase(BaseModel):
     object_id: str
     object_type: str
 
-
 class GongCallWebhook(GongWebhookBase):
     """Model for Gong call webhooks."""
 
@@ -138,7 +126,6 @@ class GongCallWebhook(GongWebhookBase):
     duration: int
     participants: list[dict[str, Any]]
     recording_url: str | None = None
-
 
 class GongEmailWebhook(GongWebhookBase):
     """Model for Gong email webhooks."""
@@ -149,7 +136,6 @@ class GongEmailWebhook(GongWebhookBase):
     recipients: list[str]
     sent_time: datetime
 
-
 class GongMeetingWebhook(GongWebhookBase):
     """Model for Gong meeting webhooks."""
 
@@ -159,12 +145,10 @@ class GongMeetingWebhook(GongWebhookBase):
     end_time: datetime
     attendees: list[dict[str, Any]]
 
-
 class WebhookVerificationError(Exception):
     """Exception raised when webhook verification fails."""
 
     pass
-
 
 class ValidationResult(BaseModel):
     """Result of data validation."""
@@ -173,7 +157,6 @@ class ValidationResult(BaseModel):
     quality_score: float
     issues: list[str]
 
-
 class ProcessingResult(BaseModel):
     """Result of webhook processing."""
 
@@ -181,7 +164,6 @@ class ProcessingResult(BaseModel):
     status: str
     processing_time: float
     error: str | None = None
-
 
 # JWT Webhook Verification
 class GongWebhookVerifier:
@@ -250,7 +232,6 @@ class GongWebhookVerifier:
             self.logger.exception("Webhook verification failed", error=str(e))
             raise WebhookVerificationError(f"Verification failed: {e!s}")
 
-
 # Rate Limiter
 class AsyncRateLimiter:
     """Async rate limiter with burst support."""
@@ -300,7 +281,6 @@ class AsyncRateLimiter:
     logger = logging.getLogger(__name__)
     logger.warning(f"__aexit__ not yet implemented")
 
-
 # Retry Manager
 class RetryManager:
     """Manages retry logic with different policies."""
@@ -333,7 +313,6 @@ class RetryManager:
                     next_retry_in=delay,
                 )
                 await asyncio.sleep(delay)
-
 
 # Data Validator
 class DataValidator:
@@ -370,7 +349,6 @@ class DataValidator:
             is_valid=len(issues) == 0, quality_score=quality_score, issues=issues
         )
 
-
 # Initialize FastAPI app
 app = FastAPI(
     title="Gong Webhook Server",
@@ -387,7 +365,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Middleware for request tracking
 @app.middleware("http")
 async def add_request_id(request: Request, call_next):
@@ -401,7 +378,6 @@ async def add_request_id(request: Request, call_next):
     response.headers["X-Request-ID"] = request_id
 
     return response
-
 
 # Middleware for request logging
 @app.middleware("http")
@@ -431,7 +407,6 @@ async def log_requests(request: Request, call_next):
 
     return response
 
-
 # Initialize components
 # webhook_verifier will be initialized lazily
 # rate_limiter will be initialized lazily
@@ -441,7 +416,6 @@ async def log_requests(request: Request, call_next):
 # Initialize webhook processor
 # webhook_processor will be initialized lazily
 
-
 # Lazy initialization for components
 _webhook_verifier: GongWebhookVerifier | None = None
 _rate_limiter: AsyncRateLimiter | None = None
@@ -449,14 +423,12 @@ _retry_manager: RetryManager | None = None
 _data_validator: DataValidator | None = None
 _webhook_processor: WebhookProcessor | None = None
 
-
 def get_webhook_verifier() -> GongWebhookVerifier:
     global _webhook_verifier
     if _webhook_verifier is None:
         config = get_server_config()
         _webhook_verifier = GongWebhookVerifier(config.GONG_WEBHOOK_SECRETS)
     return _webhook_verifier
-
 
 def get_rate_limiter() -> AsyncRateLimiter:
     global _rate_limiter
@@ -467,20 +439,17 @@ def get_rate_limiter() -> AsyncRateLimiter:
         )
     return _rate_limiter
 
-
 def get_retry_manager() -> RetryManager:
     global _retry_manager
     if _retry_manager is None:
         _retry_manager = RetryManager()
     return _retry_manager
 
-
 def get_data_validator() -> DataValidator:
     global _data_validator
     if _data_validator is None:
         _data_validator = DataValidator()
     return _data_validator
-
 
 def get_webhook_processor() -> WebhookProcessor:
     global _webhook_processor
@@ -499,7 +468,6 @@ def get_webhook_processor() -> WebhookProcessor:
             redis_url=config.REDIS_URL,
         )
     return _webhook_processor
-
 
 # Health check endpoint
 @app.get("/health")
@@ -524,7 +492,6 @@ async def health_check():
 async def metrics():
     """Prometheus metrics endpoint."""
     return Response(content=generate_latest(), media_type="text/plain")
-
 
 # Webhook endpoints
 @app.post("/webhook/gong/calls")
@@ -582,7 +549,6 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
                 detail="Internal server error",
             )
 
-
 async def process_call_webhook_background(
     webhook_id: str, webhook_data: dict[str, Any]
 ):
@@ -592,7 +558,6 @@ async def process_call_webhook_background(
             webhook_id, webhook_data
         )
 
-
 async def process_call_webhook_background(
     webhook_id: str, webhook_data: dict[str, Any]
 ):
@@ -600,7 +565,6 @@ async def process_call_webhook_background(
     processor = get_webhook_processor()
     async with processor:
         await processor.process_call_webhook(webhook_id, webhook_data)
-
 
 if __name__ == "__main__":
     import uvicorn

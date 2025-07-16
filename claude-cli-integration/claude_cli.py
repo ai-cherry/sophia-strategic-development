@@ -20,7 +20,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class ClaudeMCPIntegration:
     """Claude CLI with latest models and MCP server integration for Sophia AI"""
 
@@ -337,7 +336,6 @@ Always provide practical, actionable responses that leverage the available MCP c
 
             await self.claude_enhanced_query(query)
 
-
 async def main_async():
     """Async main entry point for Claude CLI"""
     parser = argparse.ArgumentParser(description="Enhanced Claude CLI for Sophia AI")
@@ -389,11 +387,9 @@ async def main_async():
     finally:
         await claude_mcp.close_session()
 
-
 def main():
     """Main entry point for Claude CLI"""
     asyncio.run(main_async())
-
 
 if __name__ == "__main__":
     main()

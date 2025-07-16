@@ -412,7 +412,6 @@ class SophiaVerifier:
         
         return all_critical_passed
 
-
 if __name__ == "__main__":
     verifier = SophiaVerifier()
     success = verifier.run_verification()

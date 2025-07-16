@@ -19,7 +19,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class InstanceType(Enum):
     """Lambda Labs GPU instance types"""
 
@@ -29,14 +28,12 @@ class InstanceType(Enum):
     GPU_1X_A100 = "gpu_1x_a100"
     GPU_1X_A10 = "gpu_1x_a10"
 
-
 class Region(Enum):
     """Lambda Labs regions"""
 
     US_SOUTH_1 = "us-south-1"
     US_EAST_3 = "us-east-3"
     US_WEST_1 = "us-west-1"
-
 
 @dataclass
 class LambdaInstance:
@@ -49,7 +46,6 @@ class LambdaInstance:
     ssh_login: str
     status: Optional[str] = None
     id: Optional[str] = None
-
 
 class LambdaLabsClient:
     """Unified client for Lambda Labs operations"""
@@ -345,10 +341,8 @@ class LambdaLabsClient:
 
         return status
 
-
 # Singleton instance
 _client = None
-
 
 def get_lambda_labs_client() -> LambdaLabsClient:
     """Get or create Lambda Labs client singleton"""

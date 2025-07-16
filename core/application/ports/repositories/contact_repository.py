@@ -9,7 +9,6 @@ from abc import ABC, abstractmethod
 
 from domain.entities.contact import Contact, ContactType, EngagementLevel
 
-
 class ContactRepository(ABC):
     """
     Abstract repository interface for Contact entities.

@@ -18,7 +18,6 @@ from .config_schema import CacheConfig
 from .enums import TaskComplexity, TaskType
 from .metrics import llm_cache_hit_rate, llm_cache_operations
 
-
 class SemanticCache:
     """
     Semantic cache implementation with Redis backend

@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "target_domain": "api.sophia-intel.ai",
+  "infrastructure": {
+    "primary_instance": "192.222.58.232",
+    "production_instance": "104.171.202.103",
+    "mcp_orchestrator": "104.171.202.117",
+    "data_pipeline": "104.171.202.134",
+    "development": "155.248.194.183"
+  },
+  "services": {
+    "backend_api": {
+      "port": 8000,
+      "health_endpoint": "/health",
+      "environment": "prod"
+    },
+    "mcp_orchestrator": {
+      "port": 8001,
+      "health_endpoint": "/health"
+    }
+  }
+}

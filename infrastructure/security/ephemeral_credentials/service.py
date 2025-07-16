@@ -34,7 +34,6 @@ from infrastructure.security.secret_management import SecretManager
 
 logger = logging.getLogger(__name__)
 
-
 class EphemeralCredentialsService:
     """
     Service for managing ephemeral credentials.

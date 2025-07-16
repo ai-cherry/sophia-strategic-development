@@ -10,7 +10,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,6 @@ router = APIRouter(prefix="/api/v1/entity-resolution", tags=["Entity Resolution"
 # ========================================================================================
 # REQUEST/RESPONSE MODELS
 # ========================================================================================
-
 
 class EntityResolutionRequest(BaseModel):
     """Request model for entity resolution"""
@@ -31,7 +30,6 @@ class EntityResolutionRequest(BaseModel):
     session_id: str = Field(..., description="Session identifier")
     entity_type: Optional[str] = Field(None, description="Optional entity type filter")
 
-
 class EntityClarificationRequest(BaseModel):
     """Request model for entity clarification response"""
 
@@ -40,7 +38,6 @@ class EntityClarificationRequest(BaseModel):
     user_query: str = Field(..., description="Original user query")
     user_id: str = Field(..., description="User identifier")
     session_id: str = Field(..., description="Session identifier")
-
 
 class EntityRegistrationRequest(BaseModel):
     """Request model for registering new entities"""
@@ -55,7 +52,6 @@ class EntityRegistrationRequest(BaseModel):
         None, description="Additional entity metadata"
     )
 
-
 class EntityCandidateModel(BaseModel):
     """Model for entity candidates"""
 
@@ -64,7 +60,6 @@ class EntityCandidateModel(BaseModel):
     similarity_score: float
     match_reason: str
     aliases: list[str]
-
 
 class EntityResolutionResponse(BaseModel):
     """Response model for entity resolution"""
@@ -84,7 +79,6 @@ class EntityResolutionResponse(BaseModel):
     )
     event_id: Optional[str] = Field(None, description="Event ID for tracking")
 
-
 # ========================================================================================
 # ENTITY RESOLUTION SERVICE INSTANCE
 # ========================================================================================
@@ -94,7 +88,6 @@ chat_service = SophiaUnifiedOrchestrator()
 # ========================================================================================
 # API ENDPOINTS
 # ========================================================================================
-
 
 @router.post("/resolve", response_model=EntityResolutionResponse)
 async def resolve_entities(request: EntityResolutionRequest):
@@ -140,7 +133,6 @@ async def resolve_entities(request: EntityResolutionRequest):
         logger.error(f"Entity resolution failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post("/clarify")
 async def clarify_entity_selection(request: EntityClarificationRequest):
     """
@@ -174,7 +166,6 @@ async def clarify_entity_selection(request: EntityClarificationRequest):
         logger.error(f"Entity clarification failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post("/register")
 async def register_new_entity(request: EntityRegistrationRequest):
     """
@@ -203,7 +194,6 @@ async def register_new_entity(request: EntityRegistrationRequest):
         logger.error(f"Entity registration failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/analytics")
 async def get_entity_resolution_analytics(user_id: str):
     """
@@ -225,7 +215,6 @@ async def get_entity_resolution_analytics(user_id: str):
     except Exception as e:
         logger.error(f"Failed to get analytics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/entities/search")
 async def search_entities(
@@ -267,7 +256,6 @@ async def search_entities(
     except Exception as e:
         logger.error(f"Entity search failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/entities/{entity_id}")
 async def get_entity_details(entity_id: str):
@@ -340,7 +328,6 @@ async def get_entity_details(entity_id: str):
         logger.error(f"Failed to get entity details: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/health")
 async def entity_resolution_health():
     """
@@ -373,7 +360,6 @@ async def entity_resolution_health():
         logger.error(f"Entity resolution health check failed: {e}")
         return {"status": "error", "message": str(e)}
 
-
 @router.post("/bulk-populate")
 async def bulk_populate_entities(background_tasks: BackgroundTasks):
     """
@@ -403,11 +389,9 @@ async def bulk_populate_entities(background_tasks: BackgroundTasks):
         logger.error(f"Failed to start entity population: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 # ========================================================================================
 # BACKGROUND TASKS
 # ========================================================================================
-
 
 async def _populate_entities_background():
     """Background task to populate entities from data sources"""
@@ -434,11 +418,9 @@ async def _populate_entities_background():
     except Exception as e:
         logger.error(f"Background entity population failed: {e}")
 
-
 # ========================================================================================
 # UTILITY FUNCTIONS
 # ========================================================================================
-
 
 def generate_clarification_options(
     entity_matches: dict[str, Any],

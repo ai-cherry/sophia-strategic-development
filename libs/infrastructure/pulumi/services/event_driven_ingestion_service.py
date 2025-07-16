@@ -7,7 +7,6 @@ Extends the existing EnhancedIngestionService with event-driven orchestration,
 building on Phase 2 polyglot MCP ecosystem for enterprise-grade performance.
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import asyncio
 import json
 import logging
@@ -28,7 +27,6 @@ from infrastructure.services.enhanced_ingestion_service import (
 
 logger = logging.getLogger(__name__)
 
-
 class EventType(str, Enum):
     """Event types for ingestion orchestration"""
 
@@ -43,7 +41,6 @@ class EventType(str, Enum):
     PROGRESS_UPDATE = "progress.update"
     INGESTION_COMPLETED = "ingestion.completed"
     INGESTION_FAILED = "ingestion.failed"
-
 
 @dataclass
 class IngestionEvent:
@@ -81,7 +78,6 @@ class IngestionEvent:
             payload=data["payload"],
             metadata=data.get("metadata", {}),
         )
-
 
 class IngestionEventBus:
     """Event bus for ingestion orchestration using Redis as message broker"""
@@ -187,7 +183,6 @@ class IngestionEventBus:
             return event_type.startswith(pattern[:-1])
         return pattern == event_type
 
-
 class EventDrivenIngestionService(EnhancedIngestionService):
     """
     Event-driven ingestion service extending EnhancedIngestionService
@@ -196,7 +191,6 @@ class EventDrivenIngestionService(EnhancedIngestionService):
 
     def __init__(self, 
         # Initialize parent class
-
 
         # Event-driven components
         self.event_bus = IngestionEventBus()
@@ -323,16 +317,13 @@ class EventDrivenIngestionService(EnhancedIngestionService):
         except Exception as e:
             logger.exception(f"❌ Error during shutdown: {e}")
 
-
 # Convenience functions for integration
-
 
 async def create_event_driven_ingestion_service() -> EventDrivenIngestionService:
     """Create and initialize event-driven ingestion service"""
     service = EventDrivenIngestionService()
     await service.initialize()
     return service
-
 
 if __name__ == "__main__":
     # Test the event-driven ingestion service

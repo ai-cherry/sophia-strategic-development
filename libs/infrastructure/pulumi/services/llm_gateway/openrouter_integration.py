@@ -14,7 +14,6 @@ from shared.utils.custom_logger import setup_logger
 
 logger = setup_logger("openrouter_integration")
 
-
 class OpenRouterIntegration:
     """
     OpenRouter integration for accessing 200+ models

@@ -35,14 +35,12 @@ from config.infrastructure import InfrastructureConfig, ServiceType
 
 logger = logging.getLogger(__name__)
 
-
 class ServiceStatus(Enum):
     """Service health status enumeration."""
     HEALTHY = "healthy"
     UNHEALTHY = "unhealthy"
     UNKNOWN = "unknown"
     DEGRADED = "degraded"
-
 
 @dataclass
 class ServiceEndpoint:
@@ -84,7 +82,6 @@ class ServiceEndpoint:
         self.last_failure = datetime.now()
         self.last_check = datetime.now()
         self.metadata['last_error'] = error
-
 
 class ServiceDiscovery:
     """
@@ -451,10 +448,8 @@ class ServiceDiscovery:
             'average_response_time': sum(s.response_time for s in self.services.values() if s.response_time > 0) / max(1, len([s for s in self.services.values() if s.response_time > 0]))
         }
 
-
 # Global service discovery instance
 _service_discovery_instance: Optional[ServiceDiscovery] = None
-
 
 async def get_service_discovery() -> ServiceDiscovery:
     """

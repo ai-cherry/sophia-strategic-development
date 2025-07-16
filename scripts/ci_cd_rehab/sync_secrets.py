@@ -35,7 +35,6 @@ structlog.configure(
 
 logger = structlog.get_logger(__name__)
 
-
 class SecretSynchronizer:
     """Synchronize secrets from GitHub to Pulumi ESC"""
 
@@ -211,7 +210,6 @@ class SecretSynchronizer:
             failed=report["summary"]["failed"],
         )
 
-
 def validate_environment():
     """Validate required environment variables"""
     required = ["PULUMI_ACCESS_TOKEN"]
@@ -222,7 +220,6 @@ def validate_environment():
         return False
 
     return True
-
 
 def main():
     """Main entry point"""
@@ -308,7 +305,6 @@ def main():
         sys.exit(1)
 
     logger.info("Secret sync completed successfully")
-
 
 if __name__ == "__main__":
     main()

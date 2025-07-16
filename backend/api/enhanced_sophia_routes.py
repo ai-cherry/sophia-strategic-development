@@ -10,8 +10,7 @@ import json
 
 from backend.services.enhanced_unified_chat_service import EnhancedSophiaUnifiedOrchestrator
 from backend.services.external_knowledge_service import ExternalKnowledgeService
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
-
+from backend.services.coding_mcp_unified_memory_service import CodingMCPUnifiedMemoryService
 
 router = APIRouter(prefix="/api/v4/sophia", tags=["Enhanced Sophia"])
 
@@ -19,8 +18,7 @@ router = APIRouter(prefix="/api/v4/sophia", tags=["Enhanced Sophia"])
 chat_service = EnhancedSophiaUnifiedOrchestrator()
 external_service = ExternalKnowledgeService()
 orchestrator = SophiaUnifiedOrchestrator()
-memory_service = SophiaUnifiedMemoryService()
-
+memory_service = CodingMCPUnifiedMemoryService()
 
 # Request/Response Models
 class ChatRequest(BaseModel):
@@ -32,7 +30,6 @@ class ChatRequest(BaseModel):
     )
     enrich_external: bool = Field(False, description="Enrich with external knowledge")
 
-
 class PersonalityRequest(BaseModel):
     user_id: str = Field("ceo_user")
     personality: Optional[str] = Field(None, description="Set personality")
@@ -40,12 +37,10 @@ class PersonalityRequest(BaseModel):
         None, ge=0, le=10, description="Snark level 0-10"
     )
 
-
 class ExternalEnrichRequest(BaseModel):
     query: str
     sources: List[str] = Field(["x", "news"], description="External sources to use")
     store_results: bool = Field(True, description="Store in knowledge base")
-
 
 @router.post("/chat", response_model=Dict[str, Any])
 async def enhanced_chat(request: ChatRequest):
@@ -85,7 +80,6 @@ async def enhanced_chat(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
 
-
 @router.get("/personality/info")
 async def get_personality_info(user_id: str = Query("ceo_user")):
     """
@@ -99,7 +93,6 @@ async def get_personality_info(user_id: str = Query("ceo_user")):
         raise HTTPException(
             status_code=500, detail=f"Failed to get personality info: {str(e)}"
         )
-
 
 @router.post("/personality/configure")
 async def configure_personality(request: PersonalityRequest):
@@ -136,7 +129,6 @@ async def configure_personality(request: PersonalityRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Configuration failed: {str(e)}")
 
-
 @router.post("/enrich/external")
 async def enrich_with_external(request: ExternalEnrichRequest):
     """
@@ -156,7 +148,6 @@ async def enrich_with_external(request: ExternalEnrichRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Enrichment failed: {str(e)}")
-
 
 @router.get("/trending")
 async def get_trending_topics():
@@ -186,7 +177,6 @@ async def get_trending_topics():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get trends: {str(e)}")
 
-
 @router.post("/orchestrate/debug")
 async def debug_orchestration(query: str = Body(...), user_id: str = Body("ceo_user")):
     """
@@ -211,7 +201,6 @@ async def debug_orchestration(query: str = Body(...), user_id: str = Body("ceo_u
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Orchestration failed: {str(e)}")
-
 
 @router.get("/personalization/stats")
 async def get_personalization_stats(user_id: str = Query("ceo_user")):
@@ -240,7 +229,6 @@ async def get_personalization_stats(user_id: str = Query("ceo_user")):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}")
 
-
 @router.post("/auto-optimize/trigger")
 async def trigger_auto_optimization():
     """
@@ -253,7 +241,6 @@ async def trigger_auto_optimization():
         "message": "Optimization workflow triggered. Check Slack for updates.",
         "webhook": "http://n8n:5678/webhook/optimize-mcp",
     }
-
 
 # Health check
 @router.get("/health")

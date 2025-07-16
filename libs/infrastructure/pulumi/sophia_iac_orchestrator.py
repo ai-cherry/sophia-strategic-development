@@ -49,7 +49,6 @@ from backend.infrastructure.core.state_manager import InfrastructureStateManager
 from backend.infrastructure.core.webhook_router import WebhookRouter
 from core.config_manager import get_config_value
 
-
 class PlatformType(Enum):
     """Platform categories for organized management."""
 
@@ -57,7 +56,6 @@ class PlatformType(Enum):
     DEV_STACK = "dev_stack"
     AI_STACK = "ai_stack"
     OPS_STACK = "ops_stack"
-
 
 @dataclass
 class PlatformStatus:
@@ -72,7 +70,6 @@ class PlatformStatus:
     dependencies: list[str] = field(default_factory=list)
     webhooks_active: bool = False
 
-
 @dataclass
 class InfrastructureCommand:
     """Command structure for infrastructure operations."""
@@ -82,7 +79,6 @@ class InfrastructureCommand:
     parameters: dict[str, Any] = field(default_factory=dict)
     rollback_plan: dict[str, Any] | None = None
     dry_run: bool = False
-
 
 class PlatformAdapter(ABC):
     """Abstract base class for all platform adapters."""
@@ -115,7 +111,6 @@ class PlatformAdapter(ABC):
     async def rollback(self, checkpoint: dict[str, Any]) -> dict[str, Any]:
         """Rollback to a previous configuration state."""
         return {"success": False, "error": "Rollback not implemented"}
-
 
 class SophiaIaCOrchestrator:
     """
@@ -532,7 +527,6 @@ Respond with specific, actionable steps and use the available tools to execute o
 
         return recommendations
 
-
 # CLI Interface
 async def main():
     """Main entry point for the Sophia IaC Orchestrator."""
@@ -563,7 +557,6 @@ async def main():
     else:
         # Process as natural language command
         await orchestrator.process_natural_language_command(args.command)
-
 
 if __name__ == "__main__":
     asyncio.run(main())

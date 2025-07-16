@@ -29,7 +29,6 @@ from infrastructure.services.unified_sophia_service import get_unified_sophia_se
 logger = logging.getLogger(__name__)
 services = {}
 
-
 async def initialize_core_services():
     """Initialize core services with proper error handling"""
     try:
@@ -50,7 +49,6 @@ async def initialize_core_services():
         logger.exception(f"❌ Error initializing services: {e}")
         raise
 
-
 async def cleanup_services():
     """Cleanup services on shutdown"""
     for service_name, service in services.items():
@@ -62,7 +60,6 @@ async def cleanup_services():
             logger.info(f"✅ {service_name} cleaned up")
         except Exception as e:
             logger.exception(f"❌ Error cleaning up {service_name}: {e}")
-
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
@@ -127,7 +124,6 @@ def create_app() -> FastAPI:
         return await health()
 
     return app
-
 
 app = create_app()
 if __name__ == "__main__":

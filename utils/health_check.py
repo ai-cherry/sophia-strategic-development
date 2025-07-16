@@ -38,7 +38,6 @@ from config.infrastructure import InfrastructureConfig, ServiceType, LambdaInsta
 
 logger = logging.getLogger(__name__)
 
-
 class HealthStatus(Enum):
     """Health status enumeration."""
     HEALTHY = "healthy"
@@ -46,7 +45,6 @@ class HealthStatus(Enum):
     UNHEALTHY = "unhealthy"
     CRITICAL = "critical"
     UNKNOWN = "unknown"
-
 
 @dataclass
 class HealthMetric:
@@ -70,7 +68,6 @@ class HealthMetric:
             self.status = HealthStatus.HEALTHY
         
         self.last_updated = datetime.now()
-
 
 @dataclass
 class ComponentHealth:
@@ -105,7 +102,6 @@ class ComponentHealth:
             self.status = HealthStatus.DEGRADED
         else:
             self.status = HealthStatus.HEALTHY
-
 
 class HealthChecker:
     """
@@ -624,10 +620,8 @@ class HealthChecker:
         
         logger.info("✅ Health monitoring shutdown complete")
 
-
 # Global health checker instance
 _health_checker_instance: Optional[HealthChecker] = None
-
 
 async def get_health_checker() -> HealthChecker:
     """

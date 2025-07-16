@@ -9,7 +9,6 @@ from typing import Dict, Any, Optional, List
 
 logger = logging.getLogger(__name__)
 
-
 class UnifiedChatService:
     """Unified chat service for processing AI conversations"""
     

@@ -25,10 +25,8 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.services.llm_router import TaskType, llm_router
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
-
 
 class ProjectHealthStatus(Enum):
     """Project health status levels"""
@@ -39,7 +37,6 @@ class ProjectHealthStatus(Enum):
     POOR = "poor"
     CRITICAL = "critical"
 
-
 class RiskLevel(Enum):
     """Risk assessment levels"""
 
@@ -48,14 +45,12 @@ class RiskLevel(Enum):
     HIGH = "high"
     CRITICAL = "critical"
 
-
 class MemoryCategory:
     """Memory categories for AI storage"""
 
     ASANA_PROJECT_ANALYSIS = "asana_project_analysis"
     ASANA_TEAM_INSIGHTS = "asana_team_insights"
     ASANA_RISK_ASSESSMENT = "asana_risk_assessment"
-
 
 @dataclass
 class AsanaProjectMetrics:
@@ -76,7 +71,6 @@ class AsanaProjectMetrics:
     risk_level: RiskLevel = RiskLevel.LOW
     ai_insights: dict[str, Any] = field(default_factory=dict)
 
-
 @dataclass
 class TeamProductivityMetrics:
     """Team productivity analysis"""
@@ -90,7 +84,6 @@ class TeamProductivityMetrics:
     team_velocity: float
     member_count: int
     productivity_score: float = 0.0
-
 
 @dataclass
 class ProjectRiskAssessment:
@@ -106,7 +99,6 @@ class ProjectRiskAssessment:
     risk_factors: list[str] = field(default_factory=list)
     mitigation_suggestions: list[str] = field(default_factory=list)
     predicted_completion_date: datetime | None = None
-
 
 class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
     """Advanced Asana project intelligence and analytics agent"""
@@ -731,7 +723,6 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
         except Exception as e:
             logger.exception(f"❌ Error closing Asana intelligence agent: {e}")
 
-
 async def main():
     """Test the Asana Project Intelligence Agent"""
     config = {
@@ -750,7 +741,6 @@ async def main():
         pass
     finally:
         await agent.close()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

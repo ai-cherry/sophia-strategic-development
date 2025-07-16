@@ -8,9 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-
 logger = logging.getLogger(__name__)
-
 
 class QueryType(Enum):
     """Query type classification for routing decisions"""
@@ -20,7 +18,6 @@ class QueryType(Enum):
     HYBRID = "hybrid"  # Requires both systems
     SYSTEM = "system"  # System status/health
 
-
 class UrgencyLevel(Enum):
     """Query urgency for prioritization"""
 
@@ -28,7 +25,6 @@ class UrgencyLevel(Enum):
     HIGH = "high"  # <3 seconds
     MEDIUM = "medium"  # <10 seconds
     LOW = "low"  # <30 seconds
-
 
 @dataclass
 class QueryAnalysis:
@@ -43,7 +39,6 @@ class QueryAnalysis:
     context_requirements: list[str]
     business_domain: str
     recommended_model: str
-
 
 class IntelligentQueryRouter:
     """AI-powered query router using Lambda GPU for intent analysis"""
@@ -430,7 +425,6 @@ class IntelligentQueryRouter:
         except Exception as e:
             logger.exception(f"Error optimizing routing performance: {e}")
             return {"error": "Performance optimization unavailable"}
-
 
 # Global router instance
 intelligent_router = IntelligentQueryRouter()

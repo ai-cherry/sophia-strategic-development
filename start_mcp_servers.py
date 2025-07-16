@@ -13,7 +13,6 @@ from pathlib import Path
 
 from backend.core.auto_esc_config import get_config_value
 
-
 class MCPServerManager:
     def __init__(self):
         self.processes = []
@@ -199,7 +198,6 @@ if __name__ == '__main__':
         self.stop_all_servers()
         sys.exit(0)
 
-
 def main():
     manager = MCPServerManager()
 
@@ -231,7 +229,6 @@ def main():
         manager.stop_all_servers()
 
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

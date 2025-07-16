@@ -10,7 +10,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-
 class MCPHealthDashboard:
     """Health monitoring dashboard for MCP servers"""
 
@@ -87,12 +86,10 @@ class MCPHealthDashboard:
             if status == "healthy":
                 healthy_count += 1
 
-
 async def main():
     """Main entry point"""
     dashboard = MCPHealthDashboard("/home/ubuntu/sophia-main")
     await dashboard.start_monitoring()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

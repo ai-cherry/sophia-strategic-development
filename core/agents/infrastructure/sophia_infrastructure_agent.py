@@ -29,7 +29,6 @@ from core.agents.langgraph_agent_base import (
 
 logger = logging.getLogger(__name__)
 
-
 # Mock Redis client to avoid redis_client compatibility issues with Python 3.11
 class MockRedisClient:
     """Mock Redis client for testing purposes"""
@@ -39,7 +38,6 @@ class MockRedisClient:
 
     async def get_key(self, key: str) -> str:
         return ""
-
 
 @dataclass
 class InfrastructureContext:
@@ -52,7 +50,6 @@ class InfrastructureContext:
     cost_metrics: dict[str, float]
     performance_metrics: dict[str, float]
 
-
 @dataclass
 class InfrastructureDecision:
     """AI-generated infrastructure decision"""
@@ -63,7 +60,6 @@ class InfrastructureDecision:
     risk_level: str  # low, medium, high
     recommendations: list[str]
     execution_plan: dict[str, Any]
-
 
 class SophiaInfrastructureAgent(LangGraphAgentBase):
     """
@@ -561,9 +557,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
 
         return int((cpu_score + memory_score + error_score) / 3)
 
-
 # Specialized infrastructure agents that build on the base
-
 
 class SophiaDNSIntelligenceAgent(SophiaInfrastructureAgent):
     """Specialized agent for intelligent DNS management"""
@@ -613,7 +607,6 @@ class SophiaDNSIntelligenceAgent(SophiaInfrastructureAgent):
             "security_enhancements": {"dnssec": True},
         }
 
-
 class SophiaPerformanceAgent(SophiaInfrastructureAgent):
     """Specialized agent for performance optimization"""
 
@@ -652,7 +645,6 @@ class SophiaPerformanceAgent(SophiaInfrastructureAgent):
             "steps": ["test_in_staging", "gradual_rollout", "monitor_metrics"],
             "estimated_improvement": "30%",
         }
-
 
 class SophiaSecurityAgent(SophiaInfrastructureAgent):
     """Specialized agent for security and compliance"""

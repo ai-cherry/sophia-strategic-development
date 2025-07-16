@@ -199,7 +199,7 @@ interface IceBreakerPrompt {
 }
 
 // Constants
-const BACKEND_URL = 'https://sophia-intel.ai';  // FINAL PRODUCTION DEPLOYMENT
+const BACKEND_URL = 'https://api.sophia-intel.ai';  // FINAL PRODUCTION DEPLOYMENT
 
 const INTELLIGENCE_TABS = {
   'chat': { icon: MessageSquare, label: 'Executive Chat', color: 'blue' },
@@ -355,7 +355,7 @@ const SophiaExecutiveDashboard: React.FC = () => {
   // Initialize WebSocket
   const initializeWebSocket = useCallback(() => {
     try {
-              const ws = new WebSocket('ws://104.171.202.103:8000/ws');  // Production WebSocket
+              const ws = new WebSocket('wss://ws.sophia-intel.ai/ws');  // Production WebSocket
       
       ws.onopen = () => {
         console.log('WebSocket connected');

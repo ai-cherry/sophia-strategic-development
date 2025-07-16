@@ -10,7 +10,7 @@ from backend.services.knowledge_service import KnowledgeService
 from backend.services.okr_service import OKRService
 from backend.services.project_management_service import ProjectManagementService
 from backend.services.system_monitoring_service import SystemMonitoringService
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator as SophiaUnifiedOrchestrator
 
 router = APIRouter(prefix="/api/v3", tags=["unified-chat"])
 
@@ -21,19 +21,16 @@ project_service = ProjectManagementService()
 system_service = SystemMonitoringService()
 okr_service = OKRService()
 
-
 class ChatRequest(BaseModel):
     message: str
     context: str = "chat"
     sessionId: str
     metadata: dict[str, Any] | None = None
 
-
 class ChatResponse(BaseModel):
     response: str
     citations: list[dict[str, Any]] | None = None
     metadata: dict[str, Any] | None = None
-
 
 @router.post("/chat/unified", response_model=ChatResponse)
 async def unified_chat(
@@ -86,7 +83,6 @@ async def unified_chat(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/knowledge/stats")
 async def get_knowledge_stats(current_user: dict = Depends(get_current_user)):
     """Get knowledge base statistics"""
@@ -95,7 +91,6 @@ async def get_knowledge_stats(current_user: dict = Depends(get_current_user)):
         return stats
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/knowledge/recent")
 async def get_recent_documents(
@@ -108,7 +103,6 @@ async def get_recent_documents(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/projects/summary")
 async def get_project_summary(current_user: dict = Depends(get_current_user)):
     """Get project management summary across all platforms"""
@@ -117,7 +111,6 @@ async def get_project_summary(current_user: dict = Depends(get_current_user)):
         return summary
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/projects/active")
 async def get_active_projects(
@@ -130,7 +123,6 @@ async def get_active_projects(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/system/health")
 async def get_system_health(current_user: dict = Depends(get_current_user)):
     """Get overall system health status"""
@@ -139,7 +131,6 @@ async def get_system_health(current_user: dict = Depends(get_current_user)):
         return health
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/system/mcp-servers")
 async def get_mcp_server_status(current_user: dict = Depends(get_current_user)):
@@ -150,7 +141,6 @@ async def get_mcp_server_status(current_user: dict = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/system/metrics")
 async def get_system_metrics(current_user: dict = Depends(get_current_user)):
     """Get system performance metrics"""
@@ -159,7 +149,6 @@ async def get_system_metrics(current_user: dict = Depends(get_current_user)):
         return metrics
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/okrs/current")
 async def get_current_okrs(current_user: dict = Depends(get_current_user)):
@@ -170,7 +159,6 @@ async def get_current_okrs(current_user: dict = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/okrs/progress")
 async def get_okr_progress(current_user: dict = Depends(get_current_user)):
     """Get OKR progress summary"""
@@ -179,7 +167,6 @@ async def get_okr_progress(current_user: dict = Depends(get_current_user)):
         return progress
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/okrs/update")
 async def update_okr_progress(

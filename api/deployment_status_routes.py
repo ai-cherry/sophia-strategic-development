@@ -2,7 +2,6 @@ from fastapi import APIRouter
 
 router = APIRouter(prefix="/api/v1/deployment", tags=["deployment-status"])
 
-
 @router.get("/status")
 async def get_deployment_status():
     """Get current production deployment status"""
@@ -26,7 +25,6 @@ async def get_deployment_status():
             {"name": "Sophia Frontend", "status": "restarting", "uptime": "0m"},
         ],
     }
-
 
 @router.get("/timeline")
 async def get_deployment_timeline():

@@ -11,7 +11,6 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 # Simple bearer token authentication
 security = HTTPBearer(auto_error=False)
 
-
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
 ) -> Dict[str, str]:
@@ -34,7 +33,6 @@ async def get_current_user(
         "role": "admin",
         "token": credentials.credentials,
     }
-
 
 def require_role(required_role: str):
     """Dependency to require a specific role"""

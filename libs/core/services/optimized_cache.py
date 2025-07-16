@@ -26,14 +26,12 @@ from core.config_manager import get_config_value as config
 
 logger = logging.getLogger(__name__)
 
-
 class CacheLevel(Enum):
     """Cache level enumeration"""
 
     L1_MEMORY = "l1_memory"
     L2_REDIS = "l2_redis"
     L3_PERSISTENT = "l3_persistent"
-
 
 @dataclass
 class CacheMetrics:
@@ -64,7 +62,6 @@ class CacheMetrics:
             return 0.0
         return self.l1_hits / total_requests
 
-
 @dataclass
 class CacheEntry:
     """Cache entry with metadata"""
@@ -86,7 +83,6 @@ class CacheEntry:
         """Update access metadata"""
         self.access_count += 1
         self.last_accessed = time.time()
-
 
 class LRUCache:
     """High-performance LRU cache with TTL support"""
@@ -179,7 +175,6 @@ class LRUCache:
             "total_size_bytes": total_size,
             "avg_size_bytes": total_size / len(self._cache) if self._cache else 0,
         }
-
 
 class OptimizedHierarchicalCache:
     """
@@ -565,23 +560,19 @@ class OptimizedHierarchicalCache:
         await self.l1_cache.clear()
         logger.info("🔒 Cache system closed")
 
-
 # Global cache instance
 optimized_cache = OptimizedHierarchicalCache()
-
 
 # Convenience functions
 async def get_cached(key: str, namespace: str = "default") -> Any | None:
     """Get value from global cache"""
     return await optimized_cache.get(key, namespace)
 
-
 async def set_cached(
     key: str, value: Any, namespace: str = "default", ttl: int | None = None
 ) -> None:
     """Set value in global cache"""
     await optimized_cache.set(key, value, namespace, ttl)
-
 
 async def get_cache_stats() -> dict[str, Any]:
     """Get cache statistics"""

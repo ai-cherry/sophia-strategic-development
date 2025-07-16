@@ -106,7 +106,6 @@ def get_real_notion_client():
     
     return real_notion_client
 
-
 #!/usr/bin/env python3
 """
 Sophia AI Notion MCP Server
@@ -138,7 +137,6 @@ from base.unified_standardized_base import (
 from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
-
 
 class NotionMCPServer(StandardizedMCPServer):
     """Notion MCP Server for knowledge management"""
@@ -623,7 +621,6 @@ class NotionMCPServer(StandardizedMCPServer):
             "created": True,
             "url": result.get("url", ""),
         }
-
 
 # Create and run server
 if __name__ == "__main__":

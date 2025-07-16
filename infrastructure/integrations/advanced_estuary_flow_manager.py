@@ -22,7 +22,6 @@ from core.config_manager import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 # Base EstuaryFlowManager for compatibility
 class EstuaryFlowManager:
     """Base Estuary Flow Manager for compatibility"""
@@ -34,7 +33,6 @@ class EstuaryFlowManager:
     async def get_flow_statistics(self):
         """Get basic flow statistics"""
         return {"avg_latency": 1500, "throughput": 1000, "error_rate": 0.01}
-
 
 class AdvancedEstuaryFlowManager(EstuaryFlowManager):
     """Advanced Estuary Flow Manager with multimodal and AI-powered capabilities"""
@@ -870,10 +868,8 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             logger.exception(f"Error optimizing flow configuration: {e}")
             return {"error": str(e)}
 
-
 # Service instance
 advanced_estuary_manager = None
-
 
 async def get_advanced_estuary_flow_manager() -> AdvancedEstuaryFlowManager:
     """Get advanced Estuary Flow manager instance"""

@@ -71,7 +71,6 @@ SECRET_MAPPINGS = {
     "LAMBDA_API_ENDPOINT": "LAMBDA_API_ENDPOINT"
 }
 
-
 @lru_cache(maxsize=1)
 def get_pulumi_config() -> Dict[str, Any]:
     """Get all configuration from Pulumi ESC"""
@@ -103,7 +102,6 @@ def get_pulumi_config() -> Dict[str, Any]:
         logger.error(f"❌ Error loading Pulumi ESC config: {e}")
         return {}
 
-
 def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
     """Get configuration value with proper error handling - NO MORE WARNINGS"""
     
@@ -132,7 +130,6 @@ def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
     # Return default value (removed get_pulumi_config() to prevent recursion)
     return default
 
-
 def _get_security_config():
     """Get SecurityConfig class (imported lazily to avoid circular imports)"""
     try:
@@ -143,7 +140,6 @@ def _get_security_config():
     except ImportError:
         logger.warning("SecurityConfig not available, using fallback mappings")
         return None
-
 
 def _load_esc_environment() -> Dict[str, Any]:
     """
@@ -207,7 +203,6 @@ def _load_esc_environment() -> Dict[str, Any]:
     _esc_cache = {}
     return _esc_cache
 
-
 def set_config_value(key: str, value: Any) -> None:
     """
     Set configuration value in cache
@@ -218,8 +213,6 @@ def set_config_value(key: str, value: Any) -> None:
     """
     _config_cache[key] = value
 
-
-
 def get_qdrant_config() -> Dict[str, str]:
     """Get Qdrant configuration from Pulumi ESC (unified function)"""
     return {
@@ -229,8 +222,6 @@ def get_qdrant_config() -> Dict[str, str]:
         "timeout": int(get_config_value("QDRANT_timeout", "30")),
         "prefer_grpc": get_config_value("QDRANT_prefer_grpc", "false").lower() == "true"
     }
-
-
 
 def get_estuary_config() -> Dict[str, Any]:
     """
@@ -244,7 +235,6 @@ def get_estuary_config() -> Dict[str, Any]:
         "tenant": get_config_value("estuary_tenant", "Pay_Ready"),
         "endpoint": get_config_value("estuary_endpoint", "https://api.estuary.dev"),
     }
-
 
 def get_integration_config() -> Dict[str, Any]:
     """
@@ -277,7 +267,6 @@ def get_integration_config() -> Dict[str, Any]:
             ),
         },
     }
-
 
 def initialize_default_config():
     """Initialize default configuration values"""
@@ -320,10 +309,8 @@ def initialize_default_config():
 
     logger.info("Configuration initialized with Pulumi ESC integration")
 
-
 # Initialize defaults on import
 initialize_default_config()
-
 
 def get_lambda_labs_config() -> Dict[str, Any]:
     """
@@ -361,7 +348,6 @@ def get_lambda_labs_config() -> Dict[str, Any]:
         }
     }
 
-
 def get_docker_hub_config() -> Dict[str, Any]:
     """Get Docker Hub configuration"""
     return {
@@ -369,7 +355,6 @@ def get_docker_hub_config() -> Dict[str, Any]:
         "access_token": get_config_value("DOCKER_HUB_ACCESS_TOKEN"),
         "registry": "docker.io"
     }
-
 
 def get_pulumi_config() -> Dict[str, Any]:
     """Get Pulumi configuration - direct access to prevent recursion"""
@@ -389,7 +374,6 @@ def get_pulumi_config() -> Dict[str, Any]:
         "stack": "sophia-ai-production"
     }
 
-
 def get_gong_config() -> Dict[str, Any]:
     """Get Gong configuration using REAL GitHub Organization Secrets"""
     return {
@@ -399,7 +383,6 @@ def get_gong_config() -> Dict[str, Any]:
         "client_secret": get_config_value("GONG_CLIENT_SECRET"),
         "base_url": get_config_value("GONG_BASE_URL", "https://api.gong.io")
     }
-
 
 # Backward compatibility - create a config object that mimics the old interface
 class ConfigObject:
@@ -448,7 +431,6 @@ class ConfigObject:
     def apollo_api_base_url(self):
         return get_config_value("apollo_api_base_url", "https://api.apollo.io")
 
-
 # Create backward compatibility config object
 config = ConfigObject()
 
@@ -462,7 +444,6 @@ QDRANT_CONNECTION_CONFIG = {
     "warehouse_auto_suspend": 60,
     "warehouse_auto_resume": True,
 }
-
 
 def get_QDRANT_pat(default: Optional[str] = None) -> str:
     """
@@ -506,10 +487,7 @@ def get_QDRANT_pat(default: Optional[str] = None) -> str:
 
     return pat
 
-
-
     """
-
 
     Returns:
         MCP configuration dictionary
@@ -525,7 +503,6 @@ def get_QDRANT_pat(default: Optional[str] = None) -> str:
         "max_retries": int(get_config_value("QDRANT_mcp_max_retries", "3")),
         "pool_size": int(get_config_value("QDRANT_mcp_pool_size", "20")),
     }
-
 
 # Add PAT rotation check function
 def check_pat_rotation_needed() -> bool:
@@ -556,10 +533,8 @@ def check_pat_rotation_needed() -> bool:
         logger.error(f"Error checking PAT rotation: {e}")
         return False
 
-
 # Update the esc_key_mappings in get_config_value to include PAT mappings
 # (This is already included in the existing mappings)
-
 
 def validate_QDRANT_pat() -> bool:
     """
@@ -581,15 +556,11 @@ def validate_QDRANT_pat() -> bool:
     logger.warning("Qdrant password may not be a valid PAT token")
     return False
 
-
-
     """
-
 
     Returns:
 
     """
-
 
     # Add PAT-specific configuration
     enhanced_config = {
@@ -605,7 +576,6 @@ def validate_QDRANT_pat() -> bool:
     enhanced_config["account"] = "UHDECNO-CVB64222"
 
     return enhanced_config
-
 
 # Enhanced configuration constants
 QDRANT_DEFAULT_CONFIG = {
@@ -630,7 +600,6 @@ AI_OPTIMIZATION_CONFIG = {
     "serverless_first": True,
     "data_local_preference": True,
 }
-
 
 def get_lambda_labs_serverless_config() -> Dict[str, Any]:
     """
@@ -682,7 +651,6 @@ def get_lambda_labs_serverless_config() -> Dict[str, Any]:
         ],
     }
 
-
 def get_ai_orchestration_config() -> Dict[str, Any]:
     """
     Get AI orchestration configuration for unified chat service
@@ -717,7 +685,6 @@ def get_ai_orchestration_config() -> Dict[str, Any]:
         "quality_threshold": float(get_config_value("AI_QUALITY_THRESHOLD", "0.8")),
     }
 
-
 def validate_lambda_labs_config() -> bool:
     """
     Validate Lambda Labs configuration
@@ -751,8 +718,6 @@ def validate_lambda_labs_config() -> bool:
     logger.info("Lambda Labs configuration validated successfully")
     return True
 
-
-
 def get_qdrant_config() -> Dict[str, str]:
     """Get Qdrant configuration from Pulumi ESC (unified function)"""
     return {
@@ -762,7 +727,6 @@ def get_qdrant_config() -> Dict[str, str]:
         "timeout": int(get_config_value("QDRANT_timeout", "30")),
         "prefer_grpc": get_config_value("QDRANT_prefer_grpc", "false").lower() == "true"
     }
-
 
 def get_redis_config() -> Dict[str, Any]:
     """
@@ -796,7 +760,6 @@ def get_redis_config() -> Dict[str, Any]:
     
     logger.info(f"✅ Redis config: {redis_host}:{redis_port} (auth: {'yes' if redis_password else 'no'})")
     return redis_config
-
 
 def get_redis_url() -> str:
     """

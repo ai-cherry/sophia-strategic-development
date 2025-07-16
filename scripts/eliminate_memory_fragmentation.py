@@ -269,17 +269,17 @@ class MemoryFragmentationEliminator:
             python_files.extend(glob.glob(str(self.root_path / pattern), recursive=True))
         
         legacy_imports = [
-            "from backend.services.sophia_unified_memory_service import get_memory_service",
-            "from backend.services.sophia_unified_memory_service import get_memory_service",
-            "from backend.services.sophia_unified_memory_service import get_memory_service",
-            "from backend.services.sophia_unified_memory_service import get_memory_service",
-            "from backend.services.sophia_unified_memory_service import get_memory_service",
-            "from backend.services.sophia_unified_memory_service import get_memory_service",
-            "from backend.services.sophia_unified_memory_service import get_memory_service",
-            "from backend.services.sophia_unified_memory_service import get_memory_service",
+            "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service",
+            "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service",
+            "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service",
+            "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service",
+            "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service",
+            "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service",
+            "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service",
+            "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service",
         ]
         
-        replacement = "from backend.services.sophia_unified_memory_service import get_memory_service"
+        replacement = "from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service"
         
         for py_file in python_files:
             if "sophia_unified_memory_service.py" in py_file:
@@ -380,10 +380,10 @@ Sophia Unified Memory Service as the SINGLE SOURCE OF TRUTH.
 
 ```python
 # Import the unified service
-from backend.services.sophia_unified_memory_service import get_memory_service
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service
 
 # Get singleton instance
-service = await get_memory_service()
+service = await get_coding_memory_service()
 
 # Store development memory
 await service.store_memory(

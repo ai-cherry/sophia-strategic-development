@@ -25,14 +25,9 @@ from typing import Any
 import httpx
 from backend.core.auto_esc_config import get_config_value
 
-
-
-
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 class UnifiedAIOrchestrationService:
     """
@@ -68,7 +63,6 @@ class UnifiedAIOrchestrationService:
     async def _initialize_QDRANT_serviceection(self):
 
         try:
-
 
             logger.info("✅ Qdrant connection established")
         except Exception as e:
@@ -595,10 +589,8 @@ class UnifiedAIOrchestrationService:
         except Exception as e:
             logger.exception(f"❌ Error closing connections: {e}")
 
-
 # Global service instance
 unified_ai_service = UnifiedAIOrchestrationService()
-
 
 async def get_unified_ai_service() -> UnifiedAIOrchestrationService:
     """Get the global unified AI service instance"""

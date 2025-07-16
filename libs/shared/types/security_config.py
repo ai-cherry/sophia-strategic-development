@@ -11,7 +11,6 @@ from core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class SecretType(Enum):
     """Types of secrets for proper categorization and handling"""
 
@@ -21,7 +20,6 @@ class SecretType(Enum):
     OAUTH_TOKEN = "oauth_token"
     WEBHOOK_SECRET = "webhook_secret"
     ENCRYPTION_KEY = "encryption_key"
-
 
 @dataclass
 class SecretConfig:
@@ -34,7 +32,6 @@ class SecretConfig:
     description: str = ""
     rotation_enabled: bool = False
     rotation_days: int = 90
-
 
 class SecurityConfig:
     """
@@ -424,12 +421,10 @@ values:
             "pulumi_esc_template": cls.generate_pulumi_esc_template(),
         }
 
-
 # Initialize security configuration on import
 def initialize_security_config():
     """Initialize security configuration and log status"""
     SecurityConfig.log_security_status()
-
 
 # Export commonly used functions
 __all__ = ["SecretConfig", "SecretType", "SecurityConfig", "initialize_security_config"]

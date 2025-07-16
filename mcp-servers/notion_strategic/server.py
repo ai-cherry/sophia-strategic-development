@@ -174,7 +174,7 @@ class NotionStrategicMCPServer(StandardizedMCPServer):
         }
 
         # Initialize Qdrant memory service
-        self.memory_service = QdrantSophiaUnifiedMemoryService()
+        self.memory_service = QdrantCodingMCPUnifiedMemoryService()
         
         # Initialize strategic agent (advanced or basic)
         if ADVANCED_AI_AVAILABLE:

@@ -11,7 +11,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class WorkflowNodeType(Enum):
     """Types of workflow nodes"""
 
@@ -20,7 +19,6 @@ class WorkflowNodeType(Enum):
     SYNTHESIS = "synthesis"
     ACTION = "action"
     VALIDATION = "validation"
-
 
 @dataclass
 class WorkflowNode:
@@ -34,7 +32,6 @@ class WorkflowNode:
     execution_time_estimate: float
     dependencies: list[str]
 
-
 @dataclass
 class DynamicWorkflow:
     """Dynamically generated workflow"""
@@ -44,7 +41,6 @@ class DynamicWorkflow:
     execution_order: list[str]
     estimated_total_time: float
     complexity_score: int
-
 
 class DynamicOrchestrationService:
     """Dynamic workflow generation and execution service"""

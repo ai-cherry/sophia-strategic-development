@@ -29,7 +29,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class SophiaWebService:
     """Sophia AI Web Service with beautiful UI"""
 
@@ -174,10 +173,8 @@ class SophiaWebService:
 
         return health
 
-
 # Global service instance
 web_service = SophiaWebService()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -185,7 +182,6 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Starting Sophia AI Web UI")
     yield
     logger.info("🛑 Shutting down Sophia AI Web UI")
-
 
 # Create FastAPI application
 app = FastAPI(
@@ -207,12 +203,10 @@ app.add_middleware(
 # Static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
 @app.get("/")
 async def root():
     """Serve the beautiful Sophia AI web interface"""
     return FileResponse("static/index.html")
-
 
 @app.post("/chat")
 async def chat_endpoint(request: dict):
@@ -224,18 +218,15 @@ async def chat_endpoint(request: dict):
         logger.error(f"Chat endpoint error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return await web_service.get_health()
 
-
 @app.get("/stats")
 async def routing_stats():
     """Routing statistics endpoint"""
     return web_service.get_stats()
-
 
 @app.get("/dashboard")
 async def dashboard():
@@ -262,7 +253,6 @@ async def dashboard():
         },
         "timestamp": datetime.now().isoformat(),
     }
-
 
 @app.get("/api")
 async def api_info():
@@ -291,7 +281,6 @@ async def api_info():
         "timestamp": datetime.now().isoformat(),
     }
 
-
 def main():
     """Main function to start the web service"""
     try:
@@ -315,7 +304,6 @@ def main():
     except Exception as e:
         logger.error(f"❌ Failed to start web service: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

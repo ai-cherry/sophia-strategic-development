@@ -6,7 +6,6 @@ from fastapi import APIRouter
 
 router = APIRouter(prefix="/api/v1/ai-memory", tags=["ai-memory-health"])
 
-
 @router.get("/health")
 async def get_ai_memory_health():
     """Get comprehensive AI Memory health status with mock data"""
@@ -47,7 +46,6 @@ async def get_ai_memory_health():
             for _ in range(10)
         ],
     }
-
 
 @router.get("/performance-trends")
 async def get_performance_trends():

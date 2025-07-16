@@ -1,4 +1,3 @@
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 import shlex
 from datetime import UTC, datetime
 
@@ -26,9 +25,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-
 logger = logging.getLogger(__name__)
-
 
 class DeploymentStatus(Enum):
     """Deployment status enumeration."""
@@ -40,7 +37,6 @@ class DeploymentStatus(Enum):
     ROLLED_BACK = "ROLLED_BACK"
     ROLLBACK_IN_PROGRESS = "ROLLBACK_IN_PROGRESS"
 
-
 class ComponentType(Enum):
     """Component type enumeration."""
 
@@ -51,14 +47,12 @@ class ComponentType(Enum):
     INTEGRATION = "integration"
     MONITORING = "monitoring"
 
-
 class Environment(Enum):
     """Deployment environment enumeration."""
 
     PRODUCTION = "production"
     STAGING = "staging"
     DEVELOPMENT = "development"
-
 
 @dataclass
 class DeploymentEvent:
@@ -78,7 +72,6 @@ class DeploymentEvent:
     rollback_target: str | None = None
     metadata: dict[str, Any] | None = None
 
-
 @dataclass
 class DeploymentHealth:
     """Deployment health status."""
@@ -90,7 +83,6 @@ class DeploymentHealth:
     success_rate: float
     average_duration: float
     issues: list[str]
-
 
 @dataclass
 class RollbackPlan:
@@ -104,7 +96,6 @@ class RollbackPlan:
     rollback_steps: list[str]
     estimated_duration: int
     risk_level: str
-
 
 class EnhancedDeploymentTracker:
     """Enhanced deployment tracking with monitoring and rollback capabilities."""
@@ -794,10 +785,8 @@ class EnhancedDeploymentTracker:
 
         return issues
 
-
 # Global deployment tracker instance
 deployment_tracker = EnhancedDeploymentTracker()
-
 
 async def initialize_deployment_tracking():
     """Initialize deployment tracking system."""

@@ -32,7 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Pydantic models
 class ChatRequest(BaseModel):
     message: str
@@ -42,7 +41,6 @@ class ChatRequest(BaseModel):
     stream: bool = False
     metadata: dict[str, Any] | None = None
 
-
 class ChatResponse(BaseModel):
     response: str
     sources: list[dict[str, Any]] | None = None
@@ -50,14 +48,12 @@ class ChatResponse(BaseModel):
     metadata: dict[str, Any] | None = None
     timestamp: str = datetime.now().isoformat()
 
-
 class HealthResponse(BaseModel):
     status: str
     service: str
     version: str
     timestamp: str
     services: dict[str, str]
-
 
 # Health check
 @app.get("/health", response_model=HealthResponse)
@@ -76,7 +72,6 @@ async def health_check():
         },
     )
 
-
 # Root endpoint
 @app.get("/")
 async def root():
@@ -92,7 +87,6 @@ async def root():
             "openapi": "/openapi.json",
         },
     }
-
 
 # Simple chat endpoint
 @app.post("/api/v1/chat", response_model=ChatResponse)
@@ -145,7 +139,6 @@ async def chat_endpoint(request: ChatRequest):
         logger.error(f"Chat endpoint error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-
 # Lambda Labs status endpoint
 @app.get("/api/v1/lambda-labs/status")
 async def lambda_labs_status():
@@ -187,7 +180,6 @@ async def lambda_labs_status():
         "total_cost_per_month": "$4,257",
     }
 
-
 # MCP servers status
 @app.get("/api/v1/mcp/status")
 async def mcp_status():
@@ -212,7 +204,6 @@ async def mcp_status():
         "health_percentage": 50,
     }
 
-
 # Debug routes
 @app.get("/debug/routes")
 async def debug_routes():
@@ -224,7 +215,6 @@ async def debug_routes():
                 {"path": route.path, "methods": list(route.methods), "name": route.name}
             )
     return {"routes": routes, "total": len(routes)}
-
 
 if __name__ == "__main__":
     import uvicorn

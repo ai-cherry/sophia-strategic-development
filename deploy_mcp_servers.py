@@ -16,7 +16,6 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-
 class MCPServerDeployer:
     def __init__(self):
         self.servers = []
@@ -93,7 +92,6 @@ class MCPServerDeployer:
                 with contextlib.suppress(Exception):
                     server["process"].kill()
 
-
 def main():
     deployer = MCPServerDeployer()
 
@@ -117,7 +115,6 @@ def main():
     except Exception:
         deployer.stop_all_servers()
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

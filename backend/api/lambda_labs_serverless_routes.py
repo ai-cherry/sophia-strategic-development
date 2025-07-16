@@ -29,14 +29,12 @@ router = APIRouter(
     prefix="/api/v1/lambda-labs-serverless", tags=["Lambda Labs Serverless"]
 )
 
-
 # Pydantic models
 class ChatMessage(BaseModel):
     """Chat message model"""
 
     role: str = Field(..., description="Message role (user, assistant, system)")
     content: str = Field(..., description="Message content")
-
 
 class ChatCompletionRequest(BaseModel):
     """Chat completion request model"""
@@ -49,7 +47,6 @@ class ChatCompletionRequest(BaseModel):
     temperature: float | None = Field(None, description="Temperature for generation")
     stream: bool | None = Field(False, description="Enable streaming response")
 
-
 class ChatCompletionResponse(BaseModel):
     """Chat completion response model"""
 
@@ -61,14 +58,12 @@ class ChatCompletionResponse(BaseModel):
     input_tokens: int = Field(..., description="Number of input tokens")
     output_tokens: int = Field(..., description="Number of output tokens")
 
-
 class AnalysisRequest(BaseModel):
     """Analysis request model"""
 
     data: str = Field(..., description="Data to analyze")
     analysis_type: str = Field("general", description="Type of analysis")
     context_hints: list[str] | None = Field(None, description="Context hints")
-
 
 class AnalysisResponse(BaseModel):
     """Analysis response model"""
@@ -79,13 +74,11 @@ class AnalysisResponse(BaseModel):
     recommended_models: list[str] = Field(..., description="Recommended models")
     metadata: dict[str, Any] = Field(..., description="Additional metadata")
 
-
 class ModelRecommendationRequest(BaseModel):
     """Model recommendation request"""
 
     task_type: str = Field(..., description="Type of task")
     context_size: int = Field(0, description="Estimated context size")
-
 
 class UsageStatsResponse(BaseModel):
     """Usage statistics response"""
@@ -107,7 +100,6 @@ class UsageStatsResponse(BaseModel):
     cache_hits: int
     recent_requests: list[dict[str, Any]]
 
-
 class HealthCheckResponse(BaseModel):
     """Health check response"""
 
@@ -121,7 +113,6 @@ class HealthCheckResponse(BaseModel):
     last_request_time: str | None = None
     error: str | None = None
 
-
 class CostOptimizationResponse(BaseModel):
     """Cost optimization response"""
 
@@ -132,12 +123,10 @@ class CostOptimizationResponse(BaseModel):
     potential_daily_savings: float
     recommendations: list[str]
 
-
 # Dependency to get service
 async def get_service() -> LambdaLabsServerlessService:
     """Get Lambda Labs service instance"""
     return await get_lambda_service()
-
 
 # Routes
 @router.post("/chat/completions", response_model=ChatCompletionResponse)
@@ -190,7 +179,6 @@ async def chat_completion(
         logger.error(f"Chat completion failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post("/chat/stream")
 async def chat_completion_stream(
     request: ChatCompletionRequest,
@@ -233,7 +221,6 @@ async def chat_completion_stream(
         },
     )
 
-
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_data(
     request: AnalysisRequest,
@@ -255,7 +242,6 @@ async def analyze_data(
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/models/recommendations")
 async def get_model_recommendations(
@@ -283,7 +269,6 @@ async def get_model_recommendations(
     except Exception as e:
         logger.error(f"Model recommendations failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/models/list")
 async def list_models(service: LambdaLabsServerlessService = Depends(get_service)):
@@ -323,7 +308,6 @@ async def list_models(service: LambdaLabsServerlessService = Depends(get_service
         logger.error(f"List models failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/usage/stats", response_model=UsageStatsResponse)
 async def get_usage_stats(service: LambdaLabsServerlessService = Depends(get_service)):
     """
@@ -339,7 +323,6 @@ async def get_usage_stats(service: LambdaLabsServerlessService = Depends(get_ser
     except Exception as e:
         logger.error(f"Usage stats failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/usage/cost-breakdown")
 async def get_cost_breakdown(
@@ -398,7 +381,6 @@ async def get_cost_breakdown(
         logger.error(f"Cost breakdown failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/health", response_model=HealthCheckResponse)
 async def health_check(service: LambdaLabsServerlessService = Depends(get_service)):
     """
@@ -422,7 +404,6 @@ async def health_check(service: LambdaLabsServerlessService = Depends(get_servic
             error=str(e),
         )
 
-
 @router.get("/optimize/costs", response_model=CostOptimizationResponse)
 async def optimize_costs(service: LambdaLabsServerlessService = Depends(get_service)):
     """
@@ -438,7 +419,6 @@ async def optimize_costs(service: LambdaLabsServerlessService = Depends(get_serv
     except Exception as e:
         logger.error(f"Cost optimization failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/optimize/clear-cache")
 async def clear_cache(service: LambdaLabsServerlessService = Depends(get_service)):
@@ -460,7 +440,6 @@ async def clear_cache(service: LambdaLabsServerlessService = Depends(get_service
     except Exception as e:
         logger.error(f"Clear cache failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/config/routing-strategy")
 async def set_routing_strategy(
@@ -496,7 +475,6 @@ async def set_routing_strategy(
     except Exception as e:
         logger.error(f"Set routing strategy failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/config/budget")
 async def set_budget(
@@ -539,7 +517,6 @@ async def set_budget(
         logger.error(f"Set budget failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/admin/reset-stats")
 async def reset_stats(service: LambdaLabsServerlessService = Depends(get_service)):
     """
@@ -570,7 +547,6 @@ async def reset_stats(service: LambdaLabsServerlessService = Depends(get_service
         logger.error(f"Reset stats failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 # Natural language endpoints
 @router.post("/ask")
 async def ask_question(question: str, context_hints: list[str] | None = None):
@@ -591,7 +567,6 @@ async def ask_question(question: str, context_hints: list[str] | None = None):
     except Exception as e:
         logger.error(f"Ask question failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 # Background task endpoints
 @router.post("/tasks/cost-monitoring")
@@ -633,7 +608,6 @@ async def start_cost_monitoring(
         "monitoring_interval": "5 minutes",
         "timestamp": datetime.now().isoformat(),
     }
-
 
 # Export router
 __all__ = ["router"]

@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v4/workflows", tags=["workflows"])
 
-
 class WorkflowCreateRequest(BaseModel):
     """Request to create a workflow"""
 
@@ -26,20 +25,17 @@ class WorkflowCreateRequest(BaseModel):
     name: Optional[str] = None
     active: bool = True
 
-
 class WorkflowExecuteRequest(BaseModel):
     """Request to execute a workflow"""
 
     workflow_id: str
     data: Optional[Dict] = None
 
-
 class WorkflowListResponse(BaseModel):
     """Response for workflow list"""
 
     workflows: List[Dict]
     total: int
-
 
 class WorkflowMetricsResponse(BaseModel):
     """Response for workflow metrics"""
@@ -48,7 +44,6 @@ class WorkflowMetricsResponse(BaseModel):
     active_workflows: int
     execution_stats: Dict
     success_rate: float
-
 
 @router.post("/create", response_model=Dict)
 async def create_workflow(
@@ -77,7 +72,6 @@ async def create_workflow(
         logger.error(f"Failed to create workflow: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/list", response_model=WorkflowListResponse)
 async def list_workflows(
     active_only: bool = False, user: Dict = Depends(get_current_user)
@@ -92,7 +86,6 @@ async def list_workflows(
     except Exception as e:
         logger.error(f"Failed to list workflows: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/execute/{workflow_id}", response_model=Dict)
 async def execute_workflow(
@@ -124,7 +117,6 @@ async def execute_workflow(
         logger.error(f"Failed to execute workflow {workflow_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/{workflow_id}/executions", response_model=Dict)
 async def get_workflow_executions(
     workflow_id: str, limit: int = 10, user: Dict = Depends(get_current_user)
@@ -144,7 +136,6 @@ async def get_workflow_executions(
         logger.error(f"Failed to get executions for workflow {workflow_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.patch("/{workflow_id}/pause", response_model=Dict)
 async def pause_workflow(workflow_id: str, user: Dict = Depends(get_current_user)):
     """Pause a workflow"""
@@ -161,7 +152,6 @@ async def pause_workflow(workflow_id: str, user: Dict = Depends(get_current_user
     except Exception as e:
         logger.error(f"Failed to pause workflow {workflow_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.patch("/{workflow_id}/resume", response_model=Dict)
 async def resume_workflow(workflow_id: str, user: Dict = Depends(get_current_user)):
@@ -180,7 +170,6 @@ async def resume_workflow(workflow_id: str, user: Dict = Depends(get_current_use
         logger.error(f"Failed to resume workflow {workflow_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.delete("/{workflow_id}", response_model=Dict)
 async def delete_workflow(workflow_id: str, user: Dict = Depends(get_current_user)):
     """Delete a workflow"""
@@ -197,7 +186,6 @@ async def delete_workflow(workflow_id: str, user: Dict = Depends(get_current_use
     except Exception as e:
         logger.error(f"Failed to delete workflow {workflow_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/metrics", response_model=WorkflowMetricsResponse)
 async def get_workflow_metrics(user: Dict = Depends(get_current_user)):
@@ -221,7 +209,6 @@ async def get_workflow_metrics(user: Dict = Depends(get_current_user)):
     except Exception as e:
         logger.error(f"Failed to get workflow metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/templates", response_model=Dict)
 async def get_workflow_templates(user: Dict = Depends(get_current_user)):

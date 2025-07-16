@@ -49,7 +49,6 @@ import psutil
 
 logger = logging.getLogger(__name__)
 
-
 class PerformanceLevel(str, Enum):
     """Performance level classifications"""
 
@@ -59,7 +58,6 @@ class PerformanceLevel(str, Enum):
     SLOW = "slow"  # 1000-5000ms
     CRITICAL = "critical"  # > 5000ms
 
-
 class AlertSeverity(str, Enum):
     """Alert severity levels"""
 
@@ -67,7 +65,6 @@ class AlertSeverity(str, Enum):
     WARNING = "warning"
     CRITICAL = "critical"
     EMERGENCY = "emergency"
-
 
 @dataclass
 class PerformanceMetric:
@@ -81,7 +78,6 @@ class PerformanceMetric:
     threshold_ms: float | None = None
     level: PerformanceLevel | None = None
 
-
 @dataclass
 class PerformanceAlert:
     """Performance alert data"""
@@ -94,7 +90,6 @@ class PerformanceAlert:
     timestamp: datetime
     tags: dict[str, str] = field(default_factory=dict)
 
-
 @dataclass
 class SystemResourceMetrics:
     """System resource utilization metrics"""
@@ -105,7 +100,6 @@ class SystemResourceMetrics:
     disk_usage_percent: float
     network_io_mbps: float
     timestamp: datetime
-
 
 class PerformanceTracker:
     """Individual performance metric tracker"""
@@ -214,7 +208,6 @@ class PerformanceTracker:
             return "degrading"
         else:
             return "stable"
-
 
 class PerformanceMonitor:
     """
@@ -657,7 +650,6 @@ class PerformanceMonitor:
             }
             for alert in alerts[-20:]  # Last 20 alerts
         ]
-
 
 # Global performance monitor instance
 performance_monitor = PerformanceMonitor()

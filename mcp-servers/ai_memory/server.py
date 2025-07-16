@@ -7,7 +7,6 @@
 
         self.logger.info("AI Memory server V3 stopped")
 
-
 # Create and run server
 if __name__ == "__main__":
     import asyncio

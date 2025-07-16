@@ -32,7 +32,7 @@ import json
 # Sophia AI Core Imports
 from backend.core.auto_esc_config import get_config_value
 from backend.core.redis_connection_manager import get_redis_client
-from backend.services.sophia_unified_memory_service import get_memory_service
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -81,7 +81,7 @@ class LargeFileIngestionService:
         """Initialize Redis and memory service connections"""
         try:
             self.redis_client = await get_redis_client()
-            self.memory_service = get_memory_service()
+            self.memory_service = get_coding_memory_service()
             logger.info("✅ Large File Ingestion Service initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize: {e}")

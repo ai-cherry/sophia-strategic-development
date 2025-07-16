@@ -20,7 +20,6 @@ from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime, timedelta
 
 # Import services to test
-from backend.services.sophia_unified_memory_service import (
     SophiaUnifiedMemoryService,
     get_memory_service
 )
@@ -167,7 +166,6 @@ class TestUnifiedMemoryService:
         assert "workflow_available" in updated_metrics
         assert "multimodal_available" in updated_metrics
 
-
 class TestMultimodalMemoryService:
     """Test suite for MultimodalMemoryService"""
     
@@ -306,7 +304,6 @@ class TestMultimodalMemoryService:
         assert updated_stats["multimodal_queries"] == 2
         assert "capabilities" in updated_stats
         assert "configuration" in updated_stats
-
 
 class TestHypotheticalRAGService:
     """Test suite for HypotheticalRAGService"""
@@ -513,7 +510,6 @@ class TestHypotheticalRAGService:
         perf_metrics = stats["performance_metrics"]
         assert "cache_hit_rate" in perf_metrics
         assert "hypothetical_generated" in perf_metrics
-
 
 class TestPhase2Integration:
     """Integration tests for Phase 2 components working together"""
@@ -737,7 +733,6 @@ class TestPhase2Integration:
             assert pruning_metrics.total_documents_after == final_cache_size
             assert pruning_metrics.storage_freed_mb >= 0
 
-
 # Performance benchmarks
 class TestPhase2Performance:
     """Performance benchmarks for Phase 2 implementation"""
@@ -825,7 +820,6 @@ class TestPhase2Performance:
                 service.pruning_task.cancel()
             if service.warming_task:
                 service.warming_task.cancel()
-
 
 if __name__ == "__main__":
     # Run tests

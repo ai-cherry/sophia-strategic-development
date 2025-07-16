@@ -24,7 +24,6 @@ from pydantic_settings import BaseSettings
 
 logger = logging.getLogger(__name__)
 
-
 class SecurityMetricsSettings(BaseSettings):
     """Settings for security metrics exporter."""
 
@@ -44,7 +43,6 @@ class SecurityMetricsSettings(BaseSettings):
     class Config:
         env_prefix = "SECURITY_METRICS_"
 
-
 class VulnerabilityMetrics(BaseModel):
     """Model for vulnerability metrics."""
 
@@ -63,7 +61,6 @@ class VulnerabilityMetrics(BaseModel):
     by_package: dict[str, int] = {}
     by_severity: dict[str, int] = {}
     age_distribution: dict[str, int] = {}  # e.g., "0-30 days", "31-90 days", etc.
-
 
 class SecurityMetricsExporter:
     """Exports security vulnerability metrics for Prometheus."""
@@ -348,18 +345,15 @@ class SecurityMetricsExporter:
             await self.update_metrics()
             await asyncio.sleep(self.settings.scan_interval_seconds)
 
-
 # FastAPI application
 app = FastAPI(title="Sophia AI Security Metrics Exporter")
 settings = SecurityMetricsSettings()
 exporter = SecurityMetricsExporter(settings)
 
-
 @app.on_event("startup")
 async def startup_event():
     """Start periodic metric updates on startup."""
     asyncio.create_task(exporter.run_periodic_updates())
-
 
 @app.get("/metrics")
 async def metrics():
@@ -367,7 +361,6 @@ async def metrics():
     # Generate latest metrics
     metrics_data = generate_latest(exporter.registry)
     return Response(content=metrics_data, media_type=CONTENT_TYPE_LATEST)
-
 
 @app.get("/health")
 async def health():
@@ -384,12 +377,10 @@ async def health():
         },
     }
 
-
 @app.get("/api/vulnerabilities/summary")
 async def vulnerability_summary():
     """Get current vulnerability summary."""
     return exporter._vulnerability_cache.dict()
-
 
 if __name__ == "__main__":
     import uvicorn

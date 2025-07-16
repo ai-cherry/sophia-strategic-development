@@ -26,11 +26,9 @@ from infrastructure.services.enhanced_sentiment_analyzer import (
     EnhancedSentimentAnalyzer,
     SentimentChannel,
 )
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 from backend.integrations.gong_api_client import GongAPIClient
 
 logger = logging.getLogger(__name__)
-
 
 class EmailSource(str, Enum):
     """Email source types"""
@@ -39,7 +37,6 @@ class EmailSource(str, Enum):
     GMAIL = "gmail"
     OTHER = "other"
 
-
 class CoachingPriority(str, Enum):
     """Coaching priority levels"""
 
@@ -47,7 +44,6 @@ class CoachingPriority(str, Enum):
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
-
 
 @dataclass
 class EmailThreadAnalysis:
@@ -64,7 +60,6 @@ class EmailThreadAnalysis:
     source: EmailSource
     gong_conversation_id: str | None = None
 
-
 @dataclass
 class RealTimeCoachingInsight:
     """Real-time coaching insight"""
@@ -75,7 +70,6 @@ class RealTimeCoachingInsight:
     action_required: bool
     timestamp: datetime
     context: dict[str, Any]
-
 
 class EnhancedMicrosoftGongIntegration:
     """
@@ -735,7 +729,6 @@ class EnhancedMicrosoftGongIntegration:
             ],
             "next_review": (datetime.now() + timedelta(days=7)).isoformat(),
         }
-
 
 # Global instance
 enhanced_microsoft_gong_integration = EnhancedMicrosoftGongIntegration()

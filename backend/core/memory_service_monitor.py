@@ -10,7 +10,6 @@ from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class MemoryServiceMetrics:
     """Memory service performance metrics"""
@@ -22,7 +21,6 @@ class MemoryServiceMetrics:
     connection_pool_active: int = 0
     connection_pool_idle: int = 0
     error_count: int = 0
-    
 
 class MemoryServiceMonitor:
     """Monitors memory service performance"""
@@ -100,10 +98,8 @@ class MemoryServiceMonitor:
         logger.info(f"   Cache Performance: {summary['cache_performance']}")
         logger.info(f"   Connection Pool: {summary['connection_pool']}")
 
-
 # Global monitor instance
 _monitor: Optional[MemoryServiceMonitor] = None
-
 
 def get_memory_monitor() -> MemoryServiceMonitor:
     """Get global memory service monitor"""

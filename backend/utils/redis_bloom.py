@@ -10,7 +10,6 @@ except ModuleNotFoundError:  # pragma: no cover
 
 __all__ = ["DedupBloomFilter"]
 
-
 class DedupBloomFilter:
     """Simple Redis-backed Bloom filter for high-volume deduplication."""
 

@@ -16,7 +16,6 @@ lambda_integration = LambdaLabsChatIntegration()
 cost_monitor = LambdaLabsCostMonitor()
 router_service = LambdaLabsHybridRouter()
 
-
 class GenerateRequest(BaseModel):
     """Request for text generation."""
 
@@ -26,7 +25,6 @@ class GenerateRequest(BaseModel):
     max_tokens: int = Field(1000, description="Maximum tokens")
     temperature: float = Field(0.7, description="Sampling temperature")
     force_backend: str | None = Field(None, description="Force specific backend")
-
 
 class GenerateResponse(BaseModel):
     """Response from text generation."""
@@ -38,7 +36,6 @@ class GenerateResponse(BaseModel):
     cost_usd: float
     latency_ms: int | None = None
 
-
 class UsageStatsResponse(BaseModel):
     """Usage statistics response."""
 
@@ -48,7 +45,6 @@ class UsageStatsResponse(BaseModel):
     total_requests: int
     budget_status: dict[str, Any]
 
-
 class CostEstimateResponse(BaseModel):
     """Cost estimation response."""
 
@@ -56,7 +52,6 @@ class CostEstimateResponse(BaseModel):
     estimated_tokens: int
     cost_estimates: dict[str, float]
     recommended_model: str
-
 
 @router.post("/generate", response_model=GenerateResponse)
 async def generate_text(request: GenerateRequest) -> GenerateResponse:
@@ -110,7 +105,6 @@ async def generate_text(request: GenerateRequest) -> GenerateResponse:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/usage/stats", response_model=UsageStatsResponse)
 async def get_usage_stats(
     days: int = Query(7, description="Number of days to analyze")
@@ -149,7 +143,6 @@ async def get_usage_stats(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/estimate-cost", response_model=CostEstimateResponse)
 async def estimate_cost(prompt: str) -> CostEstimateResponse:
@@ -192,7 +185,6 @@ async def estimate_cost(prompt: str) -> CostEstimateResponse:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/budget/status")
 async def get_budget_status() -> dict[str, Any]:
     """Get current budget status.
@@ -205,7 +197,6 @@ async def get_budget_status() -> dict[str, Any]:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/budget/remaining")
 async def get_remaining_budget() -> dict[str, float]:
     """Get remaining budget.
@@ -217,7 +208,6 @@ async def get_remaining_budget() -> dict[str, float]:
         return cost_monitor.get_remaining_budget()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/health")
 async def health_check() -> dict[str, str]:

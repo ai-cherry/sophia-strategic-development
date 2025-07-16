@@ -41,7 +41,6 @@ from backend.services.enhanced_chat_service_v4 import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class EcosystemChatDemo:
     """Demonstration of complete ecosystem chat capabilities"""
 
@@ -314,7 +313,6 @@ class EcosystemChatDemo:
                 print(f"❌ Error: {e}")
                 print()
 
-
 async def main():
     """Main startup function"""
 
@@ -335,7 +333,6 @@ async def main():
     # Initialize and run demo
     demo = EcosystemChatDemo()
     await demo.run_demo()
-
 
 if __name__ == "__main__":
     try:

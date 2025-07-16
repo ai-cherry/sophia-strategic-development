@@ -31,7 +31,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class PostgresMCPServer(StandardizedMCPServer):
     """PostgreSQL MCP Server for database operations"""
 
@@ -379,7 +378,6 @@ class PostgresMCPServer(StandardizedMCPServer):
             }
         else:
             return result
-
 
 # Create and run server
 if __name__ == "__main__":

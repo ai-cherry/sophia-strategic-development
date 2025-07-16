@@ -4,14 +4,11 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-
 class DataValidationError(Exception):
     pass
 
-
 class EmptyResultError(Exception):
     pass
-
 
 class DataTransformer:
     """Transform and validate data from various sources"""

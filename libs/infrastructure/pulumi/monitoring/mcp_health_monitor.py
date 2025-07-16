@@ -29,13 +29,11 @@ mcp_restart_count = Counter(
     "mcp_server_restarts", "Restart count for MCP servers", ["server_name"]
 )
 
-
 class HealthStatus(Enum):
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
     UNKNOWN = "unknown"
-
 
 @dataclass
 class ServerHealth:
@@ -46,7 +44,6 @@ class ServerHealth:
     error_message: str | None = None
     capabilities: list[str] | None = None
     consecutive_failures: int = 0
-
 
 class MCPHealthMonitor:
     """
@@ -270,7 +267,6 @@ class MCPHealthMonitor:
     async def close(self):
         """Clean up resources"""
         await self.client.aclose()
-
 
 # Singleton instance
 health_monitor = MCPHealthMonitor()

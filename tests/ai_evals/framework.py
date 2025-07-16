@@ -30,7 +30,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class EvaluationMetric(Enum):
     """Available evaluation metrics for AI outputs"""
 
@@ -43,7 +42,6 @@ class EvaluationMetric(Enum):
     FACTUALITY = "factuality"
     HELPFULNESS = "helpfulness"
 
-
 class TestCaseCategory(Enum):
     """Categories for AI test cases"""
 
@@ -55,7 +53,6 @@ class TestCaseCategory(Enum):
     SECURITY_VALIDATION = "security_validation"
     PROMPT_INJECTION = "prompt_injection"
     EDGE_CASES = "edge_cases"
-
 
 @dataclass
 class AITestCase:
@@ -73,7 +70,6 @@ class AITestCase:
     tags: list[str] = field(default_factory=list)
     description: str = ""
 
-
 @dataclass
 class EvaluationResult:
     """Result of an AI evaluation"""
@@ -88,7 +84,6 @@ class EvaluationResult:
     warnings: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.utcnow)
-
 
 class AIEvaluationFramework:
     """Comprehensive AI evaluation framework for Sophia AI"""
@@ -694,7 +689,6 @@ class AIEvaluationFramework:
         else:
             return data
 
-
 # Example usage
 async def main():
     """Example usage of AI Evaluation Framework"""
@@ -720,7 +714,6 @@ async def main():
 
     # Save report
     eval_framework.save_evaluation_report(results, "mock_evaluation")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

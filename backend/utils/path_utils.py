@@ -15,7 +15,6 @@ Date: July 12, 2025
 import sys
 from pathlib import Path
 
-
 def add_project_root_to_path():
     """
     Adds the project root directory to the Python path if it's not already there.
@@ -23,7 +22,6 @@ def add_project_root_to_path():
     project_root = Path(__file__).resolve().parent.parent.parent
     if str(project_root) not in sys.path:
         sys.path.append(str(project_root))
-
 
 # Automatically add the path when this module is imported.
 add_project_root_to_path()

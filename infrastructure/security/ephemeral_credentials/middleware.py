@@ -24,7 +24,6 @@ from infrastructure.security.ephemeral_credentials.service import (
 
 logger = logging.getLogger(__name__)
 
-
 class EphemeralCredentialsMiddleware(BaseHTTPMiddleware):
     """
     Middleware for authenticating requests using ephemeral credentials.
@@ -201,7 +200,6 @@ class EphemeralCredentialsMiddleware(BaseHTTPMiddleware):
 
         # No specific scopes required
         return None
-
 
 def setup_ephemeral_credentials_middleware(
     app: FastAPI,

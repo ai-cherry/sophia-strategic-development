@@ -46,9 +46,7 @@ from infrastructure.security.rbac.service import get_rbac_service
 # Create router
 router = APIRouter(prefix="/api/v3/rbac", tags=["RBAC"])
 
-
 # Request and response models
-
 
 class PermissionCreate(BaseModel):
     """Model for creating a permission"""
@@ -60,7 +58,6 @@ class PermissionCreate(BaseModel):
     condition: dict[str, Any] | None = None
     description: str | None = None
 
-
 class RoleCreate(BaseModel):
     """Model for creating a role"""
 
@@ -68,14 +65,12 @@ class RoleCreate(BaseModel):
     permissions: list[PermissionCreate]
     description: str | None = None
 
-
 class RoleUpdate(BaseModel):
     """Model for updating a role"""
 
     name: str | None = None
     permissions: list[PermissionCreate] | None = None
     description: str | None = None
-
 
 class RoleResponse(BaseModel):
     """Model for role response"""
@@ -88,7 +83,6 @@ class RoleResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-
 class UserCreate(BaseModel):
     """Model for creating a user"""
 
@@ -99,7 +93,6 @@ class UserCreate(BaseModel):
     is_active: bool = True
     is_system_admin: bool = False
 
-
 class UserUpdate(BaseModel):
     """Model for updating a user"""
 
@@ -108,7 +101,6 @@ class UserUpdate(BaseModel):
     department: str | None = None
     is_active: bool | None = None
     is_system_admin: bool | None = None
-
 
 class UserResponse(BaseModel):
     """Model for user response"""
@@ -122,7 +114,6 @@ class UserResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-
 class RoleAssignmentCreate(BaseModel):
     """Model for creating a role assignment"""
 
@@ -133,7 +124,6 @@ class RoleAssignmentCreate(BaseModel):
     constraints: dict[str, Any] | None = None
     expires_at: datetime | None = None
 
-
 class RoleAssignmentUpdate(BaseModel):
     """Model for updating a role assignment"""
 
@@ -141,7 +131,6 @@ class RoleAssignmentUpdate(BaseModel):
     scope_id: str | None = None
     constraints: dict[str, Any] | None = None
     expires_at: datetime | None = None
-
 
 class RoleAssignmentResponse(BaseModel):
     """Model for role assignment response"""
@@ -156,7 +145,6 @@ class RoleAssignmentResponse(BaseModel):
     expires_at: datetime | None = None
     created_by: str | None = None
 
-
 class PermissionCheckRequest(BaseModel):
     """Model for permission check request"""
 
@@ -165,7 +153,6 @@ class PermissionCheckRequest(BaseModel):
     action: ActionType
     resource_id: str | None = None
     context: dict[str, Any] | None = None
-
 
 class PermissionCheckResponse(BaseModel):
     """Model for permission check response"""
@@ -177,9 +164,7 @@ class PermissionCheckResponse(BaseModel):
     resource_id: str | None = None
     context: dict[str, Any] | None = None
 
-
 # Role routes
-
 
 @router.get("/roles", response_model=list[RoleResponse])
 async def get_roles(
@@ -193,7 +178,6 @@ async def get_roles(
     """
     rbac_service = get_rbac_service()
     return rbac_service.get_roles()
-
 
 @router.get("/roles/{role_id}", response_model=RoleResponse)
 async def get_role(
@@ -222,7 +206,6 @@ async def get_role(
         )
 
     return role
-
 
 @router.post("/roles", response_model=RoleResponse, status_code=status.HTTP_201_CREATED)
 async def create_role(
@@ -263,7 +246,6 @@ async def create_role(
     )
 
     return role
-
 
 @router.put("/roles/{role_id}", response_model=RoleResponse)
 async def update_role(
@@ -334,7 +316,6 @@ async def update_role(
 
     return updated_role
 
-
 @router.delete("/roles/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role(
     role_id: str = Path(..., description="ID of the role to delete"),
@@ -377,9 +358,7 @@ async def delete_role(
             detail=f"Role not found: {role_id}",
         )
 
-
 # User routes
-
 
 @router.get("/users", response_model=list[UserResponse])
 async def get_users(
@@ -393,7 +372,6 @@ async def get_users(
     """
     rbac_service = get_rbac_service()
     return rbac_service.get_users()
-
 
 @router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(
@@ -422,7 +400,6 @@ async def get_user(
         )
 
     return user
-
 
 @router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
@@ -453,7 +430,6 @@ async def create_user(
     )
 
     return user
-
 
 @router.put("/users/{user_id}", response_model=UserResponse)
 async def update_user(
@@ -496,7 +472,6 @@ async def update_user(
 
     return updated_user
 
-
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: str = Path(..., description="ID of the user to delete"),
@@ -524,9 +499,7 @@ async def delete_user(
             detail=f"User not found: {user_id}",
         )
 
-
 # Role assignment routes
-
 
 @router.get("/assignments", response_model=list[RoleAssignmentResponse])
 async def get_role_assignments(
@@ -546,7 +519,6 @@ async def get_role_assignments(
     """
     rbac_service = get_rbac_service()
     return rbac_service.get_role_assignments(user_id=user_id, role_id=role_id)
-
 
 @router.get("/assignments/{assignment_id}", response_model=RoleAssignmentResponse)
 async def get_role_assignment(
@@ -575,7 +547,6 @@ async def get_role_assignment(
         )
 
     return assignment
-
 
 @router.post(
     "/assignments",
@@ -638,7 +609,6 @@ async def create_role_assignment(
 
     return assignment
 
-
 @router.put("/assignments/{assignment_id}", response_model=RoleAssignmentResponse)
 async def update_role_assignment(
     assignment_update: RoleAssignmentUpdate,
@@ -679,7 +649,6 @@ async def update_role_assignment(
 
     return updated_assignment
 
-
 @router.delete("/assignments/{assignment_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role_assignment(
     assignment_id: str = Path(..., description="ID of the role assignment to delete"),
@@ -707,9 +676,7 @@ async def delete_role_assignment(
             detail=f"Role assignment not found: {assignment_id}",
         )
 
-
 # Permission checking routes
-
 
 @router.post("/check", response_model=PermissionCheckResponse)
 async def check_permission(

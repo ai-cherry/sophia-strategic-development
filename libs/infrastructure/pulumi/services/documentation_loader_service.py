@@ -11,14 +11,12 @@ from typing import Any
 
 from shared.utils.custom_logger import logger
 
-
 class DocumentationTier(Enum):
     """Documentation tiers for auto-loading"""
 
     FOUNDATION = 1  # Core system knowledge
     COMPONENT = 2  # Service-specific context
     FEATURE = 3  # Task-specific patterns
-
 
 @dataclass
 class DocumentationContext:
@@ -29,7 +27,6 @@ class DocumentationContext:
     content: dict[str, Any]
     token_count: int
     loading_time: float
-
 
 class DocumentationLoaderService:
     """
@@ -372,10 +369,8 @@ class DocumentationLoaderService:
             "supported_task_types": list(self.task_documentation_mapping.keys()),
         }
 
-
 # Global instance
 _loader_instance = None
-
 
 async def get_documentation_loader() -> DocumentationLoaderService:
     """Get singleton documentation loader instance"""

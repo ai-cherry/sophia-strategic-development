@@ -36,7 +36,6 @@ structlog.configure(
     cache_logger_on_first_use=True,
 )
 
-
 class HealthStatus(Enum):
     """Health status enumeration"""
 
@@ -44,7 +43,6 @@ class HealthStatus(Enum):
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
     UNKNOWN = "unknown"
-
 
 @dataclass
 class HealthCheck:
@@ -55,7 +53,6 @@ class HealthCheck:
     message: str = ""
     details: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.utcnow)
-
 
 @dataclass
 class ServiceMetrics:
@@ -92,7 +89,6 @@ class ServiceMetrics:
                 f"Active connections for {service_name}",
             ),
         )
-
 
 class MetricsCollector:
     """Centralized metrics collection"""
@@ -160,7 +156,6 @@ class MetricsCollector:
             HealthStatus.UNKNOWN: 0,
         }
         self.system_health.set(health_value[status])
-
 
 class HealthMonitor:
     """Centralized health monitoring"""
@@ -243,11 +238,9 @@ class HealthMonitor:
         else:
             return HealthStatus.DEGRADED
 
-
 def get_logger(name: str) -> structlog.BoundLogger:
     """Get a structured logger"""
     return structlog.get_logger(name)
-
 
 def log_execution_time(func: Callable) -> Callable:
     """Decorator to log function execution time"""
@@ -306,11 +299,9 @@ def log_execution_time(func: Callable) -> Callable:
     else:
         return sync_wrapper
 
-
 # Global instances
 _metrics_collector: Optional[MetricsCollector] = None
 _health_monitor: Optional[HealthMonitor] = None
-
 
 def get_metrics_collector() -> MetricsCollector:
     """Get or create the global metrics collector"""
@@ -318,7 +309,6 @@ def get_metrics_collector() -> MetricsCollector:
     if _metrics_collector is None:
         _metrics_collector = MetricsCollector()
     return _metrics_collector
-
 
 def get_health_monitor() -> HealthMonitor:
     """Get or create the global health monitor"""

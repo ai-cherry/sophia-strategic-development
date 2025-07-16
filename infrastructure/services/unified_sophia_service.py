@@ -23,7 +23,6 @@ from core.workflows.intelligent_meta_orchestrator import (
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class SophiaResponse:
     """Standardized response format from Sophia"""
@@ -32,7 +31,6 @@ class SophiaResponse:
     suggestions: list[str]
     metadata: dict[str, Any]
     workflow_id: str
-
 
 class UnifiedSophiaService:
     """
@@ -139,7 +137,6 @@ class UnifiedSophiaService:
 # DELETED: Deprecated method removed
 # Singleton instance
 _unified_service: UnifiedSophiaService | None = None
-
 
 def get_unified_sophia_service() -> UnifiedSophiaService:
     """Get the singleton instance of the UnifiedSophiaService"""

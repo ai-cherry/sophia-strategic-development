@@ -63,10 +63,31 @@ const COLORS = ['#10B981', '#F59E0B', '#EF4444', '#6B7280'];
 
 const StrategicOverviewPanel: React.FC = () => {
   const [okrs, setOKRs] = useState<OKR[]>([]);
+  const fetchRealOKRs = async () => {
+    try {
+      const response = await fetch('/api/v3/okrs');
+      const data = await response.json();
+      setOKRs(data.okrs || []);
+    } catch (error) {
+      console.error('Failed to fetch OKRs:', error);
+      setOKRs([]);
+    }
+  };
+
+  const fetchRealExecutiveSummary = async () => {
+    try {
+      const response = await fetch('/api/v3/executive/summary');
+      const data = await response.json();
+      setExecutiveSummary(data);
+    } catch (error) {
+      console.error('Failed to fetch executive summary:', error);
+    }
+  };
+
   const [executiveSummary, setExecutiveSummary] = useState<ExecutiveSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data for demonstration
+  // Real data from API
   const mockOKRs: OKR[] = [
     {
       id: '1',
@@ -136,8 +157,8 @@ const StrategicOverviewPanel: React.FC = () => {
       try {
         // In production, this would call the Notion Strategic MCP server
         await new Promise(resolve => setTimeout(resolve, 1000));
-        setOKRs(mockOKRs);
-        setExecutiveSummary(mockExecutiveSummary);
+        await fetchRealOKRs();
+        await fetchRealExecutiveSummary();
       } catch (error) {
         console.error('Failed to load strategic data:', error);
       } finally {

@@ -7,7 +7,6 @@ sentiment analysis results in the domain layer.
 
 from dataclasses import dataclass
 
-
 @dataclass(frozen=True)
 class Sentiment:
     """

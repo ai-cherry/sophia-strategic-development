@@ -763,7 +763,6 @@ if __name__ == "__main__":
         """Create prevention automation"""
         logger.info("Creating prevention automation...")
 
-
 def main():
     """Main orchestrator function"""
     parser = argparse.ArgumentParser(description="Technical Debt Remediation Orchestrator")

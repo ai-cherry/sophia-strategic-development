@@ -21,7 +21,6 @@ from typing import Any
 
 __all__ = ["safe_import"]
 
-
 def safe_import(
     name: str, fallback_attrs: Mapping[str, Any] | None = None
 ) -> ModuleType:

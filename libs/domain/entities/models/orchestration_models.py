@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-
 @dataclass
 class ResearchReport:
     """Research report for orchestration patterns"""
@@ -11,7 +10,6 @@ class ResearchReport:
     key_patterns: dict[str, Any]
     implementation_recommendations: dict[str, Any]
     architecture_insights: dict[str, Any]
-
 
 @dataclass
 class OrchestrationArchitecture:
@@ -23,7 +21,6 @@ class OrchestrationArchitecture:
     monitoring_framework: dict[str, Any]
     research_validation: bool = True
 
-
 @dataclass
 class OrchestrationState:
     """State for LangGraph orchestration workflow"""
@@ -34,7 +31,6 @@ class OrchestrationState:
     timestamp: datetime | None = None
     agents_available: list[str] | None = None
     memory_context: dict[str, Any] | None = None
-
 
 @dataclass
 class OrchestrationResult:
@@ -48,7 +44,6 @@ class OrchestrationResult:
     coordination_efficiency: float | None = None
     error: str | None = None
 
-
 @dataclass
 class DevelopmentState:
     """State for development group workflow"""
@@ -60,7 +55,6 @@ class DevelopmentState:
     memory_usage_metrics: dict[str, Any] | None = None
     infrastructure_state: dict[str, Any] | None = None
     development_plan: dict[str, Any] | None = None
-
 
 @dataclass
 class DevelopmentResult:
@@ -75,7 +69,6 @@ class DevelopmentResult:
     deployment_status: str | None = None
     shared_outputs: dict[str, Any] | None = None
 
-
 @dataclass
 class BusinessIntelligenceState:
     """State for business intelligence group workflow"""
@@ -86,7 +79,6 @@ class BusinessIntelligenceState:
     available_data_sources: list[str] | None = None
     current_metrics: dict[str, Any] | None = None
     external_research_required: bool | None = None
-
 
 @dataclass
 class BusinessIntelligenceResult:
@@ -102,7 +94,6 @@ class BusinessIntelligenceResult:
     confidence_scores: dict[str, float] | None = None
     shared_outputs: dict[str, Any] | None = None
 
-
 @dataclass
 class TaskAnalysis:
     """Analysis of cross-group task requirements"""
@@ -114,7 +105,6 @@ class TaskAnalysis:
     can_parallelize: bool = True
     dev_first: bool = False
     coordination_strategy: str = "parallel"
-
 
 @dataclass
 class CrossGroupResult:

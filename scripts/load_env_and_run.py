@@ -9,7 +9,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 def load_local_env():
     """Load environment variables from local.env file"""
     env_file = Path("local.env")
@@ -34,7 +33,6 @@ def load_local_env():
 
     print(f"✅ Loaded {loaded_count} environment variables from local.env")
     return True
-
 
 def main():
     """Main function to load env and run command"""
@@ -64,7 +62,6 @@ def main():
     except Exception as e:
         print(f"❌ Error running command: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

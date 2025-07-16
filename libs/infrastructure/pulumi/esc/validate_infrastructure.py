@@ -9,7 +9,6 @@ import json
 import subprocess
 from pathlib import Path
 
-
 class InfrastructureValidator:
     def __init__(self):
         self.results = {
@@ -261,7 +260,6 @@ class InfrastructureValidator:
         self.validate_services()
 
         self.generate_report()
-
 
 if __name__ == "__main__":
     validator = InfrastructureValidator()

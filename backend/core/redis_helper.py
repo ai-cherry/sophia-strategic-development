@@ -22,7 +22,6 @@ cache_latency = Histogram(
     "redis_cache_latency_seconds", "Cache operation latency", ["operation"]
 )
 
-
 class RedisHelper:
     """Helper class for consistent Redis operations with metrics"""
 

@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
-
 class ContactType(Enum):
     """Enumeration of contact types."""
 
@@ -19,7 +18,6 @@ class ContactType(Enum):
     VENDOR = "vendor"
     OTHER = "other"
 
-
 class EngagementLevel(Enum):
     """Enumeration of engagement levels."""
 
@@ -27,7 +25,6 @@ class EngagementLevel(Enum):
     WARM = "warm"
     HOT = "hot"
     CHAMPION = "champion"
-
 
 @dataclass
 class Contact:

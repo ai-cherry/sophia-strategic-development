@@ -1,0 +1,105 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-backend-production
+  namespace: sophia-ai-prod
+  labels:
+    app: sophia-backend
+    environment: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sophia-backend
+  template:
+    metadata:
+      labels:
+        app: sophia-backend
+    spec:
+      containers:
+      - name: sophia-backend
+        image: scoobyjava15/sophia-backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENVIRONMENT
+          value: "prod"
+        - name: PULUMI_ORG
+          value: "scoobyjava-org"
+        - name: API_DOMAIN
+          value: "api.sophia-intel.ai"
+        - name: APP_DOMAIN
+          value: "sophia-intel.ai"
+        envFrom:
+        - secretRef:
+            name: sophia-secrets
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sophia-backend-service
+  namespace: sophia-ai-prod
+spec:
+  selector:
+    app: sophia-backend
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sophia-intel-ingress
+  namespace: sophia-ai-prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - api.sophia-intel.ai
+    - sophia-intel.ai
+    secretName: sophia-intel-tls
+  rules:
+  - host: api.sophia-intel.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sophia-backend-service
+            port:
+              number: 80
+  - host: sophia-intel.ai
+    http:
+      paths:
+      - path: /api/
+        pathType: Prefix
+        backend:
+          service:
+            name: sophia-backend-service
+            port:
+              number: 80

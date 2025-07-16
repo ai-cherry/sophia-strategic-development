@@ -17,7 +17,6 @@ Recommended decomposition:
 
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -28,13 +27,10 @@ from typing import Any
 import asyncpg
 import redis.asyncio as redis
 
-
 from core.config_manager import get_config_value
 from infrastructure.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
-
 
 class DataSource(Enum):
     """Supported data sources"""
@@ -45,7 +41,6 @@ class DataSource(Enum):
     SALESFORCE = "salesforce"
     ZENDESK = "zendesk"
 
-
 class FlowStatus(Enum):
     """Estuary Flow status"""
 
@@ -53,7 +48,6 @@ class FlowStatus(Enum):
     PAUSED = "paused"
     FAILED = "failed"
     INITIALIZING = "initializing"
-
 
 @dataclass
 class EstuaryPipelineConfig:
@@ -71,7 +65,6 @@ class EstuaryPipelineConfig:
     max_retries: int = 3
     flow_prefix: str = "sophia_ai"
 
-
 @dataclass
 class PipelineStatus:
     """Status of the Estuary Flow pipeline"""
@@ -84,7 +77,6 @@ class PipelineStatus:
     metrics: dict[str, Any] = field(default_factory=dict)
     total_records_processed: int = 0
     data_freshness_minutes: int = 0
-
 
 class PureEstuaryDataPipeline:
     """
@@ -134,9 +126,6 @@ class PureEstuaryDataPipeline:
             "tenant": get_config_value("estuary_flow_tenant", "sophia-ai"),
             "namespace": get_config_value("estuary_namespace", "sophia/ai"),
         }
-
-
-
 
     async def __aenter__(self):
         """Async context manager entry"""
@@ -716,9 +705,6 @@ class PureEstuaryDataPipeline:
         """Set up Estuary Flow materialization to Qdrant"""
         logger.info("❄️ Setting up Qdrant integration...")
 
-
-        
-
         )
         QDRANT_materialization[
             "name"
@@ -729,7 +715,6 @@ class PureEstuaryDataPipeline:
         )
 
         self.status.destinations_active["qdrant"] = FlowStatus.ACTIVE
-
 
     async def _setup_redis_caching(self):
         """Set up Redis caching for real-time data access"""
@@ -881,7 +866,6 @@ class PureEstuaryDataPipeline:
             except Exception as e:
                 logger.exception(f"❌ Failed to resume flow {flow_name}: {e}")
 
-
 # Convenience functions for easy pipeline management
 async def setup_sophia_data_pipeline(
     config: EstuaryPipelineConfig | None = None,
@@ -890,7 +874,6 @@ async def setup_sophia_data_pipeline(
     async with PureEstuaryDataPipeline(config) as pipeline:
         return await pipeline.setup_complete_pipeline()
 
-
 async def get_sophia_pipeline_status(
     config: EstuaryPipelineConfig | None = None,
 ) -> PipelineStatus:
@@ -898,18 +881,15 @@ async def get_sophia_pipeline_status(
     async with PureEstuaryDataPipeline(config) as pipeline:
         return await pipeline.get_pipeline_status()
 
-
 async def pause_sophia_pipeline(config: EstuaryPipelineConfig | None = None):
     """Pause the Sophia AI data pipeline"""
     async with PureEstuaryDataPipeline(config) as pipeline:
         await pipeline.pause_pipeline()
 
-
 async def resume_sophia_pipeline(config: EstuaryPipelineConfig | None = None):
     """Resume the Sophia AI data pipeline"""
     async with PureEstuaryDataPipeline(config) as pipeline:
         await pipeline.resume_pipeline()
-
 
 if __name__ == "__main__":
     # Example usage

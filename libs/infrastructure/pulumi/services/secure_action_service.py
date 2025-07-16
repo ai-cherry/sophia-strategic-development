@@ -11,7 +11,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class ActionType(Enum):
     """Types of actions that can be executed"""
 
@@ -21,7 +20,6 @@ class ActionType(Enum):
     REPORTING = "reporting"
     INTEGRATION = "integration"
 
-
 class ActionRisk(Enum):
     """Risk levels for actions"""
 
@@ -29,7 +27,6 @@ class ActionRisk(Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
-
 
 @dataclass
 class ActionDefinition:
@@ -43,7 +40,6 @@ class ActionDefinition:
     parameters: dict[str, Any]
     rollback_possible: bool
     approval_required: bool
-
 
 @dataclass
 class ActionExecution:
@@ -60,7 +56,6 @@ class ActionExecution:
     end_time: datetime | None = None
     result: dict[str, Any] | None = None
     error: str | None = None
-
 
 class SecureActionService:
     """Secure action execution service"""

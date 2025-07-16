@@ -4,13 +4,12 @@ Sophia AI Performance Benchmark - July 2025
 Tests GPU memory stack performance vs old Qdrant approach
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service, CodingMCPUnifiedMemoryService
 import asyncio
 import time
 import statistics
 from typing import Dict
 import httpx
-
 
 class Colors:
     GREEN = "\033[92m"
@@ -19,7 +18,6 @@ class Colors:
     BLUE = "\033[94m"
     ENDC = "\033[0m"
     BOLD = "\033[1m"
-
 
 async def benchmark_endpoint(url: str, payload: Dict, iterations: int = 10) -> Dict:
     """Benchmark an endpoint with multiple iterations"""
@@ -59,7 +57,6 @@ async def benchmark_endpoint(url: str, payload: Dict, iterations: int = 10) -> D
         }
     else:
         return {"errors": errors, "success_rate": 0}
-
 
 async def main():
     print(
@@ -230,7 +227,6 @@ async def main():
         print(
             f"{Colors.RED}   Time to check those GPU kernels and vector indexes...{Colors.ENDC}"
         )
-
 
 if __name__ == "__main__":
     asyncio.run(main())

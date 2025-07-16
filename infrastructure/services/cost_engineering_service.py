@@ -30,7 +30,6 @@ Recommended decomposition:
 
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -43,10 +42,8 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.security.audit_logger import AuditLogger
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
-
 
 class ModelTier(Enum):
     """Model tiers based on capability and cost"""
@@ -56,7 +53,6 @@ class ModelTier(Enum):
     LARGE = "large"  # High capability, expensive
     PREMIUM = "premium"  # Highest capability, most expensive
 
-
 class TaskComplexity(Enum):
     """Task complexity levels"""
 
@@ -65,7 +61,6 @@ class TaskComplexity(Enum):
     COMPLEX = "complex"  # Multi-step reasoning, complex analysis
     EXPERT = "expert"  # Specialized domain knowledge required
 
-
 class CostOptimizationStrategy(Enum):
     """Cost optimization strategies"""
 
@@ -73,7 +68,6 @@ class CostOptimizationStrategy(Enum):
     BALANCED = "balanced"  # Balance performance and cost
     COST_FIRST = "cost_first"  # Minimize cost, acceptable performance
     ADAPTIVE = "adaptive"  # Adapt based on usage patterns
-
 
 @dataclass
 class ModelConfig:
@@ -88,7 +82,6 @@ class ModelConfig:
     capabilities: list[str]
     provider: str = "QDRANT_cortex"
 
-
 @dataclass
 class CostMetrics:
     """Cost tracking metrics"""
@@ -101,7 +94,6 @@ class CostMetrics:
     avg_latency_ms: float = 0.0
     cost_savings: float = 0.0
     timestamp: datetime = field(default_factory=datetime.now)
-
 
 @dataclass
 class TaskRequest:
@@ -119,7 +111,6 @@ class TaskRequest:
     priority: str = "normal"  # low, normal, high
     metadata: dict[str, Any] = field(default_factory=dict)
 
-
 @dataclass
 class TaskResponse:
     """Response from LLM task processing"""
@@ -134,7 +125,6 @@ class TaskResponse:
     cache_hit: bool
     optimization_applied: list[str]
     metadata: dict[str, Any] = field(default_factory=dict)
-
 
 class CostEngineeringService:
     """
@@ -1050,7 +1040,6 @@ class CostEngineeringService:
         # Implementation would update routing rules based on
         # observed performance and cost data
         pass
-
 
 # Global instance
 cost_engineering_service = CostEngineeringService()

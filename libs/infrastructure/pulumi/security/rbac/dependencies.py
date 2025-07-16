@@ -37,9 +37,7 @@ logger = logging.getLogger(__name__)
 # OAuth2 scheme for token extraction
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
-
 # User extraction
-
 
 async def get_current_user(token: str | None = Depends(oauth2_scheme)) -> User:
     """
@@ -94,7 +92,6 @@ async def get_current_user(token: str | None = Depends(oauth2_scheme)) -> User:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-
 async def get_optional_user(token: str | None = Depends(oauth2_scheme)) -> User | None:
     """
     Get the current user from the token, or None if not authenticated.
@@ -113,9 +110,7 @@ async def get_optional_user(token: str | None = Depends(oauth2_scheme)) -> User 
     except HTTPException:
         return None
 
-
 # Permission checking dependencies
-
 
 def require_permission(
     resource_type: ResourceType,
@@ -227,7 +222,6 @@ def require_permission(
 
     return check_permission
 
-
 def require_system_admin(user: User = Depends(get_current_user)) -> User:
     """
     Dependency for checking if the current user is a system administrator.
@@ -263,9 +257,7 @@ def require_system_admin(user: User = Depends(get_current_user)) -> User:
 
     return user
 
-
 # RBAC middleware
-
 
 class RBACMiddleware:
     """
@@ -480,11 +472,9 @@ class RBACMiddleware:
         key = f"{method or '*'}:{path}"
         self.route_config[key] = config
 
-
 # Decorators
 
 T = TypeVar("T", bound=Callable)
-
 
 def requires_permission(
     resource_type: ResourceType,
@@ -533,7 +523,6 @@ def requires_permission(
 
     return decorator
 
-
 def requires_system_admin[T: Callable](func: T) -> T:
     """
     Decorator for requiring system administrator access to an endpoint.
@@ -571,9 +560,7 @@ def requires_system_admin[T: Callable](func: T) -> T:
 
     return func
 
-
 # Setup function for FastAPI
-
 
 def setup_rbac(
     app: FastAPI,

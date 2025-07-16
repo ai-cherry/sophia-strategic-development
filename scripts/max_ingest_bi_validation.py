@@ -34,6 +34,5 @@
         print(f"\n❌ Validation failed: {str(e)}")
         raise
 
-
 if __name__ == "__main__":
     asyncio.run(main()) 

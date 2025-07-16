@@ -13,7 +13,6 @@ from infrastructure.services.semantic_layer_service import SemanticLayerService
 
 logger = logging.getLogger(__name__)
 
-
 class EnhancedIngestionService:
     """
     Enhanced data ingestion service combining Estuary and OpenFlow.

@@ -40,7 +40,6 @@ from infrastructure.security.ephemeral_credentials.routes import (
 # Import RBAC routes
 from infrastructure.security.rbac.routes import router as rbac_router
 
-
 def _setup_core_routes(router: APIRouter) -> None:
     """Setup core AI and chat routes"""
     router.include_router(
@@ -56,7 +55,6 @@ def _setup_core_routes(router: APIRouter) -> None:
     router.include_router(
         ceo_dashboard_routes.router, tags=["ceo", "dashboard", "executive"]
     )
-
 
 def _setup_integration_routes(router: APIRouter) -> None:
     """Setup third-party integration routes"""
@@ -76,7 +74,6 @@ def _setup_integration_routes(router: APIRouter) -> None:
         tags=["integrations", "notion"],
     )
 
-
 def _setup_data_routes(router: APIRouter) -> None:
     """Setup data and analytics routes"""
     router.include_router(
@@ -92,7 +89,6 @@ def _setup_data_routes(router: APIRouter) -> None:
     router.include_router(
         large_data_import_routes.router, prefix="/api/v1/data", tags=["data", "import"]
     )
-
 
 def _setup_admin_routes(router: APIRouter) -> None:
     """Setup administrative and management routes"""
@@ -112,7 +108,6 @@ def _setup_admin_routes(router: APIRouter) -> None:
         tags=["integrations", "codacy"],
     )
 
-
 def _setup_monitoring_routes(router: APIRouter) -> None:
     """Setup monitoring and health check routes"""
     router.include_router(
@@ -128,7 +123,6 @@ def _setup_monitoring_routes(router: APIRouter) -> None:
         lambda_labs_health_routes.router,
     )
 
-
 def _setup_security_routes(router: APIRouter) -> None:
     """Setup security and access control routes"""
     router.include_router(
@@ -139,7 +133,6 @@ def _setup_security_routes(router: APIRouter) -> None:
         ephemeral_credentials_router,
         tags=["security", "credentials", "access-control"],
     )
-
 
 def create_application_router() -> APIRouter:
     """

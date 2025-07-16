@@ -16,7 +16,6 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-
 class MCPServerConfig(BaseModel):
     """Configuration for an MCP server"""
     name: str
@@ -25,7 +24,6 @@ class MCPServerConfig(BaseModel):
     health_endpoint: str = "/health"
     timeout: int = 5
     critical: bool = True
-
 
 class HealthStatus(BaseModel):
     """Health status for a server"""
@@ -36,7 +34,6 @@ class HealthStatus(BaseModel):
     error: Optional[str] = None
     last_check: datetime = Field(default_factory=lambda: datetime.now(UTC))
     consecutive_failures: int = 0
-
 
 class MCPHealthMonitor:
     """Monitor health of all MCP servers"""
@@ -307,10 +304,8 @@ class MCPHealthMonitor:
         
         return results
 
-
 # Global monitor instance
 _health_monitor: Optional[MCPHealthMonitor] = None
-
 
 def get_health_monitor() -> MCPHealthMonitor:
     """Get or create health monitor instance"""

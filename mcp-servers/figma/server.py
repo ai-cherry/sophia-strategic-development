@@ -31,7 +31,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class FigmaContextMCPServer(StandardizedMCPServer):
     """Figma Context MCP Server for design integration"""
 
@@ -409,7 +408,6 @@ export default {{
             ],
             "count": len(images),
         }
-
 
 # Create and run server
 if __name__ == "__main__":

@@ -14,10 +14,8 @@ from typing import Any
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
-
 
 class InsightType(Enum):
     """Types of insights that can be shared"""
@@ -29,7 +27,6 @@ class InsightType(Enum):
     OPERATIONAL_EFFICIENCY = "operational_efficiency"
     RISK_ASSESSMENT = "risk_assessment"
     OPPORTUNITY_IDENTIFICATION = "opportunity_identification"
-
 
 @dataclass
 class CrossGroupInsight:
@@ -44,7 +41,6 @@ class CrossGroupInsight:
     metadata: dict[str, Any]
     created_at: datetime
     used_count: int = 0
-
 
 class SharedInsightStore:
     """In-memory store for cross-group insights"""
@@ -96,7 +92,6 @@ class SharedInsightStore:
 
         return results[:10]  # Limit results
 
-
 class CollaborationPatternLearner:
     """Learns patterns of successful cross-group collaborations"""
 
@@ -140,7 +135,6 @@ class CollaborationPatternLearner:
                         recommendations.append(group)
 
         return list(set(recommendations))
-
 
 class CrossGroupIntelligenceHub:
     """

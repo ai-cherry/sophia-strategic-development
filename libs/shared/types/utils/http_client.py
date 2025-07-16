@@ -20,7 +20,6 @@ from shared.utils.errors import (
 
 logger = logging.getLogger(__name__)
 
-
 class HTTPClient:
     """Async HTTP client with retry logic and error handling"""
 
@@ -183,7 +182,6 @@ class HTTPClient:
         return await self._request_with_retry(
             "PATCH", url, json=json, data=data, **kwargs
         )
-
 
 class APIClient(HTTPClient):
     """Enhanced API client with authentication and service-specific features"""

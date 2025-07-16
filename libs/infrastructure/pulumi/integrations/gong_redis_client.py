@@ -21,7 +21,6 @@ from pydantic import BaseModel, Field
 
 logger = structlog.get_logger()
 
-
 class NotificationPriority(str, Enum):
     """Notification priority levels."""
 
@@ -29,7 +28,6 @@ class NotificationPriority(str, Enum):
     MEDIUM = "medium"
     HIGH = "high"
     URGENT = "urgent"
-
 
 class NotificationType(str, Enum):
     """Types of notifications."""
@@ -40,7 +38,6 @@ class NotificationType(str, Enum):
     PROCESSING_ERROR = "processing_error"
     INSIGHT_DETECTED = "insight_detected"
     ACTION_REQUIRED = "action_required"
-
 
 class ProcessedCallData(BaseModel):
     """Processed call data for notifications."""
@@ -57,7 +54,6 @@ class ProcessedCallData(BaseModel):
     talk_ratio: float | None = None
     next_steps: list[str] = Field(default_factory=list)
 
-
 class ProcessedEmailData(BaseModel):
     """Processed email data for notifications."""
 
@@ -70,7 +66,6 @@ class ProcessedEmailData(BaseModel):
     key_topics: list[str] = Field(default_factory=list)
     requires_response: bool = False
 
-
 class ProcessedMeetingData(BaseModel):
     """Processed meeting data for notifications."""
 
@@ -82,7 +77,6 @@ class ProcessedMeetingData(BaseModel):
     attendees: list[dict[str, Any]]
     agenda_items: list[str] = Field(default_factory=list)
     decisions: list[str] = Field(default_factory=list)
-
 
 class RedisNotificationClient:
     """Client for sending notifications via Redis pub/sub."""

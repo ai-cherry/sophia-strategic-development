@@ -12,7 +12,6 @@ from infrastructure.security.secret_management import SecretManager
 
 logger = logging.getLogger(__name__)
 
-
 class SecureCredentialService:
     """Secure credential retrieval service integrated with Pulumi ESC."""
 

@@ -6,7 +6,6 @@ Centralized configuration for all Sophia AI services
 from typing import Dict
 from backend.core.auto_esc_config import get_config_value
 
-
 class AIServiceConfig:
     """Configuration for AI services"""
     
@@ -18,7 +17,6 @@ class AIServiceConfig:
     def validate(self) -> bool:
         """Validate AI service configuration"""
         return bool(self.openai_api_key or self.anthropic_api_key)
-
 
 class DataServiceConfig:
     """Configuration for data services"""
@@ -48,7 +46,6 @@ class DataServiceConfig:
         ]
         return all(required)
 
-
 class BusinessServiceConfig:
     """Configuration for business integration services"""
     
@@ -62,7 +59,6 @@ class BusinessServiceConfig:
         """Validate business service configuration"""
         return bool(self.gong_api_key or self.hubspot_api_key)
 
-
 class InfrastructureConfig:
     """Configuration for infrastructure services"""
     
@@ -74,7 +70,6 @@ class InfrastructureConfig:
     def validate(self) -> bool:
         """Validate infrastructure configuration"""
         return bool(self.lambda_labs_api_key)
-
 
 class UnifiedServiceConfig:
     """Unified configuration for all services"""

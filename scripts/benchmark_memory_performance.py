@@ -14,14 +14,13 @@ import sys
 
 sys.path.append("/Users/lynnmusil/sophia-main")
 
-from backend.services.unified_memory_service import get_unified_memory_service as get_v1
-from backend.services.unified_memory_service import (
-    get_unified_memory_service as get_v2,
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service as get_v1
+from backend.services.coding_mcp_unified_memory_service import (
+    get_coding_memory_service as get_v2,
 )
 from backend.utils.logger_config import get_logger
 
 logger = get_logger(__name__)
-
 
 class MemoryBenchmark:
     """Benchmark to prove Qdrant is obsolete"""
@@ -201,7 +200,6 @@ class MemoryBenchmark:
             f"📈 At 100k daily operations, that's {total_time_saved_per_1000_ops * 100:.0f} minutes saved per day!"
         )
 
-
 async def main():
     """Run the benchmark showdown"""
 
@@ -265,7 +263,6 @@ async def main():
         print("  - Embedding: ~300-500ms")
         print("  - Search: ~200-400ms")
         raise
-
 
 if __name__ == "__main__":
     asyncio.run(main())

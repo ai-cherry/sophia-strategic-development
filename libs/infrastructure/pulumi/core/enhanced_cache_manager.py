@@ -26,7 +26,6 @@ from core.hierarchical_cache import (
 
 logger = logging.getLogger(__name__)
 
-
 class EnhancedCacheManager:
     """
     Enhanced cache manager that replaces DashboardCacheManager with active caching.
@@ -463,10 +462,8 @@ class EnhancedCacheManager:
             current_avg * (total_requests - 1) + response_time
         ) / total_requests
 
-
 # Global cache manager instance for backward compatibility
 _global_cache_manager: EnhancedCacheManager | None = None
-
 
 def get_cache_manager() -> EnhancedCacheManager:
     """Get the global cache manager instance with lazy initialization"""
@@ -474,7 +471,6 @@ def get_cache_manager() -> EnhancedCacheManager:
     if _global_cache_manager is None:
         _global_cache_manager = EnhancedCacheManager()
     return _global_cache_manager
-
 
 async def initialize_cache_system():
     """Initialize the global cache system"""

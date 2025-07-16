@@ -2,7 +2,6 @@
 
 from typing import Any, Protocol
 
-
 class AuditLoggerProtocol(Protocol):
     """Protocol for audit logging across the platform.
 

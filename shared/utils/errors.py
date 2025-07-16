@@ -5,7 +5,6 @@ All common exceptions should be defined here to avoid duplication
 
 from typing import Any, Optional
 
-
 class RateLimitError(Exception):
     """Exception raised when API rate limits are exceeded"""
 
@@ -24,7 +23,6 @@ class RateLimitError(Exception):
             message = f"[{service}] {message}"
 
         super().__init__(message)
-
 
 class APIError(Exception):
     """Base exception for API-related errors"""
@@ -45,7 +43,6 @@ class APIError(Exception):
 
         super().__init__(message)
 
-
 class AuthenticationError(APIError):
     """Exception raised for authentication failures"""
 
@@ -54,12 +51,10 @@ class AuthenticationError(APIError):
     ):
         super().__init__(message, status_code=401, service=service)
 
-
 class ConfigurationError(Exception):
     """Exception raised for configuration issues"""
 
     pass
-
 
 class ValidationError(Exception):
     """Exception raised for data validation failures"""
@@ -69,7 +64,6 @@ class ValidationError(Exception):
         if field:
             message = f"{field}: {message}"
         super().__init__(message)
-
 
 class ConnectionError(Exception):
     """Exception raised for connection failures"""
@@ -90,12 +84,10 @@ class ConnectionError(Exception):
 
         super().__init__(message)
 
-
 class DataValidationError(ValidationError):
     """Exception raised for data validation errors"""
 
     pass
-
 
 class IntegrationError(Exception):
     """Exception raised for third-party integration errors"""
@@ -117,7 +109,6 @@ class IntegrationError(Exception):
             message = f"[{service}] {message}"
 
         super().__init__(message)
-
 
 class SecurityError(Exception):
     """Exception raised for security-related errors"""

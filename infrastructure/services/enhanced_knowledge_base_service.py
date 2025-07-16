@@ -12,7 +12,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class KnowledgeType(str, Enum):
     """Types of knowledge in the system"""
 
@@ -23,7 +22,6 @@ class KnowledgeType(str, Enum):
     COMPETITIVE_INTELLIGENCE = "competitive_intelligence"
     CUSTOMER_SUCCESS = "customer_success"
     TECHNICAL_DOCS = "technical_docs"
-
 
 @dataclass
 class KnowledgeItem:
@@ -36,7 +34,6 @@ class KnowledgeItem:
     tags: list[str]
     confidence_score: float
     created_at: datetime
-
 
 class EnhancedKnowledgeBaseService:
     """

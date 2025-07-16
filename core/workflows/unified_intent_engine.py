@@ -11,10 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
-
 logger = logging.getLogger(__name__)
-
 
 class IntentCategory(Enum):
     """Primary intent categories"""
@@ -28,7 +25,6 @@ class IntentCategory(Enum):
     SYSTEM_MANAGEMENT = "system_management"
     CROSS_FUNCTIONAL = "cross_functional"
 
-
 class AgentCapability(Enum):
     """Agent capabilities required for different tasks"""
 
@@ -40,7 +36,6 @@ class AgentCapability(Enum):
     WORKFLOW_DESIGN = "workflow_design"
     MEMORY_MANAGEMENT = "memory_management"
     WEB_RESEARCH = "web_research"
-
 
 @dataclass
 class IntentAnalysis:
@@ -54,7 +49,6 @@ class IntentAnalysis:
     entities: dict[str, list[str]]
     complexity_score: float
     cross_group_needed: bool
-
 
 class UnifiedIntentEngine:
     """

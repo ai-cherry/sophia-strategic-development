@@ -73,7 +73,6 @@ except ImportError:
 
 logger = structlog.get_logger()
 
-
 class GongCallData(BaseModel):
     """Enhanced call data from Gong API."""
 
@@ -95,7 +94,6 @@ class GongCallData(BaseModel):
     summary: dict[str, Any] | None = None
     action_items: list[dict[str, Any]] = Field(default_factory=list)
 
-
 class GongCallTranscript(BaseModel):
     """Call transcript data."""
 
@@ -104,7 +102,6 @@ class GongCallTranscript(BaseModel):
     sentences: list[dict[str, Any]] = Field(default_factory=list)
     topics: list[dict[str, Any]] = Field(default_factory=list)
     keywords: list[str] = Field(default_factory=list)
-
 
 class GongCallAnalytics(BaseModel):
     """Call analytics data."""
@@ -117,7 +114,6 @@ class GongCallAnalytics(BaseModel):
     questions_asked: int | None = None
     sentiment_score: float | None = None
     engagement_score: float | None = None
-
 
 class GongAPIError(Exception):
     """Exception raised for Gong API errors."""
@@ -132,7 +128,6 @@ class GongAPIError(Exception):
         self.message = message
         self.details = details or {}
         super().__init__(f"Gong API Error ({status_code}): {message}")
-
 
 class GongAPIClient:
     """Client for interacting with the Gong API."""

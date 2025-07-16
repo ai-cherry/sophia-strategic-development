@@ -12,7 +12,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class SentimentChannel(str, Enum):
     """Supported sentiment analysis channels"""
 
@@ -23,7 +22,6 @@ class SentimentChannel(str, Enum):
     ASANA_TASKS = "asana_tasks"
     HUBSPOT_EMAILS = "hubspot_emails"
     EXTERNAL_WEB = "external_web"
-
 
 class EmotionCategory(str, Enum):
     """Nuanced emotion categories"""
@@ -39,7 +37,6 @@ class EmotionCategory(str, Enum):
     DISAPPOINTED = "disappointed"
     ENGAGED = "engaged"
     NEUTRAL = "neutral"
-
 
 @dataclass
 class SentimentAnalysisResult:
@@ -58,7 +55,6 @@ class SentimentAnalysisResult:
     timestamp: datetime
     metadata: dict[str, Any]
 
-
 @dataclass
 class CrossChannelCorrelation:
     """Cross-channel sentiment correlation analysis"""
@@ -71,7 +67,6 @@ class CrossChannelCorrelation:
     risk_level: str  # high, medium, low
     insights: list[str]
     recommended_actions: list[str]
-
 
 class EnhancedSentimentAnalyzer:
     """
@@ -506,7 +501,6 @@ class EnhancedSentimentAnalyzer:
     def _create_web_analyzer(self):
         """Create web content analyzer"""
         return {"type": "web", "features": ["public_sentiment", "brand_perception"]}
-
 
 # Global instance
 enhanced_sentiment_analyzer = EnhancedSentimentAnalyzer()

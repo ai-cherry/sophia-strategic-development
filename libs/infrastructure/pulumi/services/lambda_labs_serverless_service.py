@@ -28,7 +28,6 @@ MODELS = {
     },
 }
 
-
 @dataclass
 class UsageRecord:
     """Record of API usage for cost tracking."""
@@ -40,7 +39,6 @@ class UsageRecord:
     latency_ms: int
     user_id: str | None = None
     session_id: str | None = None
-
 
 class LambdaLabsServerlessService:
     """Service for Lambda Labs serverless inference with cost tracking.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service, CodingMCPUnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 
 """
@@ -21,7 +21,6 @@ import requests
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
-
 
 class EstuaryIntegrationManager:
     """
@@ -333,7 +332,6 @@ class EstuaryIntegrationManager:
 
         return status
 
-
 async def main():
     """Main entry point for Estuary integration setup."""
 
@@ -359,7 +357,6 @@ async def main():
     status_file = os.path.join(project_root, "estuary_integration_status.json")
     with open(status_file, "w") as f:
         json.dump(status, f, indent=2)
-
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -193,7 +193,7 @@ class LinearEngineeringMCPServer(StandardizedMCPServer):
         }
 
         # Initialize Qdrant memory service
-        self.memory_service = QdrantSophiaUnifiedMemoryService()
+        self.memory_service = QdrantCodingMCPUnifiedMemoryService()
         
         # Initialize engineering intelligence agent
         self.engineering_agent = EngineeringIntelligenceAgent(self.memory_service)

@@ -6,7 +6,6 @@ from shared.utils.QDRANT_memory_service_core import QdrantUnifiedMemoryService
 
 LEDGER_TABLE = "OPS_MONITORING.DEDUPE_WATERMARKS"
 
-
 class WatermarkLedger:
     """Simple helper for reading/writing dedupe watermarks."""
 

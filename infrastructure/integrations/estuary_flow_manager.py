@@ -23,7 +23,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class EstuaryConnectorType(Enum):
     """Supported Estuary connector types"""
 
@@ -33,7 +32,6 @@ class EstuaryConnectorType(Enum):
     qdrant = "ghcr.io/estuary/materialize-qdrant:dev"
     HTTP_INBOUND = "ghcr.io/estuary/source-http-inbound:dev"
     WEBHOOK = "ghcr.io/estuary/source-webhook:dev"
-
 
 @dataclass
 class EstuaryCredentials:
@@ -111,7 +109,6 @@ class EstuaryCredentials:
             logger.exception(f"Failed to load Estuary credentials: {e}")
             raise
 
-
 @dataclass
 class EstuaryCapture:
     """Estuary capture configuration"""
@@ -138,7 +135,6 @@ class EstuaryCapture:
             }
         }
 
-
 @dataclass
 class EstuaryMaterialization:
     """Estuary materialization configuration"""
@@ -164,7 +160,6 @@ class EstuaryMaterialization:
                 }
             }
         }
-
 
 class EstuaryFlowManager:
     """Comprehensive Estuary Flow management for Sophia AI"""
@@ -398,13 +393,6 @@ class EstuaryFlowManager:
     ) -> EstuaryMaterialization:
 
         config = {
-
-
-
-
-
-
-
 
             "advanced": {
                 "updateDelay": "0s",  # Real-time processing
@@ -792,18 +780,15 @@ echo "📊 Check status with: flowctl catalog list"
         logger.info(f"📜 Deployment script created: {script_path}")
         return str(script_path)
 
-
 # Convenience functions for easy import
 def get_estuary_manager() -> EstuaryFlowManager:
     """Get configured Estuary Flow manager"""
     return EstuaryFlowManager()
 
-
 def create_sophia_ai_foundation() -> dict[str, Any]:
     """Create complete Sophia AI foundation"""
     manager = get_estuary_manager()
     return manager.create_sophia_ai_foundation()
-
 
 if __name__ == "__main__":
     # Example usage

@@ -21,12 +21,9 @@ import asyncpg
 import redis.asyncio as redis
 from prometheus_client import Counter, Gauge, Histogram
 
-
-
 from core.config_manager import get_config_value
 
 logger = logging.getLogger(__name__)
-
 
 class ConnectionType(Enum):
     """Supported database connection types"""
@@ -36,7 +33,6 @@ class ConnectionType(Enum):
     REDIS = "redis"
     MYSQL = "mysql"
 
-
 @dataclass
 class BatchOperation:
     """Represents a batch database operation"""
@@ -44,7 +40,6 @@ class BatchOperation:
     query: str
     params: list[Any] | None = None
     operation_type: str = "query"  # query, insert, update, delete
-
 
 @dataclass
 class ConnectionPoolConfig:
@@ -56,7 +51,6 @@ class ConnectionPoolConfig:
     retry_attempts: int = 3
     retry_delay: float = 1.0
     health_check_interval: int = 60
-
 
 class DatabaseMetrics:
     """Database performance metrics"""
@@ -92,7 +86,6 @@ class DatabaseMetrics:
             "sophia_db_cache_misses_total", "Database cache misses", ["db_type"]
         )
 
-
 class OptimizedDatabaseManager:
     """
     Unified database manager with connection pooling and optimization
@@ -115,7 +108,6 @@ class OptimizedDatabaseManager:
         # Qdrant
         self.configs[
             ConnectionType.POSTGRESQL
-
 
         # PostgreSQL
         self.configs[ConnectionType.POSTGRES] = {

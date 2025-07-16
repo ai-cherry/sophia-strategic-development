@@ -14,7 +14,6 @@ from core.config_manager import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class Mem0IntegrationService:
     """
     Integration service for Mem0 persistent memory
@@ -274,10 +273,8 @@ class Mem0IntegrationService:
         """Close the HTTP client"""
         await self.client.aclose()
 
-
 # Global instance
 _mem0_service: Mem0IntegrationService | None = None
-
 
 def get_mem0_service() -> Mem0IntegrationService:
     """Get or create the global Mem0 service instance"""

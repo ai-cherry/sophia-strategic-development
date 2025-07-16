@@ -18,7 +18,6 @@ from backend.agents.infrastructure.sophia_infrastructure_agent import (
 )
 from core.config_manager import get_config_value
 
-
 class SophiaInfrastructureChatInterface:
     """
     Natural language interface for infrastructure management
@@ -287,9 +286,7 @@ class SophiaInfrastructureChatInterface:
             except Exception:
                 continue
 
-
 # Example usage patterns for different scenarios
-
 
 class InfrastructureScenarios:
     """Example scenarios demonstrating AI infrastructure capabilities"""
@@ -337,7 +334,6 @@ class InfrastructureScenarios:
                     for _metric in element["data"]["metrics"]:
                         pass
 
-
 async def main():
     """Main entry point for infrastructure chat interface"""
 
@@ -361,7 +357,6 @@ async def main():
         chat = SophiaInfrastructureChatInterface()
         await chat.initialize()
         await chat.interactive_session()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

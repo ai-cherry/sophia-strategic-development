@@ -2,7 +2,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class ConstitutionalAI:
     """
     Ensures that AI-generated responses adhere to a predefined set of

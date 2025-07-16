@@ -13,7 +13,6 @@ import time
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class QueryResult:
     """Query result with metadata"""
@@ -21,7 +20,6 @@ class QueryResult:
     execution_time: float
     cached: bool = False
     cache_key: Optional[str] = None
-
 
 class QueryOptimizer:
     """Optimizes Qdrant queries for better performance"""
@@ -175,10 +173,8 @@ class QueryOptimizer:
             "cache_size_mb": len(str(self._cache)) / 1024 / 1024
         }
 
-
 # Global query optimizer
 _query_optimizer: Optional[QueryOptimizer] = None
-
 
 def get_query_optimizer() -> QueryOptimizer:
     """Get global query optimizer"""

@@ -4,7 +4,6 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
-
 class DependencyAnalyzer(ast.NodeVisitor):
     def __init__(self, file_path):
         self.file_path = file_path
@@ -17,7 +16,6 @@ class DependencyAnalyzer(ast.NodeVisitor):
     def visit_ImportFrom(self, node):
         if node.module:
             self.imports.append(node.module)
-
 
 def analyze_dependencies(root_dir="backend"):
     """Analyze all Python files and their dependencies"""
@@ -46,7 +44,6 @@ def analyze_dependencies(root_dir="backend"):
 
     return dependencies
 
-
 def generate_dependency_report(dependencies):
     """Generate CSV report of dependencies"""
     with open("reports/backend_dependencies.csv", "w", newline="") as f:
@@ -58,7 +55,6 @@ def generate_dependency_report(dependencies):
             for to_module in to_modules:
                 target_layer = classify_target_layer(to_module)
                 writer.writerow([from_module, to_module, current_layer, target_layer])
-
 
 def classify_current_layer(module_path):
     """Classify module into current architecture layer"""
@@ -86,7 +82,6 @@ def classify_current_layer(module_path):
         return "utils"
     else:
         return "other"
-
 
 def classify_target_layer(module_path):
     """Classify where module should go in new architecture"""
@@ -119,7 +114,6 @@ def classify_target_layer(module_path):
         return "shared"
 
     return "core"  # default
-
 
 if __name__ == "__main__":
     dependencies = analyze_dependencies()

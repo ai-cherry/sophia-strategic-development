@@ -15,7 +15,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 # Import existing MCP orchestration service
-from infrastructure.services.mcp_orchestration_service import MCPOrchestrationService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +35,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Pydantic models
 class N8NWorkflowRequest(BaseModel):
     workflow_id: str
@@ -54,7 +52,6 @@ class N8NWorkflowRequest(BaseModel):
         description="Processing priority: low, standard, high, executive",
     )
 
-
 class N8NResponse(BaseModel):
     success: bool
     data: dict[str, Any] | None = None
@@ -63,7 +60,6 @@ class N8NResponse(BaseModel):
     mcp_servers_used: list[str]
     enhancement_applied: str
 
-
 class N8NHealthResponse(BaseModel):
     status: str
     timestamp: str
@@ -71,11 +67,9 @@ class N8NHealthResponse(BaseModel):
     redis_status: str
     active_workflows: int
 
-
 # Global services
 mcp_service: MCPOrchestrationService | None = None
 redis_client: redis.Redis | None = None
-
 
 @app.on_event("startup")
 async def startup_event():
@@ -100,7 +94,6 @@ async def startup_event():
         logger.error(f"Failed to initialize services: {e}")
         raise
 
-
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
@@ -113,7 +106,6 @@ async def shutdown_event():
         await mcp_service.shutdown()
 
     logger.info("N8N Bridge service shut down")
-
 
 @app.get("/health", response_model=N8NHealthResponse)
 async def health_check():
@@ -157,7 +149,6 @@ async def health_check():
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         raise HTTPException(status_code=500, detail=f"Health check failed: {e!s}")
-
 
 @app.post("/api/v1/n8n/process", response_model=N8NResponse)
 async def process_n8n_request(
@@ -221,7 +212,6 @@ async def process_n8n_request(
             enhancement_applied="none",
         )
 
-
 @app.post("/api/v1/n8n/batch-process")
 async def batch_process_n8n_requests(
     requests: list[N8NWorkflowRequest], background_tasks: BackgroundTasks
@@ -257,7 +247,6 @@ async def batch_process_n8n_requests(
         logger.error(f"Batch processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 async def process_single_request(request: N8NWorkflowRequest) -> dict[str, Any]:
     """Process a single N8N request"""
     try:
@@ -282,7 +271,6 @@ async def process_single_request(request: N8NWorkflowRequest) -> dict[str, Any]:
     except Exception as e:
         return {"success": False, "workflow_id": request.workflow_id, "error": str(e)}
 
-
 async def cleanup_workflow_tracking(workflow_key: str):
     """Remove workflow from active tracking"""
     if redis_client:
@@ -290,7 +278,6 @@ async def cleanup_workflow_tracking(workflow_key: str):
             await redis_client.srem("active_workflows", workflow_key)
         except Exception as e:
             logger.warning(f"Failed to cleanup workflow tracking: {e}")
-
 
 @app.get("/api/v1/n8n/servers")
 async def get_available_mcp_servers():
@@ -306,7 +293,6 @@ async def get_available_mcp_servers():
     except Exception as e:
         logger.error(f"Failed to get MCP servers: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/api/v1/n8n/metrics")
 async def get_integration_metrics():
@@ -340,7 +326,6 @@ async def get_integration_metrics():
         logger.error(f"Failed to get metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/api/v1/n8n/webhook/{workflow_id}")
 async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
     """
@@ -372,7 +357,6 @@ async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
     except Exception as e:
         logger.error(f"Webhook processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 if __name__ == "__main__":
     import uvicorn

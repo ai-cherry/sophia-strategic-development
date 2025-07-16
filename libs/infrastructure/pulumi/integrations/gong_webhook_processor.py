@@ -14,14 +14,12 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class NotificationPriority(Enum):
     """Notification priority levels"""
 
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
-
 
 @dataclass
 class ProcessedCallData:
@@ -39,7 +37,6 @@ class ProcessedCallData:
     talk_ratio: float = None
     next_steps: list = None
 
-
 @dataclass
 class ProcessedEmailData:
     """Processed email data structure"""
@@ -53,7 +50,6 @@ class ProcessedEmailData:
     key_topics: list
     requires_response: bool
 
-
 @dataclass
 class ProcessedMeetingData:
     """Processed meeting data structure"""
@@ -66,7 +62,6 @@ class ProcessedMeetingData:
     attendees: list
     agenda_items: list
     decisions: list
-
 
 class WebhookProcessor:
     """Simplified webhook processor for Gong integration"""

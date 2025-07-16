@@ -256,7 +256,6 @@ def get_real_linear_client():
     
     return real_linear_client
 
-
 #!/usr/bin/env python3
 """
 Sophia AI Linear MCP Server
@@ -291,7 +290,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class IssueState(str, Enum):
     """Linear issue states"""
 
@@ -301,7 +299,6 @@ class IssueState(str, Enum):
     IN_REVIEW = "in_review"
     DONE = "done"
     CANCELED = "canceled"
-
 
 class LinearMCPServer(StandardizedMCPServer):
     """Linear MCP Server for project management"""
@@ -892,7 +889,6 @@ class LinearMCPServer(StandardizedMCPServer):
             "comment": create_result.get("comment"),
             "success": True,
         }
-
 
 # Create and run server
 if __name__ == "__main__":

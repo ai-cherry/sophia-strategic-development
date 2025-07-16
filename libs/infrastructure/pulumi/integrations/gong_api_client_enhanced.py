@@ -64,7 +64,6 @@ data_enhancement_score = Gauge(
 concurrent_requests = Gauge("gong_concurrent_requests", "Current concurrent requests")
 queue_depth = Gauge("gong_request_queue_depth", "Request queue depth", ["priority"])
 
-
 class RequestPriority(str, Enum):
     """Request priority levels for queue management."""
 
@@ -72,7 +71,6 @@ class RequestPriority(str, Enum):
     HIGH = "high"  # User-initiated requests
     NORMAL = "normal"  # Scheduled sync
     LOW = "low"  # Analytics and batch
-
 
 class ErrorCategory(str, Enum):
     """Error categories for handling strategies."""
@@ -84,7 +82,6 @@ class ErrorCategory(str, Enum):
     CLIENT_ERROR = "client_error"
     NETWORK_ERROR = "network_error"
     TIMEOUT = "timeout"
-
 
 # Enhanced Data Models with Validation
 class TranscriptSegment(BaseModel):
@@ -99,7 +96,6 @@ class TranscriptSegment(BaseModel):
     confidence: float | None = Field(None, ge=0.0, le=1.0)
     sentiment: str | None = None
     keywords: list[str] = Field(default_factory=list)
-
 
 class GongCallTranscript(BaseModel):
     """Enhanced call transcript data."""
@@ -122,7 +118,6 @@ class GongCallTranscript(BaseModel):
             if segments != sorted_segments:
                 return sorted_segments
         return segments
-
 
 class GongParticipant(BaseModel):
     """Detailed participant information."""
@@ -150,7 +145,6 @@ class GongParticipant(BaseModel):
                 return email.split("@")[1].lower()
         return v
 
-
 class CallAnalytics(BaseModel):
     """Comprehensive call analytics."""
 
@@ -167,7 +161,6 @@ class CallAnalytics(BaseModel):
     topic_switches: int | None = None
     key_moments: list[dict[str, Any]] = Field(default_factory=list)
     coaching_opportunities: list[dict[str, Any]] = Field(default_factory=list)
-
 
 class EnhancedCallData(BaseModel):
     """Complete enhanced call data."""
@@ -194,7 +187,6 @@ class EnhancedCallData(BaseModel):
     enhancement_timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     processing_metrics: dict[str, Any] = Field(default_factory=dict)
 
-
 class TeamActivityStats(BaseModel):
     """Team activity statistics."""
 
@@ -209,7 +201,6 @@ class TeamActivityStats(BaseModel):
     performance_trends: list[dict[str, Any]] = Field(default_factory=list)
     top_performers: list[dict[str, Any]] = Field(default_factory=list)
 
-
 # Cache Configuration
 CACHE_TTL_CONFIG = {
     "transcript": 86400,  # 24 hours
@@ -220,7 +211,6 @@ CACHE_TTL_CONFIG = {
     "analytics": 3600,  # 1 hour
     "stats": 3600,  # 1 hour
 }
-
 
 class TokenBucketRateLimiter:
     """Token bucket rate limiter with burst capacity."""
@@ -264,7 +254,6 @@ class TokenBucketRateLimiter:
         current_tokens = min(self.burst, self.tokens + elapsed * self.rate)
         return current_tokens
 
-
 class CircuitBreaker:
     """Circuit breaker for handling sustained failures."""
 
@@ -298,7 +287,6 @@ class CircuitBreaker:
                 if self.failures >= self.failure_threshold:
                     self.is_open = True
             raise
-
 
 class RedisCache:
     """Redis-based caching with compression and TTL management."""
@@ -421,7 +409,6 @@ class RedisCache:
             # Fetch and cache (implement in main client)
             logger.info("Cache warming needed", endpoint=endpoint)
 
-
 class RetryPolicy:
     """Configurable retry policy for different error types."""
 
@@ -484,7 +471,6 @@ class RetryPolicy:
         policy = self.policies.get(error_category, {"max_retries": 0})
         return attempt < policy["max_retries"]
 
-
 class GongAPIError(Exception):
     """Enhanced Gong API error with categorization."""
 
@@ -515,7 +501,6 @@ class GongAPIError(Exception):
             return ErrorCategory.CLIENT_ERROR
         else:
             return ErrorCategory.CLIENT_ERROR
-
 
 class EnhancedGongAPIClient:
     """Enhanced Gong API client with comprehensive features."""

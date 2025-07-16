@@ -14,7 +14,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class GeminiCLIProvider:
     """Wrapper for Gemini CLI to integrate with Sophia AI"""
 
@@ -238,7 +237,6 @@ Include:
                 }
         except Exception:
             return {"models": []}
-
 
 # Integration with Sophia AI's model routing
 class GeminiCLIModelRouter:

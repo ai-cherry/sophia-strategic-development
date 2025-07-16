@@ -16,7 +16,6 @@ import aiohttp
 from core.auto_esc_config import get_config_value
 from shared.utils.custom_logger import logger
 
-
 class ModelProvider(Enum):
     """Supported model providers"""
 
@@ -28,7 +27,6 @@ class ModelProvider(Enum):
     META = "meta"
     OPENROUTER = "openrouter"
 
-
 class TaskComplexity(Enum):
     """Task complexity for intelligent routing"""
 
@@ -36,7 +34,6 @@ class TaskComplexity(Enum):
     MODERATE = "moderate"
     COMPLEX = "complex"
     ARCHITECTURE = "architecture"
-
 
 @dataclass
 class ModelTarget:
@@ -51,7 +48,6 @@ class ModelTarget:
     strengths: list[str]
     use_cases: list[str]
 
-
 @dataclass
 class RoutingDecision:
     """Result of routing decision"""
@@ -60,7 +56,6 @@ class RoutingDecision:
     reasoning: str
     confidence: float
     fallback_models: list[ModelTarget]
-
 
 class EnhancedPortkeyLLMGateway:
     """
@@ -749,10 +744,8 @@ Selected {selected_model.name} for this request:
             "metrics": await self.get_performance_metrics(),
         }
 
-
 # Global gateway instance
 _gateway_instance = None
-
 
 async def get_enhanced_portkey_gateway() -> EnhancedPortkeyLLMGateway:
     """Get singleton gateway instance"""

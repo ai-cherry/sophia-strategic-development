@@ -12,7 +12,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 def load_environment(env_file: str = "local.env", verbose: bool = True) -> bool:
     """
     Load environment variables from file
@@ -74,7 +73,6 @@ def load_environment(env_file: str = "local.env", verbose: bool = True) -> bool:
         logger.error(f"Error loading environment from {env_file}: {e}")
         return False
 
-
 def validate_required_variables(required_vars: list[str]) -> tuple[bool, list[str]]:
     """
     Validate that required environment variables are set
@@ -88,7 +86,6 @@ def validate_required_variables(required_vars: list[str]) -> tuple[bool, list[st
     missing = [var for var in required_vars if not os.getenv(var)]
     return len(missing) == 0, missing
 
-
 def initialize_logging(level: str = "INFO") -> None:
     """Initialize logging configuration"""
     log_level = getattr(logging, level.upper(), logging.INFO)
@@ -99,7 +96,6 @@ def initialize_logging(level: str = "INFO") -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-
 def get_startup_config() -> dict[str, Any]:
     """Get startup configuration with defaults"""
     return {
@@ -109,7 +105,6 @@ def get_startup_config() -> dict[str, Any]:
         "pulumi_org": get_config_value("PULUMI_ORG"),
         "service_mode": get_config_value("SERVICE_MODE"),
     }
-
 
 def startup_sequence(
     service_name: str,
@@ -168,7 +163,6 @@ def startup_sequence(
     print(f"   Service mode: {config['service_mode']}")
 
     return config
-
 
 # Auto-load environment if this module is imported
 if not get_config_value("SOPHIA_STARTUP_SKIP_AUTO_LOAD"):

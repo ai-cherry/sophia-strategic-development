@@ -13,7 +13,6 @@ from typing import Any
 
 from core.config_manager import get_config_value as config
 
-
 class AgentStatus(Enum):
     """Agent status enumeration"""
 
@@ -22,7 +21,6 @@ class AgentStatus(Enum):
     IDLE = "idle"
     ERROR = "error"
     STOPPED = "stopped"
-
 
 @dataclass
 class AgentConfig:
@@ -37,7 +35,6 @@ class AgentConfig:
     capabilities: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
-
 @dataclass
 class Task:
     """Task representation for agents"""
@@ -50,7 +47,6 @@ class Task:
     timeout: int | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
-
 @dataclass
 class TaskResult:
     """Result of agent task execution"""
@@ -61,7 +57,6 @@ class TaskResult:
     error: str | None = None
     execution_time: float | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
-
 
 class BaseAgent(ABC):
     """

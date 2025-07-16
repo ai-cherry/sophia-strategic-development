@@ -13,7 +13,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-
 @dataclass
 class StateCheckpoint:
     """Represents a configuration checkpoint for rollback purposes."""
@@ -23,7 +22,6 @@ class StateCheckpoint:
     configuration: dict[str, Any]
     timestamp: datetime
     description: str
-
 
 class InfrastructureStateManager:
     """
@@ -493,7 +491,6 @@ class InfrastructureStateManager:
         except Exception:
             return False
 
-
 # CLI interface for state management
 async def main():
     """CLI interface for infrastructure state management."""
@@ -545,7 +542,6 @@ async def main():
 
     elif args.command == "cleanup":
         await state_manager.cleanup_old_checkpoints(args.days)
-
 
 if __name__ == "__main__":
     asyncio.run(main())

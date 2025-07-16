@@ -6,9 +6,8 @@ Date: July 10, 2025
 """
 
 # Modern stack imports
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
+from backend.services.coding_mcp_unified_memory_service import CodingMCPUnifiedMemoryService
 from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
-
 
 import asyncio
 import sys
@@ -25,7 +24,6 @@ from mcp.types import Tool
 from backend.core.auto_esc_config import get_config_value
 from backend.core.redis_connection_manager import create_redis_from_config
 
-
 class GitHubMCPServer(StandardizedMCPServer):
     """GitHub MCP Server using official SDK"""
 
@@ -41,9 +39,8 @@ class GitHubMCPServer(StandardizedMCPServer):
         self.github_token = get_config_value("github_token")
         self.default_org = get_config_value("github_org", "ai-cherry")
 
-
         # Initialize modern stack services
-        self.memory_service = SophiaUnifiedMemoryService()
+        self.memory_service = CodingMCPUnifiedMemoryService()
         self.lambda_gpu = LambdaLabsServerlessService()
         self.redis = create_redis_from_config()
 
@@ -413,12 +410,10 @@ class GitHubMCPServer(StandardizedMCPServer):
             self.logger.error(f"Error searching code: {e}")
             raise
 
-
 async def main():
     """Main entry point"""
     server = GitHubMCPServer()
     await server.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

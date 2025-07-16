@@ -16,7 +16,6 @@ from backend.core.unified_config import UnifiedConfig
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class EstuaryBinding:
     """Represents an Estuary capture or materialization binding"""
@@ -25,7 +24,6 @@ class EstuaryBinding:
     resource: str
     collection: str
     state: str = "active"
-
 
 @dataclass
 class EstuaryFlow:
@@ -37,7 +35,6 @@ class EstuaryFlow:
     bindings: list[EstuaryBinding]
     state: str = "running"
     config: dict[str, Any] = field(default_factory=dict)
-
 
 class EstuaryService:
     """
@@ -223,11 +220,6 @@ class EstuaryService:
                 "connector": {
                     "image": "ghcr.io/estuary/materialize-qdrant:latest",
                     "config": {
-
-
-
-
-
 
                     },
                 },

@@ -14,14 +14,12 @@ from core.application.ports.repositories.deal_repository import DealRepository
 from domain.entities.contact import EngagementLevel
 from domain.entities.deal import Deal, DealStage
 
-
 @dataclass
 class QualifyDealRequest:
     """Request object for qualifying a deal."""
 
     deal_id: str
     user_id: str  # User performing the qualification
-
 
 @dataclass
 class QualificationCriteria:
@@ -36,7 +34,6 @@ class QualificationCriteria:
     positive_sentiment: bool
     recent_engagement: bool
 
-
 @dataclass
 class QualifyDealResponse:
     """Response object for deal qualification."""
@@ -48,12 +45,10 @@ class QualifyDealResponse:
     recommended_next_steps: list[str]
     risk_factors: list[str]
 
-
 class DealNotFoundError(Exception):
     """Raised when deal is not found."""
 
     pass
-
 
 class QualifyDealUseCase:
     """

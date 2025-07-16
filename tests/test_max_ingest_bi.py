@@ -17,11 +17,9 @@ import pytest
 from faker import Faker
 
 from backend.services.enhanced_chat_v4 import EnhancedChatV4
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 fake = Faker()
-
 
 class DataGenerator:
     """Generate test data for ingestion"""
@@ -62,7 +60,6 @@ class DataGenerator:
         """Generate a batch of records"""
         return [self.generate_business_record(i) for i in range(size)]
 
-
 @pytest.fixture
 async def memory_service():
     """Mock memory service for testing"""
@@ -73,7 +70,6 @@ async def memory_service():
     service.batch_add_knowledge = AsyncMock(return_value=["mock_id"] * 100)
     return service
 
-
 @pytest.fixture
 async def orchestrator(memory_service):
     """Mock orchestrator for testing"""
@@ -83,7 +79,6 @@ async def orchestrator(memory_service):
         orch.memory_service = memory_service
         return orch
 
-
 @pytest.fixture
 async def chat_service(orchestrator):
     """Mock chat service for testing"""
@@ -92,7 +87,6 @@ async def chat_service(orchestrator):
         service.orchestrator = orchestrator
         service.memory_service = orchestrator.memory_service
         return service
-
 
 class TestMaxIngestBI:
     """Test suite for max ingestion business intelligence"""
@@ -316,14 +310,12 @@ class TestMaxIngestBI:
         assert success_count == 400  # 4 successful batches
         assert error_count == 1  # 1 failed batch
 
-
 @pytest.mark.asyncio
 async def test_coverage_report():
     """Generate coverage report"""
     # This would be run with pytest-cov
     # pytest tests/test_max_ingest_bi.py --cov=backend --cov-report=html
     pass
-
 
 if __name__ == "__main__":
     # Run with: pytest tests/test_max_ingest_bi.py -v --asyncio-mode=auto

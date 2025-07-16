@@ -16,7 +16,6 @@ from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 
-
 class ChaosTestingFramework:
     """Chaos testing framework for Sophia AI"""
     
@@ -239,7 +238,6 @@ class ChaosTestingFramework:
             "recommendation": "STABLE" if stability_score > 0.9 else "NEEDS_IMPROVEMENT"
         }
 
-
 async def run_chaos_testing():
     """Run the chaos testing suite"""
     print("💥 Chaos Testing with Litmus")
@@ -296,7 +294,6 @@ async def run_chaos_testing():
     print("\nDetailed results saved to: PHASE_4_CHAOS_TESTING_RESULTS.json")
     
     return analysis["stability_score"] > 0.9
-
 
 if __name__ == "__main__":
     success = asyncio.run(run_chaos_testing())

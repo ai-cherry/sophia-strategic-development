@@ -12,7 +12,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class Capability(Enum):
     """Standard MCP capabilities"""
 
@@ -46,7 +45,6 @@ class Capability(Enum):
     CUSTOMER_INSIGHTS = "customer_insights"
     SALES_COACHING = "sales_coaching"
 
-
 @dataclass
 class ServerCapability:
     """Represents a server's capability with metadata"""
@@ -58,7 +56,6 @@ class ServerCapability:
     cost_per_request: float = 0.0
     average_latency_ms: float = 100.0
 
-
 @dataclass
 class RoutingDecision:
     """Represents a routing decision"""
@@ -68,7 +65,6 @@ class RoutingDecision:
     capability: Capability
     confidence_score: float
     reason: str
-
 
 class MCPCapabilityRouter:
     """
@@ -316,7 +312,6 @@ class MCPCapabilityRouter:
             "average_confidence": avg_confidence / total if total > 0 else 0,
             "capability_coverage": self.get_capability_coverage(),
         }
-
 
 # Singleton instance
 capability_router = MCPCapabilityRouter()

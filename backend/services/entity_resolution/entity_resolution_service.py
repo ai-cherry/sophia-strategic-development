@@ -530,8 +530,7 @@ class EntityResolutionService:
     async def _store_resolution_training_data(self, conflict_id: str, resolution_decision: Dict[str, Any], resolved_by: str):
         """Store resolution as training data for ML improvement"""
         f"training_{uuid.uuid4().hex[:12]}"
-        
-        
+
         # Extract training data from resolution decision
         # (Implementation would depend on decision structure)
         pass

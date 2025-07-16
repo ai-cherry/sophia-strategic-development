@@ -11,7 +11,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 class SophiaConstitutionalFramework:
     """Constitutional AI framework specifically for Sophia AI's business intelligence mission"""
 

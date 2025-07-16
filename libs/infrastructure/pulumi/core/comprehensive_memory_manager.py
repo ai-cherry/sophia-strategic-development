@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-
 class ComprehensiveMemoryManager:
     """
     Manage conversation history per user."""

@@ -14,11 +14,9 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 # Import unified memory service v2
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 from core.services.data_transformer import DataTransformer
 from infrastructure.services.advanced_llm_service import AdvancedLLMService
-
 
 class UnifiedIntelligenceService:
     """
@@ -141,10 +139,8 @@ class UnifiedIntelligenceService:
         ]
         return insights
 
-
 # Singleton instance getter
 _unified_intelligence_instance = None
-
 
 def get_unified_intelligence_service() -> UnifiedIntelligenceService:
     """Get or create the singleton unified intelligence service instance"""

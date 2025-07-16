@@ -2,7 +2,6 @@
 """
 
 # Modern stack imports
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
 import redis.asyncio as redis
 import asyncpg
@@ -36,10 +35,8 @@ from mcp.types import TextContent, Tool
 
 from backend.core.auto_esc_config import get_config_value
 from backend.core.redis_connection_manager import create_redis_from_config
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
-
 
 class GongMCPServer(StandardizedMCPServer):
     """Gong MCP Server for sales call analytics with GPU-accelerated memory"""
@@ -67,7 +64,6 @@ class GongMCPServer(StandardizedMCPServer):
         except Exception as e:
             logger.error(f"Failed to initialize memory service: {e}")
             self.memory_service = None
-
 
         # Initialize modern stack services
         self.memory_service = SophiaUnifiedMemoryService()
@@ -560,13 +556,11 @@ class GongMCPServer(StandardizedMCPServer):
 
         await super().on_shutdown()
 
-
 # Main entry point
 async def main():
     """Main entry point"""
     server = GongMCPServer()
     await server.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

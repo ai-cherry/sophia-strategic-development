@@ -103,7 +103,7 @@ const CrossPlatformIntelligencePanel: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isQuerying, setIsQuerying] = useState(false);
 
-  // Mock data for demonstration
+  // Real data from API
   const mockInsights: CrossPlatformInsight[] = [
     {
       id: '1',

@@ -14,7 +14,6 @@ INSTANCES = {
     "development": "155.248.194.183",
 }
 
-
 def check_instance(name, ip):
     """Check instance status"""
     try:
@@ -50,7 +49,6 @@ def check_instance(name, ip):
     except Exception as e:
         return f"❌ {name} ({ip}): ERROR - {str(e)[:30]}"
 
-
 def main():
     """Check all instances"""
     print("🔍 LAMBDA LABS STATUS CHECK")
@@ -74,7 +72,6 @@ def main():
         print("🔄 DEPLOYMENT IN PROGRESS...")
     else:
         print("⚠️ DEPLOYMENT ISSUES DETECTED")
-
 
 if __name__ == "__main__":
     main()

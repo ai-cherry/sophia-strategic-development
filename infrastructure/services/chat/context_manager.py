@@ -10,7 +10,6 @@ from ...models.chat_models import ChatContext
 
 logger = logging.getLogger(__name__)
 
-
 class ContextManager:
     """
     Manages conversation context and business intelligence

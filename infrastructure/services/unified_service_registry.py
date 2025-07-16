@@ -19,7 +19,6 @@ from infrastructure.services.foundational_knowledge_service import (
     FoundationalKnowledgeService,
 )
 from infrastructure.services.gptcache_service import GPTCacheService
-from infrastructure.services.mcp_orchestration_service import MCPOrchestrationService
 from infrastructure.services.payready_business_intelligence import (
     PayReadyBusinessIntelligenceOrchestrator,
 )
@@ -30,7 +29,6 @@ from infrastructure.services.sophia_ai_orchestrator import SophiaAIOrchestrator
 from infrastructure.services.unified_chat_service import SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
-
 
 class UnifiedServiceRegistry:
     """
@@ -215,33 +213,27 @@ class UnifiedServiceRegistry:
         self.services.clear()
         logger.info("All services shut down")
 
-
 # Global registry instance
 registry = UnifiedServiceRegistry()
-
 
 # Convenience functions
 async def get_service(service_name: str) -> Any | None:
     """Get a service from the registry"""
     return await registry.get_service(service_name)
 
-
 async def get_sophia_orchestrator() -> SophiaAIOrchestrator | None:
     """Get the Sophia AI orchestrator"""
     return await registry.get_service("sophia_orchestrator")
 
-
 async def get_mcp_orchestrator() -> MCPOrchestrationService | None:
     """Get the MCP orchestrator"""
     return await registry.get_service("mcp_orchestrator")
-
 
 async def get_business_intelligence() -> (
     PayReadyBusinessIntelligenceOrchestrator | None
 ):
     """Get the business intelligence service"""
     return await registry.get_service("business_intelligence")
-
 
 async def get_cache_service() -> GPTCacheService | None:
     """Get the cache service"""

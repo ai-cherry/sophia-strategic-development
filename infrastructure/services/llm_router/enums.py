@@ -5,7 +5,6 @@ Frozen enums that define routing categories and options
 
 from enum import Enum
 
-
 class TaskType(str, Enum):
     """Task types for intelligent routing - frozen for stability"""
 
@@ -33,7 +32,6 @@ class TaskType(str, Enum):
     CREATIVE_WRITING = "creative_writing"
     MARKETING_CONTENT = "marketing_content"
 
-
 class TaskComplexity(str, Enum):
     """Task complexity levels for model selection"""
 
@@ -41,7 +39,6 @@ class TaskComplexity(str, Enum):
     MODERATE = "moderate"  # Standard development tasks
     COMPLEX = "complex"  # Deep analysis, complex reasoning
     ARCHITECTURE = "architecture"  # System design, strategic planning
-
 
 class Provider(str, Enum):
     """LLM providers - ordered by preference"""

@@ -17,7 +17,6 @@ from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 
-
 class CacheSimulator:
     """Simulate different cache eviction strategies"""
     
@@ -211,7 +210,6 @@ class CacheSimulator:
             "requests_simulated": len(access_pattern)
         }
 
-
 async def run_optimization():
     """Run the optimization process"""
     print("💾 n8n Cache Eviction Optimization")
@@ -271,7 +269,6 @@ async def run_optimization():
     print("\nDetailed results saved to: PHASE_4_N8N_CACHE_OPTIMIZATION.json")
     
     return optimal_results["best_hit_rate"] > 0.85
-
 
 if __name__ == "__main__":
     success = asyncio.run(run_optimization())

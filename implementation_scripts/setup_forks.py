@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Setup and manage forked MCP repositories."""
 
-
 import requests
 from backend.core.auto_esc_config import get_config_value
-
 
 def fork_repository(owner, repo, org):
     """Fork a repository to the organization."""
@@ -26,7 +24,6 @@ def fork_repository(owner, repo, org):
     else:
         return None
 
-
 def main():
     """Main fork setup function."""
     forks_to_create = [
@@ -39,7 +36,6 @@ def main():
 
     for owner, repo in forks_to_create:
         fork_repository(owner, repo, org)
-
 
 if __name__ == "__main__":
     main()

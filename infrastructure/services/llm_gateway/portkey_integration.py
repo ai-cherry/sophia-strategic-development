@@ -14,7 +14,6 @@ from shared.utils.custom_logger import setup_logger
 
 logger = setup_logger("portkey_integration")
 
-
 class PortkeyIntegration:
     """
     Portkey AI integration for quality-first LLM routing

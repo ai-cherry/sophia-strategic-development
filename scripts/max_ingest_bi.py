@@ -31,7 +31,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 async def run_max_ingestion():
     """
     Initializes and runs the complete data ingestion pipeline for all 7 services.
@@ -61,11 +60,9 @@ async def run_max_ingestion():
         logger.exception(f"An error occurred during the max data pull process: {e}")
         logger.error("--- Phase 1: Max Data Pull FAILED. ---")
 
-
 async def main():
     """Main entry point for the script."""
     await run_max_ingestion()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

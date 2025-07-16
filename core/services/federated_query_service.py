@@ -10,7 +10,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class QueryPlan:
     """Query execution plan for federated queries"""
@@ -20,7 +19,6 @@ class QueryPlan:
     execution_steps: list[dict[str, Any]]
     estimated_cost: float
     estimated_duration: float
-
 
 class FederatedQueryService:
     """Unified query interface across all data sources"""

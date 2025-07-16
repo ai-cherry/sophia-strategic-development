@@ -21,7 +21,6 @@ spec.loader.exec_module(lambda_server)  # type: ignore
 LambdaLabsServerlessMCP = lambda_server.LambdaLabsServerlessMCP
 MCPServerConfig = lambda_server.MCPServerConfig
 
-
 @pytest.mark.asyncio
 async def test_server_initializes_with_api_key(monkeypatch):
     """Server should initialise when LAMBDA_LABS_API_KEY is present."""
@@ -32,7 +31,6 @@ async def test_server_initializes_with_api_key(monkeypatch):
     await server.server_specific_init()
     assert server._session is not None
     await server.server_specific_cleanup()
-
 
 @pytest.mark.asyncio
 async def test_server_health_check_handles_missing_key(monkeypatch):
@@ -45,13 +43,11 @@ async def test_server_health_check_handles_missing_key(monkeypatch):
         server = LambdaLabsServerlessMCP(cfg)
         await server.server_specific_init()
 
-
 # ---------------------------------------------------------------------------
 # Aioresponses-powered tests for inference behaviour
 # ---------------------------------------------------------------------------
 
 from aioresponses import aioresponses  # type: ignore
-
 
 @pytest.mark.asyncio
 async def test_successful_inference(monkeypatch):
@@ -75,7 +71,6 @@ async def test_successful_inference(monkeypatch):
 
     await server.server_specific_cleanup()
 
-
 @pytest.mark.asyncio
 async def test_inference_http_error(monkeypatch):
     monkeypatch.setenv("LAMBDA_LABS_API_KEY", "fake-key")
@@ -94,11 +89,9 @@ async def test_inference_http_error(monkeypatch):
 
     await server.server_specific_cleanup()
 
-
 # ---------------------------------------------------------------------------
 # Budget exceeded / invalid-key / rate-limit tests
 # ---------------------------------------------------------------------------
-
 
 @pytest.mark.asyncio
 async def test_budget_exceeded(monkeypatch):
@@ -123,7 +116,6 @@ async def test_budget_exceeded(monkeypatch):
 
     await server.server_specific_cleanup()
 
-
 @pytest.mark.asyncio
 async def test_invalid_api_key(monkeypatch):
     """API returns 401 – ensure RuntimeError is raised."""
@@ -143,7 +135,6 @@ async def test_invalid_api_key(monkeypatch):
             await server.serverless_inference("Hi")
 
     await server.server_specific_cleanup()
-
 
 @pytest.mark.asyncio
 async def test_rate_limit_exceeded(monkeypatch):

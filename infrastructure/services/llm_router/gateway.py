@@ -22,7 +22,6 @@ from .metrics import (
     llm_tokens_total,
 )
 
-
 class PortkeyGateway:
     """
     Gateway for Portkey and OpenRouter integration

@@ -23,7 +23,6 @@ import re
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 class TargetedSecurityFix:
     """Targeted security fix for production config files only"""
     
@@ -219,7 +218,6 @@ class TargetedSecurityFix:
             if Path(backup_file).exists():
                 Path(backup_file).unlink()
                 logger.info(f"🧹 Cleaned backup: {backup_file}")
-
 
 def main():
     """Main targeted security fix function"""

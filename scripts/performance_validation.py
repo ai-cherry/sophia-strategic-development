@@ -13,7 +13,6 @@ import time
 
 import aiohttp
 
-
 class PerformanceValidator:
     def __init__(self):
         self.lambda_ip = get_config_value("lambda_labs_instance_ip", "localhost")
@@ -171,7 +170,6 @@ class PerformanceValidator:
 
         return results
 
-
 async def main():
     validator = PerformanceValidator()
     results = await validator.validate_all_targets()
@@ -181,7 +179,6 @@ async def main():
         json.dump(results, f, indent=2)
 
     return 0 if results["validation_summary"]["overall_passed"] else 1
-
 
 if __name__ == "__main__":
     import sys

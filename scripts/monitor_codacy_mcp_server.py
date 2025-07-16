@@ -20,7 +20,6 @@ from datetime import datetime, timedelta
 
 import requests
 
-
 @dataclass
 class HealthStatus:
     """Health status data structure."""
@@ -32,7 +31,6 @@ class HealthStatus:
     error_message: str | None = None
     performance_metrics: dict | None = None
 
-
 @dataclass
 class DeploymentStatus:
     """Deployment status tracking."""
@@ -43,7 +41,6 @@ class DeploymentStatus:
     health_checks: list[HealthStatus]
     github_actions_status: str | None = None
     estimated_completion: str | None = None
-
 
 class CodacyMCPMonitor:
     """Comprehensive Codacy MCP server monitoring system."""
@@ -273,7 +270,6 @@ class CodacyMCPMonitor:
 
         return health.status_code == 200
 
-
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Monitor Codacy MCP Server Deployment")
@@ -294,7 +290,6 @@ def main():
         monitor.check_health()
     else:
         monitor.single_check()
-
 
 if __name__ == "__main__":
     main()

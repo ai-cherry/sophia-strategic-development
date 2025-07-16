@@ -25,7 +25,6 @@ from prometheus_client import (
 
 logger = logging.getLogger(__name__)
 
-
 class SophiaMetrics:
     """Centralized metrics collection for Sophia AI"""
 
@@ -386,10 +385,8 @@ class SophiaMetrics:
         """Set system information"""
         self.system_info.info(info)
 
-
 # Global metrics instance
 metrics = SophiaMetrics()
-
 
 def monitor_request(endpoint: str = "unknown"):
     """Decorator to monitor HTTP requests"""
@@ -415,7 +412,6 @@ def monitor_request(endpoint: str = "unknown"):
         return wrapper
 
     return decorator
-
 
 def monitor_ai_operation(model: str, provider: str, task_type: str):
     """Decorator to monitor AI operations"""
@@ -454,7 +450,6 @@ def monitor_ai_operation(model: str, provider: str, task_type: str):
 
     return decorator
 
-
 def monitor_db_operation(database: str, operation: str):
     """Decorator to monitor database operations"""
 
@@ -476,7 +471,6 @@ def monitor_db_operation(database: str, operation: str):
         return wrapper
 
     return decorator
-
 
 class PrometheusServer:
     """Prometheus metrics server"""
@@ -524,7 +518,6 @@ class PrometheusServer:
         """Get current metrics in Prometheus format"""
         return generate_latest(metrics.registry).decode("utf-8")
 
-
 # Health check metrics
 class HealthMetrics:
     """Health check specific metrics"""
@@ -556,10 +549,8 @@ class HealthMetrics:
             service=service, check_type=check_type
         ).observe(duration)
 
-
 # Global health metrics instance
 health_metrics = HealthMetrics()
-
 
 # Example usage and testing
 async def example_usage():
@@ -583,7 +574,6 @@ async def example_usage():
     # Get current metrics
     current_metrics = prometheus_server.get_metrics()
     logger.info(f"Current metrics: {len(current_metrics)} bytes")
-
 
 if __name__ == "__main__":
     import asyncio

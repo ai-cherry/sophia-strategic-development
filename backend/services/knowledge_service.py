@@ -8,7 +8,6 @@ from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger(__name__)
 
-
 class KnowledgeService:
     """Service for managing and retrieving knowledge base information"""
     
@@ -134,7 +133,6 @@ class KnowledgeService:
             "initialized": self.initialized,
             "version": "1.0.0"
         }
-
 
 # Create a global instance for easy import
 knowledge_service = KnowledgeService() 

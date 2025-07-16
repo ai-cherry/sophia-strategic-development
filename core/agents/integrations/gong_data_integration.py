@@ -48,9 +48,7 @@ except ImportError:
 
 logger = structlog.get_logger()
 
-
 # Agent-Specific Data Models
-
 
 class CallAnalysisAgentData(BaseModel):
     """Optimized data format for call analysis agent."""
@@ -64,7 +62,6 @@ class CallAnalysisAgentData(BaseModel):
     key_moments: list[dict[str, Any]]
     speaker_analytics: dict[str, Any]
 
-
 class SalesIntelligenceAgentData(BaseModel):
     """Optimized data format for sales intelligence agent."""
 
@@ -76,7 +73,6 @@ class SalesIntelligenceAgentData(BaseModel):
     next_best_actions: list[dict[str, Any]]
     buyer_engagement_score: float
     closing_probability: float
-
 
 class BusinessIntelligenceAgentData(BaseModel):
     """Optimized data format for business intelligence agent."""
@@ -90,7 +86,6 @@ class BusinessIntelligenceAgentData(BaseModel):
     team_performance_impact: dict[str, Any]
     market_intelligence: dict[str, Any]
 
-
 class ExecutiveIntelligenceAgentData(BaseModel):
     """Optimized data format for executive intelligence agent."""
 
@@ -103,7 +98,6 @@ class ExecutiveIntelligenceAgentData(BaseModel):
     recommended_actions: list[dict[str, Any]]
     impact_assessment: dict[str, Any]
 
-
 class GeneralIntelligenceAgentData(BaseModel):
     """Optimized data format for general intelligence agent."""
 
@@ -114,7 +108,6 @@ class GeneralIntelligenceAgentData(BaseModel):
     priority: str
     dependencies: list[str]
     estimated_completion_time: int | None = None
-
 
 class StandardizedAgentEvent(BaseModel):
     """Standardized event format for all agents."""
@@ -129,7 +122,6 @@ class StandardizedAgentEvent(BaseModel):
     workflow_id: str | None = None
     correlation_id: str | None = None
 
-
 class WorkflowStatus(str, Enum):
     """Workflow execution status."""
 
@@ -138,7 +130,6 @@ class WorkflowStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
     PARTIAL = "partial"
-
 
 class AgentDataTransformer:
     """
@@ -803,7 +794,6 @@ class AgentDataTransformer:
             "strategic_impact": "significant",
         }
 
-
 class LangGraphAgentWorkflowOrchestrator:
     """
     LangGraph-compatible orchestrator for multi-agent workflows triggered by Gong events.
@@ -1206,10 +1196,8 @@ class LangGraphAgentWorkflowOrchestrator:
             "agent_pool_metrics": self.agent_pool.get_pool_metrics(),
         }
 
-
 # Keep the original class name as an alias for backward compatibility
 AgentWorkflowOrchestrator = LangGraphAgentWorkflowOrchestrator
-
 
 class ConversationIntelligenceUpdater:
     """Provides real-time conversation intelligence updates."""
@@ -1258,7 +1246,6 @@ class ConversationIntelligenceUpdater:
             ),
         )
 
-
 class GongAgentIntegrationConfig(BaseModel):
     """Configuration for Gong-Agent integration."""
 
@@ -1297,7 +1284,6 @@ class GongAgentIntegrationConfig(BaseModel):
     class Config:
         env_file = ".env"
         case_sensitive = True
-
 
 class GongAgentIntegrationManager:
     """

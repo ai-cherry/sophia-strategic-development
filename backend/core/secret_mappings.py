@@ -82,20 +82,17 @@ HEALTH_CHECK_ENDPOINTS = {
     "linear": "/graphql",
 }
 
-
 def get_secret_mapping(github_secret_name: str) -> str:
     """Get internal secret name from GitHub secret name."""
     return GITHUB_TO_INTERNAL_MAPPING.get(
         github_secret_name, github_secret_name.lower()
     )
 
-
 def get_lambda_labs_model_cost(model: str) -> float:
     """Get cost per million tokens for a Lambda Labs model."""
     return LAMBDA_LABS_CONFIG["cost_per_million_tokens"].get(
         model, 0.35
     )  # Default to mid-tier
-
 
 def get_service_dependencies(service: str) -> list[str]:
     """Get dependencies for a service."""

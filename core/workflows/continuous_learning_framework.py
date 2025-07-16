@@ -19,7 +19,6 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
 
 logger = logging.getLogger(__name__)
 
-
 class FeedbackType(Enum):
     """Types of user feedback"""
 
@@ -29,7 +28,6 @@ class FeedbackType(Enum):
     CORRECTION = "correction"
     SUGGESTION = "suggestion"
 
-
 @dataclass
 class Feedback:
     """User feedback on an interaction"""
@@ -38,7 +36,6 @@ class Feedback:
     content: str
     rating: float | None = None
     timestamp: datetime | None = None
-
 
 @dataclass
 class WorkflowResult:
@@ -50,7 +47,6 @@ class WorkflowResult:
     output: Any
     errors: list[str] | None = None
     metrics: dict[str, float] | None = None
-
 
 class PatternLearner:
     """Learns patterns from interactions"""
@@ -145,7 +141,6 @@ class PatternLearner:
 
         return suggestions
 
-
 class PerformanceAnalyzer:
     """Analyzes performance trends and identifies areas for improvement"""
 
@@ -238,7 +233,6 @@ class PerformanceAnalyzer:
         """Quick check if improvement is needed"""
         trends = await self.analyze_trends()
         return trends.get("improvement_needed", False)
-
 
 class ContinuousLearningFramework:
     """

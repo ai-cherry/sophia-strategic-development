@@ -13,7 +13,6 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
-
 class QueryType(Enum):
     """Types of queries based on analysis"""
     KEYWORD = "keyword"
@@ -21,7 +20,6 @@ class QueryType(Enum):
     HYBRID = "hybrid"
     NAVIGATIONAL = "navigational"
     ANALYTICAL = "analytical"
-
 
 class ExecutionStrategy(Enum):
     """Execution strategies for queries"""
@@ -32,7 +30,6 @@ class ExecutionStrategy(Enum):
     HYBRID_SEQUENTIAL = "hybrid_sequential"
     TIERED = "tiered"
 
-
 @dataclass
 class QueryPlan:
     """Execution plan for a query"""
@@ -41,7 +38,6 @@ class QueryPlan:
     estimated_latency: float
     confidence: float
     cache_key: Optional[str] = None
-
 
 class QueryOptimizer:
     """Query optimization service for Sophia AI"""

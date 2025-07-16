@@ -14,7 +14,6 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
-
 class CredentialScope(str, Enum):
     """Scope of the ephemeral credential."""
 
@@ -45,7 +44,6 @@ class CredentialScope(str, Enum):
     SYSTEM_WRITE = "system:write"
     SYSTEM_ADMIN = "system:admin"
 
-
 class CredentialType(str, Enum):
     """Type of ephemeral credential."""
 
@@ -55,7 +53,6 @@ class CredentialType(str, Enum):
     SESSION_TOKEN = "session_token"
     SERVICE_TOKEN = "service_token"
 
-
 class CredentialStatus(str, Enum):
     """Status of ephemeral credential."""
 
@@ -63,7 +60,6 @@ class CredentialStatus(str, Enum):
     EXPIRED = "expired"
     REVOKED = "revoked"
     PENDING = "pending"
-
 
 class TokenMetadata(BaseModel):
     """Metadata for an ephemeral token."""
@@ -77,7 +73,6 @@ class TokenMetadata(BaseModel):
     session_id: str | None = None
     request_id: str | None = None
     additional_data: dict[str, Any] = Field(default_factory=dict)
-
 
 class EphemeralCredential(BaseModel):
     """Ephemeral credential model."""
@@ -132,7 +127,6 @@ class EphemeralCredential(BaseModel):
             },
         }
 
-
 class CredentialRequest(BaseModel):
     """Request for creating an ephemeral credential."""
 
@@ -157,7 +151,6 @@ class CredentialRequest(BaseModel):
 
         return v
 
-
 class CredentialResponse(BaseModel):
     """Response for credential creation or retrieval."""
 
@@ -169,20 +162,17 @@ class CredentialResponse(BaseModel):
     expires_at: str
     created_at: str
 
-
 class CredentialRevocationRequest(BaseModel):
     """Request for revoking an ephemeral credential."""
 
     credential_id: str
     reason: str | None = None
 
-
 class CredentialValidationRequest(BaseModel):
     """Request for validating an ephemeral credential."""
 
     token_value: str
     required_scopes: list[CredentialScope] | None = None
-
 
 class CredentialValidationResponse(BaseModel):
     """Response for credential validation."""

@@ -1,4 +1,3 @@
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import pulumi
 
 # Configuration
@@ -22,8 +21,6 @@ lambda_labs_config = {
         {"name": "sophia-orchestrator", "type": "gpu_2x_a10"},
     ],
 }
-
-
 
     "account": config.require("postgres_host"),
     "user": config.require("QDRANT_user"),

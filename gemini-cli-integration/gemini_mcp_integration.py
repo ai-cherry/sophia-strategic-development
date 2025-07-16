@@ -20,7 +20,6 @@ import psutil
 
 logger = logging.getLogger(__name__)
 
-
 class MCPServerStatus(Enum):
     """MCP Server status enumeration."""
 
@@ -29,7 +28,6 @@ class MCPServerStatus(Enum):
     ERROR = "error"
     STARTING = "starting"
     STOPPING = "stopping"
-
 
 @dataclass
 class MCPServerInfo:
@@ -43,7 +41,6 @@ class MCPServerInfo:
     error_message: str | None = None
     capabilities: list[str] = None
     auto_start: bool = True
-
 
 class GeminiMCPIntegration:
     """
@@ -427,7 +424,6 @@ class GeminiMCPIntegration:
         await self.stop_monitoring()
         await self.close_session()
 
-
 # CLI Interface
 async def main():
     """Main CLI interface for Gemini MCP Integration."""
@@ -489,7 +485,6 @@ async def main():
                     await asyncio.sleep(1)
             except KeyboardInterrupt:
                 await integration.stop_monitoring()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

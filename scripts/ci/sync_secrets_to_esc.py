@@ -13,7 +13,6 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "backend"))
 from core.secret_mappings import SecretCategory, get_all_mappings
 
-
 def run_pulumi_command(args: list[str]) -> tuple[bool, str, str]:
     """Run a Pulumi command and return success, stdout, stderr"""
     env = os.environ.copy()
@@ -26,7 +25,6 @@ def run_pulumi_command(args: list[str]) -> tuple[bool, str, str]:
         return result.returncode == 0, result.stdout, result.stderr
     except Exception as e:
         return False, "", str(e)
-
 
 def sync_secrets():
     """Sync all secrets from GitHub to Pulumi ESC"""
@@ -148,7 +146,6 @@ def sync_secrets():
             print("✅ Verification successful - secrets are accessible in ESC")
         else:
             print("⚠️  Verification warning - could not read back test secret")
-
 
 if __name__ == "__main__":
     # Ensure we're logged into Pulumi

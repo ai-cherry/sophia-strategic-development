@@ -17,7 +17,6 @@ from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
-
 class MigrationPhase(Enum):
     """Migration phases for tracking progress"""
 
@@ -29,7 +28,6 @@ class MigrationPhase(Enum):
     VALIDATION = "validation"
     COMPLETED = "completed"
 
-
 class MigrationStatus(Enum):
     """Migration status indicators"""
 
@@ -40,7 +38,6 @@ class MigrationStatus(Enum):
     FAILED = "failed"
     ROLLING_BACK = "rolling_back"
 
-
 class MigrationAlert(BaseModel):
     """Migration alert model"""
 
@@ -49,7 +46,6 @@ class MigrationAlert(BaseModel):
     timestamp: datetime
     phase: MigrationPhase
     resolved: bool = False
-
 
 class MigrationMetrics(BaseModel):
     """Real-time migration metrics"""
@@ -63,7 +59,6 @@ class MigrationMetrics(BaseModel):
     estimated_completion: datetime | None
     processing_speed: float  # records per minute
 
-
 class MigrationCommand(BaseModel):
     """Natural language migration command"""
 
@@ -71,7 +66,6 @@ class MigrationCommand(BaseModel):
     user_id: str
     timestamp: datetime
     parameters: dict[str, Any] = {}
-
 
 class MigrationOrchestratorClient:
     """
@@ -561,10 +555,8 @@ class MigrationOrchestratorClient:
         """Cleanup resources"""
         await self.client.aclose()
 
-
 # Global migration orchestrator client instance
 _migration_client = None
-
 
 def get_migration_orchestrator_client() -> MigrationOrchestratorClient:
     """Get the global migration orchestrator client instance"""

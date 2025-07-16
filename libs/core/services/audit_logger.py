@@ -9,7 +9,6 @@ from core.protocols import AuditLoggerProtocol
 
 logger = logging.getLogger(__name__)
 
-
 class AuditLogger(AuditLoggerProtocol):
     """Default audit logger implementation.
 

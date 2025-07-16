@@ -9,7 +9,6 @@ from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
-
 class OptimizationService:
     """Centralized optimization service for performance and resource management"""
     

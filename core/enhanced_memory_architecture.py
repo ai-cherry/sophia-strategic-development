@@ -18,7 +18,6 @@ from core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class MemoryTier(Enum):
     """Enhanced memory tier enumeration"""
 
@@ -28,7 +27,6 @@ class MemoryTier(Enum):
     L3_PERSISTENT_MEMORY = "l3_persistent_memory"  # <200ms - Qdrant
     L4_KNOWLEDGE_GRAPH = "l4_knowledge_graph"  # <300ms - Qdrant Vector
     L5_WORKFLOW_MEMORY = "l5_workflow_memory"  # <400ms - Qdrant Long-term
-
 
 @dataclass
 class MemoryTierConfig:
@@ -41,7 +39,6 @@ class MemoryTierConfig:
     compression: bool = False
     encryption: bool = False
 
-
 @dataclass
 class GPUMemoryPool:
     """GPU memory pool configuration for L0 tier"""
@@ -51,7 +48,6 @@ class GPUMemoryPool:
     vector_cache: str = "30GB"
     buffer: str = "11GB"
     total_memory: str = "96GB"
-
 
 class EnhancedMemoryArchitecture:
     """
@@ -810,10 +806,8 @@ class EnhancedMemoryArchitecture:
 
         return health_status
 
-
 # Global instance
 enhanced_memory_architecture = EnhancedMemoryArchitecture()
-
 
 async def initialize_enhanced_memory_architecture():
     """Initialize the enhanced memory architecture"""
@@ -829,7 +823,6 @@ async def initialize_enhanced_memory_architecture():
     except Exception as e:
         logger.exception(f"❌ Enhanced Memory Architecture initialization failed: {e}")
         raise
-
 
 if __name__ == "__main__":
     asyncio.run(initialize_enhanced_memory_architecture())

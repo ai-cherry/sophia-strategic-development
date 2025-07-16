@@ -9,13 +9,11 @@ from infrastructure.services.lambda_labs_serverless_service import (
     LambdaLabsServerlessService,
 )
 
-
 @pytest.fixture
 def mock_db(tmp_path):
     """Create a temporary database for testing."""
     db_path = tmp_path / "test_usage.db"
     return str(db_path)
-
 
 @pytest.fixture
 def service(mock_db):
@@ -25,7 +23,6 @@ def service(mock_db):
     ) as mock_config:
         mock_config.return_value = "test-api-key"
         return LambdaLabsServerlessService(db_path=mock_db)
-
 
 @pytest.mark.asyncio
 async def test_generate_success(service):
@@ -68,7 +65,6 @@ async def test_generate_success(service):
     assert row[2] == pytest.approx(0.0000525, rel=1e-4)  # 150/1M * 0.35
     conn.close()
 
-
 @pytest.mark.asyncio
 async def test_generate_retry_on_failure(service):
     """Test retry logic on API failure."""
@@ -98,7 +94,6 @@ async def test_generate_retry_on_failure(service):
     assert call_count == 3
     assert result["choices"][0]["message"]["content"] == "Success after retry"
 
-
 @pytest.mark.asyncio
 async def test_generate_invalid_model(service):
     """Test error handling for invalid model."""
@@ -106,7 +101,6 @@ async def test_generate_invalid_model(service):
         await service.generate(
             messages=[{"role": "user", "content": "Test"}], model="invalid-model"
         )
-
 
 def test_get_usage_stats(service):
     """Test usage statistics retrieval."""

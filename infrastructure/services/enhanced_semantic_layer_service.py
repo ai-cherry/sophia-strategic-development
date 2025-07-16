@@ -11,7 +11,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class EnhancedSemanticLayerService:
     """Enhanced semantic layer with entity resolution and fuzzy matching capabilities"""
 
@@ -23,7 +22,6 @@ class EnhancedSemanticLayerService:
     async def _get_connection(self):
         """Get Qdrant connection with entity resolution schema"""
         if not self.connection:
-            
 
             self.connection = self.QDRANT_serviceection(
                 user=get_config_value("QDRANT_user"),

@@ -33,7 +33,6 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-
 class PredictionConfidence(Enum):
     """Prediction confidence levels"""
 
@@ -41,7 +40,6 @@ class PredictionConfidence(Enum):
     MEDIUM = "medium"  # 60-80% confidence
     LOW = "low"  # 40-60% confidence
     UNCERTAIN = "uncertain"  # <40% confidence
-
 
 class AutomationAction(Enum):
     """Types of automated actions"""
@@ -57,7 +55,6 @@ class AutomationAction(Enum):
     QUALITY_IMPROVEMENT = "quality_improvement"
     SECURITY_HARDENING = "security_hardening"
 
-
 class ProblemCategory(Enum):
     """Categories of problems that can be predicted"""
 
@@ -70,7 +67,6 @@ class ProblemCategory(Enum):
     WORKFLOW_BOTTLENECK = "workflow_bottleneck"
     USER_EXPERIENCE_ISSUE = "user_experience_issue"
 
-
 @dataclass
 class MetricDataPoint:
     """Single metric measurement"""
@@ -80,7 +76,6 @@ class MetricDataPoint:
     metric_name: str
     source: str
     metadata: dict[str, Any] = field(default_factory=dict)
-
 
 @dataclass
 class Prediction:
@@ -117,7 +112,6 @@ class Prediction:
             "supporting_data_count": len(self.supporting_data),
         }
 
-
 @dataclass
 class AutomationRule:
     """Rule for automated problem resolution"""
@@ -133,7 +127,6 @@ class AutomationRule:
     last_executed: datetime | None = None
     execution_count: int = 0
 
-
 @dataclass
 class LearningPattern:
     """Pattern learned from historical data"""
@@ -145,7 +138,6 @@ class LearningPattern:
     last_observed: datetime
     predictive_indicators: list[str]
     success_rate: float = 0.0
-
 
 class PredictiveAutomationService:
     """Service for predictive automation and proactive problem resolution"""
@@ -757,7 +749,6 @@ class PredictiveAutomationService:
                 for metric, accuracies in self.prediction_accuracy.items()
             },
         }
-
 
 # Global predictive automation service instance
 predictive_service = PredictiveAutomationService()

@@ -24,10 +24,8 @@ from enum import Enum
 from typing import Any
 
 from core.logger import logger
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 # logger = logging.getLogger(__name__)
-
 
 class FoundationalDataType(Enum):
     """Types of foundational knowledge data"""
@@ -40,7 +38,6 @@ class FoundationalDataType(Enum):
     VALUE = "organizational_value"
     ARTICLE = "knowledge_article"
 
-
 @dataclass
 class FoundationalRecord:
     """Represents a foundational knowledge record"""
@@ -52,7 +49,6 @@ class FoundationalRecord:
     metadata: dict[str, Any]
     embedding: list[float] | None = None
     last_updated: datetime | None = None
-
 
 class FoundationalKnowledgeService:
     """Service for managing foundational Pay Ready knowledge"""

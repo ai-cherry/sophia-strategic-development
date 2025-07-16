@@ -12,14 +12,12 @@ from core.application.ports.services.ai_service import AIService
 from domain.entities.call import Call
 from domain.value_objects.sentiment import Sentiment
 
-
 @dataclass
 class AnalyzeCallSentimentRequest:
     """Request object for analyzing call sentiment."""
 
     call_id: str
     force_reanalysis: bool = False
-
 
 @dataclass
 class AnalyzeCallSentimentResponse:
@@ -31,7 +29,6 @@ class AnalyzeCallSentimentResponse:
     risk_indicators: list[str]
     engagement_score: float
 
-
 class CallNotFoundError(Exception):
     """Raised when a call cannot be found."""
 
@@ -39,14 +36,12 @@ class CallNotFoundError(Exception):
         super().__init__(f"Call not found: {call_id}")
         self.call_id = call_id
 
-
 class NoTranscriptError(Exception):
     """Raised when a call has no transcript to analyze."""
 
     def __init__(self, call_id: str):
         super().__init__(f"Call {call_id} has no transcript")
         self.call_id = call_id
-
 
 class AnalyzeCallSentimentUseCase:
     """

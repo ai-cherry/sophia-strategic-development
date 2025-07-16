@@ -18,7 +18,6 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-
 class LambdaBatchOptimizer:
     """Optimize Lambda batch size for maximum throughput without OOM"""
     
@@ -144,7 +143,6 @@ class LambdaBatchOptimizer:
         # Return largest batch size that didn't OOM
         return max(valid_batches)
 
-
 async def run_optimization():
     """Run the optimization process"""
     print("🚀 Lambda Batch Size Optimization")
@@ -204,7 +202,6 @@ async def run_optimization():
             print(f"   Batch {size}: OOM ❌")
     
     return optimal_batch >= 1024
-
 
 if __name__ == "__main__":
     success = asyncio.run(run_optimization())

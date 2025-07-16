@@ -12,7 +12,6 @@ from typing import Optional
 
 from shared.utils.errors import RateLimitError
 
-
 @dataclass
 class RateLimitConfig:
     """Configuration for rate limiting"""
@@ -21,7 +20,6 @@ class RateLimitConfig:
     time_window: float  # seconds
     burst_limit: Optional[int] = None
     service_name: Optional[str] = None
-
 
 class RateLimiter:
     """Thread-safe rate limiter with burst support"""
@@ -73,7 +71,6 @@ class RateLimiter:
         """Reset the rate limiter"""
         self.calls.clear()
 
-
 class MultiServiceRateLimiter:
     """Rate limiter that manages multiple services"""
 
@@ -103,7 +100,6 @@ class MultiServiceRateLimiter:
             # Reset all
             for limiter in self.limiters.values():
                 limiter.reset()
-
 
 class TokenBucketRateLimiter:
     """Token bucket rate limiter for smooth rate limiting"""
@@ -158,7 +154,6 @@ class TokenBucketRateLimiter:
                 if e.retry_after:
                     await asyncio.sleep(e.retry_after)
 
-
 def rate_limit(max_calls: int, time_window: float, burst_limit: Optional[int] = None):
     """Decorator for rate limiting async functions"""
 
@@ -182,10 +177,8 @@ def rate_limit(max_calls: int, time_window: float, burst_limit: Optional[int] = 
 
     return decorator
 
-
 # Global rate limiter instance for shared use
 _global_rate_limiter: Optional[MultiServiceRateLimiter] = None
-
 
 def get_global_rate_limiter() -> MultiServiceRateLimiter:
     """Get or create the global rate limiter"""

@@ -22,7 +22,6 @@ import logging
 from datetime import datetime
 from typing import Any
 
-
 from pydantic import BaseModel
 
 from core.config_manager import get_config_value
@@ -33,7 +32,6 @@ logger = logging.getLogger(__name__)
 JWT_SECRET = get_config_value("jwt_secret", "sophia-ai-cortex-secret")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
-
 
 # Base models for compatibility
 class AgentRequest(BaseModel):
@@ -46,7 +44,6 @@ class AgentRequest(BaseModel):
     temperature: float | None = 0.7
     stream: bool | None = False
 
-
 class AgentResponse(BaseModel):
     """Base agent response model"""
 
@@ -57,14 +54,12 @@ class AgentResponse(BaseModel):
     execution_time: float
     metadata: dict[str, Any] = {}
 
-
 class CortexTool(BaseModel):
     """Base Cortex tool model"""
 
     name: str
     description: str
     parameters: dict[str, Any] = {}
-
 
 class CortexAgentService:
     """Base Cortex Agent Service for compatibility"""
@@ -78,7 +73,6 @@ class CortexAgentService:
     logger = logging.getLogger(__name__)
     logger.warning(f"__init__ not yet implemented")
 
-
 # Enhanced Models for Multimodal Processing
 class MultimodalFile(BaseModel):
     """Model for multimodal file processing"""
@@ -89,14 +83,12 @@ class MultimodalFile(BaseModel):
     file_content: bytes | None = None
     metadata: dict[str, Any] = {}
 
-
 class MultimodalAgentRequest(AgentRequest):
     """Enhanced agent request with multimodal support"""
 
     files: list[MultimodalFile] = []
     processing_options: dict[str, Any] = {}
     business_context: dict[str, Any] | None = None
-
 
 class AdvancedAnalyticsQuery(BaseModel):
     """Model for advanced analytics queries"""
@@ -108,7 +100,6 @@ class AdvancedAnalyticsQuery(BaseModel):
     time_range: dict[str, str] | None = None
     filters: dict[str, Any] = {}
 
-
 class AnalyticsResponse(BaseModel):
     """Response model for analytics queries"""
 
@@ -118,7 +109,6 @@ class AnalyticsResponse(BaseModel):
     recommendations: list[str]
     confidence_score: float
     metadata: dict[str, Any] = {}
-
 
 class ComplianceAlert(BaseModel):
     """Model for compliance alerts"""
@@ -130,7 +120,6 @@ class ComplianceAlert(BaseModel):
     affected_records: list[str]
     recommended_actions: list[str]
     timestamp: datetime
-
 
 class EnhancedCortexAgentService(CortexAgentService):
     """Enhanced Cortex Agent Service with advanced AI capabilities"""
@@ -742,10 +731,8 @@ class EnhancedCortexAgentService(CortexAgentService):
         else:
             return "low"
 
-
 # Service instance
 enhanced_cortex_service = None
-
 
 async def get_enhanced_cortex_agent_service() -> EnhancedCortexAgentService:
     """Get enhanced Cortex agent service instance"""

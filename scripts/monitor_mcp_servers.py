@@ -24,7 +24,6 @@ MCP_SERVERS = [
     {"name": "HubSpot", "port": 9105, "url": "http://localhost:9105/health"},
 ]
 
-
 async def check_server_health(server: Dict[str, Any]) -> Dict[str, Any]:
     """Check if a server is healthy"""
     try:
@@ -70,7 +69,6 @@ async def check_server_health(server: Dict[str, Any]) -> Dict[str, Any]:
             "response_time_ms": None,
         }
 
-
 async def test_backend_api():
     """Test the backend API functionality"""
     print("\n🧪 TESTING BACKEND API:")
@@ -104,7 +102,6 @@ async def test_backend_api():
                 )
         except:
             print("  ❌ Orchestration endpoint failed")
-
 
 async def verify_QDRANT_serviceection():
     """Verify Qdrant is receiving data"""
@@ -167,7 +164,6 @@ async def verify_QDRANT_serviceection():
     except Exception as e:
         print(f"  ❌ Qdrant verification failed: {e}")
 
-
 async def main():
     """Main monitoring function"""
     print("🔍 SOPHIA AI MCP SERVER MONITORING")
@@ -211,7 +207,6 @@ async def main():
 
     print("\n" + "=" * 60)
     print("Monitoring complete!")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

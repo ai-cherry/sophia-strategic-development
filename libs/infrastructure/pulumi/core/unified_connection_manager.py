@@ -23,20 +23,15 @@ UTC = UTC
 
 # Try to import optional dependencies
 try:
-    
 
     from core.config_manager import get_config_value
 
-    
 except ImportError:
-    
 
     def get_config_value(key):
         return os.getenv(key.upper())
 
-
 logger = logging.getLogger(__name__)
-
 
 class ConnectionType(str, Enum):
     """Supported connection types"""
@@ -45,14 +40,12 @@ class ConnectionType(str, Enum):
     POSTGRES = "postgres"
     REDIS = "redis"
 
-
 class HealthStatus(str, Enum):
     """Health status enumeration"""
 
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
-
 
 @dataclass
 class ConnectionPoolConfig:
@@ -65,7 +58,6 @@ class ConnectionPoolConfig:
     health_check_interval: int = 60
     circuit_breaker_threshold: int = 5
     circuit_breaker_timeout: int = 60
-
 
 @dataclass
 class HealthCheckResult:
@@ -80,7 +72,6 @@ class HealthCheckResult:
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.now(UTC)
-
 
 class CircuitBreaker:
     """Circuit breaker for connection failure handling"""
@@ -120,7 +111,6 @@ class CircuitBreaker:
 
         if self.failure_count >= self.failure_threshold:
             self.state = "OPEN"
-
 
 class ConnectionPool:
     """High-performance connection pool"""
@@ -336,7 +326,6 @@ class ConnectionPool:
                 error_message=str(e),
             )
 
-
 class UnifiedConnectionManager:
     """Enterprise-grade unified connection manager"""
 
@@ -449,7 +438,6 @@ class UnifiedConnectionManager:
             "pool_metrics": pool_metrics,
             "timestamp": datetime.now(UTC).isoformat(),
         }
-
 
 # Global instance
 unified_connection_manager = UnifiedConnectionManager()

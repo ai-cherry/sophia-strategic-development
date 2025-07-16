@@ -30,7 +30,6 @@ from dataclasses import dataclass
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class MemoryServiceConfig:
     """Configuration for optimized memory service"""
@@ -39,7 +38,6 @@ class MemoryServiceConfig:
     pool_timeout: int = 60
     health_check_interval: int = 30
     max_retries: int = 3
-    
 
 class MemoryServiceOptimizer:
     """Implements memory service optimization improvements"""
@@ -119,7 +117,6 @@ from qdrant_client.http import models
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class ConnectionStats:
     """Connection pool statistics"""
@@ -128,7 +125,6 @@ class ConnectionStats:
     idle_connections: int = 0
     failed_connections: int = 0
     average_response_time: float = 0.0
-    
 
 class QdrantConnectionPool:
     """Enterprise-grade Qdrant connection pool"""
@@ -354,10 +350,8 @@ class QdrantConnectionPool:
         )
         return stats
 
-
 # Global connection pool instance
 _qdrant_pool: Optional[QdrantConnectionPool] = None
-
 
 async def get_qdrant_pool() -> QdrantConnectionPool:
     """Get or create global Qdrant connection pool"""
@@ -371,7 +365,6 @@ async def get_qdrant_pool() -> QdrantConnectionPool:
         await _qdrant_pool.initialize(config["url"], config.get("api_key"))
     
     return _qdrant_pool
-
 
 async def close_qdrant_pool():
     """Close global connection pool"""
@@ -407,7 +400,6 @@ from typing import Optional
 from backend.core.qdrant_connection_pool import get_qdrant_pool, close_qdrant_pool
 
 logger = logging.getLogger(__name__)
-
 
 class MemoryServiceLifecycleManager:
     """Manages memory service lifecycle"""
@@ -497,10 +489,8 @@ class MemoryServiceLifecycleManager:
         """Check if lifecycle is initialized"""
         return self._initialized
 
-
 # Global lifecycle manager
 _lifecycle_manager: Optional[MemoryServiceLifecycleManager] = None
-
 
 async def get_lifecycle_manager() -> MemoryServiceLifecycleManager:
     """Get or create lifecycle manager"""
@@ -538,7 +528,6 @@ import json
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class MemoryServiceMetrics:
     """Memory service performance metrics"""
@@ -550,7 +539,6 @@ class MemoryServiceMetrics:
     connection_pool_active: int = 0
     connection_pool_idle: int = 0
     error_count: int = 0
-    
 
 class MemoryServiceMonitor:
     """Monitors memory service performance"""
@@ -628,10 +616,8 @@ class MemoryServiceMonitor:
         logger.info(f"   Cache Performance: {summary['cache_performance']}")
         logger.info(f"   Connection Pool: {summary['connection_pool']}")
 
-
 # Global monitor instance
 _monitor: Optional[MemoryServiceMonitor] = None
-
 
 def get_memory_monitor() -> MemoryServiceMonitor:
     """Get global memory service monitor"""
@@ -669,7 +655,6 @@ import time
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class QueryResult:
     """Query result with metadata"""
@@ -677,7 +662,6 @@ class QueryResult:
     execution_time: float
     cached: bool = False
     cache_key: Optional[str] = None
-
 
 class QueryOptimizer:
     """Optimizes Qdrant queries for better performance"""
@@ -831,10 +815,8 @@ class QueryOptimizer:
             "cache_size_mb": len(str(self._cache)) / 1024 / 1024
         }
 
-
 # Global query optimizer
 _query_optimizer: Optional[QueryOptimizer] = None
-
 
 def get_query_optimizer() -> QueryOptimizer:
     """Get global query optimizer"""
@@ -892,7 +874,6 @@ def get_query_optimizer() -> QueryOptimizer:
                 import shutil
                 shutil.copy2(backup_file, original_file)
                 logger.info(f"✅ Restored {original_file}")
-
 
 async def main():
     """Main optimization implementation function"""

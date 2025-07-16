@@ -24,14 +24,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class ServerConfig(BaseModel):
     """Configuration for MCP servers"""
 
     name: str
     version: str = "1.0.0"
     description: str = ""
-
 
 class StandardizedMCPServer(ABC):
     """
@@ -153,7 +151,6 @@ class StandardizedMCPServer(ABC):
             self.logger.error(f"Server error: {e}")
             raise
 
-
 # Example implementation for reference
 class ExampleMCPServer(StandardizedMCPServer):
     """Example implementation showing how to use the base class"""
@@ -196,12 +193,10 @@ class ExampleMCPServer(StandardizedMCPServer):
         else:
             raise ValueError(f"Unknown tool: {name}")
 
-
 async def main():
     """Main entry point"""
     server = ExampleMCPServer()
     await server.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

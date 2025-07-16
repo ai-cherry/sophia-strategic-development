@@ -9,7 +9,6 @@ from abc import ABC, abstractmethod
 
 from domain.value_objects.sentiment import Sentiment
 
-
 class AIService(ABC):
     """
     Interface for AI operations.

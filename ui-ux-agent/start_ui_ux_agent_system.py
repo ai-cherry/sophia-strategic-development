@@ -20,7 +20,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class EnhancedUIUXAgentSystemManager:
     """Enhanced manager for Phase 2 UI/UX agent system with dashboard takeover"""
 
@@ -458,7 +457,6 @@ class EnhancedUIUXAgentSystemManager:
         self.processes.clear()
         logger.info("✅ All UI/UX agent system processes stopped")
 
-
 async def main():
     """Main entry point"""
     manager = EnhancedUIUXAgentSystemManager()
@@ -469,7 +467,6 @@ async def main():
     except Exception as e:
         logger.exception(f"❌ System failed: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     asyncio.run(main())

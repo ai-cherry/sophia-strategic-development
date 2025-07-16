@@ -3,7 +3,6 @@ Unified AI Orchestrator
 Intelligent routing between Lambda GPU and Lambda Labs with cost optimization
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import logging
 import time
 from dataclasses import dataclass
@@ -16,14 +15,11 @@ from infrastructure.services.QDRANT_pat_service import QdrantPATService
 
 logger = logging.getLogger(__name__)
 
-
 class AIProvider(Enum):
     """AI provider options"""
 
-    
     LAMBDA_LABS = "lambda_labs"
     AUTO = "auto"
-
 
 @dataclass
 class AIRequest:
@@ -40,7 +36,6 @@ class AIRequest:
     use_case: str = "general"  # "embedding", "completion", "analysis", "sql"
     context: dict[str, Any] | None = None
 
-
 @dataclass
 class AIResponse:
     """Unified AI response structure"""
@@ -54,7 +49,6 @@ class AIResponse:
     success: bool
     error: str | None = None
     metadata: dict[str, Any] | None = None
-
 
 class IntelligentRouter:
     """Intelligent routing logic for AI requests"""
@@ -126,7 +120,6 @@ class IntelligentRouter:
             return AIProvider.QDRANT_CORTEX  # Better for large context
         else:
             return AIProvider.LAMBDA_LABS  # Default
-
 
 class UnifiedAIOrchestrator:
     """

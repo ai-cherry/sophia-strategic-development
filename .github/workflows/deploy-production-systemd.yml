@@ -26,6 +26,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
+        # Domain Configuration
+        SOPHIA_DOMAIN=sophia-intel.ai
+        SOPHIA_API_DOMAIN=api.sophia-intel.ai
+        SOPHIA_APP_DOMAIN=app.sophia-intel.ai
+        SOPHIA_WS_DOMAIN=ws.sophia-intel.ai
   # Production infrastructure IPs (from config/production_infrastructure.py)
   AI_CORE_IP: "192.222.58.232"
   BUSINESS_TOOLS_IP: "104.171.202.117"

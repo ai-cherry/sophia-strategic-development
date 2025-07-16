@@ -11,7 +11,6 @@ from datetime import datetime
 from domain.value_objects.call_participant import CallParticipant
 from domain.value_objects.sentiment import Sentiment
 
-
 @dataclass
 class Call:
     """

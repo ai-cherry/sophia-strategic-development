@@ -34,7 +34,6 @@ logger = logging.getLogger(__name__)
 
 SCHEMA_FILE = project_root / "infrastructure" / "postgres_setup" / "staging_schema.sql"
 
-
 async def apply_schema():
     """
     Connects to the PostgreSQL database and applies the staging schema.
@@ -87,11 +86,9 @@ async def apply_schema():
             await conn.close()
             logger.info("Database connection closed.")
 
-
 async def main():
     """Main entry point for the script."""
     await apply_schema()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

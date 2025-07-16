@@ -21,7 +21,6 @@ from infrastructure.services.unified_llm_service import (
 
 logger = logging.getLogger(__name__)
 
-
 class IntentCategory(Enum):
     CODE_MODIFICATION = "code_modification"
     CODE_GENERATION = "code_generation"
@@ -32,7 +31,6 @@ class IntentCategory(Enum):
     SEARCH = "search"
     MEMORY = "memory"
 
-
 @dataclass
 class CodeModificationIntent:
     action: str  # modify, create, delete, refactor, fix
@@ -42,14 +40,12 @@ class CodeModificationIntent:
     requires_approval: bool
     confidence: float
 
-
 @dataclass
 class InfrastructureIntent:
     action: str  # deploy, scale, configure, monitor
     target: str  # service, server, database
     parameters: dict[str, Any]
     risk_level: str  # low, medium, high, critical
-
 
 class SophiaIntentEngine:
     """

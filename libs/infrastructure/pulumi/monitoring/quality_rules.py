@@ -19,7 +19,6 @@ from .gong_data_quality import AlertSeverity, ValidationResult
 
 logger = structlog.get_logger()
 
-
 class RuleCategory(str, Enum):
     """Categories of validation rules."""
 
@@ -29,7 +28,6 @@ class RuleCategory(str, Enum):
     CONSISTENCY = "consistency"
     ENRICHMENT = "enrichment"
     ANALYTICS = "analytics"
-
 
 class ValidationRule(BaseModel):
     """Base validation rule definition."""
@@ -43,7 +41,6 @@ class ValidationRule(BaseModel):
     async def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Validate data against this rule."""
         raise NotImplementedError
-
 
 class TranscriptQualityRule(ValidationRule):
     """Validate transcript quality and completeness."""
@@ -108,7 +105,6 @@ class TranscriptQualityRule(ValidationRule):
         return ValidationResult(
             rule_name=self.name, passed=True, severity=self.severity
         )
-
 
 class ParticipantEnrichmentRule(ValidationRule):
     """Validate participant data enrichment quality."""
@@ -192,7 +188,6 @@ class ParticipantEnrichmentRule(ValidationRule):
             rule_name=self.name, passed=True, severity=self.severity
         )
 
-
 class CallMetadataRule(ValidationRule):
     """Validate call metadata completeness."""
 
@@ -258,7 +253,6 @@ class CallMetadataRule(ValidationRule):
         return ValidationResult(
             rule_name=self.name, passed=True, severity=self.severity
         )
-
 
 class TimeConsistencyRule(ValidationRule):
     """Validate temporal consistency across fields."""
@@ -336,7 +330,6 @@ class TimeConsistencyRule(ValidationRule):
         return ValidationResult(
             rule_name=self.name, passed=True, severity=self.severity
         )
-
 
 class AnalyticsQualityRule(ValidationRule):
     """Validate analytics data quality."""
@@ -420,7 +413,6 @@ class AnalyticsQualityRule(ValidationRule):
             rule_name=self.name, passed=True, severity=self.severity
         )
 
-
 class PIIDetectionRule(ValidationRule):
     """Detect potential PII in transcript data."""
 
@@ -488,7 +480,6 @@ class PIIDetectionRule(ValidationRule):
         return ValidationResult(
             rule_name=self.name, passed=True, severity=self.severity
         )
-
 
 class CustomRuleRegistry:
     """Registry for managing custom validation rules."""
@@ -573,7 +564,6 @@ class CustomRuleRegistry:
                     self.logger.exception(f"Error in rule {rule.name}: {e!s}")
 
         return results
-
 
 # Singleton instance
 rule_registry = CustomRuleRegistry()

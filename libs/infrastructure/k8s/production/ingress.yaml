@@ -13,10 +13,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - api.sophia-ai.lambda.cloud
+    - api.sophia-intel.ai
     secretName: sophia-backend-tls
   rules:
-  - host: api.sophia-ai.lambda.cloud
+  - host: api.sophia-intel.ai
     http:
       paths:
       - path: /

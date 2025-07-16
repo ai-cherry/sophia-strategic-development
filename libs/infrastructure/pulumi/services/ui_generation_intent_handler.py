@@ -12,14 +12,12 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from infrastructure.services.mcp_orchestration_service import (
     BusinessTask,
     TaskPriority,
     get_orchestration_service,
 )
 
 logger = logging.getLogger(__name__)
-
 
 @dataclass
 class UIGenerationRequest:
@@ -33,7 +31,6 @@ class UIGenerationRequest:
     user_id: str | None = None
     session_id: str | None = None
 
-
 @dataclass
 class UIGenerationResponse:
     """Response from UI generation"""
@@ -46,7 +43,6 @@ class UIGenerationResponse:
     code_quality_score: float | None = None
     suggestions: list[str] = field(default_factory=list)
     error_message: str | None = None
-
 
 class UIGenerationIntentHandler:
     """
@@ -280,10 +276,8 @@ class UIGenerationIntentHandler:
 
         return chat_response
 
-
 # Global instance
 _ui_handler = None
-
 
 def get_ui_generation_handler() -> UIGenerationIntentHandler:
     """Get singleton instance of UI generation handler"""

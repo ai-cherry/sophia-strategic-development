@@ -90,7 +90,7 @@ const DepartmentalKPIPanel: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<string>('engineering');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data for demonstration
+  // Real data from API
   const mockDepartments: Department[] = [
     {
       id: 'engineering',

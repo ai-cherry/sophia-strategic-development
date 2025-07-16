@@ -20,7 +20,6 @@ import re
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 class EnhancedSecurityFix:
     """Enhanced security fix for complete SSH key removal"""
     
@@ -258,7 +257,6 @@ class EnhancedSecurityFix:
         if self.backup_dir.exists():
             shutil.rmtree(self.backup_dir)
             logger.info("🧹 Security backups cleaned up")
-
 
 def main():
     """Main enhanced security fix function"""

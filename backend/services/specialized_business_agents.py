@@ -16,7 +16,6 @@ from abc import ABC, abstractmethod
 from ..services.advanced_hybrid_search_service import AdvancedHybridSearchService, SearchContext, BusinessInsights
 from ..services.adaptive_memory_system import AdaptiveMemorySystem
 from ..services.payready_business_intelligence import PayReadyBusinessIntelligence, BusinessContext
-from ..services.advanced_mcp_orchestration_engine import AgentCapability, TaskExecution
 
 logger = logging.getLogger(__name__)
 

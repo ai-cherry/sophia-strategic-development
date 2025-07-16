@@ -8,7 +8,6 @@ from api.lambda_labs_health_routes import get_lambda_labs_health
 
 router = APIRouter(prefix="/api/v1/unified", tags=["unified-health"])
 
-
 def calculate_weighted_health(
     infrastructure: float, ai_memory: float, deployment: float
 ) -> float:
@@ -22,7 +21,6 @@ def calculate_weighted_health(
         + deployment * weights["deployment"]
     )
     return round(weighted_score, 2)
-
 
 async def get_system_alerts():
     """Get mock system-wide alerts."""
@@ -46,7 +44,6 @@ async def get_system_alerts():
     ]
     return alerts
 
-
 async def get_health_recommendations():
     """Get mock health recommendations."""
     recommendations = [
@@ -62,7 +59,6 @@ async def get_health_recommendations():
         },
     ]
     return recommendations
-
 
 @router.get("/health")
 async def get_unified_health():

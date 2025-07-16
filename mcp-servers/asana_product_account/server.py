@@ -223,7 +223,7 @@ class AsanaProductAccountMCPServer(StandardizedMCPServer):
         }
 
         # Initialize Qdrant memory service
-        self.memory_service = QdrantSophiaUnifiedMemoryService()
+        self.memory_service = QdrantCodingMCPUnifiedMemoryService()
         
         # Initialize product/account intelligence agent
         self.product_agent = ProductAccountIntelligenceAgent(self.memory_service)

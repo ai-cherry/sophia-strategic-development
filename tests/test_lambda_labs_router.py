@@ -6,7 +6,6 @@ import pytest  # type: ignore[import-not-found]
 
 from infrastructure.services.lambda_labs_hybrid_router import LambdaLabsHybridRouter
 
-
 @pytest.fixture
 def router():
     """Create router instance with mocked dependencies."""
@@ -14,7 +13,6 @@ def router():
         "infrastructure.services.lambda_labs_hybrid_router.LambdaLabsServerlessService"
     ):
         return LambdaLabsHybridRouter(serverless_ratio=0.8)
-
 
 @pytest.mark.asyncio
 async def test_force_serverless_backend(router):
@@ -35,7 +33,6 @@ async def test_force_serverless_backend(router):
     assert result["choices"][0]["message"]["content"] == "Serverless response"
     router.serverless.generate.assert_called_once()
 
-
 @pytest.mark.asyncio
 async def test_force_gpu_backend(router):
     """Test forcing GPU backend."""
@@ -54,7 +51,6 @@ async def test_force_gpu_backend(router):
     assert result["backend"] == "gpu"
     assert result["choices"][0]["message"]["content"] == "GPU response"
     gpu_callback.assert_called_once()
-
 
 @pytest.mark.asyncio
 async def test_model_selection_low_cost(router):
@@ -75,7 +71,6 @@ async def test_model_selection_low_cost(router):
     call_args = router.serverless.generate.call_args
     assert call_args[1]["model"] == "llama3.1-8b-instruct"
 
-
 @pytest.mark.asyncio
 async def test_model_selection_latency_critical(router):
     """Test model selection for latency critical priority."""
@@ -95,7 +90,6 @@ async def test_model_selection_latency_critical(router):
     assert result["backend"] == "gpu"
     gpu_callback.assert_called_once()
 
-
 @pytest.mark.asyncio
 async def test_fallback_on_serverless_failure(router):
     """Test fallback to GPU when serverless fails."""
@@ -114,7 +108,6 @@ async def test_fallback_on_serverless_failure(router):
 
     assert result["backend"] == "gpu"
     assert result["choices"][0]["message"]["content"] == "GPU fallback"
-
 
 @pytest.mark.asyncio
 async def test_fallback_on_gpu_failure(router):
@@ -139,7 +132,6 @@ async def test_fallback_on_gpu_failure(router):
 
     assert result["backend"] == "serverless"
     assert result["choices"][0]["message"]["content"] == "Serverless fallback"
-
 
 @pytest.mark.asyncio
 async def test_no_gpu_callback_error(router):

@@ -11,7 +11,6 @@ from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
-
 class PersonalityEngine:
     """Dynamic personality engine with multiple modes"""
     

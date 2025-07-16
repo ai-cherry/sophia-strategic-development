@@ -42,7 +42,6 @@ tokenizer = None
 model = None
 portkey_client = None
 
-
 # Request/Response models
 class EmbedRequest(BaseModel):
     input: List[str] = Field(..., description="List of texts to embed")
@@ -51,13 +50,11 @@ class EmbedRequest(BaseModel):
         description="Model to use for embeddings",
     )
 
-
 class EmbedResponse(BaseModel):
     embeddings: List[List[float]]
     model: str
     usage: Dict[str, int]
     latency_ms: float
-
 
 class HealthResponse(BaseModel):
     status: str
@@ -66,14 +63,12 @@ class HealthResponse(BaseModel):
     model_loaded: bool
     portkey_configured: bool
 
-
 # Retry configuration for Lambda flakes
 class RetryConfig:
     max_attempts: int = 3
     base_delay: float = 0.1
     max_delay: float = 2.0
     exponential_base: float = 2
-
 
 async def exponential_backoff_retry(func, *args, **kwargs):
     """Execute function with exponential backoff retry logic"""
@@ -94,7 +89,6 @@ async def exponential_backoff_retry(func, *args, **kwargs):
                 f"Attempt {attempt + 1} failed: {e}. Retrying in {delay}s..."
             )
             await asyncio.sleep(delay)
-
 
 @app.on_event("startup")
 async def startup_event():
@@ -138,7 +132,6 @@ async def startup_event():
         logger.error(f"Failed to initialize: {e}")
         raise
 
-
 async def generate_embeddings_gpu(texts: List[str]) -> List[List[float]]:
     """Generate embeddings using GPU-accelerated model"""
     start_time = time.time()
@@ -172,7 +165,6 @@ async def generate_embeddings_gpu(texts: List[str]) -> List[List[float]]:
         logger.error(f"GPU embedding generation failed: {e}")
         raise
 
-
 async def generate_embeddings_portkey(
     texts: List[str], model: str
 ) -> List[List[float]]:
@@ -189,7 +181,6 @@ async def generate_embeddings_portkey(
         embeddings.append(response.data[0].embedding)
 
     return embeddings
-
 
 @app.post("/embed", response_model=EmbedResponse)
 async def embed(request: EmbedRequest):
@@ -244,7 +235,6 @@ async def embed(request: EmbedRequest):
         latency_ms=latency_ms,
     )
 
-
 @app.get("/health", response_model=HealthResponse)
 async def health():
     """Health check endpoint"""
@@ -255,7 +245,6 @@ async def health():
         model_loaded=model is not None,
         portkey_configured=portkey_client is not None,
     )
-
 
 @app.get("/metrics")
 async def metrics():
@@ -280,7 +269,6 @@ async def metrics():
 
     return "\n".join(metrics_lines)
 
-
 @app.get("/")
 async def root():
     """Root endpoint"""
@@ -295,7 +283,6 @@ async def root():
             "docs": "/docs",
         },
     }
-
 
 if __name__ == "__main__":
     import uvicorn

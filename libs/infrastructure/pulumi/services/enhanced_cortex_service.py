@@ -10,7 +10,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class CortexOperation:
     """Cortex AI operation definition"""
@@ -22,7 +21,6 @@ class CortexOperation:
     parameters: dict[str, Any] = None
     estimated_cost: float = 0.0
     estimated_duration: float = 0.0
-
 
 class EnhancedCortexService:
     """Enhanced Lambda GPU AI integration service"""

@@ -25,7 +25,6 @@ FIGMA_MCP_SERVER = "http://localhost:9001"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 
-
 class CodeGenerationRequest(BaseModel):
     """Request model for code generation"""
 
@@ -34,7 +33,6 @@ class CodeGenerationRequest(BaseModel):
     component_type: str = "react_component"
     styling_approach: str = "tailwind"
     framework: str = "react_typescript"
-
 
 class GeneratedComponent(BaseModel):
     """Generated component response"""
@@ -46,7 +44,6 @@ class GeneratedComponent(BaseModel):
     test_code: str
     documentation: str
     metadata: dict[str, Any]
-
 
 class UIUXAgent:
     """LangChain-powered UI/UX agent for design automation"""
@@ -445,7 +442,6 @@ function Dashboard() {{
             ],
             "automated_fixes_available": True,
         }
-
 
 # FastAPI app instance
 agent = UIUXAgent()

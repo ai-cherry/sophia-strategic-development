@@ -14,7 +14,6 @@ from .config_schema import LLMRouterConfig
 from .enums import Provider, TaskComplexity, TaskType
 from .metrics import llm_fallback_attempts, llm_fallback_level
 
-
 @dataclass
 class FallbackProvider:
     """Fallback provider configuration"""
@@ -24,7 +23,6 @@ class FallbackProvider:
     priority: int
     max_retries: int = 3
     timeout: float = 30.0
-
 
 class FallbackChain:
     """

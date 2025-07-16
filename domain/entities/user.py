@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
-
 class UserRole(Enum):
     """Enumeration of user roles."""
 
@@ -19,7 +18,6 @@ class UserRole(Enum):
     ADMIN = "admin"
     ANALYST = "analyst"
 
-
 class PermissionLevel(Enum):
     """Enumeration of permission levels."""
 
@@ -27,7 +25,6 @@ class PermissionLevel(Enum):
     WRITE = "write"
     DELETE = "delete"
     ADMIN = "admin"
-
 
 @dataclass
 class User:

@@ -21,7 +21,6 @@
         print(f"❌ Failed to set {pulumi_key}: {result.stderr}")
         return False
 
-
 def main():
     print("🚀 Mapping ALL GitHub Secrets to Pulumi ESC")
     print("=" * 60)
@@ -50,7 +49,6 @@ def main():
 
     print("\n⚠️  NOTE: The actual secret values need to be synced from GitHub")
     print("This script creates the mapping structure in Pulumi ESC")
-
 
 if __name__ == "__main__":
     main()

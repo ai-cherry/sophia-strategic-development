@@ -25,7 +25,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from backend.services.sophia_ai_unified_orchestrator import (
+from backend.services.coding_mcp_orchestrator_service import (
     get_unified_orchestrator,
 )
 
@@ -47,12 +47,10 @@ if WORKFLOWS_AVAILABLE and workflows_router:
     router.include_router(workflows_router)
     logger.info("✅ Workflow automation routes included in v4 API")
 
-
 # Simple auth mock for now - replace with proper auth when available
 async def get_current_user():
     """Mock auth function - replace with proper implementation"""
     return {"id": "user_default", "name": "Default User", "role": "admin"}
-
 
 class OrchestrationRequest(BaseModel):
     """Unified request model for all orchestration operations"""
@@ -67,7 +65,6 @@ class OrchestrationRequest(BaseModel):
         default=True, description="Include performance metrics in response"
     )
 
-
 class OrchestrationResponse(BaseModel):
     """Unified response model from orchestrator"""
 
@@ -80,7 +77,6 @@ class OrchestrationResponse(BaseModel):
         default_factory=dict, description="Response metadata and metrics"
     )
     session_id: str = Field(..., description="Session ID for tracking")
-
 
 @router.post("/orchestrate", response_model=OrchestrationResponse)
 async def orchestrate_request(
@@ -115,7 +111,6 @@ async def orchestrate_request(
     except Exception as e:
         logger.exception(f"Orchestration failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post("/orchestrate/stream")
 async def orchestrate_stream(
@@ -156,7 +151,7 @@ async def orchestrate_stream(
 # DELETED: Deprecated method removed
 # DELETED: Deprecated method removed
 @router.get("/orchestrator/health")
-async def get_orchestrator_health():
+async def get_coding_orchestrator_health():
     """Get health status of the orchestrator and all connected services"""
     orchestrator = get_unified_orchestrator()
 
@@ -191,9 +186,8 @@ async def get_orchestrator_health():
             "timestamp": datetime.utcnow().isoformat(),
         }
 
-
 @router.get("/orchestrator/metrics")
-async def get_orchestrator_metrics(
+async def get_coding_orchestrator_metrics(
     current_user: dict = Depends(get_current_user),
 ):
     """Get detailed metrics from the orchestrator"""
@@ -204,7 +198,6 @@ async def get_orchestrator_metrics(
         "user_id": current_user["id"],
         "timestamp": datetime.utcnow().isoformat(),
     }
-
 
 # Backward compatibility endpoint
 @router.post("/chat/unified")

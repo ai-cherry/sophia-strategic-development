@@ -32,7 +32,6 @@ from backend.services.QDRANT_unified_memory_service import (
 
 logger = logging.getLogger(__name__)
 
-
 class CoachingType(str, Enum):
     """Types of coaching interactions"""
 
@@ -44,7 +43,6 @@ class CoachingType(str, Enum):
     RELATIONSHIP_BUILDING = "relationship_building"
     PERFORMANCE_IMPROVEMENT = "performance_improvement"
 
-
 class CoachingPriority(str, Enum):
     """Priority levels for coaching interventions"""
 
@@ -52,7 +50,6 @@ class CoachingPriority(str, Enum):
     HIGH = "high"  # End of day coaching
     MEDIUM = "medium"  # Weekly coaching
     LOW = "low"  # Monthly coaching
-
 
 @dataclass
 class CoachingInsight:
@@ -82,7 +79,6 @@ class CoachingInsight:
     delivered_at: datetime = field(default_factory=datetime.now)
     rep_response: str | None = None
     effectiveness_score: float | None = None
-
 
 class InteractiveSalesCoachAgent(BaseAgent):
     """

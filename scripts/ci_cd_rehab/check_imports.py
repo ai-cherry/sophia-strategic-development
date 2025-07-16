@@ -15,7 +15,6 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-
 class ImportChecker:
     """Check health of Python imports across the project"""
 
@@ -294,7 +293,6 @@ class ImportChecker:
                 f"Import error: {issue['import_statement']} - {issue['issue_type']}"
             )
 
-
 def main():
     """Main entry point"""
     import argparse
@@ -340,7 +338,6 @@ def main():
         sys.exit(1)
     else:
         sys.exit(0)
-
 
 if __name__ == "__main__":
     main()

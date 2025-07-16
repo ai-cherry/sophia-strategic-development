@@ -51,7 +51,7 @@ global:
   logLevel: INFO
 
   # Domain Configuration
-  domain: sophia-ai.lambda-labs.cloud
+  domain: sophia-intel.ai
   tls:
     enabled: true
     issuer: letsencrypt-prod
@@ -69,7 +69,7 @@ sophiaBackend:
     port: 8000
   ingress:
     enabled: true
-    host: api.sophia-ai.lambda-labs.cloud
+    host: api.sophia-intel.ai
   resources:
     requests:
       memory: "2Gi"

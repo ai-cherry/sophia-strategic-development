@@ -11,7 +11,6 @@ from backend.core.qdrant_connection_pool import get_qdrant_pool, close_qdrant_po
 
 logger = logging.getLogger(__name__)
 
-
 class MemoryServiceLifecycleManager:
     """Manages memory service lifecycle"""
     
@@ -100,10 +99,8 @@ class MemoryServiceLifecycleManager:
         """Check if lifecycle is initialized"""
         return self._initialized
 
-
 # Global lifecycle manager
 _lifecycle_manager: Optional[MemoryServiceLifecycleManager] = None
-
 
 async def get_lifecycle_manager() -> MemoryServiceLifecycleManager:
     """Get or create lifecycle manager"""

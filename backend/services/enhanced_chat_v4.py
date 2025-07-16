@@ -16,9 +16,9 @@ from typing import Any, Dict, List, Optional, AsyncGenerator
 from fastapi import HTTPException
 from prometheus_client import Counter, Histogram
 
-from backend.services.sophia_unified_orchestrator import get_orchestrator
+from backend.services.sophia_unified_orchestrator import get_coding_orchestrator
 from backend.services.personality_engine import PersonalityEngine
-from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
+from backend.services.coding_mcp_unified_memory_service import CodingMCPUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,6 @@ chat_requests = Counter('sophia_chat_v4_requests_total', 'Total chat requests')
 chat_latency = Histogram('sophia_chat_v4_latency_seconds', 'Chat response latency')
 streaming_chunks = Counter('sophia_chat_v4_streaming_chunks_total', 'Total streaming chunks')
 snarky_responses = Counter('sophia_chat_v4_snarky_responses_total', 'Snarky responses generated')
-
 
 class StreamingBuffer:
     """Buffer for streaming responses"""
@@ -54,14 +53,13 @@ class StreamingBuffer:
             return chunk
         return ""
 
-
 class EnhancedChatV4:
     """Enhanced chat service with full features"""
     
     def __init__(self):
-        self.orchestrator = get_orchestrator()
+        self.orchestrator = get_coding_orchestrator()
         self.personality = PersonalityEngine()
-        self.memory_service = SophiaUnifiedMemoryService()
+        self.memory_service = CodingMCPUnifiedMemoryService()
         self.initialized = False
         
         # Performance targets
@@ -333,7 +331,6 @@ class EnhancedChatV4:
                     topics.add(keyword)
         
         return list(topics)
-
 
 # Singleton instance
 _chat_service = None

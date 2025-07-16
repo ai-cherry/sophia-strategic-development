@@ -13,12 +13,10 @@ from infrastructure.services.llm_router import TaskComplexity, TaskType
 from infrastructure.services.llm_router.config_schema import LLMRouterConfig
 from infrastructure.services.llm_router.router import LLMRouter
 
-
 @pytest.fixture
 def mock_config():
     """Mock configuration for testing"""
     return LLMRouterConfig.from_defaults()
-
 
 @pytest.fixture
 def router(mock_config):
@@ -27,7 +25,6 @@ def router(mock_config):
     router._config = mock_config
     router._initialized = True
     return router
-
 
 @pytest.fixture(autouse=True)
 def mock_external_calls():
@@ -60,7 +57,6 @@ def mock_external_calls():
         )
 
         yield mock_session
-
 
 class TestLLMRouter:
     """Test LLM Router core functionality"""
@@ -284,7 +280,6 @@ class TestLLMRouter:
         async for _ in generator:
             pass
 
-
 class TestRouterIntegration:
     """Integration tests for LLM Router"""
 
@@ -316,7 +311,6 @@ class TestRouterIntegration:
         # No exceptions
         for result in results:
             assert not isinstance(result, Exception)
-
 
 class TestMetrics:
     """Test metrics collection"""

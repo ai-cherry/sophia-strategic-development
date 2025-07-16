@@ -5,7 +5,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-
 class AgentCapability(Enum):
     """Available agent capabilities for the Cortex-enhanced orchestrator."""
 
@@ -16,7 +15,6 @@ class AgentCapability(Enum):
     TREND_ANALYSIS = "trend_analysis"
     ANOMALY_DETECTION = "anomaly_detection"
     REPORT_GENERATION = "report_generation"
-
 
 @dataclass
 class AgentTask:
@@ -33,7 +31,6 @@ class AgentTask:
     priority: int = 1
     dependencies: list[str] = field(default_factory=list)
 
-
 @dataclass
 class AgentResult:
     """
@@ -48,7 +45,6 @@ class AgentResult:
     execution_time: float
     confidence_score: float
     metadata: dict[str, Any] = field(default_factory=dict)
-
 
 @dataclass
 class MemoryRecord:
@@ -81,7 +77,6 @@ class MemoryRecord:
     # Additional unstructured metadata
     additional_metadata: dict[str, Any] = field(default_factory=dict)
 
-
 @dataclass
 class GongCallData:
     """Data model for Gong call records."""
@@ -113,7 +108,6 @@ class GongCallData:
             },
         )
 
-
 @dataclass
 class SlackMessageData:
     """Data model for Slack message records."""
@@ -144,7 +138,6 @@ class SlackMessageData:
                 "timestamp": self.timestamp.isoformat(),
             },
         )
-
 
 @dataclass
 class IntegratedConversationRecord:

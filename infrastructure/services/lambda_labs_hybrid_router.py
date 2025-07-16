@@ -11,7 +11,6 @@ from infrastructure.services.lambda_labs_serverless_service import (
 
 logger = logging.getLogger(__name__)
 
-
 class LambdaLabsHybridRouter:
     """Routes requests between serverless and GPU with 80/20 split.
 

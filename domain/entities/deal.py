@@ -10,7 +10,6 @@ from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 
-
 class DealStage(Enum):
     """Enumeration of deal stages in the sales pipeline."""
 
@@ -20,7 +19,6 @@ class DealStage(Enum):
     NEGOTIATION = "negotiation"
     CLOSED_WON = "closed_won"
     CLOSED_LOST = "closed_lost"
-
 
 @dataclass
 class Deal:

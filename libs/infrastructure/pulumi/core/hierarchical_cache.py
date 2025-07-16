@@ -63,19 +63,16 @@ from core.performance_monitor import performance_monitor
 
 logger = logging.getLogger(__name__)
 
-
 class CacheLevel(Enum):
     L1_MEMORY = "l1_memory"
     L2_REDIS = "l2_redis"
     L3_DATABASE = "l3_database"
-
 
 class CacheStrategy(Enum):
     LRU = "lru"
     LFU = "lfu"
     ADAPTIVE = "adaptive"
     TTL_BASED = "ttl_based"
-
 
 @dataclass
 class CacheEntry:
@@ -91,7 +88,6 @@ class CacheEntry:
     size_bytes: int = 0
     hit_count: int = 0
 
-
 @dataclass
 class CacheMetrics:
     """Cache performance metrics"""
@@ -104,7 +100,6 @@ class CacheMetrics:
     evictions: int = 0
     total_size_bytes: int = 0
     avg_access_time_ms: float = 0.0
-
 
 class CacheBackend(ABC):
     """Abstract cache backend interface"""
@@ -128,7 +123,6 @@ class CacheBackend(ABC):
     @abstractmethod
     def get_stats(self) -> dict[str, Any]:
         pass
-
 
 class LRUCache:
     """
@@ -184,7 +178,6 @@ class LRUCache:
         """Get all cache keys"""
         with self.lock:
             return list(self.cache.keys())
-
 
 class MemoryCache(CacheBackend):
     """L1 Memory cache with LRU eviction"""
@@ -316,7 +309,6 @@ class MemoryCache(CacheBackend):
             ),
         }
 
-
 class RedisCache(CacheBackend):
     """L2 Redis cache backend"""
 
@@ -425,7 +417,6 @@ class RedisCache(CacheBackend):
                 else 0
             ),
         }
-
 
 class HierarchicalCache:
     """
@@ -978,7 +969,6 @@ class HierarchicalCache:
             health_status["error"] = str(e)
 
         return health_status
-
 
 # Global hierarchical cache instance
 hierarchical_cache = HierarchicalCache()

@@ -12,7 +12,6 @@ import aiohttp
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class ProjectSummary:
     total_projects: int
@@ -21,7 +20,6 @@ class ProjectSummary:
     at_risk_projects: int
     platform_breakdown: dict[str, int]
     health_score: float
-
 
 @dataclass
 class Project:
@@ -34,7 +32,6 @@ class Project:
     team_members: list[str]
     due_date: str | None
     risk_level: str
-
 
 class ProjectManagementService:
     def __init__(self):

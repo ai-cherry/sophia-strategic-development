@@ -18,7 +18,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class WorkflowTriggerType(str, Enum):
     """Types of workflow triggers"""
 
@@ -27,7 +26,6 @@ class WorkflowTriggerType(str, Enum):
     EVENT = "event"
     MANUAL = "manual"
     AI_TRIGGERED = "ai_triggered"
-
 
 class WorkflowStatus(str, Enum):
     """Workflow execution status"""
@@ -39,7 +37,6 @@ class WorkflowStatus(str, Enum):
     FAILED = "failed"
     PAUSED = "paused"
 
-
 class WorkflowNode(BaseModel):
     """Represents a node in the workflow"""
 
@@ -49,7 +46,6 @@ class WorkflowNode(BaseModel):
     parameters: Dict[str, Any] = Field(default_factory=dict)
     position: Dict[str, float] = Field(default_factory=dict)
     credentials: Optional[Dict[str, str]] = None
-
 
 class WorkflowDefinition(BaseModel):
     """Complete workflow definition"""
@@ -62,7 +58,6 @@ class WorkflowDefinition(BaseModel):
     settings: Dict[str, Any] = Field(default_factory=dict)
     active: bool = True
 
-
 class WorkflowExecution(BaseModel):
     """Workflow execution result"""
 
@@ -73,7 +68,6 @@ class WorkflowExecution(BaseModel):
     finished_at: Optional[datetime] = None
     data: Dict[str, Any] = Field(default_factory=dict)
     error: Optional[str] = None
-
 
 class N8nWorkflowService:
     """Service for managing n8n workflow automation"""
@@ -532,10 +526,8 @@ class N8nWorkflowService:
         """Close the HTTP client"""
         await self.client.aclose()
 
-
 # Singleton instance
 _n8n_service: Optional[N8nWorkflowService] = None
-
 
 def get_n8n_service() -> N8nWorkflowService:
     """Get or create the n8n service instance"""

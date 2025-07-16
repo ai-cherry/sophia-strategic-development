@@ -14,7 +14,6 @@ from ...models.chat_models import ChatConfiguration, ChatContext, ChatMode, Chat
 
 logger = logging.getLogger(__name__)
 
-
 class SessionManager:
     """
     Manages chat session lifecycle and state

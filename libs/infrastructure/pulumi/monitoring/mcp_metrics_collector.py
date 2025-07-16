@@ -38,7 +38,6 @@ from prometheus_client import (
 
 logger = logging.getLogger(__name__)
 
-
 class MetricType(Enum):
     """Types of metrics collected."""
 
@@ -48,7 +47,6 @@ class MetricType(Enum):
     SUMMARY = "summary"
     INFO = "info"
 
-
 class AlertSeverity(Enum):
     """Alert severity levels."""
 
@@ -56,7 +54,6 @@ class AlertSeverity(Enum):
     WARNING = "warning"
     CRITICAL = "critical"
     FATAL = "fatal"
-
 
 @dataclass
 class MetricDefinition:
@@ -69,7 +66,6 @@ class MetricDefinition:
     buckets: list[float] | None = None  # For histograms
     objectives: dict[float, float] | None = None  # For summaries
 
-
 @dataclass
 class HealthThreshold:
     """Health monitoring thresholds."""
@@ -80,7 +76,6 @@ class HealthThreshold:
     comparison_operator: str = "gt"  # gt, lt, eq, gte, lte
     evaluation_period_seconds: int = 300  # 5 minutes
     min_samples: int = 3
-
 
 @dataclass
 class Alert:
@@ -96,7 +91,6 @@ class Alert:
     server_name: str
     resolved: bool = False
     resolved_at: datetime | None = None
-
 
 class MCPMetricsCollector:
     """

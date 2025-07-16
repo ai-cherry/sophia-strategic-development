@@ -36,7 +36,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class HybridMCPLoadBalancer:
     """
     Intelligent load balancer for MCP servers
@@ -350,7 +349,6 @@ class HybridMCPLoadBalancer:
             ),
         }
 
-
 class HybridSophiaService:
     """
     Hybrid Sophia AI Service combining serverless and dedicated infrastructure
@@ -471,10 +469,8 @@ class HybridSophiaService:
             "timestamp": datetime.now().isoformat(),
         }
 
-
 # Global service instance
 _hybrid_service: HybridSophiaService | None = None
-
 
 async def get_hybrid_service() -> HybridSophiaService:
     """Get or create the global hybrid service instance"""
@@ -483,7 +479,6 @@ async def get_hybrid_service() -> HybridSophiaService:
         _hybrid_service = HybridSophiaService()
         await _hybrid_service.start_service()
     return _hybrid_service
-
 
 # FastAPI application with lifespan management
 @asynccontextmanager
@@ -507,7 +502,6 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("🛑 Shutting down Hybrid Sophia AI application")
 
-
 # Create FastAPI application
 app = FastAPI(
     title="Sophia AI - Hybrid Serverless + Dedicated",
@@ -528,13 +522,11 @@ app.add_middleware(
 # Static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
 # API Routes
 @app.get("/")
 async def root():
     """Serve the beautiful Sophia AI web interface"""
     return FileResponse("static/index.html")
-
 
 @app.get("/api")
 async def api_info():
@@ -580,7 +572,6 @@ async def api_info():
             "timestamp": datetime.now().isoformat(),
         }
 
-
 @app.post("/chat")
 async def hybrid_chat(request: dict):
     """Hybrid chat endpoint with intelligent routing"""
@@ -603,7 +594,6 @@ async def hybrid_chat(request: dict):
         logger.error(f"Chat endpoint error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -616,7 +606,6 @@ async def health_check():
             "error": str(e),
             "timestamp": datetime.now().isoformat(),
         }
-
 
 @app.get("/dashboard")
 async def dashboard():
@@ -646,7 +635,6 @@ async def dashboard():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/stats")
 async def routing_stats():
     """Routing statistics endpoint"""
@@ -655,7 +643,6 @@ async def routing_stats():
         return hybrid_service.load_balancer.get_routing_stats()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 def main():
     """Main function to start the hybrid service"""
@@ -674,7 +661,6 @@ def main():
     except Exception as e:
         logger.error(f"❌ Failed to start service: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

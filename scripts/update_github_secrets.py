@@ -16,7 +16,6 @@ from backend.core.auto_esc_config import get_config_value
 GITHUB_ORG = "ai-cherry"
 GITHUB_REPO = "sophia-main"
 
-
 def get_github_public_key(token: str) -> dict[str, str]:
     """Get the public key for encrypting secrets"""
     headers = {
@@ -41,7 +40,6 @@ def get_github_public_key(token: str) -> dict[str, str]:
         print(f"Failed to get public key: {response.status_code} - {response.text}")
         sys.exit(1)
 
-
 def encrypt_secret(public_key: str, secret_value: str) -> str:
     """Encrypt a secret using the public key"""
     public_key_bytes = base64.b64decode(public_key)
@@ -49,7 +47,6 @@ def encrypt_secret(public_key: str, secret_value: str) -> str:
     sealed_box = public.SealedBox(public_key_obj)
     encrypted = sealed_box.encrypt(secret_value.encode("utf-8"))
     return base64.b64encode(encrypted).decode("utf-8")
-
 
 def update_secret(
     token: str, secret_name: str, secret_value: str, key_data: dict[str, str]
@@ -83,7 +80,6 @@ def update_secret(
             f"❌ Failed to update secret {secret_name}: {response.status_code} - {response.text}"
         )
 
-
 def load_env_file(file_path: str) -> dict[str, str]:
     """Load environment variables from a file"""
     env_vars = {}
@@ -105,7 +101,6 @@ def load_env_file(file_path: str) -> dict[str, str]:
                 env_vars[key.strip()] = value.strip()
 
     return env_vars
-
 
 def main():
     """Update GitHub organization secrets"""
@@ -178,7 +173,6 @@ def main():
     if success_count > 0:
         print("\n🔄 Triggering secrets sync workflow...")
         os.system("gh workflow run sync_secrets.yml")
-
 
 if __name__ == "__main__":
     main()

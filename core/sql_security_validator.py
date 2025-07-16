@@ -17,7 +17,6 @@ from typing import Any
 # Configure logging
 logger = logging.getLogger(__name__)
 
-
 class SecurityLevel(Enum):
     """Security levels for different operations"""
 
@@ -26,12 +25,10 @@ class SecurityLevel(Enum):
     HIGH = "high"
     CRITICAL = "critical"
 
-
 class SecurityError(Exception):
     """Custom exception for security violations"""
 
     pass
-
 
 class SQLSecurityValidator:
     """Centralized SQL security validation for Sophia AI"""
@@ -396,33 +393,27 @@ class SQLSecurityValidator:
         )
         return safe_query, safe_params
 
-
 # Convenience functions
 def validate_schema_name(schema_name: str) -> str:
     """Convenience function for schema validation"""
     return SQLSecurityValidator.validate_schema(schema_name)
 
-
 def validate_table_name(table_name: str) -> str:
     """Convenience function for table validation"""
     return SQLSecurityValidator.validate_table(table_name)
-
 
 def validate_warehouse_name(warehouse_name: str) -> str:
     """Convenience function for warehouse validation"""
     return SQLSecurityValidator.validate_warehouse(warehouse_name)
 
-
 def sanitize_user_input(user_input: str) -> str:
     """Convenience function for input sanitization"""
     return SQLSecurityValidator.sanitize_string(user_input)
-
 
 # Security audit logging
 def log_security_event(event_type: str, details: dict[str, Any]) -> None:
     """Log security events for monitoring"""
     logger.warning(f"SECURITY EVENT: {event_type} - {details}")
-
 
 # Example usage and testing
 if __name__ == "__main__":

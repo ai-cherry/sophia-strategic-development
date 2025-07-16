@@ -35,7 +35,6 @@ from backend.services.QDRANT_unified_memory_service import (
 
 logger = logging.getLogger(__name__)
 
-
 class SyncStatus(Enum):
     """Synchronization status enumeration."""
 
@@ -46,7 +45,6 @@ class SyncStatus(Enum):
     CONFLICTED = "conflicted"
     SKIPPED = "skipped"
 
-
 class ConflictType(Enum):
     """Data conflict type enumeration."""
 
@@ -55,7 +53,6 @@ class ConflictType(Enum):
     TIMESTAMP_CONFLICT = "timestamp_conflict"
     REFERENCE_CONFLICT = "reference_conflict"
     BUSINESS_RULE_CONFLICT = "business_rule_conflict"
-
 
 @dataclass
 class SyncConfiguration:
@@ -71,7 +68,6 @@ class SyncConfiguration:
     enable_ai_processing: bool = True
     enable_conflict_detection: bool = True
     sync_dependencies: list[str] = field(default_factory=list)
-
 
 @dataclass
 class SyncResult:
@@ -90,7 +86,6 @@ class SyncResult:
     error_message: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
-
 @dataclass
 class DataConflict:
     """Data conflict detected during synchronization."""
@@ -105,7 +100,6 @@ class DataConflict:
     resolution_strategy: str | None = None
     resolved: bool = False
 
-
 @dataclass
 class SyncMetrics:
     """Synchronization metrics and statistics."""
@@ -118,7 +112,6 @@ class SyncMetrics:
     average_sync_time_ms: float = 0
     last_sync_time: datetime | None = None
     sync_success_rate: float = 0.0
-
 
 class DataConflictResolver:
     """Resolves data conflicts between platforms."""
@@ -309,7 +302,6 @@ class DataConflictResolver:
         score += freshness * 0.2
 
         return min(score, 1.0)
-
 
 class CrossPlatformSyncOrchestrator:
     """

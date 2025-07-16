@@ -31,7 +31,6 @@ from backend.services.estuary_service import EstuaryService
 
 logger = logging.getLogger(__name__)
 
-
 class EstuaryMCPServer(StandardizedMCPServer):
     """MCP Server for Estuary Flow data pipeline management"""
 
@@ -179,8 +178,6 @@ class EstuaryMCPServer(StandardizedMCPServer):
                 Example: [{"collection": "sophia/cdc/users", "table": "STG_USERS"}]
         """
         try:
-
-
 
             async with EstuaryService() as service:
                 success = await service.create_QDRANT_materialization(
@@ -393,12 +390,10 @@ class EstuaryMCPServer(StandardizedMCPServer):
                 "error": str(e),
             }
 
-
 def main():
     """Run the Estuary MCP server"""
     server = EstuaryMCPServer()
     server.run()
-
 
 if __name__ == "__main__":
     main()

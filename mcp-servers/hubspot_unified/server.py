@@ -2,7 +2,7 @@
 """
 
 # Modern stack imports
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service, CodingMCPUnifiedMemoryService
 from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
 import redis.asyncio as redis
 import asyncpg
@@ -39,7 +39,6 @@ from backend.core.redis_connection_manager import create_redis_from_config
 
 logger = logging.getLogger(__name__)
 
-
 class HubSpotUnifiedMCPServer(StandardizedMCPServer):
     """HubSpot Unified MCP Server for CRM operations"""
 
@@ -59,9 +58,8 @@ class HubSpotUnifiedMCPServer(StandardizedMCPServer):
             "Content-Type": "application/json",
         }
 
-
         # Initialize modern stack services
-        self.memory_service = SophiaUnifiedMemoryService()
+        self.memory_service = CodingMCPUnifiedMemoryService()
         self.lambda_gpu = LambdaLabsServerlessService()
         self.redis = create_redis_from_config()
 
@@ -606,13 +604,11 @@ class HubSpotUnifiedMCPServer(StandardizedMCPServer):
             logger.error(f"Error getting analytics: {e}")
             return [TextContent(type="text", text=f"Error getting analytics: {e!s}")]
 
-
 # Main entry point
 async def main():
     """Main entry point"""
     server = HubSpotUnifiedMCPServer()
     await server.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

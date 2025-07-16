@@ -7,7 +7,6 @@ import time
 import requests
 import sys
 
-
 def main():
     print("\n🚀 SOPHIA AI IS RUNNING!\n")
     print("=" * 60)
@@ -67,7 +66,6 @@ def main():
     except KeyboardInterrupt:
         print("\n\n👋 Goodbye!")
         sys.exit(0)
-
 
 if __name__ == "__main__":
     main()

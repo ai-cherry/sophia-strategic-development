@@ -18,7 +18,6 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-
 class ResourceType(str, Enum):
     """Types of resources that can be protected by RBAC"""
 
@@ -51,7 +50,6 @@ class ResourceType(str, Enum):
     # Custom resource
     CUSTOM = "custom"
 
-
 class ActionType(str, Enum):
     """Types of actions that can be performed on resources"""
 
@@ -80,7 +78,6 @@ class ActionType(str, Enum):
 
     # Custom action
     CUSTOM = "custom"
-
 
 class Permission(BaseModel):
     """
@@ -141,7 +138,6 @@ class Permission(BaseModel):
 
         return True
 
-
 class Role(BaseModel):
     """
     Role model representing a collection of permissions.
@@ -180,7 +176,6 @@ class Role(BaseModel):
                 return True
 
         return False
-
 
 class RoleAssignment(BaseModel):
     """
@@ -254,7 +249,6 @@ class RoleAssignment(BaseModel):
 
         return True
 
-
 class User(BaseModel):
     """
     User model with role assignments.
@@ -275,9 +269,7 @@ class User(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     last_login: datetime | None = None
 
-
 # System-defined roles with predefined permissions
-
 
 def create_system_admin_role() -> Role:
     """Create the system administrator role with all permissions"""
@@ -301,7 +293,6 @@ def create_system_admin_role() -> Role:
         is_system_role=True,
     )
 
-
 def create_read_only_role() -> Role:
     """Create a read-only role with read permissions for all resources"""
     permissions = []
@@ -323,7 +314,6 @@ def create_read_only_role() -> Role:
         description="Read-only access to all system resources",
         is_system_role=True,
     )
-
 
 def create_ai_developer_role() -> Role:
     """Create an AI developer role with permissions for AI development"""
@@ -384,7 +374,6 @@ def create_ai_developer_role() -> Role:
         is_system_role=True,
     )
 
-
 def create_business_user_role() -> Role:
     """Create a business user role with permissions for using the system"""
     permissions = [
@@ -432,7 +421,6 @@ def create_business_user_role() -> Role:
         description="Role for business users with permissions to use the system",
         is_system_role=True,
     )
-
 
 def create_department_admin_role(department: str) -> Role:
     """Create a department administrator role with permissions for a specific department"""
@@ -487,7 +475,6 @@ def create_department_admin_role(department: str) -> Role:
         is_system_role=True,
     )
 
-
 # System-defined roles
 SYSTEM_ROLES = {
     "system_admin": create_system_admin_role(),
@@ -496,9 +483,7 @@ SYSTEM_ROLES = {
     "business_user": create_business_user_role(),
 }
 
-
 # Permission checking functions
-
 
 def has_permission(
     user: User,

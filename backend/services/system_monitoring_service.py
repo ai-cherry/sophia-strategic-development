@@ -10,7 +10,6 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-
 class SystemMonitoringService:
     """Service for monitoring system health and performance"""
     
@@ -107,7 +106,6 @@ class SystemMonitoringService:
             "initialized": self.initialized,
             "version": "1.0.0"
         }
-
 
 # Create a global instance for easy import
 system_monitoring_service = SystemMonitoringService() 

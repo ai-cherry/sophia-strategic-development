@@ -42,7 +42,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 app_instance = None
 shutdown_event = asyncio.Event()
 
-
 def setup_signal_handlers():
     """Set up signal handlers for graceful shutdown."""
     def signal_handler(signum, frame):
@@ -51,7 +50,6 @@ def setup_signal_handlers():
     
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-
 
 async def main():
     """
@@ -155,7 +153,6 @@ async def main():
         logger.error(f"❌ Startup failed: {e}", exc_info=True)
         sys.exit(1)
 
-
 async def shutdown_services(service_discovery, health_checker):
     """
     Gracefully shutdown all services.
@@ -181,7 +178,6 @@ async def shutdown_services(service_discovery, health_checker):
         
     except Exception as e:
         logger.error(f"❌ Error during shutdown: {e}")
-
 
 async def create_application():
     """
@@ -215,7 +211,6 @@ async def create_application():
         logger.error(f"❌ Application creation failed: {e}")
         raise
 
-
 def get_app():
     """
     Get the FastAPI application instance for ASGI servers.
@@ -242,7 +237,6 @@ def get_app():
     except Exception as e:
         logger.error(f"❌ Failed to get app: {e}")
         raise
-
 
 def validate_environment():
     """
@@ -272,7 +266,6 @@ def validate_environment():
     except Exception as e:
         logger.error(f"❌ Environment validation failed: {e}")
         return False
-
 
 if __name__ == "__main__":
     # Validate environment before starting

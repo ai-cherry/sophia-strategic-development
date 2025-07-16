@@ -13,7 +13,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class PerformanceMetric:
     """Performance metric data point"""
@@ -22,7 +21,6 @@ class PerformanceMetric:
     value: float
     timestamp: datetime
     tags: dict[str, str] = None
-
 
 @dataclass
 class SystemHealth:
@@ -34,7 +32,6 @@ class SystemHealth:
     response_time: float
     error_rate: float
     details: dict[str, Any] = None
-
 
 class ChimeraMonitoringService:
     """Comprehensive monitoring service for Project Chimera"""

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 import json
 import logging
 from dataclasses import dataclass
@@ -9,7 +8,6 @@ from enum import Enum
 from typing import Any, TypedDict
 
 logger = logging.getLogger(__name__)
-
 
 class AgentStatus(Enum):
     """Status of agent execution"""

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Iterable
 
-
 class RealTimeStreaming:
     """
     Simple real-time stream generator."""

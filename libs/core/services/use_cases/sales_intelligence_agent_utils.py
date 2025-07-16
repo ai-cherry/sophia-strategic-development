@@ -15,7 +15,6 @@ from .sales_intelligence_agent_models import (
 
 logger = logging.getLogger(__name__)
 
-
 class SalesIntelligenceUtils:
     """Utility functions for sales intelligence operations"""
 

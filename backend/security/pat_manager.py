@@ -25,7 +25,6 @@ pat_rotation_alerts = Gauge(
     "QDRANT_pat_rotation_alerts", "Number of PATs needing rotation", ["severity"]
 )
 
-
 class AlertSeverity(Enum):
     """Alert severity levels"""
 
@@ -33,7 +32,6 @@ class AlertSeverity(Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
-
 
 @dataclass
 class PATMetadata:
@@ -46,7 +44,6 @@ class PATMetadata:
     rotation_count: int = 0
     created_by: str = "system"
 
-
 @dataclass
 class RotationAlert:
     """PAT rotation alert"""
@@ -57,12 +54,10 @@ class RotationAlert:
     pat_id: str | None = None
     message: str | None = None
 
-
 class SecurityError(Exception):
     """Security-related errors"""
 
     pass
-
 
 class QdrantPATManager:
     """
@@ -411,10 +406,8 @@ class QdrantPATManager:
 
         return report
 
-
 # Singleton instance
 _pat_manager: QdrantPATManager | None = None
-
 
 def get_pat_manager() -> QdrantPATManager:
     """Get or create PAT manager instance"""

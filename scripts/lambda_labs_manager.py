@@ -17,7 +17,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def main():
     """Main CLI interface"""
     parser = argparse.ArgumentParser(description="Lambda Labs Instance Manager")
@@ -102,7 +101,6 @@ def main():
         return 1
 
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

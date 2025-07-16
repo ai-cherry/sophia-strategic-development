@@ -31,7 +31,6 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-
 class OpenRouterSearchMCPServer(StandardizedMCPServer):
     """OpenRouter Search MCP Server for AI model discovery"""
 
@@ -447,7 +446,6 @@ class OpenRouterSearchMCPServer(StandardizedMCPServer):
             "count": len(providers),
             "total_models": sum(p["models_count"] for p in providers),
         }
-
 
 # Create and run server
 if __name__ == "__main__":

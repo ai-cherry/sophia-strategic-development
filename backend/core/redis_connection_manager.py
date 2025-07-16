@@ -22,7 +22,6 @@ from backend.core.auto_esc_config import get_redis_config
 
 logger = logging.getLogger(__name__)
 
-
 class RedisConnectionManager:
     """Centralized Redis connection management for Sophia AI"""
     
@@ -166,10 +165,8 @@ class RedisConnectionManager:
         except Exception as e:
             logger.error(f"❌ Error closing Redis connections: {e}")
 
-
 # Global connection manager instance
 redis_manager = RedisConnectionManager()
-
 
 def get_redis_client() -> redis.Redis:
     """
@@ -180,7 +177,6 @@ def get_redis_client() -> redis.Redis:
     """
     return redis_manager.get_sync_client()
 
-
 async def get_async_redis_client() -> aioredis.Redis:
     """
     Get asynchronous Redis client
@@ -189,7 +185,6 @@ async def get_async_redis_client() -> aioredis.Redis:
         Async Redis client with connection pooling
     """
     return await redis_manager.get_async_client()
-
 
 def create_redis_from_config() -> redis.Redis:
     """
@@ -219,7 +214,6 @@ def create_redis_from_config() -> redis.Redis:
     
     logger.info(f"✅ Redis client created: {config['host']}:{config['port']} (auth: {'yes' if config.get('password') else 'no'})")
     return client
-
 
 async def create_async_redis_from_config() -> aioredis.Redis:
     """

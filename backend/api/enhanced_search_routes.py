@@ -17,7 +17,7 @@ from backend.services.enhanced_search_service import (
     SearchRequest,
     SearchTier,
 )
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.coding_mcp_orchestrator_service import CodingMCPOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,6 @@ unified_chat_service = SophiaUnifiedOrchestrator()
 
 # Create router
 router = APIRouter(prefix="/api/v1/search", tags=["enhanced_search"])
-
 
 class SearchQuery(BaseModel):
     """Search query request model"""
@@ -54,7 +53,6 @@ class SearchQuery(BaseModel):
     language: str = Field("en", description="Search language")
     safe_search: bool = Field(True, description="Enable safe search")
 
-
 class SearchResponse(BaseModel):
     """Search response model"""
 
@@ -70,7 +68,6 @@ class SearchResponse(BaseModel):
     message: str | None = Field(None, description="Status message")
     timestamp: str | None = Field(None, description="Timestamp")
     error: str | None = Field(None, description="Error message")
-
 
 @router.post("/search", response_model=list[SearchResponse])
 async def search(query: SearchQuery) -> list[SearchResponse]:
@@ -113,7 +110,6 @@ async def search(query: SearchQuery) -> list[SearchResponse]:
     except Exception as e:
         logger.error(f"Search failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/search/stream")
 async def search_stream(
@@ -185,7 +181,6 @@ async def search_stream(
             "Content-Type": "text/event-stream",
         },
     )
-
 
 @router.websocket("/search/ws")
 async def search_websocket(websocket: WebSocket):
@@ -262,7 +257,6 @@ async def search_websocket(websocket: WebSocket):
         except:
             pass  # Connection might be closed
 
-
 @router.get("/search/intelligent")
 async def intelligent_search(
     query: str = Query(..., description="Search query"),
@@ -310,7 +304,6 @@ async def intelligent_search(
     except Exception as e:
         logger.error(f"Intelligent search failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/providers")
 async def get_providers():
@@ -370,7 +363,6 @@ async def get_providers():
         ],
     }
 
-
 @router.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -402,7 +394,6 @@ async def health_check():
             "error": str(e),
             "timestamp": "2025-01-09T00:00:00Z",
         }
-
 
 @router.post("/cleanup")
 async def cleanup():

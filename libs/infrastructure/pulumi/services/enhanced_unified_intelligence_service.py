@@ -1,4 +1,3 @@
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from datetime import UTC, datetime
 
 """
@@ -20,7 +19,6 @@ from infrastructure.services.unified_intelligence_service import (
 )
 
 logger = logging.getLogger(__name__)
-
 
 class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
     """Enhanced service with Qdrant-native AI integration"""
@@ -500,10 +498,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             },
         ]
 
-
 # Singleton pattern for the enhanced service
 _enhanced_unified_intelligence_service: EnhancedUnifiedIntelligenceService | None = None
-
 
 async def get_enhanced_unified_intelligence_service() -> (
     EnhancedUnifiedIntelligenceService

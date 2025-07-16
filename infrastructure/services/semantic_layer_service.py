@@ -8,7 +8,6 @@ from core.performance_monitor import performance_monitor
 
 logger = logging.getLogger(__name__)
 
-
 class SemanticLayerService:
     """
     Service for managing Qdrant semantic layer operations.

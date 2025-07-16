@@ -7,7 +7,6 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-
 class Project(BaseModel):
     """Project model"""
 
@@ -22,7 +21,6 @@ class Project(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 class Task(BaseModel):
     """Task model"""
@@ -41,7 +39,6 @@ class Task(BaseModel):
     class Config:
         from_attributes = True
 
-
 class TeamMember(BaseModel):
     """Team member model"""
 
@@ -56,7 +53,6 @@ class TeamMember(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 class SprintVelocity(BaseModel):
     """Sprint velocity model"""

@@ -16,7 +16,6 @@ from fastapi import WebSocket, WebSocketDisconnect
 
 logger = logging.getLogger(__name__)
 
-
 class WebSocketState(Enum):
     """WebSocket connection states"""
 
@@ -24,7 +23,6 @@ class WebSocketState(Enum):
     CONNECTED = "connected"
     DISCONNECTED = "disconnected"
     RECONNECTING = "reconnecting"
-
 
 @dataclass
 class WebSocketConnection:
@@ -36,7 +34,6 @@ class WebSocketConnection:
     last_ping: datetime
     message_count: int = 0
     state: WebSocketState = WebSocketState.CONNECTED
-
 
 class MessageQueue:
     """Message queue for offline clients"""
@@ -73,7 +70,6 @@ class MessageQueue:
         if client_id in self.queues:
             del self.queues[client_id]
         return messages
-
 
 class ResilientWebSocketManager:
     """Production-grade WebSocket management with auto-reconnection"""
@@ -271,7 +267,6 @@ class ResilientWebSocketManager:
                 ),
             },
         }
-
 
 # Global instance
 resilient_websocket_manager = ResilientWebSocketManager()

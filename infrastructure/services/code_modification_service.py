@@ -14,7 +14,6 @@ from infrastructure.services.llm_router import TaskType, llm_router
 
 logger = logging.getLogger(__name__)
 
-
 class CodeModificationService:
     """
     Service for modifying code through natural language instructions

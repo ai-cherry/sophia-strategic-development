@@ -12,7 +12,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from execute_strategic_plan import StrategicPlanExecutor
 
-
 class TestStrategicPlanExecution:
     """Test strategic plan execution."""
 

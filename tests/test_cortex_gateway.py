@@ -4,7 +4,6 @@ import pytest
 
 # Ensure event loop pytest plugin works
 
-
 @pytest.mark.asyncio
 async def test_complete_calls_execute():
     from core.infra.cortex_gateway import get_gateway
@@ -21,7 +20,6 @@ async def test_complete_calls_execute():
         result = await gw.complete("Say hi")
         assert result == "Hello world"
         mocked_exec.assert_awaited()
-
 
 @pytest.mark.asyncio
 async def test_embed_parses_json():

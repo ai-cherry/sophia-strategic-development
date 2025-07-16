@@ -7,7 +7,6 @@ import argparse
 import subprocess
 from pathlib import Path
 
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run infrastructure tests")
     parser.add_argument("--quick", action="store_true", help="Run unit tests only")
@@ -26,7 +25,6 @@ def main() -> None:
         logger.info("Input validation passed")
         return True
     subprocess.run(cmd, check=False)
-
 
 if __name__ == "__main__":
     main()

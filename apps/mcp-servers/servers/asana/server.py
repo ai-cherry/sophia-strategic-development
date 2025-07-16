@@ -210,7 +210,6 @@ def get_real_asana_client():
     
     return real_asana_client
 
-
 """
 Sophia AI Asana MCP Server
 Using official Anthropic MCP SDK
@@ -231,7 +230,6 @@ from base.unified_standardized_base import ServerConfig, StandardizedMCPServer
 from mcp.types import Tool
 
 from backend.core.auto_esc_config import get_config_value
-
 
 class AsanaMCPServer(StandardizedMCPServer):
     """Asana MCP Server using official SDK"""
@@ -503,7 +501,6 @@ class AsanaMCPServer(StandardizedMCPServer):
 
             self.logger.info(f"Created task: {name}")
 
-            
         # Try real API first
         client = get_real_asana_client()
         if client:
@@ -575,7 +572,6 @@ class AsanaMCPServer(StandardizedMCPServer):
                 "custom_fields": [],
             }
 
-            
         # Try real API first
         client = get_real_asana_client()
         if client:
@@ -639,7 +635,6 @@ class AsanaMCPServer(StandardizedMCPServer):
                 }
             ]
 
-            
         # Try real API first
         client = get_real_asana_client()
         if client:
@@ -672,9 +667,6 @@ class AsanaMCPServer(StandardizedMCPServer):
             self.logger.error(f"Error searching tasks: {e}")
             raise
 
-
-
-    
     async def _get_team_analytics(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get team analytics and workload distribution"""
         try:
@@ -717,12 +709,10 @@ class AsanaMCPServer(StandardizedMCPServer):
             self.logger.error(f"Error getting team analytics: {e}")
             raise
 
-
 async def main():
     """Main entry point"""
     server = AsanaMCPServer()
     await server.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

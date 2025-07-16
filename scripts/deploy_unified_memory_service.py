@@ -159,10 +159,10 @@ class UnifiedMemoryServiceDeployer:
         sys.path.append(str(self.root_path))
         
         try:
-            from backend.services.sophia_unified_memory_service import get_memory_service
+            from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service
             
             # Initialize the service
-            self.memory_service = await get_memory_service()
+            self.memory_service = await get_coding_memory_service()
             logger.info(f"✅ Unified memory service initialized on port {self.service_port}")
             
             # Create a simple HTTP health server
@@ -437,10 +437,10 @@ def main():
 
 💡 Usage Example:
 ```python
-from backend.services.sophia_unified_memory_service import get_memory_service
+from backend.services.coding_mcp_unified_memory_service import get_coding_memory_service
 
 # Get the singleton service
-service = await get_memory_service()
+service = await get_coding_memory_service()
 
 # Store development memory
 await service.store_memory(

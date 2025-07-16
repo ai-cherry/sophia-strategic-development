@@ -11,7 +11,6 @@ import contextlib
 from dataclasses import dataclass
 from enum import Enum
 
-
 class DependencyType(Enum):
     """Types of dependencies between platforms."""
 
@@ -23,7 +22,6 @@ class DependencyType(Enum):
     NETWORKING = "networking"  # Platform B needs Platform A's network resources
     STORAGE = "storage"  # Platform B uses Platform A for storage
 
-
 @dataclass
 class Dependency:
     """Represents a dependency relationship between platforms."""
@@ -33,7 +31,6 @@ class Dependency:
     type: DependencyType
     critical: bool = False  # Whether this dependency is critical for operation
     description: str = ""
-
 
 class DependencyManager:
     """
@@ -484,7 +481,6 @@ class DependencyManager:
 
         return suggestions
 
-
 # CLI interface
 async def main():
     """CLI interface for dependency management."""
@@ -514,7 +510,6 @@ async def main():
 
     elif args.command == "suggest":
         await dep_manager.suggest_optimizations()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

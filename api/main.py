@@ -39,11 +39,9 @@ from utils.health_check import get_health_checker
 
 logger = logging.getLogger(__name__)
 
-
 class DistributedAPIError(Exception):
     """Custom exception for distributed API errors."""
     pass
-
 
 def create_openapi_schema(app: FastAPI, instance: LambdaInstance) -> Dict[str, Any]:
     """
@@ -89,7 +87,6 @@ def create_openapi_schema(app: FastAPI, instance: LambdaInstance) -> Dict[str, A
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
-
 def create_app(instance: LambdaInstance) -> FastAPI:
     """
     Create FastAPI application configured for specific Lambda Labs instance.
@@ -126,7 +123,6 @@ def create_app(instance: LambdaInstance) -> FastAPI:
     
     logger.info(f"✅ FastAPI application created for {instance.name}")
     return app
-
 
 def setup_middleware(app: FastAPI, instance: LambdaInstance):
     """Setup middleware for the FastAPI application."""
@@ -167,7 +163,6 @@ def setup_middleware(app: FastAPI, instance: LambdaInstance):
         response.headers["X-Process-Time"] = str(process_time)
         
         return response
-
 
 def add_core_endpoints(app: FastAPI, instance: LambdaInstance):
     """Add core endpoints available on all instances."""
@@ -255,7 +250,6 @@ def add_core_endpoints(app: FastAPI, instance: LambdaInstance):
             logger.error(f"❌ Metrics collection failed: {e}")
             raise HTTPException(status_code=500, detail=f"Metrics collection failed: {str(e)}")
 
-
 def add_role_specific_endpoints(app: FastAPI, instance: LambdaInstance):
     """Add endpoints specific to the instance role."""
     
@@ -267,7 +261,6 @@ def add_role_specific_endpoints(app: FastAPI, instance: LambdaInstance):
         add_data_endpoints(app, instance)
     elif instance.role == InstanceRole.DEVELOPMENT:
         add_development_endpoints(app, instance)
-
 
 def add_primary_endpoints(app: FastAPI, instance: LambdaInstance):
     """Add endpoints for the primary instance."""
@@ -315,7 +308,6 @@ def add_primary_endpoints(app: FastAPI, instance: LambdaInstance):
             logger.error(f"❌ Orchestration failed: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
-
 def add_mcp_endpoints(app: FastAPI, instance: LambdaInstance):
     """Add endpoints for the MCP orchestrator instance."""
     
@@ -346,7 +338,6 @@ def add_mcp_endpoints(app: FastAPI, instance: LambdaInstance):
         except Exception as e:
             logger.error(f"❌ Failed to get MCP servers: {e}")
             raise HTTPException(status_code=500, detail=str(e))
-
 
 def add_data_endpoints(app: FastAPI, instance: LambdaInstance):
     """Add endpoints for the data pipeline instance."""
@@ -399,7 +390,6 @@ def add_data_endpoints(app: FastAPI, instance: LambdaInstance):
             logger.error(f"❌ Embedding generation failed: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
-
 def add_development_endpoints(app: FastAPI, instance: LambdaInstance):
     """Add endpoints for the development instance."""
     
@@ -439,7 +429,6 @@ def add_development_endpoints(app: FastAPI, instance: LambdaInstance):
             logger.error(f"❌ Debug info failed: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
-
 # Global application factory function
 def get_app_for_current_instance() -> FastAPI:
     """
@@ -464,10 +453,8 @@ def get_app_for_current_instance() -> FastAPI:
         logger.error(f"❌ Failed to create app for current instance: {e}")
         raise DistributedAPIError(f"Application creation failed: {e}")
 
-
 # Application instance for direct access
 app = get_app_for_current_instance()
-
 
 if __name__ == "__main__":
     # Direct execution for testing

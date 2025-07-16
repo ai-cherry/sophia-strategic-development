@@ -29,7 +29,6 @@ from shared.utils.custom_logger import setup_logger
 
 logger = setup_logger(__name__)
 
-
 class AuthManager:
     """Authentication and authorization manager."""
 
@@ -122,15 +121,12 @@ class AuthManager:
                 hashlib.sha256(plain_password.encode()).hexdigest() == hashed_password
             )
 
-
 # Default auth manager (will be configured with actual secret)
 auth_manager = AuthManager()
-
 
 def get_current_user(token: str) -> dict[str, Any] | None:
     """Get current user from token - used by API routes."""
     return auth_manager.verify_token(token)
-
 
 def create_user_token(user_id: str, role: str = "user", expires_hours: int = 24) -> str:
     """Create a user access token."""

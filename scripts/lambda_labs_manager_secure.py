@@ -18,7 +18,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def secure_deploy(instance_name: str, validate_only: bool = False) -> bool:
     """Deploy with enhanced security validation"""
     client = get_lambda_labs_client()
@@ -54,7 +53,6 @@ def secure_deploy(instance_name: str, validate_only: bool = False) -> bool:
     # Perform actual deployment
     return client.deploy_sophia(instance_name, "full")
 
-
 def secure_health_check(instance_name: str) -> Optional[dict]:
     """Perform comprehensive health check with security validation"""
     client = get_lambda_labs_client()
@@ -75,7 +73,6 @@ def secure_health_check(instance_name: str) -> Optional[dict]:
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return None
-
 
 def secure_command(instance_name: str, command: str) -> bool:
     """Execute secure command with validation"""
@@ -109,7 +106,6 @@ def secure_command(instance_name: str, command: str) -> bool:
     except Exception as e:
         logger.error(f"Command execution failed: {e}")
         return False
-
 
 def main():
     """Main CLI interface"""
@@ -194,7 +190,6 @@ def main():
     except Exception as e:
         logger.error(f"Error: {e}")
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -71,7 +71,7 @@
     "core_intelligence": {
       "ai_memory": {
         "description": "AI Memory and context management with GPU acceleration",
-        "port": 9000
+        "port": 9200
       },
       "asana": {
         "description": "Asana task and project management",
@@ -235,7 +235,7 @@
     "tier_1_primary": {
       "ai_memory": {
         "name": "AI Memory v2",
-        "port": 9000,
+        "port": 9200,
         "status": "active",
         "capabilities": [
           "MEMORY",

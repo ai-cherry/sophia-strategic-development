@@ -13,10 +13,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-
-
 logger = logging.getLogger(__name__)
-
 
 class ContextWindow:
     """Manages large contextual windows for chat conversations"""
@@ -70,11 +67,8 @@ class ContextWindow:
         selected_items.sort(key=lambda x: x.get("timestamp", datetime.min))
         return selected_items
 
-
 class EnhancedChatContextService:
     """Enhanced chat service with large contextual windows and intelligent context management"""
-
-
 
         self.connection = None
         self.context_window = ContextWindow()

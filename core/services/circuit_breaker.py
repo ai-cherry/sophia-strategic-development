@@ -4,18 +4,15 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
-
 class DataError(Exception):
     """Base exception for data-related errors"""
 
     pass
 
-
 class ConnectionError(DataError):
     """Raised when connection to data source fails"""
 
     pass
-
 
 class CircuitBreaker:
     """Circuit breaker pattern for external service calls"""
