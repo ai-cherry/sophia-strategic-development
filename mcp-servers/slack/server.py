@@ -25,6 +25,7 @@ from base.unified_standardized_base import ServerConfig, StandardizedMCPServer
 from mcp.types import Tool
 
 from backend.core.auto_esc_config import get_config_value
+from backend.core.redis_connection_manager import create_redis_from_config
 
 
 class SlackMCPServer(StandardizedMCPServer):
@@ -46,7 +47,7 @@ class SlackMCPServer(StandardizedMCPServer):
         # Initialize modern stack services
         self.memory_service = UnifiedMemoryService()
         self.lambda_gpu = LambdaLabsServerlessService()
-        self.redis = redis.Redis(host='localhost', port=6379)
+        self.redis = create_redis_from_config()
 
     async def get_custom_tools(self) -> list[Tool]:
         """Define custom tools for Slack operations"""

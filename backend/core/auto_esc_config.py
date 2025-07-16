@@ -55,6 +55,12 @@ SECRET_MAPPINGS = {
     "PINECONE_API_KEY": "PINECONE_API_KEY",
     "PINECONE_ENVIRONMENT": "PINECONE_ENVIRONMENT",
     
+    # Redis - Direct path
+    "REDIS_PASSWORD": "REDIS_PASSWORD",
+    "REDIS_HOST": "REDIS_HOST",
+    "REDIS_PORT": "REDIS_PORT",
+    "REDIS_URL": "REDIS_URL",
+    
     # Business Tools - Direct paths
     "SLACK_BOT_TOKEN": "SLACK_BOT_TOKEN",
     "SLACK_USER_TOKEN": "SLACK_USER_TOKEN", 
@@ -803,3 +809,79 @@ def get_QDRANT_config() -> Dict[str, str]:
         "timeout": int(get_config_value("QDRANT_timeout", "30")),
         "prefer_grpc": get_config_value("QDRANT_prefer_grpc", "false").lower() == "true"
     }
+
+
+def get_redis_config() -> Dict[str, Any]:
+    """
+    Get Redis configuration for all environments
+    
+    Returns:
+        Redis configuration with host, port, password, and connection options
+    """
+    # Determine environment and set appropriate host
+    environment = get_config_value("ENVIRONMENT", "prod")
+    
+    # Redis host determination based on environment
+    if environment == "prod" and get_config_value("KUBERNETES_SERVICE_HOST"):
+        # Kubernetes environment - use service name
+        redis_host = "redis-master"
+        redis_port = 6379
+    elif get_config_value("REDIS_URL"):
+        # Use explicit Redis URL if provided
+        import urllib.parse as urlparse
+        redis_url = get_config_value("REDIS_URL")
+        parsed = urlparse.urlparse(redis_url)
+        redis_host = parsed.hostname or "localhost"
+        redis_port = parsed.port or 6379
+    else:
+        # Local development fallback
+        redis_host = get_config_value("REDIS_HOST", "localhost")
+        redis_port = int(get_config_value("REDIS_PORT", "6379"))
+    
+    # Redis password from GitHub secrets
+    redis_password = get_config_value("REDIS_PASSWORD")
+    
+    # Connection pool configuration
+    redis_config = {
+        "host": redis_host,
+        "port": redis_port,
+        "password": redis_password,
+        "db": int(get_config_value("REDIS_DB", "0")),
+        "decode_responses": True,
+        "encoding": "utf-8",
+        "retry_on_timeout": True,
+        "socket_timeout": int(get_config_value("REDIS_SOCKET_TIMEOUT", "30")),
+        "socket_connect_timeout": int(get_config_value("REDIS_CONNECT_TIMEOUT", "30")),
+        "socket_keepalive": True,
+        "socket_keepalive_options": {},
+        "connection_pool_kwargs": {
+            "max_connections": int(get_config_value("REDIS_MAX_CONNECTIONS", "50")),
+            "retry_on_timeout": True,
+            "health_check_interval": int(get_config_value("REDIS_HEALTH_CHECK_INTERVAL", "30"))
+        }
+    }
+    
+    # Add authentication if password is available
+    if redis_password:
+        redis_config["password"] = redis_password
+    
+    logger.info(f"✅ Redis config: {redis_host}:{redis_port} (auth: {'yes' if redis_password else 'no'})")
+    return redis_config
+
+
+def get_redis_url() -> str:
+    """
+    Get Redis connection URL for services that need URL format
+    
+    Returns:
+        Redis connection URL (redis://[password@]host:port/db)
+    """
+    config = get_redis_config()
+    
+    # Build Redis URL
+    if config.get("password"):
+        redis_url = f"redis://:{config['password']}@{config['host']}:{config['port']}/{config['db']}"
+    else:
+        redis_url = f"redis://{config['host']}:{config['port']}/{config['db']}"
+    
+    return redis_url
