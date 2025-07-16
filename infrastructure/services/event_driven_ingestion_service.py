@@ -7,7 +7,7 @@ Extends the existing EnhancedIngestionService with event-driven orchestration,
 building on Phase 2 polyglot MCP ecosystem for enterprise-grade performance.
 """
 
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import asyncio
 import json
 import logging

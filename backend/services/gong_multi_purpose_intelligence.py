@@ -11,7 +11,7 @@ Builds on existing Gong integration to extract insights for multiple business fu
 Date: July 9, 2025
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import json
 import logging
 from dataclasses import dataclass
@@ -79,7 +79,7 @@ class GongMultiPurposeIntelligence:
     """
 
     def __init__(self):
-        self.cortex_service = UnifiedMemoryService()
+        self.cortex_service = SophiaUnifiedMemoryService()
         self.gong_memory = GongMemoryIntegration()
         self.current_date = date_manager.get_current_date_str()
 

@@ -46,7 +46,7 @@ class TestUnifiedMemoryService:
     @pytest.fixture
     async def memory_service_v3(self):
         """Create test instance of UnifiedMemoryService"""
-        service = UnifiedMemoryService()
+        service = SophiaUnifiedMemoryService()
         await service.initialize()
         yield service
         # Cleanup
@@ -527,7 +527,7 @@ class TestPhase2Integration:
     @pytest.fixture
     async def integrated_services(self):
         """Create integrated test environment"""
-        memory_v3 = UnifiedMemoryService()
+        memory_v3 = SophiaUnifiedMemoryService()
         multimodal = MultimodalMemoryService()
         hypothetical = HypotheticalRAGService()
         
@@ -752,7 +752,7 @@ class TestPhase2Performance:
     @pytest.mark.benchmark
     async def test_agentic_search_latency(self):
         """Benchmark agentic search latency"""
-        service = UnifiedMemoryService()
+        service = SophiaUnifiedMemoryService()
         await service.initialize()
         
         try:

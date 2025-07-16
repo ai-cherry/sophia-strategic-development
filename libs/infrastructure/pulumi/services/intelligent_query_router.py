@@ -50,7 +50,7 @@ class IntelligentQueryRouter:
     """AI-powered query router using Lambda GPU for intent analysis"""
 
     def __init__(self):
-        self.cortex_service = EnhancedUnifiedMemoryService()
+        self.cortex_service = EnhancedSophiaUnifiedMemoryService()
 
         # Business domain mappings
         self.domain_keywords = {

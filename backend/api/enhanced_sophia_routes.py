@@ -11,7 +11,7 @@ import json
 from backend.services.enhanced_unified_chat_service import EnhancedSophiaUnifiedOrchestrator
 from backend.services.external_knowledge_service import ExternalKnowledgeService
 from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
-from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 
 router = APIRouter(prefix="/api/v4/sophia", tags=["Enhanced Sophia"])
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/api/v4/sophia", tags=["Enhanced Sophia"])
 chat_service = EnhancedSophiaUnifiedOrchestrator()
 external_service = ExternalKnowledgeService()
 orchestrator = SophiaUnifiedOrchestrator()
-memory_service = UnifiedMemoryService()
+memory_service = SophiaUnifiedMemoryService()
 
 
 # Request/Response Models

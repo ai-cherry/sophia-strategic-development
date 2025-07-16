@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 """
 """

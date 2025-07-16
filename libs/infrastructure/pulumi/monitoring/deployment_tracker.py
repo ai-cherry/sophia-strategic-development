@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import shlex
 from datetime import UTC, datetime
 
@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +111,7 @@ class EnhancedDeploymentTracker:
     """Enhanced deployment tracking with monitoring and rollback capabilities."""
 
     def __init__(self):
-        self.memory_service_v3 = UnifiedMemoryService()
+        self.memory_service_v3 = SophiaUnifiedMemoryService()
         self.deployment_history: list[DeploymentEvent] = []
         self.active_deployments: dict[str, DeploymentEvent] = {}
 

@@ -10,6 +10,7 @@ Features:
 - Business intelligence synthesis
 """
 
+import json
 import asyncio
 import logging
 import time
@@ -61,7 +62,7 @@ class SophiaAIUnifiedOrchestrator:
     """
     
     def __init__(self):
-        self.memory_service = SophiaUnifiedMemoryService()
+        self.memory_service = SophiaSophiaUnifiedMemoryService()
         self.portkey = PortkeyGateway()
         
         # Routing configuration

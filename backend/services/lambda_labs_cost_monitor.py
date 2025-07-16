@@ -16,7 +16,7 @@ from typing import Any
 import aiohttp
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class LambdaLabsCostMonitor:
         self.model_analytics: dict[str, ModelCostAnalysis] = {}
 
         # Qdrant integration
-        self.QDRANT_service = UnifiedMemoryService()
+        self.QDRANT_service = SophiaUnifiedMemoryService()
 
         # Monitoring task
         self.monitoring_task: asyncio.Task | None = None

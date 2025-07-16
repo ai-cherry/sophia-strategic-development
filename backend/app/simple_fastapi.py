@@ -33,7 +33,7 @@ from backend.api.mcp_proxy_routes import router as mcp_proxy_router
 
 # Import services for health checks
 try:
-    from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
+    from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False
@@ -60,7 +60,7 @@ async def lifespan(app: FastAPI):
         # Initialize Qdrant memory service if available
         if QDRANT_AVAILABLE:
             try:
-                memory_service = QdrantUnifiedMemoryService()
+                memory_service = QdrantSophiaUnifiedMemoryService()
                 await memory_service.initialize()
                 logger.info("✅ Qdrant memory service initialized")
             except Exception as e:
@@ -213,7 +213,7 @@ async def health_check():
         # Check Qdrant memory service health
         if QDRANT_AVAILABLE:
             try:
-                memory_service = QdrantUnifiedMemoryService()
+                memory_service = QdrantSophiaUnifiedMemoryService()
                 memory_health = await memory_service.health_check()
                 health_status["components"]["memory"] = memory_health
             except Exception as e:

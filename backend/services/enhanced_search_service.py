@@ -380,7 +380,7 @@ class EnhancedSearchService:
     """Enhanced search service with multi-tier LLM orchestration"""
 
     def __init__(self):
-        self.cortex = UnifiedMemoryService()
+        self.cortex = SophiaUnifiedMemoryService()
         self.ai_memory = AIMemoryService()
         self.ai_orchestrator = UnifiedAIOrchestrator()
         self.semantic_cache = SemanticCache(self.cortex)

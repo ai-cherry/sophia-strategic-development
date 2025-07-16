@@ -127,7 +127,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             self.knowledge_base = EnhancedKnowledgeBaseService()
             await self.knowledge_base.initialize()
 
-            self.cortex_service = EnhancedQdrantUnifiedMemoryService()
+            self.cortex_service = EnhancedQdrantSophiaUnifiedMemoryService()
 
             self.initialized = True
             logger.info("✅ Interactive Sales Coach Agent initialized successfully")

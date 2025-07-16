@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from datetime import UTC, datetime
 
 #!/usr/bin/env python3
@@ -33,7 +33,7 @@ import aiohttp
 import structlog
 
 from core.config_manager import get_config_value
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = structlog.get_logger(__name__)
 
@@ -219,7 +219,7 @@ class EnhancedEstuaryManager:
                 timeout=timeout, headers=headers, auth=auth
             )
 
-            self.cortex_service = UnifiedMemoryService()
+            self.cortex_service = SophiaUnifiedMemoryService()
             await self.cortex_service.initialize()
 
             logger.info("✅ Enhanced Estuary Manager initialized successfully")

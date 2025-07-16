@@ -1,7 +1,7 @@
 """Decomposed auto_esc_config module"""
 
 # Import from the original auto_esc_config.py file
-from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from ..auto_esc_config import (
     config,
     get_config_value,

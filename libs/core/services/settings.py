@@ -2,7 +2,7 @@
 Enhanced Settings for Sophia AI Platform - 2025 Best Practices
 """
 
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from pydantic_settings import BaseSettings
 
 

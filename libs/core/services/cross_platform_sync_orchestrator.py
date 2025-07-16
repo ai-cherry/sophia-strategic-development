@@ -324,7 +324,7 @@ class CrossPlatformSyncOrchestrator:
     """
 
     def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryService | None = None):
-        self.cortex_service = cortex_service or EnhancedQdrantUnifiedMemoryService()
+        self.cortex_service = cortex_service or EnhancedQdrantSophiaUnifiedMemoryService()
         self.sync_configs = self._load_sync_configurations()
         self.conflict_resolver = DataConflictResolver(self.cortex_service)
 

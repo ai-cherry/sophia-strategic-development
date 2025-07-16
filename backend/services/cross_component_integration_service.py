@@ -32,8 +32,16 @@ from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
 from backend.services.n8n_workflow_service import N8nWorkflowService
-from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from backend.services.project_management_service import ProjectManagementService
+
+
+class ProcessingMode(Enum):
+    """Processing modes for orchestration"""
+    BUSINESS_INTELLIGENCE = "business_intelligence"
+    QUICK_ANSWER = "quick_answer"
+    STRATEGIC_ANALYSIS = "strategic_analysis"
+    REAL_TIME_RESPONSE = "real_time_response"
 
 logger = get_logger(__name__)
 
@@ -95,7 +103,7 @@ class CrossComponentIntegrationService:
         # Core services
         self.orchestrator = SophiaAIUnifiedOrchestrator()
         self.n8n_service = N8nWorkflowService()
-        self.memory_service = UnifiedMemoryService()
+        self.memory_service = SophiaUnifiedMemoryService()
         self.project_service = ProjectManagementService()
         
         # Component registry

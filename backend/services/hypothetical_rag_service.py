@@ -31,7 +31,7 @@ from collections import defaultdict, deque
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
-from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = get_logger(__name__)
 
@@ -121,7 +121,7 @@ class HypotheticalRAGService:
     
     def __init__(self):
         # Core services
-        self.memory_service = UnifiedMemoryService()
+        self.memory_service = SophiaUnifiedMemoryService()
         
         # Hypothetical document storage
         self.hypothetical_cache: Dict[str, HypotheticalDocument] = {}

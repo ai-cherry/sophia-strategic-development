@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 """
 Cortex AI Configuration for Sophia AI
 Generated: 2025-07-04T18:37:38.754393

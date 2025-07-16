@@ -9,6 +9,7 @@ Features:
 - Automatic service discovery
 """
 
+import json
 import asyncio
 import logging
 import time

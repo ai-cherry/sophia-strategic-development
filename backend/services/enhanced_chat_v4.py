@@ -19,7 +19,7 @@ from prometheus_client import Counter, Histogram, Gauge
 from backend.core.auto_esc_config import get_config_value
 from backend.services.sophia_unified_orchestrator import get_orchestrator
 from backend.services.personality_engine import PersonalityEngine
-from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class EnhancedChatV4:
     def __init__(self):
         self.orchestrator = get_orchestrator()
         self.personality = PersonalityEngine()
-        self.memory_service = UnifiedMemoryService()
+        self.memory_service = SophiaUnifiedMemoryService()
         self.initialized = False
         
         # Performance targets

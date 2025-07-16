@@ -1,4 +1,4 @@
-from backend.services.sophia_unified_memory_service import get_memory_service UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 """\nCore functionality\n"""
 
 # IMPLEMENTED: Extract specific classes/functions from original file

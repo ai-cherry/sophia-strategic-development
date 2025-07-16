@@ -976,7 +976,7 @@ async def get_memory_service() -> SophiaUnifiedMemoryService:
     global sophia_memory_service
     
     if sophia_memory_service is None:
-        sophia_memory_service = SophiaUnifiedMemoryService()
+        sophia_memory_service = SophiaSophiaUnifiedMemoryService()
         await sophia_memory_service.initialize()
     
     return sophia_memory_service

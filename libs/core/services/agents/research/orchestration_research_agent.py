@@ -4,12 +4,12 @@ import asyncio
 import logging
 
 from core.agents.base_agent import BaseAgent, Task
-from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 # Assuming an MCP orchestrator exists to call other MCPs
 # from core.workflows.langgraph_mcp_orchestrator import LangGraphMCPOrchestrator
@@ -37,7 +37,7 @@ class OrchestrationResearchAgent(BaseAgent):
 
     async def _agent_initialize(self):
         # Use QdrantUnifiedMemoryService for research operations
-        self.memory_service = QdrantUnifiedMemoryService()
+        self.memory_service = QdrantSophiaUnifiedMemoryService()
         self.research_memory = EnhancedAiMemoryMCPServer()
         # self.mcp_orchestrator = LangGraphMCPOrchestrator()
         logger.info("OrchestrationResearchAgent initialized.")
@@ -137,8 +137,8 @@ class OrchestrationResearchAgent(BaseAgent):
 
 # Implement actual memory storage call
         try:
-            from backend.services.unified_memory_service_primary import UnifiedMemoryService
-            memory_service = UnifiedMemoryService()
+            from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+            memory_service = SophiaUnifiedMemoryService()
             await memory_service.store_knowledge(
                 content=content,
                 source="research_agent",

@@ -11,12 +11,12 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.QDRANT_unified_memory_service import QdrantUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     UnifiedMemoryService,
 )
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +67,8 @@ class UnifiedIntentEngine:
     """
 
     def __init__(self):
-        self.cortex_service = UnifiedMemoryService()
-        self.memory_service = UnifiedMemoryService()
+        self.cortex_service = SophiaUnifiedMemoryService()
+        self.memory_service = SophiaUnifiedMemoryService()
         self.intent_patterns: dict[str, list[dict]] = {}
         self.capability_mapping: dict[IntentCategory, list[AgentCapability]] = {
             IntentCategory.BUSINESS_INTELLIGENCE: [
@@ -149,7 +149,7 @@ class UnifiedIntentEngine:
 
         try:
             # Use QdrantUnifiedMemoryService for intent analysis
-            QDRANT_service = QdrantUnifiedMemoryService()
+            QDRANT_service = QdrantSophiaUnifiedMemoryService()
             await QDRANT_service.initialize()
             
             # Use the enhanced router for LLM calls

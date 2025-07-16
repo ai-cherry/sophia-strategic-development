@@ -14,7 +14,7 @@ from typing import Any
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +150,7 @@ class CrossGroupIntelligenceHub:
     def __init__(self):
         self.insight_store = SharedInsightStore()
         self.collaboration_learner = CollaborationPatternLearner()
-        self.cortex_service = UnifiedMemoryService()
+        self.cortex_service = SophiaUnifiedMemoryService()
         self.memory_service = EnhancedAiMemoryMCPServer()
 
     async def submit_insight(

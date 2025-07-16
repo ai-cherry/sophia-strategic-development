@@ -4,7 +4,7 @@ Ensures correct configuration is loaded at application startup
 This file permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue
 """
 
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import logging
 import os
 from backend.core.auto_esc_config import get_config_value

@@ -3,7 +3,7 @@ LLM Router - Core routing engine
 Stateless, observable, and performance-optimized
 """
 
-from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import time
 from collections.abc import AsyncGenerator
 from typing import Any

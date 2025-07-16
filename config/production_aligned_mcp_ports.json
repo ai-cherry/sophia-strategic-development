@@ -82,8 +82,8 @@
       {
         "name": "vector_search_mcp",
         "port": 8000,
-        "endpoint": "http://192.222.58.232:8000",
-        "health_check": "http://192.222.58.232:8000/health",
+        "endpoint": "http://192.222.58.232:7000",
+        "health_check": "http://192.222.58.232:7000/health",
         "systemd_service": "sophia-vector_search_mcp"
       },
       {
@@ -204,7 +204,7 @@
     "primary_instance": "192.222.58.232",
     "upstream_blocks": {
       "ai_core_services": [
-        "192.222.58.232:8000",
+        "192.222.58.232:7000",
         "192.222.58.232:8001",
         "192.222.58.232:8002"
       ],
@@ -241,7 +241,7 @@
     "health_check_retries": 3,
     "central_health_monitor": "http://192.222.58.232:9100",
     "service_health_endpoints": {
-      "vector_search_mcp": "http://192.222.58.232:8000/health",
+      "vector_search_mcp": "http://192.222.58.232:7000/health",
       "real_time_chat_mcp": "http://192.222.58.232:8001/health",
       "ai_memory_mcp": "http://192.222.58.232:8002/health",
       "gong_mcp": "http://104.171.202.117:8100/health",
