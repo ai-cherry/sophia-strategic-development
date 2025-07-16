@@ -27,10 +27,19 @@ jobs:
       with:
         python-version: '3.11'
     
+    - name: Cache Dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-cleanup-${{ hashFiles('requirements/cleanup.txt', 'requirements/base.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-cleanup-
+          ${{ runner.os }}-pip-
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements-phase2.txt
+        pip install -r requirements/cleanup.txt
     
     - name: Run cleanup validation
       run: |

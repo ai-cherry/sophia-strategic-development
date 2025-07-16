@@ -1,0 +1,24 @@
+# Production Dependencies
+# Optimized dependencies for production deployment
+
+-r base.txt
+
+# Production-specific optimizations
+gunicorn>=21.0.0
+gevent>=23.0.0
+
+# Enhanced monitoring
+sentry-sdk[fastapi]>=1.32.0
+datadog>=0.47.0
+
+# Performance optimizations
+ujson>=5.8.0
+cython>=3.0.0
+
+# Security enhancements
+cryptography>=41.0.0
+bcrypt>=4.0.0
+
+# Production database optimizations
+asyncpg[speedups]==0.30.0
+
