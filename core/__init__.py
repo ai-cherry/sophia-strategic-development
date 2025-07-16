@@ -1,3 +1,0 @@
-"""
-Sophia AI Core Module
-"""
