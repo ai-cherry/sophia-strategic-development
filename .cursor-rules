@@ -1,0 +1,66 @@
+# Cursor AI Specific Rules for Sophia AI
+# CRITICAL: Virtual Environment Consistency
+
+## 🐍 MANDATORY VIRTUAL ENVIRONMENT SETUP
+
+**BEFORE ANY CODING SESSION:**
+```bash
+source activate_sophia_env.sh
+```
+
+## ✅ ENVIRONMENT VERIFICATION CHECKLIST
+
+1. **Shell Prompt Shows (.venv)**
+   ```
+   (.venv) lynnmusil@PR901-LMUSIL sophia-main-2 %
+   ```
+
+2. **Python Points to Virtual Environment**
+   ```bash
+   which python
+   # Should show: /Users/lynnmusil/sophia-main-2/.venv/bin/python
+   ```
+
+3. **Correct Python Version**
+   ```bash
+   python --version
+   # Should show: Python 3.11.6
+   ```
+
+4. **Quick Environment Check**
+   ```bash
+   check-env
+   # Should show: ✅ Using: /Users/lynnmusil/sophia-main-2/.venv/bin/python
+   ```
+
+## 🚫 FORBIDDEN COMMANDS
+- ❌ `python3` (use `python` only)
+- ❌ `/usr/bin/python3` (system Python)
+- ❌ Any Python command without (.venv) in prompt
+
+## 🚀 AVAILABLE SHORTCUTS (After activation)
+- `run-working` → Start working FastAPI (port 8000)
+- `run-simple` → Start simple FastAPI (port 8001)
+- `run-minimal` → Start minimal FastAPI (port 8002)
+- `run-distributed` → Start distributed API (port 8003)
+- `check-env` → Verify Python environment
+
+## ⚠️ IF ENVIRONMENT ISSUES OCCUR
+1. Run: `source activate_sophia_env.sh`
+2. Verify with: `check-env`
+3. See: `VIRTUAL_ENVIRONMENT_CONSISTENCY_GUIDE.md`
+
+## 📋 WHY THIS MATTERS FOR CURSOR AI
+- Prevents import errors during code execution
+- Ensures package consistency across all operations
+- Eliminates shell errors when switching to other AI tools
+- Maintains stable development environment
+- All FastAPI applications work correctly
+
+## 🎯 CURSOR-SPECIFIC BEST PRACTICES
+- Always check (.venv) in terminal before running code
+- Use provided shortcuts for FastAPI applications
+- Verify environment with check-env before debugging
+- Report any environment inconsistencies immediately
+
+**Remember: Consistent virtual environment = Reliable AI coding experience** 

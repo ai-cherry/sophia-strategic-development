@@ -1,0 +1,217 @@
+# AI Assistant Rules for Sophia AI Platform
+# Universal Virtual Environment Consistency Guide
+
+## 🐍 CRITICAL: VIRTUAL ENVIRONMENT SETUP
+
+**FOR ALL AI CODING TOOLS (Cursor, Cline, GitHub Copilot, etc.)**
+
+### 🚨 MANDATORY FIRST STEP
+```bash
+source activate_sophia_env.sh
+```
+
+## 🎯 UNIVERSAL ENVIRONMENT REQUIREMENTS
+
+### **✅ CORRECT ENVIRONMENT SETUP:**
+1. **Shell prompt shows (.venv)**
+2. **Python version: 3.11.6**
+3. **Python location: /Users/lynnmusil/sophia-main-2/.venv/bin/python**
+4. **VIRTUAL_ENV variable set correctly**
+
+### **❌ INCORRECT SETUP (NEEDS FIXING):**
+1. **Missing (.venv) in prompt**
+2. **Python version: 3.9.6 (system Python)**
+3. **Python aliased to /usr/bin/python3**
+4. **Import errors or package not found**
+
+## 🔧 VERIFICATION COMMANDS
+
+### **Environment Status Check:**
+```bash
+# 1. Check virtual environment
+echo $VIRTUAL_ENV
+# Expected: /Users/lynnmusil/sophia-main-2/.venv
+
+# 2. Check Python version
+python --version
+# Expected: Python 3.11.6
+
+# 3. Check Python location
+which python
+# Expected: /Users/lynnmusil/sophia-main-2/.venv/bin/python
+
+# 4. Quick verification
+check-env
+# Expected: ✅ Using: /Users/lynnmusil/sophia-main-2/.venv/bin/python
+```
+
+### **Package Availability Test:**
+```bash
+python -c "import fastapi; print('✅ FastAPI available')"
+python -c "import uvicorn; print('✅ Uvicorn available')"
+python -c "import sqlalchemy; print('✅ SQLAlchemy available')"
+```
+
+## 🚀 AVAILABLE APPLICATIONS & SHORTCUTS
+
+### **FastAPI Applications (All aligned and working):**
+| Shortcut | Application | Port | File |
+|----------|-------------|------|------|
+| `run-working` | Working FastAPI | 8000 | `backend/app/working_fastapi.py` |
+| `run-simple` | Simple FastAPI | 8001 | `backend/app/simple_fastapi.py` |
+| `run-minimal` | Minimal FastAPI | 8002 | `backend/app/minimal_fastapi.py` |
+| `run-distributed` | Distributed API | 8003 | `api/main.py` |
+
+### **Environment Management:**
+```bash
+check-env          # Verify Python environment
+source activate_sophia_env.sh  # Reactivate if needed
+```
+
+## 🛠️ TROUBLESHOOTING GUIDE
+
+### **Issue**: Import errors or "Module not found"
+**Solution**:
+```bash
+source activate_sophia_env.sh
+check-env
+```
+
+### **Issue**: Wrong Python version (3.9.6 instead of 3.11.6)
+**Solution**:
+```bash
+# Remove conflicting alias
+unalias python 2>/dev/null || true
+source activate_sophia_env.sh
+```
+
+### **Issue**: FastAPI applications won't start
+**Solution**:
+```bash
+# Ensure environment is active
+source activate_sophia_env.sh
+# Then use appropriate shortcut
+run-working  # or run-simple, run-minimal, run-distributed
+```
+
+### **Issue**: Shell errors between AI tools
+**Solution**:
+```bash
+# Always reactivate when switching tools
+source activate_sophia_env.sh
+```
+
+### **Issue**: Packages not installing correctly
+**Solution**:
+```bash
+# Verify environment first
+source activate_sophia_env.sh
+check-env
+# Then install
+pip install package_name
+```
+
+## 📋 AI TOOL SPECIFIC NOTES
+
+### **Cursor AI:**
+- Rules also in `.cursorrules` and `.cursor-rules`
+- Always start sessions with environment activation
+- Use shortcuts for FastAPI applications
+
+### **Cline:**
+- Specific rules in `.cline-rules`
+- Must activate in terminal before any operations
+- Check for (.venv) in prompt
+
+### **GitHub Copilot:**
+- Works with any correctly activated environment
+- Ensure VIRTUAL_ENV variable is set
+- Use `python` command, not `python3`
+
+### **Other AI Assistants:**
+- Follow same activation pattern
+- Verify environment with `check-env`
+- Use provided shortcuts
+
+## 🎯 BEST PRACTICES FOR ALL AI TOOLS
+
+### **DO:**
+- ✅ **Always** start with `source activate_sophia_env.sh`
+- ✅ **Verify** (.venv) appears in shell prompt
+- ✅ **Use** `python` command (never `python3`)
+- ✅ **Check** environment with `check-env` when in doubt
+- ✅ **Use** provided shortcuts for applications
+
+### **DON'T:**
+- ❌ **Never** skip virtual environment activation
+- ❌ **Never** use system Python (`/usr/bin/python3`)
+- ❌ **Never** install packages without activated environment
+- ❌ **Never** ignore environment warnings
+- ❌ **Never** use `python3` command directly
+
+## 🌟 SUCCESS INDICATORS
+
+**Your AI assistant session is correctly configured when:**
+
+1. **Shell prompt shows:**
+   ```
+   (.venv) lynnmusil@PR901-LMUSIL sophia-main-2 %
+   ```
+
+2. **Environment check passes:**
+   ```bash
+   $ check-env
+   ✅ Using: /Users/lynnmusil/sophia-main-2/.venv/bin/python
+   ```
+
+3. **Package imports work:**
+   ```bash
+   $ python -c "import fastapi; print('Ready!')"
+   Ready!
+   ```
+
+4. **FastAPI shortcuts work:**
+   ```bash
+   $ run-minimal &
+   # Server starts successfully on port 8002
+   ```
+
+## 📞 EMERGENCY RECOVERY
+
+**If environment is completely broken:**
+```bash
+# 1. Navigate to project
+cd /Users/lynnmusil/sophia-main-2
+
+# 2. Force reactivation
+source .venv/bin/activate
+source activate_sophia_env.sh
+
+# 3. Verify recovery
+check-env
+
+# 4. Test functionality
+python -c "import fastapi; print('✅ Recovered!')"
+```
+
+## 📚 DOCUMENTATION REFERENCES
+
+- **Complete Guide**: `VIRTUAL_ENVIRONMENT_CONSISTENCY_GUIDE.md`
+- **Environment Config**: `.sophia-env-config`
+- **Cursor Rules**: `.cursorrules`
+- **Cline Rules**: `.cline-rules`
+
+## 🎉 WHY THIS MATTERS
+
+- **Eliminates shell errors** between AI tools
+- **Ensures package consistency** across all operations
+- **Prevents import conflicts** and missing dependencies
+- **Maintains stable development environment**
+- **Enables reliable FastAPI application deployment**
+- **Provides consistent experience** across all AI assistants
+
+**Remember: One activation script solves environment issues for ALL AI tools!**
+
+---
+
+**CRITICAL RULE**: When in doubt, run `source activate_sophia_env.sh` and `check-env` 

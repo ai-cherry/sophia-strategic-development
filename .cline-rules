@@ -1,0 +1,153 @@
+# Cline AI Assistant Rules for Sophia AI
+# CRITICAL: Virtual Environment Consistency Fix
+
+## 🚨 MANDATORY FIRST STEP FOR ALL CLINE SESSIONS
+
+**ALWAYS RUN THIS FIRST IN TERMINAL:**
+```bash
+source activate_sophia_env.sh
+```
+
+## 🎯 CLINE-SPECIFIC ENVIRONMENT SETUP
+
+### ✅ CORRECT SESSION STARTUP SEQUENCE:
+1. **Open Terminal in Cline**
+2. **Navigate to Project (if needed):**
+   ```bash
+   cd /Users/lynnmusil/sophia-main-2
+   ```
+3. **Activate Environment:**
+   ```bash
+   source activate_sophia_env.sh
+   ```
+4. **Verify Setup:**
+   ```bash
+   check-env
+   ```
+
+### 📊 ENVIRONMENT STATUS INDICATORS:
+
+**✅ CORRECTLY CONFIGURED:**
+```bash
+# Prompt shows virtual environment
+(.venv) lynnmusil@PR901-LMUSIL sophia-main-2 %
+
+# Python command works correctly
+$ python --version
+Python 3.11.6
+
+# Packages are accessible
+$ python -c "import fastapi; print('✅ FastAPI available')"
+✅ FastAPI available
+```
+
+**❌ NEEDS FIXING:**
+```bash
+# Missing (.venv) in prompt
+lynnmusil@PR901-LMUSIL sophia-main-2 %
+
+# Wrong Python version
+$ python --version
+Python 3.9.6
+
+# Import errors
+$ python -c "import fastapi"
+ModuleNotFoundError: No module named 'fastapi'
+```
+
+## 🚀 CLINE SHORTCUTS (Available after activation)
+
+```bash
+run-working      # Start working FastAPI (port 8000)
+run-simple       # Start simple FastAPI (port 8001)
+run-minimal      # Start minimal FastAPI (port 8002)
+run-distributed  # Start distributed API (port 8003)
+check-env        # Verify Python environment
+```
+
+## 🛠️ COMMON CLINE ISSUES & SOLUTIONS
+
+### **Issue**: Shell errors or command not found
+**Solution**: 
+```bash
+source activate_sophia_env.sh
+```
+
+### **Issue**: Python import errors
+**Solution**:
+```bash
+# Ensure environment is active
+echo $VIRTUAL_ENV
+# Should show: /Users/lynnmusil/sophia-main-2/.venv
+
+# If empty, activate:
+source activate_sophia_env.sh
+```
+
+### **Issue**: Wrong Python version
+**Solution**:
+```bash
+# Check current python
+which python
+# Should NOT show: python: aliased to /usr/bin/python3
+
+# Fix with activation:
+source activate_sophia_env.sh
+check-env
+```
+
+### **Issue**: FastAPI applications won't start
+**Solution**:
+```bash
+# Ensure virtual environment is active first
+source activate_sophia_env.sh
+
+# Then use shortcuts
+run-working  # or run-simple, run-minimal, run-distributed
+```
+
+## 📋 CLINE BEST PRACTICES
+
+### **DO:**
+- ✅ Always start with `source activate_sophia_env.sh`
+- ✅ Verify (.venv) appears in prompt
+- ✅ Use `python` command (not `python3`)
+- ✅ Use provided shortcuts for FastAPI apps
+- ✅ Run `check-env` when in doubt
+
+### **DON'T:**
+- ❌ Skip virtual environment activation
+- ❌ Use system Python directly
+- ❌ Install packages without activated environment
+- ❌ Ignore environment setup warnings
+
+## 🎯 WHY THIS MATTERS FOR CLINE
+
+- **Eliminates Shell Errors**: No more "command not found" or import errors
+- **Consistent Experience**: Same environment as Cursor AI and other tools
+- **Package Reliability**: All dependencies available consistently
+- **FastAPI Success**: All four applications work correctly
+- **Development Stability**: Predictable Python environment
+
+## 📞 EMERGENCY TROUBLESHOOTING
+
+If environment still not working after activation:
+1. **Check current directory**: `pwd` (should be `/Users/lynnmusil/sophia-main-2`)
+2. **Check script exists**: `ls -la activate_sophia_env.sh`
+3. **Force reload**: 
+   ```bash
+   cd /Users/lynnmusil/sophia-main-2
+   source .venv/bin/activate
+   source activate_sophia_env.sh
+   ```
+4. **Get help**: See `VIRTUAL_ENVIRONMENT_CONSISTENCY_GUIDE.md`
+
+## 🌟 SUCCESS VERIFICATION
+
+**Your Cline session is ready when you see:**
+```bash
+(.venv) lynnmusil@PR901-LMUSIL sophia-main-2 % check-env
+✅ Using: /Users/lynnmusil/sophia-main-2/.venv/bin/python
+```
+
+**Remember: One activation script = All AI tools work perfectly together!** 

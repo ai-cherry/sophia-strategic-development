@@ -6,6 +6,57 @@
 - See `docs/monorepo/MONOREPO_TRANSITION_GUIDE.md` for details
 - Target completion: February 2025
 
+## 🐍 **VIRTUAL ENVIRONMENT CONSISTENCY (MANDATORY)**
+
+**CRITICAL FOR ALL AI CODING TOOLS (Cursor, Cline, GitHub Copilot, etc.)**
+
+### **REQUIRED SETUP FOR EVERY SESSION:**
+```bash
+# ALWAYS START ANY AI CODING SESSION WITH:
+source activate_sophia_env.sh
+```
+
+### **Environment Requirements (NON-NEGOTIABLE):**
+1. **Python Version:** MUST use Python 3.11.6 from virtual environment
+2. **Virtual Environment:** MUST be activated before any Python operations
+3. **Python Command:** Use `python` (not `python3` or system Python)
+4. **Environment Verification:** Look for `(.venv)` in shell prompt
+
+### **FORBIDDEN ACTIONS:**
+- ❌ **NEVER use system Python** (`/usr/bin/python3`)
+- ❌ **NEVER skip virtual environment activation**
+- ❌ **NEVER use `python3` command directly**
+- ❌ **NEVER install packages without activated environment**
+
+### **Required Verification Before Coding:**
+```bash
+# 1. Check environment is active
+echo $VIRTUAL_ENV  # Should show: /Users/lynnmusil/sophia-main-2/.venv
+
+# 2. Verify Python version
+python --version   # Should show: Python 3.11.6
+
+# 3. Verify Python location
+which python      # Should show: /Users/lynnmusil/sophia-main-2/.venv/bin/python
+
+# 4. Quick environment check
+check-env         # Available after activation
+```
+
+### **Available FastAPI Applications (All ports aligned):**
+- **Working FastAPI**: `run-working` → port 8000
+- **Simple FastAPI**: `run-simple` → port 8001  
+- **Minimal FastAPI**: `run-minimal` → port 8002
+- **Distributed API**: `run-distributed` → port 8003
+
+### **Troubleshooting:**
+- **Import Errors**: Run `source activate_sophia_env.sh`
+- **Wrong Python Version**: Ensure virtual environment is properly activated
+- **Shell Errors**: Check that `(.venv)` appears in prompt
+- **Reference**: See `VIRTUAL_ENVIRONMENT_CONSISTENCY_GUIDE.md`
+
+**WHY THIS MATTERS:** Prevents shell errors between AI tools, ensures package consistency, eliminates import conflicts, and maintains stable development environment across all AI assistants.
+
 ## 🚀 **THE GOLDEN RULE OF DEPLOYMENT (MANDATORY)**
 
 **ALL DEPLOYMENTS ARE AUTOMATED VIA GITHUB ACTIONS. NEVER DEPLOY FROM A LOCAL MACHINE.**
