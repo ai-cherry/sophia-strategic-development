@@ -1,0 +1,11 @@
+# Phase 2 Cleanup and Validation Dependencies
+# Created: July 15, 2025 (Fixed: July 16, 2025)
+# Purpose: Fix workflow failures in cleanup-validation.yml
+
+# Use core dependencies from main requirements.txt that are proven to work
+-r requirements.txt
+
+# Additional dependencies for cleanup and validation scripts
+requests>=2.31.0  # Used by enhanced_daily_cleanup.py for Slack webhooks
+pytest>=7.4.0    # For testing
+gitpython>=3.1.32  # For git operations in cleanup scripts
