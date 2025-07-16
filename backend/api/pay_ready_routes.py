@@ -10,7 +10,7 @@ analytics, and cross-platform entity resolution.
 import asyncio
 import logging
 from typing import Dict, List, Any, Optional
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from backend.services.pay_ready_foundational_service import get_pay_ready_foundational_service
@@ -41,7 +41,7 @@ router = APIRouter(prefix="/api/v1/pay-ready", tags=["Pay Ready Foundational Kno
 async def get_pay_ready_health():
     """Check Pay Ready foundational service health and connectivity"""
     try:
-        service = await get_pay_ready_foundational_service()
+        await get_pay_ready_foundational_service()
         
         # Basic health check
         health_status = {

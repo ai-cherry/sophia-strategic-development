@@ -25,26 +25,36 @@ import json
 import logging
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
-from contextlib import asynccontextmanager
-from functools import lru_cache
 import time
 
 # Core imports
 from backend.core.qdrant_connection_pool import QdrantConnectionPool
 from backend.core.redis_connection_manager import RedisConnectionManager
-from backend.core.database import get_db_session
-from backend.core.auto_esc_config import get_qdrant_config, get_redis_config, get_config_value
+from backend.core.auto_esc_config import get_qdrant_config
 
 # External integrations with graceful fallbacks
 try:
-    from mem0 import Memory
+    from mem0 import Memory as Mem0Memory
     MEM0_AVAILABLE = True
 except ImportError:
     MEM0_AVAILABLE = False
-    class Memory:
-        pass
+    
+    # Proper fallback implementation with correct interface
+    class Mem0Memory:
+        @classmethod
+        def from_config(cls, config):
+            return cls()
+        
+        async def add(self, content, user_id=None, metadata=None):
+            # Return a mock result object
+            class MockResult:
+                embedding = None
+            return MockResult()
+            
+        async def search(self, query, limit=10, filters=None):
+            return []
 
 try:
     from qdrant_client import QdrantClient, models
@@ -308,7 +318,7 @@ class SophiaUnifiedMemoryService:
         self.cache_manager: Optional[UnifiedCacheManager] = None
         
         # Mem0 integration
-        self.mem0_client: Optional[Memory] = None
+        self.mem0_client: Optional[Mem0Memory] = None
         
         # Collection definitions with logical separation
         self.collections_config = {
@@ -815,7 +825,6 @@ class SophiaUnifiedMemoryService:
             
             # Clear from cache
             if self.cache_manager:
-                cache_key = f"memory:{memory_id}"
                 # Note: We don't have a direct delete method, but TTL will handle cleanup
                 pass
             
@@ -976,7 +985,7 @@ async def get_memory_service() -> SophiaUnifiedMemoryService:
     global sophia_memory_service
     
     if sophia_memory_service is None:
-        sophia_memory_service = SophiaSophiaUnifiedMemoryService()
+        sophia_memory_service = SophiaUnifiedMemoryService()
         await sophia_memory_service.initialize()
     
     return sophia_memory_service

@@ -10,7 +10,6 @@ Usage:
     python scripts/validate_github_secrets.py --check-values
 """
 
-import os
 import sys
 import subprocess
 import argparse
@@ -187,10 +186,10 @@ def validate_github_secrets(check_values: bool = False, org: str = "ai-cherry") 
         
         if value is None:
             if config["required"]:
-                print(f"   ❌ MISSING (Required)")
+                print("   ❌ MISSING (Required)")
                 error_messages.append(f"Missing required secret: {secret_name}")
             else:
-                print(f"   ⚠️  Missing (Optional)")
+                print("   ⚠️  Missing (Optional)")
         else:
             available_secrets += 1
             print(f"   ✅ Available ({len(value)} characters)")
@@ -199,15 +198,15 @@ def validate_github_secrets(check_values: bool = False, org: str = "ai-cherry") 
             if check_values:
                 validation_errors = validate_secret_value(secret_name, value, config)
                 if validation_errors:
-                    print(f"   ⚠️  Validation issues:")
+                    print("   ⚠️  Validation issues:")
                     for error in validation_errors:
                         print(f"      - {error}")
                     error_messages.extend([f"{secret_name}: {error}" for error in validation_errors])
                 else:
-                    print(f"   ✅ Validation passed")
+                    print("   ✅ Validation passed")
     
     print("\n" + "=" * 60)
-    print(f"📊 SUMMARY:")
+    print("📊 SUMMARY:")
     print(f"   Total secrets: {total_secrets}")
     print(f"   Available: {available_secrets}")
     print(f"   Missing: {total_secrets - available_secrets}")
@@ -222,15 +221,15 @@ def validate_github_secrets(check_values: bool = False, org: str = "ai-cherry") 
     print(f"   Required available: {available_required}/{required_secrets}")
     
     if error_messages:
-        print(f"\n❌ ERRORS FOUND:")
+        print("\n❌ ERRORS FOUND:")
         for error in error_messages:
             print(f"   - {error}")
     
     if available_required == required_secrets:
-        print(f"\n✅ ALL REQUIRED SECRETS AVAILABLE - DEPLOYMENT READY!")
+        print("\n✅ ALL REQUIRED SECRETS AVAILABLE - DEPLOYMENT READY!")
         return total_secrets, available_secrets, error_messages
     else:
-        print(f"\n⚠️  MISSING REQUIRED SECRETS - DEPLOYMENT WILL FAIL")
+        print("\n⚠️  MISSING REQUIRED SECRETS - DEPLOYMENT WILL FAIL")
         return total_secrets, available_secrets, error_messages
 
 def main():
@@ -259,10 +258,10 @@ def main():
     )
     
     if available_required == required_count:
-        print(f"\n🎉 SUCCESS: Ready for deployment!")
+        print("\n🎉 SUCCESS: Ready for deployment!")
         sys.exit(0)
     else:
-        print(f"\n💥 FAILURE: Missing required secrets for deployment")
+        print("\n💥 FAILURE: Missing required secrets for deployment")
         sys.exit(1)
 
 if __name__ == "__main__":

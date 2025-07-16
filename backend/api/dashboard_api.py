@@ -1,9 +1,7 @@
 """
 Dashboard API endpoints for strategic integration
 """
-from fastapi import APIRouter, HTTPException
-from backend.services.router_service import RouterService
-from backend.core.auto_esc_config import get_config_value
+from fastapi import APIRouter
 
 router = APIRouter(prefix="/api/v4/dashboard")
 

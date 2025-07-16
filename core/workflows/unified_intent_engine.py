@@ -11,12 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
-    UnifiedMemoryService,
-)
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

@@ -4,8 +4,7 @@ Collects and aggregates metrics from all services
 """
 
 import asyncio
-import json
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import logging
 

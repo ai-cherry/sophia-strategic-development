@@ -6,10 +6,8 @@ Date: July 10, 2025
 """
 
 # Modern stack imports
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
-import redis.asyncio as redis
-import asyncpg
 
 
 import asyncio
@@ -266,7 +264,7 @@ class GitHubMCPServer(StandardizedMCPServer):
         """List issues"""
         try:
             repo = params["repo"]
-            state = params.get("state", "open")
+            params.get("state", "open")
             limit = params.get("limit", 10)
 
             # In production, would use GitHub API
@@ -334,7 +332,7 @@ class GitHubMCPServer(StandardizedMCPServer):
         """List pull requests"""
         try:
             repo = params["repo"]
-            state = params.get("state", "open")
+            params.get("state", "open")
             limit = params.get("limit", 10)
 
             # In production, would use GitHub API

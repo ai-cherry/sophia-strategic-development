@@ -6,7 +6,6 @@ This module provides a centralized way to access configuration values
 with clear precedence rules and type safety.
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import json
 import os
 from pathlib import Path

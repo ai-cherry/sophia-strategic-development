@@ -5,13 +5,11 @@ Tests all components to ensure full production readiness
 """
 
 import asyncio
-import json
 import logging
 import os
 import sys
-import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
 import subprocess
 import requests
 from datetime import datetime
@@ -174,7 +172,6 @@ class SophiaDeploymentTester:
         try:
             # Test if we can import and use the backend
             sys.path.insert(0, str(Path(__file__).parent.parent))
-            import backend
             
             # Try to get config values
             from backend.core.auto_esc_config import get_config_value
@@ -210,7 +207,7 @@ class SophiaDeploymentTester:
         self.results["api_endpoints"] = self.test_api_endpoints()
         
         # Test chat endpoint
-        chat_working = self.test_chat_endpoint()
+        self.test_chat_endpoint()
         
         # Test MCP servers
         self.results["mcp_servers"] = self.test_mcp_servers()
@@ -262,16 +259,16 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         passed_tests = sum(1 for result in self.results.values() if result)
         success_rate = (passed_tests / total_tests) * 100
         
-        report += f"\n## Overall Status\n"
+        report += "\n## Overall Status\n"
         report += f"- **Success Rate**: {success_rate:.1f}%\n"
         report += f"- **Tests Passed**: {passed_tests}/{total_tests}\n"
         
         if success_rate >= 80:
-            report += f"- **Status**: ✅ READY FOR PRODUCTION\n"
+            report += "- **Status**: ✅ READY FOR PRODUCTION\n"
         else:
-            report += f"- **Status**: ❌ NEEDS FIXES\n"
+            report += "- **Status**: ❌ NEEDS FIXES\n"
         
-        report += f"\n## Next Steps\n"
+        report += "\n## Next Steps\n"
         
         if success_rate >= 80:
             report += "- System is ready for production deployment\n"

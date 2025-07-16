@@ -15,7 +15,6 @@ Usage: python scripts/fix_nginx_configuration.py
 import subprocess
 import sys
 import logging
-import os
 from pathlib import Path
 
 # Setup logging

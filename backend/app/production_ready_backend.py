@@ -14,20 +14,17 @@ Features:
 - Complete API documentation
 """
 
-import asyncio
 import json
 import logging
 import os
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Any, Optional
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 import uvicorn
 from pydantic import BaseModel
 
@@ -660,10 +657,10 @@ if __name__ == "__main__":
     host = os.getenv("HOST", "0.0.0.0")
     
     logger.info(f"🚀 Starting Sophia AI Production Backend on {host}:{port}")
-    logger.info(f"📊 Real Business Intelligence: Enabled")
-    logger.info(f"💬 AI Chat: Production Ready")
-    logger.info(f"📡 WebSocket: Real-time Updates")
-    logger.info(f"📈 Dashboard: Live Data")
+    logger.info("📊 Real Business Intelligence: Enabled")
+    logger.info("💬 AI Chat: Production Ready")
+    logger.info("📡 WebSocket: Real-time Updates")
+    logger.info("📈 Dashboard: Live Data")
     logger.info(f"📚 API Docs: http://{host}:{port}/docs")
     
     uvicorn.run(

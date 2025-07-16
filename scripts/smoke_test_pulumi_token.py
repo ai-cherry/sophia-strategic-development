@@ -11,7 +11,6 @@ Usage:
 
 import sys
 import os
-import subprocess
 
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -34,7 +33,7 @@ def test_backend_config_access() -> bool:
         # Test Pulumi config
         pulumi_config = get_pulumi_config()
         if pulumi_config and pulumi_config.get('access_token'):
-            print(f"   ✅ Pulumi config retrieved successfully")
+            print("   ✅ Pulumi config retrieved successfully")
         else:
             print("   ❌ Pulumi config not accessible")
             return False

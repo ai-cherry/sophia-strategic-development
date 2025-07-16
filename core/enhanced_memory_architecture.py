@@ -175,7 +175,6 @@ class EnhancedMemoryArchitecture:
         """Initialize Qdrant connection for L2-L5 tiers"""
         try:
             # Use QdrantUnifiedMemoryService for L2-L5 tiers
-            from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
             
             self.QDRANT_service = QdrantSophiaUnifiedMemoryService()
             await self.QDRANT_service.initialize()

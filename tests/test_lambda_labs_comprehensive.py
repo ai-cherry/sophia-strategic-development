@@ -286,7 +286,7 @@ class TestEndToEndScenarios:
             }
 
             # CEO gets performance priority
-            result = await chat.process_unified_query(
+            await chat.process_unified_query(
                 "Analyze Q4 revenue by product",
                 user_id="ceo",
                 session_id="session-123",
@@ -323,7 +323,7 @@ class TestPerformanceBenchmarks:
         """Test latency is within requirements"""
         import time
 
-        service = LambdaLabsService()
+        LambdaLabsService()
 
         start = time.time()
         # Simulate API call

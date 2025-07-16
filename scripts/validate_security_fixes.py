@@ -258,7 +258,7 @@ def generate_validation_report():
     
     # Overall results
     print(f"\n{'='*60}")
-    print(f"📊 VALIDATION SUMMARY")
+    print("📊 VALIDATION SUMMARY")
     print(f"{'='*60}")
     print(f"Passed: {passed}/{total} ({passed/total*100:.1f}%)")
     

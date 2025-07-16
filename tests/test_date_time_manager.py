@@ -103,7 +103,7 @@ class TestDateTimeManager(unittest.TestCase):
         self.assertEqual(date1, date2)
 
         # Ensure modifying a returned date doesn't affect the manager
-        date_copy = DateTimeManager.now()
+        DateTimeManager.now()
         # datetime objects are immutable, so this test just confirms behavior
         self.assertEqual(DateTimeManager.now(), datetime(2025, 7, 9))
 

@@ -89,7 +89,7 @@ class EnhancedSemanticLayerService:
         """Build semantic query with fuzzy matching support"""
 
         base_table = entity_config["base_table"]
-        entity_name = entity_config["name"]
+        entity_config["name"]
 
         # Start building the query
         select_parts = [f"base.{entity_config['primary_key']} as entity_id"]

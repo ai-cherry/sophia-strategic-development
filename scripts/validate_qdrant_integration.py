@@ -8,7 +8,7 @@ import os
 import sys
 import subprocess
 import logging
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -116,7 +116,7 @@ class QdrantIntegrationValidator:
             # Test get_QDRANT_config function
             config = get_QDRANT_config()
             if config and config.get("api_key") and config.get("url"):
-                self.add_result("Backend get_QDRANT_config", True, f"Complete config retrieved")
+                self.add_result("Backend get_QDRANT_config", True, "Complete config retrieved")
                 logger.info(f"   API Key: {config['api_key'][:8]}...")
                 logger.info(f"   URL: {config['url']}")
                 logger.info(f"   Cluster: {config['cluster_name']}")

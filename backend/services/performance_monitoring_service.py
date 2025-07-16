@@ -4,12 +4,10 @@ Provides comprehensive performance tracking for all services
 """
 
 import time
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from typing import Dict, Any, List
+from datetime import datetime
 from collections import defaultdict, deque
-import json
 
 logger = logging.getLogger(__name__)
 

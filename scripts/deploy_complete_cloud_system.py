@@ -14,15 +14,12 @@ Usage:
     python scripts/deploy_complete_cloud_system.py --force
 """
 
-import os
 import sys
 import subprocess
 import argparse
 import json
-import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 class SophiaAICloudDeployment:
     """Complete cloud deployment orchestrator for Sophia AI"""
@@ -40,8 +37,8 @@ class SophiaAICloudDeployment:
         self.lambda_labs_production = "104.171.202.103"
         self.lambda_labs_dev = "155.248.194.183"
         
-        print(f"🚀 SOPHIA AI COMPLETE CLOUD DEPLOYMENT")
-        print(f"=" * 60)
+        print("🚀 SOPHIA AI COMPLETE CLOUD DEPLOYMENT")
+        print("=" * 60)
         print(f"🆔 Deployment ID: {self.deployment_id}")
         print(f"🏃 Mode: {'DRY RUN' if self.dry_run else 'LIVE DEPLOYMENT'}")
         print(f"💪 Force: {'YES' if self.force else 'NO'}")
@@ -62,7 +59,7 @@ class SophiaAICloudDeployment:
             result = subprocess.run(['git', 'status', '--porcelain'], 
                                   capture_output=True, text=True, cwd=self.project_root)
             if result.stdout.strip() and not self.force:
-                print(f"❌ Uncommitted changes detected:")
+                print("❌ Uncommitted changes detected:")
                 print(result.stdout)
                 print("💡 Use --force to deploy anyway or commit changes first")
                 checks.append(False)
@@ -267,7 +264,7 @@ class SophiaAICloudDeployment:
                     status = run.get('status', 'unknown')
                     conclusion = run.get('conclusion', 'pending')
                     workflow = run.get('workflowName', 'unknown')
-                    created = run.get('createdAt', 'unknown')
+                    run.get('createdAt', 'unknown')
                     
                     if 'deploy' in workflow.lower() or 'fortress' in workflow.lower():
                         print(f"  📄 {workflow}: {status} ({conclusion})")
@@ -310,8 +307,8 @@ class SophiaAICloudDeployment:
         print(f"🖥️  Backend API: Lambda Labs K3s ({self.lambda_labs_backend})")
         print(f"🔧 MCP Servers: Lambda Labs MCP ({self.lambda_labs_mcp})")
         print(f"💾 Data Pipeline: Lambda Labs Data ({self.lambda_labs_data})")
-        print(f"🌐 Frontend: Lambda Labs Frontend (sophia-intel.ai)")
-        print(f"🏗️  Infrastructure: Pulumi + GitHub Actions")
+        print("🌐 Frontend: Lambda Labs Frontend (sophia-intel.ai)")
+        print("🏗️  Infrastructure: Pulumi + GitHub Actions")
         
         print("\n📊 SERVICES BEING DEPLOYED")
         print("=" * 30)
@@ -328,7 +325,7 @@ class SophiaAICloudDeployment:
         
         print("\n🔗 ACCESS URLS (AFTER DEPLOYMENT)")
         print("=" * 40)
-        print(f"🌐 Frontend Dashboard: https://sophia-intel.ai")
+        print("🌐 Frontend Dashboard: https://sophia-intel.ai")
         print(f"🔧 Backend API: https://{self.lambda_labs_backend}:8000")
         print(f"📚 API Documentation: https://{self.lambda_labs_backend}:8000/docs")
         print(f"📊 Monitoring: https://{self.lambda_labs_backend}:3000")

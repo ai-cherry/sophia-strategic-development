@@ -106,7 +106,7 @@ class SecurityRemediator:
                 logger.info("✅ Security audit completed successfully")
                 return True, json.loads(result.stdout)
             else:
-                logger.warning(f"⚠️ Security audit found issues")
+                logger.warning("⚠️ Security audit found issues")
                 try:
                     audit_data = json.loads(result.stdout)
                     return False, audit_data
@@ -212,13 +212,13 @@ class SecurityRemediator:
         
         # Phase 5: Generate report
         logger.info("📊 Phase 5: Generating security report...")
-        report = self.generate_security_report()
+        self.generate_security_report()
         
         # Summary
         total_fixed = self.results['critical_fixed'] + self.results['moderate_fixed']
         total_attempted = len(self.critical_packages) + len(self.moderate_packages)
         
-        logger.info(f"📊 Remediation Summary:")
+        logger.info("📊 Remediation Summary:")
         logger.info(f"   ✅ Critical vulnerabilities fixed: {self.results['critical_fixed']}")
         logger.info(f"   ✅ Moderate vulnerabilities fixed: {self.results['moderate_fixed']}")
         logger.info(f"   📦 Total packages upgraded: {total_fixed}/{total_attempted}")

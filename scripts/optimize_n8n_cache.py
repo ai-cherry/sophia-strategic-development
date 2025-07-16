@@ -13,7 +13,7 @@ import random
 import time
 from collections import OrderedDict
 from datetime import datetime
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 
@@ -240,7 +240,7 @@ async def run_optimization():
     print("📊 Optimization Results")
     print("=" * 50)
     
-    print(f"\n✅ Optimal Configuration:")
+    print("\n✅ Optimal Configuration:")
     print(f"   Cache Size: {optimal_cache_size}")
     print(f"   Strategy: {optimal_results['best_strategy'].upper()}")
     print(f"   Hit Rate: {optimal_results['best_hit_rate']:.1%} {'✅' if optimal_results['best_hit_rate'] > 0.85 else '❌'}")
@@ -268,7 +268,7 @@ async def run_optimization():
     with open("PHASE_4_N8N_CACHE_OPTIMIZATION.json", "w") as f:
         json.dump(report, f, indent=2)
     
-    print(f"\nDetailed results saved to: PHASE_4_N8N_CACHE_OPTIMIZATION.json")
+    print("\nDetailed results saved to: PHASE_4_N8N_CACHE_OPTIMIZATION.json")
     
     return optimal_results["best_hit_rate"] > 0.85
 

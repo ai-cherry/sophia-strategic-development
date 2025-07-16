@@ -12,16 +12,11 @@ Date: July 14, 2025
 """
 
 import asyncio
-import json
 import logging
-import os
-import shutil
-import subprocess
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
 
 # Setup logging
@@ -1213,7 +1208,7 @@ The Sophia AI ecosystem improvement plan has been {'successfully completed' if r
         for improvement in report['improvements_implemented']:
             markdown_content += f"- {improvement}\n"
         
-        markdown_content += f"""
+        markdown_content += """
 ## Phase Results
 
 """

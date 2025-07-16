@@ -4,10 +4,7 @@ Add SSH Key to Lambda Labs Instances
 Automatically adds your SSH public key to all Lambda Labs instances
 """
 
-import requests
 import subprocess
-import sys
-import time
 from pathlib import Path
 
 def get_public_key():

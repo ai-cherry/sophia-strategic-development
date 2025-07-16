@@ -14,7 +14,7 @@ from typing import Any
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

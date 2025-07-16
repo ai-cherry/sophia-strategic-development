@@ -6,9 +6,7 @@ Consolidates all ESC files into a single authoritative configuration
 
 import os
 import shutil
-import json
-from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 def backup_files(files_to_backup: List[str]) -> str:
     """Create backup of files before deletion"""
@@ -236,22 +234,22 @@ echo "✅ Deployment complete!"
     print("✅ Deployment script created: scripts/deploy_consolidated_esc.sh")
     
     # Summary
-    print(f"\n📊 Consolidation Summary:")
+    print("\n📊 Consolidation Summary:")
     print(f"    Files removed: {removed_count}")
     print(f"    Backup location: {backup_dir}")
     print(f"    Consolidated config: {consolidated_path}")
-    print(f"    Deployment script: scripts/deploy_consolidated_esc.sh")
+    print("    Deployment script: scripts/deploy_consolidated_esc.sh")
     
-    print(f"\n🎯 Next Steps:")
-    print(f"    1. Run: bash scripts/deploy_consolidated_esc.sh")
-    print(f"    2. Test MCP project integration")
-    print(f"    3. Verify all secrets are accessible")
+    print("\n🎯 Next Steps:")
+    print("    1. Run: bash scripts/deploy_consolidated_esc.sh")
+    print("    2. Test MCP project integration")
+    print("    3. Verify all secrets are accessible")
     
     return True
 
 if __name__ == "__main__":
     success = main()
     if success:
-        print(f"\n🎉 SUCCESS: Pulumi ESC configuration consolidated!")
+        print("\n🎉 SUCCESS: Pulumi ESC configuration consolidated!")
     else:
-        print(f"\n❌ FAILED: Consolidation encountered errors") 
+        print("\n❌ FAILED: Consolidation encountered errors") 

@@ -19,16 +19,12 @@ Business Value:
 """
 
 import asyncio
-import json
-import logging
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
-import httpx
 
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 from backend.services.n8n_workflow_service import N8nWorkflowService
 
@@ -815,7 +811,7 @@ class N8nWorkflowRevolution:
         for workflow_id, workflow in self.revolutionary_workflows.items():
             try:
                 # Convert to N8N format and deploy
-                n8n_workflow = self._convert_to_n8n_format(workflow)
+                self._convert_to_n8n_format(workflow)
                 # await self.n8n_service.create_workflow(n8n_workflow)
                 logger.info(f"✅ Deployed workflow: {workflow.name}")
             except Exception as e:

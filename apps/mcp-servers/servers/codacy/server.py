@@ -160,7 +160,7 @@ class CodacyMCPServer(StandardizedMCPServer):
     async def _analyze_code(self, params: dict[str, Any]) -> dict[str, Any]:
         """Analyze code snippet"""
         try:
-            code = params["code"]
+            params["code"]
             language = params["language"]
 
             # In production, would use Codacy API

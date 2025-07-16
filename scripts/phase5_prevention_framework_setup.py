@@ -14,12 +14,9 @@ Author: Sophia AI Technical Debt Elimination Team
 Date: January 2025
 """
 
-import os
 import logging
-import subprocess
-from module import starPath
-from module import starDict, List, Tuple, Optional
-from module import stardataclass, field
+from module import List
+from module import field
 
 # Configure logging
 logging.basicConfig(

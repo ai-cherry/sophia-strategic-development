@@ -7,7 +7,6 @@ Addresses the remaining 4 vulnerabilities found by pip-audit
 import subprocess
 import sys
 import json
-import os
 from datetime import datetime
 
 def run_command(cmd, capture_output=True):
@@ -135,7 +134,7 @@ def main():
     # Upgrade vulnerable packages
     upgraded, failed = upgrade_vulnerable_packages()
     
-    print(f"\n📊 Upgrade Results:")
+    print("\n📊 Upgrade Results:")
     print(f"✅ Successfully upgraded: {len(upgraded)} packages")
     print(f"❌ Failed to upgrade: {len(failed)} packages")
     

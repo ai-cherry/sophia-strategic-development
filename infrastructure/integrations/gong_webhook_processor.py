@@ -5,7 +5,6 @@ This module provides webhook processing capabilities for Gong integration.
 Simplified version to resolve import and indentation issues.
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import logging
 import time
 from dataclasses import dataclass

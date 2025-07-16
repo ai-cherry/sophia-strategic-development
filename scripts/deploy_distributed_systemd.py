@@ -16,11 +16,10 @@ REPLACES: All Docker/K8s deployment scripts that conflict with production.
 import asyncio
 import asyncssh
 import sys
-import os
 import json
 import time
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import List
 from dataclasses import dataclass
 import logging
 from datetime import datetime
@@ -30,7 +29,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 from config.production_infrastructure import (
     PRODUCTION_INFRASTRUCTURE, 
     DEPLOYMENT_CONFIG,
-    SECURITY_CONFIG,
     get_all_service_endpoints,
     generate_nginx_upstream_config
 )
@@ -64,7 +62,7 @@ class DistributedSystemdDeployer:
         self.results: List[DeploymentResult] = []
         self.project_root = Path(__file__).parent.parent
         
-        logger.info(f"🚀 Initializing Distributed systemd Deployment")
+        logger.info("🚀 Initializing Distributed systemd Deployment")
         logger.info(f"📍 Project Root: {self.project_root}")
         logger.info(f"🧪 Dry Run: {self.dry_run}")
     

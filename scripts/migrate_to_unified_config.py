@@ -11,13 +11,10 @@ Usage:
     python scripts/migrate_to_unified_config.py --file specific_file.py
 """
 
-import os
 import re
 import glob
 import argparse
-from typing import List, Dict, Set, Tuple
-from pathlib import Path
-import ast
+from typing import List
 import sys
 from datetime import datetime
 
@@ -230,14 +227,14 @@ class CodeMigrator:
     def print_summary(self):
         """Print migration summary"""
         
-        print(f"\n📊 Migration Summary:")
+        print("\n📊 Migration Summary:")
         print(f"📁 Files processed: {self.files_processed}")
         print(f"✅ Files modified: {self.files_modified}")
         print(f"🔄 Total replacements: {self.total_replacements}")
         print(f"❌ Errors: {len(self.errors)}")
         
         if self.errors:
-            print(f"\n❌ Errors encountered:")
+            print("\n❌ Errors encountered:")
             for error in self.errors:
                 print(f"  - {error}")
         

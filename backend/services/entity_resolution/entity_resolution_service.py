@@ -6,14 +6,13 @@ Main orchestrator for entity matching and resolution across platforms
 import asyncio
 import logging
 import uuid
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any
+from datetime import datetime
 from dataclasses import asdict
 
 from backend.services.entity_resolution.core_entity_matcher import AdvancedEntityMatcher, MatchResult
 from backend.database.database_service import DatabaseService
 from backend.services.openai_service import OpenAIService
-from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -530,14 +529,8 @@ class EntityResolutionService:
     
     async def _store_resolution_training_data(self, conflict_id: str, resolution_decision: Dict[str, Any], resolved_by: str):
         """Store resolution as training data for ML improvement"""
-        training_id = f"training_{uuid.uuid4().hex[:12]}"
+        f"training_{uuid.uuid4().hex[:12]}"
         
-        insert_query = """
-        INSERT INTO FOUNDATIONAL_KNOWLEDGE.ENTITY_RESOLUTION_TRAINING_DATA
-        (training_id, entity1_data, entity2_data, is_match, match_confidence, 
-         verification_source, verified_by, feedback_notes)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """
         
         # Extract training data from resolution decision
         # (Implementation would depend on decision structure)

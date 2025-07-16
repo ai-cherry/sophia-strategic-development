@@ -67,7 +67,7 @@ async def test_model_selection_low_cost(router):
     )
 
     # Low cost should always use serverless
-    result = await router.generate(
+    await router.generate(
         messages=[{"role": "user", "content": "Test"}], cost_priority="low_cost"
     )
 

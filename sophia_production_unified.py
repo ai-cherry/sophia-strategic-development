@@ -35,15 +35,13 @@ import logging
 import os
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, List, AsyncGenerator
-from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any, Optional, List
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Request, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 # Setup comprehensive logging
@@ -170,23 +168,23 @@ class MockUnifiedOrchestrator:
         
         # Business intelligence responses
         if any(word in query_lower for word in ['revenue', 'sales', 'profit', 'financial']):
-            return f"📊 **Business Intelligence Analysis**\n\nBased on current data:\n• Q4 revenue is tracking 23% above forecast\n• Sales pipeline shows strong momentum with $2.3M in qualified leads\n• Customer acquisition cost decreased 15% this quarter\n• Recommend focusing on enterprise segment expansion\n\n*Analysis generated from unified business intelligence systems*"
+            return "📊 **Business Intelligence Analysis**\n\nBased on current data:\n• Q4 revenue is tracking 23% above forecast\n• Sales pipeline shows strong momentum with $2.3M in qualified leads\n• Customer acquisition cost decreased 15% this quarter\n• Recommend focusing on enterprise segment expansion\n\n*Analysis generated from unified business intelligence systems*"
         
         # Project management responses
         elif any(word in query_lower for word in ['project', 'task', 'deadline', 'team']):
-            return f"🎯 **Project Intelligence Summary**\n\nCurrent project status:\n• 12 active projects across engineering and business teams\n• 3 projects at risk of missing deadlines (flagged for attention)\n• Team velocity up 18% compared to last quarter\n• Recommend resource reallocation to high-priority initiatives\n\n*Data aggregated from Linear, Asana, and Slack*"
+            return "🎯 **Project Intelligence Summary**\n\nCurrent project status:\n• 12 active projects across engineering and business teams\n• 3 projects at risk of missing deadlines (flagged for attention)\n• Team velocity up 18% compared to last quarter\n• Recommend resource reallocation to high-priority initiatives\n\n*Data aggregated from Linear, Asana, and Slack*"
         
         # System status responses
         elif any(word in query_lower for word in ['system', 'health', 'status', 'server']):
-            return f"🔧 **System Health Report**\n\nAll systems operational:\n• Backend services: 99.9% uptime\n• MCP servers: 6/6 healthy\n• Lambda Labs GPU: Active, $45.20 daily spend\n• Response times: <150ms average\n• No critical alerts\n\n*Real-time monitoring across all infrastructure*"
+            return "🔧 **System Health Report**\n\nAll systems operational:\n• Backend services: 99.9% uptime\n• MCP servers: 6/6 healthy\n• Lambda Labs GPU: Active, $45.20 daily spend\n• Response times: <150ms average\n• No critical alerts\n\n*Real-time monitoring across all infrastructure*"
         
         # External intelligence responses
         elif any(word in query_lower for word in ['competitor', 'market', 'trend', 'external']):
-            return f"🌐 **External Intelligence Brief**\n\nMarket intelligence update:\n• 3 competitors launched new features this week\n• Industry funding up 34% QoQ\n• Regulatory changes may impact Q1 strategy\n• Recommend monitoring TechCorp's product roadmap\n\n*Sourced from external intelligence monitoring*"
+            return "🌐 **External Intelligence Brief**\n\nMarket intelligence update:\n• 3 competitors launched new features this week\n• Industry funding up 34% QoQ\n• Regulatory changes may impact Q1 strategy\n• Recommend monitoring TechCorp's product roadmap\n\n*Sourced from external intelligence monitoring*"
         
         # Memory and AI responses
         elif any(word in query_lower for word in ['memory', 'qdrant', 'ai', 'learning']):
-            return f"🧠 **AI Memory & Learning Status**\n\nMemory architecture performance:\n• Qdrant collections: 4 active, 89K+ documents\n• Semantic search: <42ms average response\n• Temporal learning: 156 interactions processed\n• Memory efficiency: 94% optimal\n\n*Pure Qdrant architecture with temporal learning*"
+            return "🧠 **AI Memory & Learning Status**\n\nMemory architecture performance:\n• Qdrant collections: 4 active, 89K+ documents\n• Semantic search: <42ms average response\n• Temporal learning: 156 interactions processed\n• Memory efficiency: 94% optimal\n\n*Pure Qdrant architecture with temporal learning*"
         
         # Default intelligent response
         else:
@@ -655,7 +653,7 @@ async def orchestrate_endpoint(request: OrchestrationRequest):
     Advanced orchestration endpoint with v4 features
     """
     system_metrics.total_requests += 1
-    start_time = time.time()
+    time.time()
     
     try:
         # Convert to chat request format

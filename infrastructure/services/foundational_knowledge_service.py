@@ -24,7 +24,7 @@ from enum import Enum
 from typing import Any
 
 from core.logger import logger
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 # logger = logging.getLogger(__name__)
 

@@ -4,7 +4,6 @@ Sophia AI Automated Deployment Recovery System
 Handles common deployment issues automatically with health checking and recovery.
 """
 
-import os
 import sys
 import subprocess
 import time
@@ -12,7 +11,7 @@ import json
 import requests
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, Tuple, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -268,7 +267,7 @@ class SophiaDeploymentRecovery:
                     logger.info("✅ Recovery successful - minimum health threshold met")
                     return True
                 elif attempt < self.max_retries:
-                    logger.warning(f"⚠️ Health below threshold, retrying in 30 seconds...")
+                    logger.warning("⚠️ Health below threshold, retrying in 30 seconds...")
                     time.sleep(30)
                 
             except Exception as e:

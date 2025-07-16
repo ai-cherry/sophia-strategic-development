@@ -12,6 +12,7 @@
     "gong": 9101,
     "hubspot_unified": 9103,
     "lambda_labs_cli": 9020,
+    "large_file_processor": 9041,
     "mem0_bridge": 9031,
     "mem0_openmemory": 9032,
     "mem0_persistent": 9033,

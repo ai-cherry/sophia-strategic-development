@@ -17,8 +17,7 @@ import asyncio
 import json
 import time
 import sys
-import logging
-from typing import Dict, List, Any
+from typing import Dict, Any
 from pathlib import Path
 
 # Add project root to path
@@ -410,12 +409,12 @@ class Phase1ValidationTest:
         
         if "performance_metrics" in self.test_results:
             perf = self.test_results["performance_metrics"]
-            print(f"\n📈 Performance Metrics:")
+            print("\n📈 Performance Metrics:")
             print(f"P95 Latency: {perf.get('p95_latency_ms', 'N/A'):.1f}ms")
             print(f"Avg Confidence: {perf.get('avg_confidence', 'N/A'):.2%}")
         
         if self.test_results["errors"]:
-            print(f"\n❌ Errors:")
+            print("\n❌ Errors:")
             for error in self.test_results["errors"]:
                 print(f"  - {error}")
         

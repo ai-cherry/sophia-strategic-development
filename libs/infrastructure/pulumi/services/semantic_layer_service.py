@@ -1,14 +1,10 @@
 # File: backend/services/semantic_layer_service.py
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 import logging
 from pathlib import Path
 from typing import Any
 
 from core.performance_monitor import performance_monitor
-from backend.services.QDRANT_unified_memory_service import (
-    EnhancedQdrantUnifiedMemoryService,
-)
 
 logger = logging.getLogger(__name__)
 

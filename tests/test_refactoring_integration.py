@@ -4,8 +4,6 @@ Tests all refactored services and improvements
 """
 
 import pytest
-import asyncio
-from typing import Dict, Any
 import sys
 from pathlib import Path
 

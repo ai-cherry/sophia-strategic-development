@@ -23,7 +23,6 @@ import asyncio
 import logging
 import signal
 from pathlib import Path
-from typing import Optional
 
 # Set up structured logging
 logging.basicConfig(

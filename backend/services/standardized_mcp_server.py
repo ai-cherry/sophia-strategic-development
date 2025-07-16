@@ -10,20 +10,17 @@ Features:
 """
 
 import json
-import asyncio
-import logging
 import time
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import List
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import TextContent, Tool
+from mcp.types import TextContent
 from prometheus_client import Counter, Histogram, Gauge
 
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)

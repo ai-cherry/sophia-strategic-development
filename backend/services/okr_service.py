@@ -4,8 +4,7 @@ Provides objectives and key results tracking functionality
 """
 
 import logging
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 

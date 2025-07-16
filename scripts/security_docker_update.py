@@ -9,7 +9,7 @@ import re
 import subprocess
 import logging
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -249,7 +249,7 @@ class DockerSecurityUpdater:
         report = self.generate_security_report()
         
         # Summary
-        logger.info(f"📊 Docker Security Update Summary:")
+        logger.info("📊 Docker Security Update Summary:")
         logger.info(f"   📂 Dockerfiles analyzed: {report['dockerfiles_analyzed']}")
         logger.info(f"   ✅ Dockerfiles updated: {report['dockerfiles_updated']}")
         logger.info(f"   🔒 Security improvements: {len(self.security_improvements)}")

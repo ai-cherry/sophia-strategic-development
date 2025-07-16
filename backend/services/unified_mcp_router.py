@@ -2,9 +2,6 @@
 Unified Dynamic MCP Router
 Consolidates multiple MCP servers with intelligent routing
 """
-import asyncio
-from typing import Dict, List, Optional
-from backend.core.auto_esc_config import get_config_value
 
 class UnifiedMCPRouter:
     def __init__(self):

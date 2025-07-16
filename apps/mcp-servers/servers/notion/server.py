@@ -100,9 +100,9 @@ def get_real_notion_client():
         
         if api_key and api_key not in ["FROM_GITHUB", "PLACEHOLDER_NOTION_API_KEY", "[secret]"]:
             real_notion_client = RealNotionClient(api_key)
-            print(f"✅ Real Notion client initialized")
+            print("✅ Real Notion client initialized")
         else:
-            print(f"⚠️  Notion API key not found, using mock data")
+            print("⚠️  Notion API key not found, using mock data")
     
     return real_notion_client
 
@@ -126,7 +126,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import logging
 
-import httpx
 from base.unified_standardized_base import (
     ServerConfig,
     ToolDefinition,

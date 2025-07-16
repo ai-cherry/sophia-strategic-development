@@ -1,4 +1,4 @@
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 import shlex
 from datetime import UTC, datetime
 
@@ -26,7 +26,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -623,7 +622,7 @@ class EnhancedDeploymentTracker:
                 "kubectl rollout status deployment/sophia-mcp-ai-memory -n sophia-mcp",
             ],
             ComponentType.FRONTEND: [
-                f"# Lambda Labs deployment - no lambda_labs commands needed",
+                "# Lambda Labs deployment - no lambda_labs commands needed",
             ],
         }
 

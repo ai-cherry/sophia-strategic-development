@@ -8,7 +8,6 @@ import logging
 import hashlib
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
-import numpy as np
 
 from backend.core.auto_esc_config import get_config_value
 from backend.core.redis_connection_manager import RedisConnectionManager

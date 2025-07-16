@@ -2,12 +2,9 @@
 Database Service for PostgreSQL operations
 """
 
-import asyncio
 import logging
 from typing import List, Dict, Any, Optional
 import asyncpg
-import json
-from datetime import datetime
 
 from backend.core.auto_esc_config import get_config_value
 

@@ -5,11 +5,10 @@ Intelligent proxy layer for routing requests to distributed MCP services
 across 5 Lambda Labs instances using production infrastructure configuration.
 """
 
-import asyncio
 import aiohttp
 import logging
 from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 import json
 

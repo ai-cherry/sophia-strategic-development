@@ -14,14 +14,11 @@ Endpoints:
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 import time
-import logging
 
 from backend.services.QDRANT_foundation_service import (
-    QdrantFoundationService,
     QueryRequest,
-    QueryResponse,
     QueryType,
     get_QDRANT_foundation_service
 )

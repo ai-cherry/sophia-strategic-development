@@ -41,7 +41,7 @@ class ChaosTestingFramework:
         """Simulate pod kill chaos"""
         logger.info(f"Simulating pod kill for {service}")
         
-        start_time = time.time()
+        time.time()
         
         # Simulate pod kill
         await asyncio.sleep(0.5)  # Simulate kill time
@@ -257,7 +257,7 @@ async def run_chaos_testing():
     print(f"\n✅ Stability Score: {analysis['stability_score']:.1%}")
     print(f"   Status: {analysis['recommendation']}")
     
-    print(f"\n📋 Key Metrics:")
+    print("\n📋 Key Metrics:")
     print(f"   Avg Recovery Time: {analysis['avg_recovery_time']:.1f}s")
     print(f"   Health Check Success: {analysis['health_check_success_rate']:.1%}")
     print(f"   Network Failure Rate: {analysis['avg_network_failure_rate']:.1%}")
@@ -293,7 +293,7 @@ async def run_chaos_testing():
     with open("PHASE_4_CHAOS_TESTING_RESULTS.json", "w") as f:
         json.dump(report, f, indent=2)
     
-    print(f"\nDetailed results saved to: PHASE_4_CHAOS_TESTING_RESULTS.json")
+    print("\nDetailed results saved to: PHASE_4_CHAOS_TESTING_RESULTS.json")
     
     return analysis["stability_score"] > 0.9
 

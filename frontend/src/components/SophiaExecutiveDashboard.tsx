@@ -199,7 +199,7 @@ interface IceBreakerPrompt {
 }
 
 // Constants
-const BACKEND_URL = 'http://localhost:7000';  // Updated from 8000 to 7000 to avoid MCP conflicts
+const BACKEND_URL = 'http://104.171.202.103';  // Production backend on sophia-intel.ai
 
 const INTELLIGENCE_TABS = {
   'chat': { icon: MessageSquare, label: 'Executive Chat', color: 'blue' },
@@ -354,7 +354,7 @@ const SophiaExecutiveDashboard: React.FC = () => {
   // Initialize WebSocket
   const initializeWebSocket = useCallback(() => {
     try {
-              const ws = new WebSocket('ws://localhost:7000/ws');  // Updated from 8000 to 7000
+              const ws = new WebSocket('ws://104.171.202.103:8000/ws');  // Production WebSocket
       
       ws.onopen = () => {
         console.log('WebSocket connected');

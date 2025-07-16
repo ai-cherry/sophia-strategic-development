@@ -24,20 +24,18 @@ Date: July 2025
 
 import os
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 import uvicorn
 
-from config.infrastructure import InfrastructureConfig, LambdaInstance, ServiceType, InstanceRole
-from services.service_discovery import ServiceDiscovery, get_service_discovery
-from utils.health_check import HealthChecker, get_health_checker
+from config.infrastructure import InfrastructureConfig, LambdaInstance, InstanceRole
+from services.service_discovery import get_service_discovery
+from utils.health_check import get_health_checker
 
 logger = logging.getLogger(__name__)
 

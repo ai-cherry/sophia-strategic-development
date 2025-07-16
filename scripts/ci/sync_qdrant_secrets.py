@@ -19,14 +19,13 @@ import os
 import sys
 import json
 import subprocess
-import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from backend.core.auto_esc_config import get_config_value, get_QDRANT_config
+from backend.core.auto_esc_config import get_QDRANT_config
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)

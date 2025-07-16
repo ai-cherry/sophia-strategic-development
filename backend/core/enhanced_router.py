@@ -1,7 +1,6 @@
 """
 Enhanced Intelligent Router for Sophia AI
 """
-import asyncio
 import time
 from typing import Dict, List
 from dataclasses import dataclass
@@ -51,7 +50,7 @@ class EnhancedIntelligentRouter:
         # Select best model
         selected = max(scores, key=lambda x: x["score"])
         
-        routing_time = (time.time() - start_time) * 1000
+        (time.time() - start_time) * 1000
         
         return RoutingDecision(
             selected_model=selected["name"],

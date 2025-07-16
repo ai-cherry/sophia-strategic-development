@@ -21,11 +21,8 @@ Date: July 15, 2025
 Priority: MEDIUM - Following memory service optimization
 """
 
-import os
 import logging
 from pathlib import Path
-from typing import Dict, Any, List
-import json
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

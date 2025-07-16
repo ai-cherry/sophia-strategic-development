@@ -6,10 +6,8 @@ Date: July 10, 2025
 """
 
 # Modern stack imports
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
-import redis.asyncio as redis
-import asyncpg
 
 
 import asyncio

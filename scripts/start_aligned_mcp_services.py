@@ -15,7 +15,7 @@ import subprocess
 import sys
 import logging
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict
 from datetime import datetime
 
 # Setup logging
@@ -402,11 +402,11 @@ def main():
             logger.info(f"🏭 {tier_name.replace('_', ' ').title()}: {tier_stats['healthy']}/{tier_stats['services']} ({tier_success:.1f}%)")
     
     if success_rate >= 70:
-        logger.info(f"\n🎉 STRATEGIC MCP ACTIVATION SUCCESSFUL!")
-        logger.info(f"🚀 Sophia AI is now strategically aligned and operational!")
+        logger.info("\n🎉 STRATEGIC MCP ACTIVATION SUCCESSFUL!")
+        logger.info("🚀 Sophia AI is now strategically aligned and operational!")
         return True
     else:
-        logger.warning(f"\n⚠️  Some services need attention, proceeding with Phase 2 alignment")
+        logger.warning("\n⚠️  Some services need attention, proceeding with Phase 2 alignment")
         return False
 
 if __name__ == "__main__":

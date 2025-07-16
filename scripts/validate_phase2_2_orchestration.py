@@ -848,7 +848,7 @@ class Phase2_2ValidationSuite:
                 pipeline_content = f.read()
             
             with open("backend/services/advanced_mcp_orchestration_engine.py", "r") as f:
-                orchestration_content = f.read()
+                f.read()
             
             # Check integration points
             if "AdvancedMCPOrchestrationEngine" in pipeline_content:
@@ -1366,7 +1366,7 @@ async def main():
         with open("phase2_2_validation_report.json", "w") as f:
             json.dump(report, f, indent=2, default=str)
         
-        print(f"\n📄 Validation report saved to: phase2_2_validation_report.json")
+        print("\n📄 Validation report saved to: phase2_2_validation_report.json")
         
         return report
         

@@ -13,7 +13,6 @@ Usage:
 
 import os
 import asyncio
-from typing import Dict, List, Optional
 import subprocess
 import sys
 import argparse
@@ -206,7 +205,7 @@ class SecretSynchronizer:
     async def sync_secrets(self, dry_run: bool = False) -> bool:
         """Synchronize all GitHub Organization Secrets to Pulumi ESC"""
         
-        print(f"🔄 Starting GitHub → Pulumi ESC synchronization...")
+        print("🔄 Starting GitHub → Pulumi ESC synchronization...")
         print(f"📍 Target: {self.esc_path}")
         print(f"🏃 Mode: {'DRY RUN' if dry_run else 'LIVE'}")
         print(f"📊 Total secrets to sync: {len(GITHUB_TO_ESC_MAPPING)}")
@@ -239,7 +238,7 @@ class SecretSynchronizer:
                 error_count += 1
         
         # Generate summary
-        print(f"\n📊 Synchronization Summary:")
+        print("\n📊 Synchronization Summary:")
         print(f"✅ Successfully synced: {success_count}")
         print(f"⚠️  Missing secrets: {missing_count}")
         print(f"❌ Errors: {error_count}")
@@ -287,7 +286,7 @@ class SecretSynchronizer:
                 print(f"⚠️  Environment {self.environment} does not exist")
                 return False
             
-            print(f"✅ Pulumi ESC access validated")
+            print("✅ Pulumi ESC access validated")
             return True
             
         except Exception as e:

@@ -22,7 +22,6 @@ import logging
 import httpx
 from base.unified_standardized_base import ServerConfig, StandardizedMCPServer
 from backend.core.auto_esc_config import get_config_value
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 from mcp.types import TextContent, Tool
 
 logger = logging.getLogger(__name__)
@@ -504,7 +503,7 @@ class NotionStrategicMCPServer(StandardizedMCPServer):
 
     async def _handle_data_update(self, arguments: Dict) -> List[TextContent]:
         """Update Notion data and refresh vector memory"""
-        database_id = arguments.get("database_id")
+        arguments.get("database_id")
         page_id = arguments.get("page_id")
         updates = arguments.get("updates", {})
         

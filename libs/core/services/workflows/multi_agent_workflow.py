@@ -5,7 +5,6 @@ Modularized implementation - see multi_agent_workflow/ directory
 
 # Import all functionality from modular implementation
 from .multi_agent_workflow import (
-    MultiAgent,
     MultiAgentWorkflow,
     __all__
 )

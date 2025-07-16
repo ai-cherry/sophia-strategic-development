@@ -25,7 +25,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
 from infrastructure.services.foundational_knowledge_service import (
     FoundationalKnowledgeService,
 )
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 from backend.integrations.gong_api_client import GongAPIClient
 from backend.integrations.hubspot_client import HubSpotClient
 

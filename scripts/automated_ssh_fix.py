@@ -4,10 +4,7 @@ Automated SSH Key Fix for Lambda Labs
 Uses API to directly add SSH key to all instances
 """
 
-import requests
 import subprocess
-import time
-import json
 
 # Your credentials
 API_KEY = "secret_sophiacloudapi_17cf7f3cedca48f18b4b8ea46cbb258f.EsLXt0lkGlhZ1Nd369Ld5DMSuhJg9O9y"
@@ -87,7 +84,7 @@ def main():
             print(f"❌ Failed to add key to {ip}")
     
     print("\n" + "=" * 50)
-    print(f"📊 FINAL RESULTS:")
+    print("📊 FINAL RESULTS:")
     print(f"✅ Success: {success_count}/{total_servers} servers")
     print(f"❌ Failed: {total_servers - success_count}/{total_servers} servers")
     
@@ -96,7 +93,7 @@ def main():
         # Start deployment immediately
         subprocess.run(["python3", "scripts/deploy_to_lambda_labs.py"], check=False)
     else:
-        print(f"\n⚠️  Some servers failed. Manual intervention needed.")
+        print("\n⚠️  Some servers failed. Manual intervention needed.")
         return False
     
     return True

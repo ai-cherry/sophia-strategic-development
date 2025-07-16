@@ -6,7 +6,6 @@ Handles proper initialization, health monitoring, and graceful shutdown
 import asyncio
 import logging
 import signal
-import sys
 from typing import Optional
 from backend.core.qdrant_connection_pool import get_qdrant_pool, close_qdrant_pool
 
@@ -27,7 +26,7 @@ class MemoryServiceLifecycleManager:
         
         try:
             # Initialize connection pool
-            pool = await get_qdrant_pool()
+            await get_qdrant_pool()
             
             # Setup signal handlers for graceful shutdown
             self._setup_signal_handlers()

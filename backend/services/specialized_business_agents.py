@@ -6,17 +6,15 @@ Created: July 14, 2025
 Phase: 2.2 - AI Agent Orchestration Mastery
 """
 
-import asyncio
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-import json
 from abc import ABC, abstractmethod
 
 from ..services.advanced_hybrid_search_service import AdvancedHybridSearchService, SearchContext, BusinessInsights
-from ..services.adaptive_memory_system import AdaptiveMemorySystem, UserFeedback, FeedbackType
+from ..services.adaptive_memory_system import AdaptiveMemorySystem
 from ..services.payready_business_intelligence import PayReadyBusinessIntelligence, BusinessContext
 from ..services.advanced_mcp_orchestration_engine import AgentCapability, TaskExecution
 
@@ -255,7 +253,7 @@ class CustomerIntelligenceAgent(BaseSpecializedAgent):
                 next_actions=await self._generate_next_actions(churn_analysis, expansion_analysis)
             )
             
-            self.logger.info(f"✅ Customer intelligence analysis completed")
+            self.logger.info("✅ Customer intelligence analysis completed")
             return report
             
         except Exception as e:
@@ -526,7 +524,7 @@ class SalesOptimizationAgent(BaseSpecializedAgent):
                 next_actions=await self._generate_sales_next_actions(pipeline_analysis, forecast_analysis)
             )
             
-            self.logger.info(f"✅ Sales optimization analysis completed")
+            self.logger.info("✅ Sales optimization analysis completed")
             return report
             
         except Exception as e:
@@ -777,7 +775,7 @@ class MarketResearchAgent(BaseSpecializedAgent):
                 next_actions=await self._generate_market_next_actions(opportunity_analysis, trend_analysis)
             )
             
-            self.logger.info(f"✅ Market research analysis completed")
+            self.logger.info("✅ Market research analysis completed")
             return report
             
         except Exception as e:
@@ -1063,7 +1061,7 @@ class FinancialAnalysisAgent(BaseSpecializedAgent):
                 next_actions=await self._generate_financial_next_actions(performance_analysis, forecast_analysis)
             )
             
-            self.logger.info(f"✅ Financial analysis completed")
+            self.logger.info("✅ Financial analysis completed")
             return report
             
         except Exception as e:
@@ -1335,7 +1333,7 @@ class WorkflowAutomationAgent(BaseSpecializedAgent):
                 next_actions=await self._generate_automation_next_actions(automation_opportunities)
             )
             
-            self.logger.info(f"✅ Workflow automation analysis completed")
+            self.logger.info("✅ Workflow automation analysis completed")
             return report
             
         except Exception as e:

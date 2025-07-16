@@ -20,10 +20,8 @@ import os
 import sys
 import subprocess
 import argparse
-import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 class GitHubToProductionDeployment:
     """Complete GitHub to Production deployment orchestrator"""
@@ -314,7 +312,7 @@ class GitHubToProductionDeployment:
             print("🌐 Pulumi ESC Environment: Unable to check")
         
         # Deployment status
-        print(f"\n🚀 Deployment Status:")
+        print("\n🚀 Deployment Status:")
         if self.dry_run:
             print("  🔍 Dry run completed successfully")
             print("  📋 Ready for actual deployment")
@@ -322,7 +320,7 @@ class GitHubToProductionDeployment:
             print("  ✅ Live deployment initiated")
             print("  🔄 GitHub Actions workflow triggered")
         
-        print(f"\n🔧 Next Steps:")
+        print("\n🔧 Next Steps:")
         if self.dry_run:
             print("  1. Run without --dry-run for actual deployment")
             print("  2. Monitor GitHub Actions workflow")

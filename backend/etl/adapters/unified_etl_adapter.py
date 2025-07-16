@@ -3,13 +3,11 @@ Unified ETL Adapter for Sophia AI
 Provides standardized data extraction, transformation, and loading
 """
 
-import asyncio
 import logging
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
 
-from backend.core.auto_esc_config import get_config_value
 from backend.core.redis_connection_manager import RedisConnectionManager
 
 logger = logging.getLogger(__name__)

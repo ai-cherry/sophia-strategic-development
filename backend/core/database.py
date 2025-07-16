@@ -3,9 +3,8 @@ Database configuration and session management for Sophia AI
 Supports PostgreSQL with SQLAlchemy for user management and application data
 """
 
-import os
 import logging
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
@@ -107,7 +106,6 @@ def create_tables():
             init_database()
         
         # Import all models to ensure they're registered
-        from backend.models.user import User, UserActivity, UserSession, UserPreferences
         
         # Create all tables
         Base.metadata.create_all(bind=engine)

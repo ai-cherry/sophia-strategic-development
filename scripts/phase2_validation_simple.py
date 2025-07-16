@@ -873,7 +873,7 @@ def main():
     with open("phase2_1_validation_report.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
     
-    print(f"\n📄 Validation report saved to: phase2_1_validation_report.json")
+    print("\n📄 Validation report saved to: phase2_1_validation_report.json")
     
     # Return success code based on readiness
     if assessment["readiness"] in ["PRODUCTION_READY", "NEAR_PRODUCTION_READY"]:

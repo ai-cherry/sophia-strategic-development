@@ -9,7 +9,7 @@ import asyncio
 import aiohttp
 import sys
 import time
-from typing import Dict, List, Tuple
+from typing import Dict
 import os
 import argparse
 import json
@@ -69,7 +69,7 @@ async def validate_deployment(environment: str = "production") -> bool:
     # Determine overall success
     all_passed = all(results.values())
     
-    print(f"\n📊 Validation Results:")
+    print("\n📊 Validation Results:")
     print(f"🌐 Endpoints: {'✅ PASS' if results['endpoints'] else '❌ FAIL'}")
     print(f"🔧 Services: {'✅ PASS' if results['services'] else '❌ FAIL'}")
     print(f"🔌 Integrations: {'✅ PASS' if results['integrations'] else '❌ FAIL'}")
@@ -77,12 +77,12 @@ async def validate_deployment(environment: str = "production") -> bool:
     print(f"⚡ Performance: {'✅ PASS' if results['performance'] else '❌ FAIL'}")
     
     if all_passed:
-        print(f"\n🎉 Deployment validation PASSED!")
-        print(f"🚀 Sophia AI is fully operational on Lambda Labs!")
+        print("\n🎉 Deployment validation PASSED!")
+        print("🚀 Sophia AI is fully operational on Lambda Labs!")
         return True
     else:
-        print(f"\n❌ Deployment validation FAILED!")
-        print(f"🔍 Check the validation report for details.")
+        print("\n❌ Deployment validation FAILED!")
+        print("🔍 Check the validation report for details.")
         return False
 
 async def validate_endpoints() -> bool:
@@ -200,7 +200,7 @@ async def validate_performance() -> bool:
         for endpoint in endpoints:
             try:
                 start_time = time.time()
-                async with session.get(f"{base_url}{endpoint}") as response:
+                async with session.get(f"{base_url}{endpoint}"):
                     end_time = time.time()
                     
                     response_time = (end_time - start_time) * 1000  # Convert to ms

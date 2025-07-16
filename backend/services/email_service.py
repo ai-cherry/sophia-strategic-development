@@ -1,11 +1,8 @@
 import smtplib
 import ssl
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
 from email import encoders
 from typing import List, Optional, Dict, Any
-import logging
 import asyncio
 from datetime import datetime
 import os

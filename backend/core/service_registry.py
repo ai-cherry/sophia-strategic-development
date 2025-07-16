@@ -3,9 +3,8 @@ Service Registry for Sophia AI
 Provides centralized service access to avoid circular dependencies
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, Optional, Type
+from typing import Dict, Any
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

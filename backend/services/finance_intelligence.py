@@ -2,8 +2,7 @@
 Finance Intelligence MCP Server
 Specialized server for Pay Ready financial operations
 """
-import asyncio
-from typing import Dict, List
+from typing import List
 from backend.services.unified_mcp_router import UnifiedMCPRouter
 
 class FinanceIntelligenceServer:

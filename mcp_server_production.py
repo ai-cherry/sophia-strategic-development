@@ -5,10 +5,9 @@ Minimal working implementation
 """
 
 import asyncio
-import json
 import logging
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

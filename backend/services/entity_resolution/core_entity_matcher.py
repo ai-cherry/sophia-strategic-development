@@ -3,12 +3,11 @@ Core Entity Matching Engine
 Advanced multi-layer entity resolution with fuzzy matching capabilities
 """
 
-import asyncio
 import hashlib
 import json
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 import re
 
@@ -47,7 +46,6 @@ except ImportError:
     SKLEARN_AVAILABLE = False
     np = None
 
-from backend.core.auto_esc_config import get_config_value
 from backend.services.openai_service import OpenAIService
 from backend.database.database_service import DatabaseService
 

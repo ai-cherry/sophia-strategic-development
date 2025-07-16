@@ -15,18 +15,14 @@ Date: January 15, 2025
 
 import asyncio
 import json
-import os
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 import aiofiles
-import httpx
 from rich.console import Console
 from rich.progress import Progress, TaskID
-from rich.table import Table
 
 console = Console()
 
@@ -660,7 +656,7 @@ export default AdaptiveDashboard;
         for action in self.deployment_log:
             markdown_content += f"- {action['timestamp']}: {action['action']}\n"
             
-        markdown_content += f"""
+        markdown_content += """
 ## 🚀 Next Steps
 
 """

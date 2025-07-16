@@ -12,7 +12,7 @@ import logging
 import psutil
 import time
 from datetime import datetime
-from typing import Dict, List, Tuple, Any
+from typing import Dict, Any
 
 import numpy as np
 
@@ -39,12 +39,12 @@ class LambdaBatchOptimizer:
     
     async def process_batch(self, batch_size: int) -> Dict[str, float]:
         """Process a batch of embeddings"""
-        start_time = time.time()
+        time.time()
         initial_memory = self.get_memory_usage()
         
         # Simulate batch processing
         # In production, this would call actual embedding model
-        embeddings = np.random.randn(batch_size, 768).astype(np.float32)
+        np.random.randn(batch_size, 768).astype(np.float32)
         
         # Simulate processing time (larger batches are more efficient)
         base_time = 0.1
@@ -171,9 +171,9 @@ async def run_optimization():
         
         # Check if we achieved 1024 batch size
         target_achieved = optimal_batch >= 1024
-        print(f"\n📋 Target Validation:")
+        print("\n📋 Target Validation:")
         print(f"   Batch Size >= 1024: {'✅' if target_achieved else '❌'} ({optimal_batch})")
-        print(f"   No OOM: ✅")
+        print("   No OOM: ✅")
         print(f"   Blackwell Efficiency: {results['blackwell_efficiency']}x")
     
     # Save results
@@ -191,7 +191,7 @@ async def run_optimization():
     with open("PHASE_4_LAMBDA_BATCH_OPTIMIZATION.json", "w") as f:
         json.dump(report, f, indent=2)
     
-    print(f"\nDetailed results saved to: PHASE_4_LAMBDA_BATCH_OPTIMIZATION.json")
+    print("\nDetailed results saved to: PHASE_4_LAMBDA_BATCH_OPTIMIZATION.json")
     
     # Show performance comparison
     print("\n📊 Batch Size Performance Comparison:")

@@ -16,28 +16,22 @@ import asyncio
 import pytest
 import numpy as np
 import time
-from typing import Dict, List, Any
 from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime, timedelta
 
 # Import services to test
-from backend.services.unified_memory_service import (
-    UnifiedMemoryService, 
-    RAGState, 
-    ProcessingStage,
-    get_unified_memory_service_v3
+from backend.services.sophia_unified_memory_service import (
+    SophiaUnifiedMemoryService,
+    get_memory_service
 )
 from backend.services.multimodal_memory_service import (
     MultimodalMemoryService,
     DocumentType,
-    VisualElementType,
-    get_multimodal_memory_service
+    VisualElementType
 )
 from backend.services.hypothetical_rag_service import (
     HypotheticalRAGService,
-    HypotheticalType,
-    PruningStrategy,
-    get_hypothetical_rag_service
+    HypotheticalType
 )
 
 class TestUnifiedMemoryService:
@@ -298,7 +292,7 @@ class TestMultimodalMemoryService:
     @pytest.mark.asyncio
     async def test_statistics_tracking(self, multimodal_service):
         """Test statistics tracking"""
-        initial_stats = multimodal_service.get_statistics()
+        multimodal_service.get_statistics()
         
         # Simulate some operations
         multimodal_service.stats["documents_processed"] += 1
@@ -729,13 +723,13 @@ class TestPhase2Integration:
                     await hypothetical.generate_hypothetical_answer(query)
         
         initial_cache_size = len(hypothetical.hypothetical_cache)
-        initial_memory_mb = hypothetical._calculate_cache_size_mb()
+        hypothetical._calculate_cache_size_mb()
         
         # Trigger pruning
         pruning_metrics = await hypothetical._comprehensive_pruning()
         
         final_cache_size = len(hypothetical.hypothetical_cache)
-        final_memory_mb = hypothetical._calculate_cache_size_mb()
+        hypothetical._calculate_cache_size_mb()
         
         # Validate pruning occurred if needed
         if initial_cache_size > 0:

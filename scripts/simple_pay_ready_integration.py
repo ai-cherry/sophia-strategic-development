@@ -4,7 +4,6 @@ Simple Pay Ready Employee Integration
 Direct CSV to foundational knowledge without complex dependencies
 """
 
-import asyncio
 import csv
 import json
 import sqlite3
@@ -377,7 +376,7 @@ class SimplePayReadyIntegration:
             with open(results_file, 'w') as f:
                 json.dump(summary, f, indent=2)
             
-            print(f"✅ Integration completed successfully!")
+            print("✅ Integration completed successfully!")
             print(f"📁 Results saved to: {results_file}")
             print(f"🗃️  Database created: {db_path}")
             

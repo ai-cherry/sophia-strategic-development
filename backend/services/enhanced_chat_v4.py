@@ -14,12 +14,11 @@ from datetime import UTC, datetime
 from typing import Any, Dict, List, Optional, AsyncGenerator
 
 from fastapi import HTTPException
-from prometheus_client import Counter, Histogram, Gauge
+from prometheus_client import Counter, Histogram
 
-from backend.core.auto_esc_config import get_config_value
 from backend.services.sophia_unified_orchestrator import get_orchestrator
 from backend.services.personality_engine import PersonalityEngine
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -172,7 +171,7 @@ class EnhancedChatV4:
         include_video: bool = True
     ) -> AsyncGenerator[str, None]:
         """Streaming chat endpoint"""
-        start_time = time.time()
+        time.time()
         buffer = StreamingBuffer()
         
         try:

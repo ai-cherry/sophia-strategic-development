@@ -4,7 +4,6 @@ Setup Pre-Commit Hooks for Technical Debt Prevention
 Installs and configures pre-commit hooks to prevent technical debt accumulation
 """
 
-import os
 import stat
 import subprocess
 import sys

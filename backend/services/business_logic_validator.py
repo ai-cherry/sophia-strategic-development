@@ -3,7 +3,7 @@ Business Logic Validator
 Validates business logic implementations across services
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)

@@ -11,8 +11,6 @@ import time
 from datetime import datetime
 
 from locust import HttpUser, task, between, events
-from locust.env import Environment
-from locust.stats import stats_printer, stats_history
 
 
 class SophiaAIUser(HttpUser):
@@ -168,7 +166,7 @@ def on_request(request_type, name, response_time, response_length, response, **k
 def on_test_start(environment, **kwargs):
     """Initialize test"""
     print("🚀 Starting Sophia AI load test")
-    print(f"Target: 2000 QPS, <0.5% errors, <150ms P95")
+    print("Target: 2000 QPS, <0.5% errors, <150ms P95")
     print("=" * 50)
 
 

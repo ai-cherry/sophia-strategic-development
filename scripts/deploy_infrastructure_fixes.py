@@ -15,10 +15,8 @@ Usage: python scripts/deploy_infrastructure_fixes.py [--instance=all|core|orches
 
 import asyncio
 import json
-import subprocess
-import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict
 import logging
 from datetime import datetime
 

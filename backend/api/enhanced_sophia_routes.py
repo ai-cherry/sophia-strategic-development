@@ -10,8 +10,7 @@ import json
 
 from backend.services.enhanced_unified_chat_service import EnhancedSophiaUnifiedOrchestrator
 from backend.services.external_knowledge_service import ExternalKnowledgeService
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 
 
 router = APIRouter(prefix="/api/v4/sophia", tags=["Enhanced Sophia"])

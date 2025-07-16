@@ -8,18 +8,15 @@ Phase: 2.1 - Advanced Memory Intelligence
 
 import asyncio
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import numpy as np
 from enum import Enum
 
 from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
-from qdrant_client.models import ScoredPoint, SearchRequest, Batch
+from qdrant_client.models import Filter, FieldCondition, MatchValue, DatetimeRange
 
 from backend.core.truthful_config import get_real_QDRANT_config
-from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 

@@ -12,13 +12,11 @@ This script:
 Usage: python scripts/activate_mcp_services.py [--instance=all|core|orchestrator|pipeline|dev|production]
 """
 
-import asyncio
 import subprocess
 import sys
 import json
 import logging
-from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 from datetime import datetime
 
 # Setup logging
@@ -311,7 +309,7 @@ def main():
         else:
             logger.error(f"❌ {instance_key.upper()}: {result['error']}")
     
-    logger.info(f"\n🎯 OVERALL STATUS:")
+    logger.info("\n🎯 OVERALL STATUS:")
     logger.info(f"   ✅ Services Started: {total_started}")
     logger.info(f"   ❌ Services Failed: {total_failed}")
     logger.info(f"   🔗 Qdrant Connection: {'✅' if qdrant_ok else '❌'}")

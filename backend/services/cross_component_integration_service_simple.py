@@ -6,11 +6,9 @@ This is a simplified version that works without external dependencies for testin
 """
 
 import asyncio
-import json
-import logging
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 

@@ -19,13 +19,13 @@ import traceback
 sys.path.append('backend')
 
 from backend.services.advanced_hybrid_search_service import (
-    AdvancedHybridSearchService, SearchContext, SearchResult, BusinessInsights, SearchResultType
+    AdvancedHybridSearchService, SearchContext, SearchResult, SearchResultType
 )
 from backend.services.adaptive_memory_system import (
-    AdaptiveMemorySystem, UserFeedback, FeedbackType, UserProfile, LearningInsight
+    AdaptiveMemorySystem, UserFeedback, FeedbackType
 )
 from backend.services.payready_business_intelligence import (
-    PayReadyBusinessIntelligence, BusinessContext, BusinessIntelligenceLayer
+    PayReadyBusinessIntelligence, BusinessContext
 )
 
 # Configure logging
@@ -175,7 +175,7 @@ class Phase2ValidationSuite:
         try:
             print("  🧪 Testing: Business Intelligence Search")
             
-            business_context = BusinessContext(
+            BusinessContext(
                 user_role="CEO",
                 business_unit="executive",
                 time_horizon="short",
@@ -475,7 +475,7 @@ class Phase2ValidationSuite:
             for i in range(5):
                 start_time = time.time()
                 
-                results = await self.hybrid_search.hybrid_search(
+                await self.hybrid_search.hybrid_search(
                     f"performance test query {i}",
                     SearchContext(
                         user_id=f"perf_user_{i}",
@@ -516,7 +516,7 @@ class Phase2ValidationSuite:
             for i in range(3):
                 start_time = time.time()
                 
-                insights = await self.business_intelligence.intelligent_business_search(
+                await self.business_intelligence.intelligent_business_search(
                     f"business performance analysis {i}",
                     BusinessContext(
                         user_role="CEO",
@@ -686,7 +686,7 @@ async def main():
         with open("phase2_1_validation_report.json", "w") as f:
             json.dump(report, f, indent=2, default=str)
         
-        print(f"\n📄 Validation report saved to: phase2_1_validation_report.json")
+        print("\n📄 Validation report saved to: phase2_1_validation_report.json")
         
         return report
         

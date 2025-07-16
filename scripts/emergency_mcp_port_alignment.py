@@ -17,13 +17,11 @@ EMERGENCY ACTIONS:
 """
 
 import json
-import subprocess
 import sys
-import os
 import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List
 import logging
 
 # Setup logging
@@ -281,7 +279,7 @@ def create_master_config_file(master_registry: Dict):
     with open(master_path, 'w') as f:
         json.dump(master_registry, f, indent=2)
     
-    logger.info(f"✅ Master port registry created")
+    logger.info("✅ Master port registry created")
     return master_path
 
 def fix_ai_memory_port_conflict(master_registry: Dict):

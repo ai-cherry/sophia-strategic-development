@@ -3,8 +3,7 @@ AI-Powered N8N Orchestrator
 Creates workflows from natural language descriptions
 """
 import asyncio
-import json
-from typing import Dict, List
+from typing import Dict
 from backend.services.router_service import RouterService
 
 class IntelligentN8NOrchestrator:

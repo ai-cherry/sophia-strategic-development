@@ -5,7 +5,7 @@ Orchestrates data extraction, transformation, and loading
 
 import asyncio
 import logging
-from typing import Dict, List, Any
+from typing import Dict, Any
 from datetime import datetime
 
 from backend.etl.adapters.unified_etl_adapter import UnifiedETLAdapter, ETLJob

@@ -5,7 +5,6 @@ Provides basic knowledge management and retrieval functionality
 
 import logging
 from typing import Dict, List, Any, Optional
-from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 

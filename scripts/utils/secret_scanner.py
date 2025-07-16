@@ -16,7 +16,7 @@ import sys
 import json
 import argparse
 from pathlib import Path
-from typing import List, Dict, Tuple, Set
+from typing import List
 from dataclasses import dataclass
 
 @dataclass
@@ -119,7 +119,7 @@ class SecretScanner:
             
         secrets_found = []
         
-        print(f"🔍 Scanning repository for hardcoded secrets...")
+        print("🔍 Scanning repository for hardcoded secrets...")
         print(f"Repository: {repo_path}")
         
         scanned_files = 0
@@ -256,7 +256,7 @@ Remediation: {secret.remediation}
 Line: {secret.line_content[:100]}...
 """
         
-        report += f"""
+        report += """
 
 📋 BREAKDOWN BY TYPE
 """
@@ -264,7 +264,7 @@ Line: {secret.line_content[:100]}...
             avg_confidence = sum(s.confidence for s in type_secrets) / len(type_secrets)
             report += f"• {secret_type}: {len(type_secrets)} occurrences (avg confidence: {avg_confidence:.0%})\n"
             
-        report += f"""
+        report += """
 
 📁 BREAKDOWN BY FILE
 """

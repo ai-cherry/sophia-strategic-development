@@ -1,11 +1,9 @@
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
-import logging
 from dataclasses import dataclass
 from enum import Enum
 
-from backend.core.auto_esc_config import get_config_value
-from backend.services.foundational_knowledge_service import FoundationalKnowledgeService, FoundationalDataType
+from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 from backend.utils.logging import get_logger
 
 logger = get_logger(__name__)

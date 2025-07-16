@@ -4,7 +4,6 @@ GitHub Actions Security Update Script
 Updates GitHub Actions workflow dependencies to secure versions
 """
 
-import os
 import re
 import yaml
 import json
@@ -289,7 +288,7 @@ permissions:
         report = self.generate_security_report()
         
         # Summary
-        logger.info(f"📊 GitHub Actions Security Update Summary:")
+        logger.info("📊 GitHub Actions Security Update Summary:")
         logger.info(f"   📂 Workflows analyzed: {report['workflows_analyzed']}")
         logger.info(f"   ✅ Workflows updated: {report['workflows_updated']}")
         logger.info(f"   🔒 Security improvements: {len(self.security_improvements)}")

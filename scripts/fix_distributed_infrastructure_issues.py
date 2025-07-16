@@ -12,12 +12,9 @@ Usage: python scripts/fix_distributed_infrastructure_issues.py [--issue=all|qdra
 
 import asyncio
 import json
-import os
 import re
-import subprocess
-import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict
 import logging
 from datetime import datetime
 

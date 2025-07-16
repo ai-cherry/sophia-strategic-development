@@ -29,25 +29,27 @@ class MCPServerManager:
 
     def start_infrastructure(self):
         """Start infrastructure services"""
-
         # Start PostgreSQL and Redis if not running
         try:
-
-        # Validation implementation: Validate input before subprocess execution
-        if not input_data or not isinstance(input_data, (dict, list, str)):
-            raise ValueError(f"Invalid input data: {type(input_data)}")
-        
-        # Additional validation logic
-        logger.info("Input validation passed")
-        return True
             subprocess.run(
                 ["docker-compose", "up", "-d", "postgres", "redis"],
                 check=True,
                 capture_output=True,
             )
             time.sleep(3)  # Wait for services to be ready
-        except subprocess.CalledProcessError:
-            pass
+            logger.info("Infrastructure services started")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Failed to start infrastructure: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error starting infrastructure: {e}")
+
+    def _validate_input_data(self, input_data):
+        """Validate input before subprocess execution"""
+        if not input_data or not isinstance(input_data, (dict, list, str)):
+            raise ValueError(f"Invalid input data: {type(input_data)}")
+        
+        logger.info("Input validation passed")
+        return True
 
     def start_server(self, name: str, module: str, port: int, wait_time: int = 2):
         """Start an individual MCP server"""
@@ -92,16 +94,7 @@ if __name__ == '__main__':
 """
 
             # Write the server script to a temporary file
-
-        # Validation implementation: Validate input before subprocess execution
-        if not input_data or not isinstance(input_data, (dict, list, str)):
-            raise ValueError(f"Invalid input data: {type(input_data)}")
-        
-        # Additional validation logic
-        logger.info("Input validation passed")
-        return True
-                self.root_path / f"temp_{name.lower().replace(' ', '_')}_server.py"
-            )
+            script_path = self.root_path / f"temp_{name.lower().replace(' ', '_')}_server.py"
             with open(script_path, "w") as f:
                 f.write(server_script)
 

@@ -11,8 +11,7 @@ DO NOT modify without validating against actual production setup.
 All deployment scripts must use this as the single source of truth.
 """
 
-import os
-from typing import Dict, List, Any
+from typing import Dict, List
 from dataclasses import dataclass
 
 @dataclass

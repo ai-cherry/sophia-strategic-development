@@ -9,13 +9,10 @@ Date: July 12, 2025
 
 import asyncio
 import sys
-import json
 import subprocess
-import tempfile
 import os
-from datetime import datetime, UTC
 from pathlib import Path
-from typing import Any, Optional, Dict, List, Tuple
+from typing import Any, Optional, Dict, List
 from dataclasses import dataclass
 
 # Add parent directories to path
@@ -101,16 +98,16 @@ class PrismaMCPServer(StandardizedMCPServer):
         self.prisma_schema_path.parent.mkdir(exist_ok=True)
         
         if not self.prisma_schema_path.exists():
-            schema_content = f"""
-generator client {{
+            schema_content = """
+generator client {
   provider = "prisma-client-py"
   recursive_type_depth = 5
-}}
+}
 
-datasource db {{
+datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}}
+}
 
 // Auto-generated schema will be added here
 """

@@ -3,7 +3,6 @@ Security module for Sophia AI
 Handles user authentication, JWT tokens, and authorization
 """
 
-import os
 import logging
 from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, Any
@@ -250,7 +249,7 @@ def verify_api_key(api_key: str, hashed_key: str) -> bool:
 async def authenticate_api_key(api_key: str, db: Session) -> Optional[dict]:
     """Authenticate using API key"""
     try:
-        hashed_key = hash_api_key(api_key)
+        hash_api_key(api_key)
         
         # Here you would check against your API key storage
         # This is a simplified implementation

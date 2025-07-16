@@ -5,14 +5,12 @@ Tests communication between all MCP services and reports success rates
 """
 
 import asyncio
-import json
 import sys
 from pathlib import Path
 from datetime import datetime
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backend.core.service_discovery import service_discovery
-import httpx
 import logging
 
 logger = logging.getLogger(__name__)
@@ -40,7 +38,7 @@ async def validate_all_communications():
     
     results["success_rate"] = (results["healthy_services"] / results["total_services"] * 100) if results["total_services"] > 0 else 0
     
-    print(f"✅ Communication validation complete:")
+    print("✅ Communication validation complete:")
     print(f"   Healthy services: {results['healthy_services']}/{results['total_services']}")
     print(f"   Success rate: {results['success_rate']:.1f}%")
     

@@ -25,15 +25,12 @@ import logging
 import subprocess
 import json
 import os
-import shutil
 from pathlib import Path
-from typing import Dict, Any, List, Optional
 
 # Add parent directory for imports
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -217,7 +214,7 @@ if __name__ == "__main__":
                 return False
                 
             # Create Pulumi project
-            pulumi_yaml = f'''name: sophia-integrated-stack-2025
+            pulumi_yaml = '''name: sophia-integrated-stack-2025
 runtime: python
 description: Sophia AI Integrated Stack 2025 with dynamic infrastructure
 

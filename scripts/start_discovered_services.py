@@ -14,7 +14,7 @@ Discovered Services by Instance:
 import subprocess
 import sys
 import logging
-from typing import Dict, List
+from typing import Dict
 
 # Setup logging
 logging.basicConfig(
@@ -217,7 +217,7 @@ def main():
             all_results[ip] = {"error": str(e)}
     
     # Test connectivity after starting services
-    connectivity_results = test_connectivity()
+    test_connectivity()
     
     # Final summary
     logger.info(f"\n{'='*60}")
@@ -232,7 +232,7 @@ def main():
         logger.info(f"📈 Success Rate: {success_rate:.1f}%")
     else:
         success_rate = 0
-        logger.info(f"📈 Success Rate: 0.0%")
+        logger.info("📈 Success Rate: 0.0%")
     
     # Show detailed status
     for ip, result in all_results.items():
@@ -244,7 +244,7 @@ def main():
                 logger.info(f"   {service}: {status_icon} {status}")
     
     # Test nginx load balancer
-    logger.info(f"\n🔧 Testing nginx Load Balancer")
+    logger.info("\n🔧 Testing nginx Load Balancer")
     try:
         result = subprocess.run(
             ["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", "http://192.222.58.232/health"],
@@ -254,18 +254,18 @@ def main():
         )
         status_code = result.stdout.strip()
         if status_code == "200":
-            logger.info(f"✅ nginx Load Balancer: Healthy (200)")
+            logger.info("✅ nginx Load Balancer: Healthy (200)")
         else:
             logger.info(f"🔧 nginx Load Balancer: {status_code} (may improve as services start)")
     except Exception as e:
         logger.warning(f"⚠️  nginx test failed: {e}")
     
     if success_rate >= 70:
-        logger.info(f"\n🎉 MCP SERVICE ACTIVATION SUCCESSFUL!")
-        logger.info(f"🚀 Sophia AI infrastructure is now operational!")
+        logger.info("\n🎉 MCP SERVICE ACTIVATION SUCCESSFUL!")
+        logger.info("🚀 Sophia AI infrastructure is now operational!")
         return True
     else:
-        logger.warning(f"\n⚠️  Some services need attention, but infrastructure is partially operational")
+        logger.warning("\n⚠️  Some services need attention, but infrastructure is partially operational")
         return False
 
 if __name__ == "__main__":

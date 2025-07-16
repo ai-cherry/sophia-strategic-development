@@ -21,13 +21,10 @@ Date: July 15, 2025
 Priority: HIGH - Following security fix completion
 """
 
-import os
 import logging
 import asyncio
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Optional, Dict, Any, List
-import time
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -879,10 +876,6 @@ def get_query_optimizer() -> QueryOptimizer:
             sys.path.append('backend')
             
             # Test basic imports
-            from core.qdrant_connection_pool import QdrantConnectionPool
-            from core.memory_lifecycle_manager import MemoryServiceLifecycleManager  
-            from core.memory_service_monitor import MemoryServiceMonitor
-            from core.query_optimizer import QueryOptimizer
             
             logger.info("✅ All imports successful")
             

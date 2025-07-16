@@ -15,7 +15,6 @@ Features:
 Date: July 10, 2025
 """
 
-import asyncio
 import json
 import logging
 from collections.abc import AsyncGenerator
@@ -136,7 +135,7 @@ async def orchestrate_stream(
             yield f"data: {json.dumps({'type': 'start', 'session_id': request.session_id})}\n\n"
 
             # Process with streaming updates
-            start_time = datetime.utcnow()
+            datetime.utcnow()
 
             # Process the orchestration request
             response = await orchestrator.orchestrate(request)

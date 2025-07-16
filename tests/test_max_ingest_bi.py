@@ -7,19 +7,17 @@ Date: July 12, 2025
 """
 
 import asyncio
-import json
 import logging
 import time
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any, Dict, List
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from faker import Faker
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
-from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
 from backend.services.enhanced_chat_v4 import EnhancedChatV4
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 fake = Faker()
@@ -199,7 +197,7 @@ class TestMaxIngestBI:
                     'suggested_action': 'reroute' if i % 30 == 0 else None
                 }
                 
-                result = await orchestrator.orchestrate(
+                await orchestrator.orchestrate(
                     query, "test_user", "professional", {}
                 )
                 
@@ -219,7 +217,7 @@ class TestMaxIngestBI:
             start = time.time()
             
             # Mock chat request
-            result = await chat_service.chat(
+            await chat_service.chat(
                 message="Quick revenue update",
                 user_id="test_user",
                 mode="snarky"

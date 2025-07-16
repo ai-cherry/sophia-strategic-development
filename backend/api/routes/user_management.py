@@ -1,17 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from datetime import datetime, timedelta
-import logging
-import hashlib
 import secrets
-import asyncio
 from pydantic import BaseModel, EmailStr
 
 from backend.core.database import get_db
-from backend.core.security import verify_token, create_access_token, get_current_user
+from backend.core.security import get_current_user
 from backend.models.user import User, UserRole, UserStatus, UserActivity
 from backend.services.email_service import EmailService
 from backend.utils.logging import get_logger

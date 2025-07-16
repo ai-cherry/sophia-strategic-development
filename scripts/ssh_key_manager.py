@@ -4,13 +4,11 @@ Sophia AI SSH Key Manager - Single Source of Truth
 Establishes sophia_correct_key as the unified SSH key for all operations
 """
 
-import os
 import sys
 import shutil
 import subprocess
-import stat
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 import argparse
 
 class SophiaSSHKeyManager:

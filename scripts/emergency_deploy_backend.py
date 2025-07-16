@@ -101,7 +101,7 @@ class EmergencyDeployment:
             # Start the frontend
             cmd = ["npm", "run", "dev"]
             
-            process = subprocess.Popen(
+            subprocess.Popen(
                 cmd,
                 cwd=frontend_dir,
                 stdout=subprocess.PIPE,
@@ -112,7 +112,7 @@ class EmergencyDeployment:
             
             # Test if it's running
             try:
-                response = requests.get("http://localhost:3000", timeout=5)
+                requests.get("http://localhost:3000", timeout=5)
                 print("✅ Frontend is running at http://localhost:3000")
                 return True
             except requests.exceptions.ConnectionError:

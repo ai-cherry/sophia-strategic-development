@@ -19,7 +19,7 @@ import shutil
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 import subprocess
 
 # Configure logging

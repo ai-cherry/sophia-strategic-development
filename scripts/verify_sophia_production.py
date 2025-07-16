@@ -10,7 +10,6 @@ import time
 import subprocess
 import sys
 from datetime import datetime
-from typing import Dict, List, Tuple
 import websocket
 import ssl
 
@@ -87,7 +86,7 @@ class SophiaVerifier:
         
         for domain in domains:
             try:
-                response = requests.get(f"https://{domain}", timeout=5, verify=True)
+                requests.get(f"https://{domain}", timeout=5, verify=True)
                 self.log_success(f"{domain} - SSL valid")
                 self.results["infrastructure"][f"ssl_{domain}"] = "Valid"
             except requests.exceptions.SSLError:
@@ -225,10 +224,10 @@ class SophiaVerifier:
                 sslopt={"cert_reqs": ssl.CERT_NONE}
             )
             ws.send(json.dumps({"type": "ping"}))
-            result = ws.recv()
+            ws.recv()
             ws.close()
             
-            self.log_success(f"WebSocket connected and responsive")
+            self.log_success("WebSocket connected and responsive")
             self.results["backend"]["websocket"] = "OK"
             return True
         except Exception as e:
@@ -280,7 +279,7 @@ class SophiaVerifier:
         # Test frontend load time
         start = time.time()
         try:
-            response = requests.get(f"https://{DOMAIN}", timeout=10)
+            requests.get(f"https://{DOMAIN}", timeout=10)
             frontend_time = (time.time() - start) * 1000
             self.log_info(f"Frontend load time: {frontend_time:.0f}ms")
             self.results["performance"]["frontend_load_ms"] = frontend_time
@@ -295,7 +294,7 @@ class SophiaVerifier:
         # Test API response time
         start = time.time()
         try:
-            response = requests.get(f"https://{API_DOMAIN}/health", timeout=5)
+            requests.get(f"https://{API_DOMAIN}/health", timeout=5)
             api_time = (time.time() - start) * 1000
             self.log_info(f"API response time: {api_time:.0f}ms")
             self.results["performance"]["api_response_ms"] = api_time
@@ -391,9 +390,9 @@ class SophiaVerifier:
         ssl_ok = self.test_ssl_certificates()
         frontend_ok = self.test_frontend()
         backend_ok = self.test_backend_api()
-        websocket_ok = self.test_websocket()
-        mcp_ok = self.test_mcp_servers()
-        perf_ok = self.test_performance()
+        self.test_websocket()
+        self.test_mcp_servers()
+        self.test_performance()
         
         # Generate report
         print()

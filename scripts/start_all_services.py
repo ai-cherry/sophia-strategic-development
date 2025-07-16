@@ -21,17 +21,15 @@ import asyncssh
 import subprocess
 import sys
 import os
-import time
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 from dataclasses import dataclass
-import json
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
-from config.production_infrastructure import PRODUCTION_INFRASTRUCTURE, get_all_service_endpoints
+from config.production_infrastructure import PRODUCTION_INFRASTRUCTURE
 
 # Configure logging
 logging.basicConfig(
@@ -413,16 +411,16 @@ class SophiaServiceManager:
             print(f"  {instance}: {stats['success']}/{stats['total']} services")
         
         # Service URLs
-        print(f"\n🌐 Service Endpoints:")
+        print("\n🌐 Service Endpoints:")
         if self.mode == "local":
-            print(f"  Frontend: http://localhost:3000")
-            print(f"  Backend:  http://localhost:7000")
-            print(f"  API Docs: http://localhost:7000/docs")
+            print("  Frontend: http://localhost:3000")
+            print("  Backend:  http://localhost:7000")
+            print("  API Docs: http://localhost:7000/docs")
         else:
-            print(f"  Frontend: http://192.222.58.232")
-            print(f"  Backend:  http://192.222.58.232:7000")
-            print(f"  API Docs: http://192.222.58.232:7000/docs")
-            print(f"  Health:   http://192.222.58.232/health")
+            print("  Frontend: http://192.222.58.232")
+            print("  Backend:  http://192.222.58.232:7000")
+            print("  API Docs: http://192.222.58.232:7000/docs")
+            print("  Health:   http://192.222.58.232/health")
         
         print("="*60)
         

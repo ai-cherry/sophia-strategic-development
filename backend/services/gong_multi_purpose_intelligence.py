@@ -11,7 +11,7 @@ Builds on existing Gong integration to extract insights for multiple business fu
 Date: July 9, 2025
 """
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 import json
 import logging
 from dataclasses import dataclass
@@ -23,7 +23,6 @@ from backend.core.date_time_manager import date_manager
 from infrastructure.mcp_servers.gong_v2.handlers.memory_integration import (
     GongMemoryIntegration,
 )
-from infrastructure.services.QDRANT_memory_service import QdrantUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

@@ -3,19 +3,16 @@ Competitor Intelligence Service for Sophia AI
 Provides comprehensive competitor analysis and intelligence using Qdrant vector storage
 """
 
-import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from enum import Enum
-import json
-import uuid
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance, VectorParams, PointStruct, Filter, FieldCondition, 
-    Range, MatchValue, UpdateStatus, ScoredPoint
+    Range, MatchValue, UpdateStatus
 )
 
 logger = logging.getLogger(__name__)

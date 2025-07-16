@@ -18,8 +18,7 @@ import logging
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional
-import subprocess
+from typing import Dict, Any
 import requests
 
 # Setup logging
@@ -177,7 +176,6 @@ class UnifiedMemoryServiceDeployer:
         """Start HTTP health check server"""
         
         from aiohttp import web
-        import aiohttp
         
         async def health_handler(request):
             """Health check endpoint"""
@@ -297,7 +295,7 @@ class UnifiedMemoryServiceDeployer:
                     user_role="admin"
                 )
                 
-                logger.info(f"✅ Performance validation completed")
+                logger.info("✅ Performance validation completed")
                 logger.info(f"   Store: {performance_results['memory_operations']['store_ms']}ms")
                 logger.info(f"   Search: {performance_results['memory_operations']['search_ms']}ms")
                 

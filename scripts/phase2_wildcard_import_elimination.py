@@ -83,12 +83,11 @@ Author: Sophia AI Technical Debt Elimination Team
 Date: January 2025
 """
 
-import os
 import re
 import ast
 import logging
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Optional
+from typing import List, Set, Tuple
 from dataclasses import dataclass, field
 
 # Configure logging

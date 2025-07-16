@@ -2,10 +2,8 @@
 OpenAI Service for embeddings and LLM operations
 """
 
-import asyncio
 import logging
-from typing import List, Dict, Any, Optional
-import openai
+from typing import List, Dict, Any
 from openai import AsyncOpenAI
 
 from backend.core.auto_esc_config import get_config_value

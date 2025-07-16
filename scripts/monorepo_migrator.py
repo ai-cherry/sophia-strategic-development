@@ -11,11 +11,10 @@ ARCHITECTURE TRANSFORMATION:
 - Unified configuration → config/
 """
 
-import os
 import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict
 import json
 
 class MonorepoMigrator:
@@ -88,7 +87,7 @@ class MonorepoMigrator:
         print("🏗️ MONOREPO MIGRATION - COMPLETE TRANSFORMATION")
         print("===============================================")
         print(f"📅 Started: {datetime.now()}")
-        print(f"🎯 Target: Transform to apps/ and libs/ structure")
+        print("🎯 Target: Transform to apps/ and libs/ structure")
         print(f"🛡️ Backup: {self.backup_dir}")
         print("")
         
@@ -121,7 +120,7 @@ class MonorepoMigrator:
         
         print("✅ MONOREPO MIGRATION COMPLETE!")
         print(f"   Migrated: {len(self.migration_log)} items")
-        print(f"   New structure: apps/ and libs/")
+        print("   New structure: apps/ and libs/")
         print(f"   Backup: {self.backup_dir}")
         
     def _create_backup(self):
@@ -149,7 +148,7 @@ class MonorepoMigrator:
             frontend_dst = self.backup_dir / "frontend"
             try:
                 shutil.copytree(frontend_src, frontend_dst, ignore=shutil.ignore_patterns('node_modules'))
-                print(f"✅ Backed up: frontend (excluding node_modules)")
+                print("✅ Backed up: frontend (excluding node_modules)")
             except Exception as e:
                 print(f"⚠️ Backup warning for frontend: {e}")
                 
@@ -582,7 +581,7 @@ mypy_path = "libs:apps"
             for migration in self.migration_log:
                 f.write(f"- **{migration['description']}:** `{migration['source']}` → `{migration['destination']}`\n")
                 
-            f.write(f"""
+            f.write("""
 
 ## ✅ NEW MONOREPO STRUCTURE
 

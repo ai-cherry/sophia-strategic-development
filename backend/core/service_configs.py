@@ -3,7 +3,7 @@ Service Configuration Classes
 Centralized configuration for all Sophia AI services
 """
 
-from typing import Optional, Dict, Any
+from typing import Dict
 from backend.core.auto_esc_config import get_config_value
 
 

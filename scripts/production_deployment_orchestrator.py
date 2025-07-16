@@ -6,11 +6,9 @@ Comprehensive script for 24/7 production deployment of Sophia AI MCP platform
 
 import asyncio
 import subprocess
-import json
 import time
 import httpx
 from datetime import datetime
-from typing import Dict, List, Optional
 from pathlib import Path
 
 class ProductionDeploymentOrchestrator:

@@ -18,16 +18,12 @@ Business Impact:
 """
 
 import asyncio
-import json
-import logging
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple, Union
+from datetime import datetime
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
-import hashlib
 
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 from backend.services.cross_component_integration_service_simple import CrossComponentIntegrationService
 

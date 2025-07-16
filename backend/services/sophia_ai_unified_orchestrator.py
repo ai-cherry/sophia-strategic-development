@@ -11,16 +11,13 @@ Features:
 """
 
 import json
-import asyncio
-import logging
 import time
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
 
-from backend.core.auto_esc_config import get_config_value
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 from backend.services.portkey_gateway import PortkeyGateway
 from backend.utils.logger import get_logger
 

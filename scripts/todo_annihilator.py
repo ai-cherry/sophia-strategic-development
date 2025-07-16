@@ -13,11 +13,9 @@ CATEGORIES:
 """
 
 import re
-import ast
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
-import logging
 
 class TODOAnnihilator:
     def __init__(self):
@@ -76,7 +74,7 @@ class TODOAnnihilator:
         # Phase 4: Generate report
         self._generate_annihilation_report()
         
-        print(f"\n✅ TODO ANNIHILATION COMPLETE!")
+        print("\n✅ TODO ANNIHILATION COMPLETE!")
         print(f"   Total scanned: {len(all_todos)}")
         print(f"   Total resolved: {total_resolved}")
         print(f"   Implemented: {len(self.implemented_todos)}")
@@ -202,7 +200,7 @@ class TODOAnnihilator:
         """Determine resolution category for TODO"""
         
         text = todo["text"].lower()
-        full_line = todo["full_line"].lower()
+        todo["full_line"].lower()
         
         # Deprecated code patterns
         deprecated_keywords = ["deprecated", "remove", "delete", "eliminate", "legacy", "old"]
@@ -273,7 +271,7 @@ class TODOAnnihilator:
                 start_idx, end_idx = self._find_method_boundaries(lines, todo_line_idx)
                 for i in range(start_idx, end_idx + 1):
                     if i < len(lines):
-                        lines[i] = f"# DELETED: Deprecated method removed\n"
+                        lines[i] = "# DELETED: Deprecated method removed\n"
             else:
                 # Just remove/comment the TODO line
                 if todo_line_idx < len(lines):
@@ -366,7 +364,7 @@ class TODOAnnihilator:
         if line_idx >= len(lines):
             return None
             
-        todo_line = lines[line_idx].strip()
+        lines[line_idx].strip()
         text = todo["text"].lower()
         language = todo.get("language", "py")
         
@@ -595,7 +593,7 @@ class TODOAnnihilator:
             for todo in self.deleted_todos:
                 f.write(f"- `{todo['file']}:{todo['line']}` - {todo['text'][:80]}...\n")
                 
-            f.write(f"""
+            f.write("""
 
 ### Functionality Implemented:
 """)
@@ -603,7 +601,7 @@ class TODOAnnihilator:
             for todo in self.implemented_todos:
                 f.write(f"- `{todo['file']}:{todo['line']}` - {todo['text'][:80]}...\n")
                 
-            f.write(f"""
+            f.write("""
 
 ### Features Deferred to Roadmap:
 """)

@@ -15,9 +15,7 @@ Date: July 15, 2025
 Priority: CRITICAL - Execute immediately
 """
 
-import os
 import logging
-import subprocess
 from pathlib import Path
 import re
 

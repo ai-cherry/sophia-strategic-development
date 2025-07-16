@@ -15,11 +15,10 @@ Usage:
 
 import json
 import os
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 def count_files_by_size() -> Dict[str, int]:
     """Count files by size categories"""
@@ -180,20 +179,20 @@ def main():
     report = generate_improvement_report()
     
     # Display results
-    print(f"📊 HEALTH SCORE ANALYSIS")
+    print("📊 HEALTH SCORE ANALYSIS")
     print(f"Previous Score: {report['previous_health_score']}/100")
     print(f"Current Score:  {report['current_health_score']}/100")
     print(f"Improvement:    +{report['improvement']} points ({report['improvement_percentage']}%)")
     print(f"Health Grade:   {report['health_data']['health_grade']}")
     print()
     
-    print(f"🎯 TARGET ACHIEVEMENT")
+    print("🎯 TARGET ACHIEVEMENT")
     print(f"Projected:      +{report['target_achievement']['projected_improvement']} points")
     print(f"Actual:         +{report['target_achievement']['actual_improvement']} points")
     print(f"Achievement:    {report['target_achievement']['achievement_rate']}%")
     print()
     
-    print(f"📈 DETAILED BREAKDOWN")
+    print("📈 DETAILED BREAKDOWN")
     scores = report['health_data']['scores']
     print(f"File Size Score:      {scores['file_size_score']}/40")
     print(f"Modular Score:        {scores['modular_score']}/30")
@@ -201,7 +200,7 @@ def main():
     print(f"Maintenance Score:    {scores['maintenance_score']}/10")
     print()
     
-    print(f"🏆 ACHIEVEMENTS")
+    print("🏆 ACHIEVEMENTS")
     achievements = report['achievements']
     print(f"Files Decomposed:     {achievements['files_decomposed']}")
     print(f"Modular Structures:   {achievements['modular_structures_created']}")
@@ -209,7 +208,7 @@ def main():
     print(f"Large Files Eliminated: {achievements['large_files_eliminated']}")
     print()
     
-    print(f"📁 FILE SIZE DISTRIBUTION")
+    print("📁 FILE SIZE DISTRIBUTION")
     dist = report['health_data']['file_size_distribution']
     print(f"Small files (<300):   {dist['small']}")
     print(f"Medium files (300-700): {dist['medium']}")

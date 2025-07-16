@@ -18,18 +18,13 @@ Performance Targets:
 """
 
 import asyncio
-import json
-import logging
 import time
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from enum import Enum
-import numpy as np
 
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService, get_unified_memory_service_v3
+from backend.services.sophia_unified_memory_service import get_unified_memory_service_v3
 from backend.services.hypothetical_rag_service import HypotheticalRAGService, get_hypothetical_rag_service
 from backend.services.multimodal_memory_service import MultimodalMemoryService, get_multimodal_memory_service
 
@@ -430,7 +425,6 @@ class QueryRouter:
     async def route_query(self, request: QueryRequest) -> Tuple[str, Dict[str, Any]]:
         """Route query to optimal service"""
         query_lower = request.query.lower()
-        routing_metadata = {"routing_reason": "default"}
         
         # Check for visual query indicators
         if any(keyword in query_lower for keyword in self.routing_rules["visual_keywords"]):

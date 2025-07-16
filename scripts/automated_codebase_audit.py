@@ -6,16 +6,14 @@ Implements key patterns from the comprehensive audit prompt for immediate cleanu
 Usage: python scripts/automated_codebase_audit.py [--mode=scan|report|safe-cleanup]
 """
 
-import os
 import re
 import ast
 import hashlib
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
 from dataclasses import dataclass
 from collections import defaultdict
-import json
 
 @dataclass
 class AuditResult:

@@ -4,16 +4,13 @@ Unified FastAPI application integrating all services and routes
 """
 
 import json
-import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from typing import Dict, Any
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 # Add parent directories to path for imports

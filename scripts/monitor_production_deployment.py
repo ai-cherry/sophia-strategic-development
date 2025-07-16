@@ -35,8 +35,7 @@ from datetime import datetime
 sys.path.append(str(Path(__file__).parent.parent))
 from config.production_infrastructure import (
     PRODUCTION_INFRASTRUCTURE,
-    get_all_service_endpoints,
-    get_service_instance
+    get_all_service_endpoints
 )
 
 # 🔧 LOGGING CONFIGURATION
@@ -469,7 +468,7 @@ class ProductionMonitor:
         print(f"⏱️  Monitoring Duration: {report.summary['monitoring_duration_seconds']}s")
         
         # Service Health Summary
-        print(f"\n📊 SERVICE HEALTH SUMMARY")
+        print("\n📊 SERVICE HEALTH SUMMARY")
         print(f"  Total Services: {report.summary['service_metrics']['total']}")
         print(f"  Healthy: {report.summary['service_metrics']['healthy']}")
         print(f"  Unhealthy: {report.summary['service_metrics']['unhealthy']}")
@@ -477,14 +476,14 @@ class ProductionMonitor:
         print(f"  Avg Response: {report.summary['service_metrics']['avg_response_time_ms']}ms")
         
         # Instance Health Summary
-        print(f"\n🖥️  INSTANCE HEALTH SUMMARY")
+        print("\n🖥️  INSTANCE HEALTH SUMMARY")
         print(f"  Total Instances: {report.summary['instance_metrics']['total']}")
         print(f"  Accessible: {report.summary['instance_metrics']['accessible']}")
         print(f"  Inaccessible: {report.summary['instance_metrics']['inaccessible']}")
         print(f"  Accessibility Rate: {report.summary['instance_metrics']['accessibility_rate']}%")
         
         # Service Details
-        print(f"\n🔍 SERVICE HEALTH DETAILS")
+        print("\n🔍 SERVICE HEALTH DETAILS")
         for service in report.service_health:
             status_icon = "✅" if service.status == "healthy" else "❌" if service.status == "unhealthy" else "⚠️"
             response_time = f"({service.response_time_ms:.1f}ms)" if service.response_time_ms else ""
@@ -493,7 +492,7 @@ class ProductionMonitor:
                 print(f"    Error: {service.error_message}")
         
         # Instance Details
-        print(f"\n🖥️  INSTANCE HEALTH DETAILS")
+        print("\n🖥️  INSTANCE HEALTH DETAILS")
         for instance in report.instance_health:
             ssh_icon = "✅" if instance.ssh_accessible else "❌"
             print(f"  {ssh_icon} {instance.name} ({instance.ip})")
@@ -518,7 +517,7 @@ class ProductionMonitor:
                     print(f"      {service_icon} sophia-{service_name}: {status}")
         
         # nginx Status
-        print(f"\n🌐 NGINX LOAD BALANCER")
+        print("\n🌐 NGINX LOAD BALANCER")
         if report.nginx_status:
             nginx_icon = "✅" if report.nginx_status.get("healthy") else "❌"
             response_time = f"({report.nginx_status.get('response_time_ms', 0):.1f}ms)" if report.nginx_status.get('response_time_ms') else ""
@@ -526,7 +525,7 @@ class ProductionMonitor:
             if not report.nginx_status.get("healthy") and report.nginx_status.get("error"):
                 print(f"    Error: {report.nginx_status['error']}")
         else:
-            print(f"  ❌ Load Balancer: Not monitored")
+            print("  ❌ Load Balancer: Not monitored")
         
         print("="*70)
     

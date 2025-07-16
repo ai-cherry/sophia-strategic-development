@@ -11,7 +11,7 @@ import logging
 import subprocess
 import sys
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -379,7 +379,7 @@ def main():
     with open("PHASE_5_PULUMI_PREVIEW.json", "w") as f:
         json.dump(report, f, indent=2)
     
-    print(f"\n💾 Full report saved to: PHASE_5_PULUMI_PREVIEW.json")
+    print("\n💾 Full report saved to: PHASE_5_PULUMI_PREVIEW.json")
     
     # Summary
     print("\n" + "=" * 50)

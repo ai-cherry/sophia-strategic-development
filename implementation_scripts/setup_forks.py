@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Setup and manage forked MCP repositories."""
 
-import os
 
 import requests
 from backend.core.auto_esc_config import get_config_value

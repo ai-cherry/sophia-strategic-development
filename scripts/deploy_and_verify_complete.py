@@ -24,9 +24,7 @@ import sys
 import os
 import time
 import requests
-import json
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 import argparse
 from datetime import datetime
 

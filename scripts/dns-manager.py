@@ -8,7 +8,6 @@ Integrates with Pulumi ESC for secret management and IP whitelisting
 import argparse
 import asyncio
 import json
-import os
 import socket
 import subprocess
 import sys

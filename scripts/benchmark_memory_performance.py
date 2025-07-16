@@ -118,7 +118,7 @@ class MemoryBenchmark:
             query = random.choice(queries)
 
             start = time.time()
-            results = await service.search_knowledge(query, limit=5)
+            await service.search_knowledge(query, limit=5)
             elapsed_ms = (time.time() - start) * 1000
 
             times.append(elapsed_ms)

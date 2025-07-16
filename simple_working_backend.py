@@ -4,12 +4,9 @@ Simple Working Backend for Sophia AI
 Minimal FastAPI app to get services running immediately
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 import os
-import sys
-import time
 from datetime import datetime
 
 # Create FastAPI app

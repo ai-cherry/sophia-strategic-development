@@ -10,13 +10,11 @@ Usage:
     python scripts/monitor_live_deployment.py --watch
 """
 
-import os
-import sys
 import subprocess
 import time
 import requests
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict
 import argparse
 
 class SophiaAIDeploymentMonitor:
@@ -63,7 +61,7 @@ class SophiaAIDeploymentMonitor:
             if not self.watch_mode:
                 break
                 
-            print(f"\n⏱️ Next check in 30 seconds... (Ctrl+C to stop)")
+            print("\n⏱️ Next check in 30 seconds... (Ctrl+C to stop)")
             try:
                 time.sleep(30)
             except KeyboardInterrupt:

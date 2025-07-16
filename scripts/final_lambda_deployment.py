@@ -6,8 +6,6 @@ Uses API to fix SSH and deploy Sophia AI immediately
 
 import requests
 import subprocess
-import time
-import json
 import os
 from pathlib import Path
 
@@ -43,7 +41,7 @@ def setup_local_ssh_key():
         
         if result.returncode == 0:
             actual_public_key = result.stdout.strip()
-            print(f"✅ Local SSH key setup complete")
+            print("✅ Local SSH key setup complete")
             print(f"🔍 Generated public key: {actual_public_key[:50]}...")
             return str(private_key_path), actual_public_key
         else:
@@ -137,7 +135,7 @@ def deploy_to_server(ip, private_key_path, server_name):
             if result.returncode != 0:
                 print(f"  ⚠️  Warning: {result.stderr}")
             else:
-                print(f"  ✅ Success")
+                print("  ✅ Success")
         except Exception as e:
             print(f"  ❌ Error: {e}")
     
@@ -209,7 +207,7 @@ def main():
     
     # Step 5: Results
     print("\n" + "=" * 60)
-    print(f"📊 DEPLOYMENT RESULTS:")
+    print("📊 DEPLOYMENT RESULTS:")
     print(f"✅ Successful deployments: {successful_deployments}/{len(instances)}")
     
     if successful_deployments >= 1:

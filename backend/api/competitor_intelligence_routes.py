@@ -4,9 +4,8 @@ Provides REST endpoints for competitor analysis and intelligence
 """
 
 from fastapi import APIRouter, HTTPException, Query, Path, Depends, BackgroundTasks
-from fastapi.responses import JSONResponse
 from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
+from datetime import datetime
 from pydantic import BaseModel, Field
 import logging
 import uuid
@@ -108,7 +107,7 @@ async def create_competitor_profile(
         if success:
             return {
                 "success": True,
-                "message": f"Competitor profile created successfully",
+                "message": "Competitor profile created successfully",
                 "competitor_id": profile.id,
                 "name": profile.name
             }

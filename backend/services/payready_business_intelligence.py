@@ -8,18 +8,16 @@ Phase: 2.1 - Advanced Memory Intelligence
 
 import asyncio
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-import json
-import numpy as np
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchValue, Range, DatetimeRange
 
 from backend.core.truthful_config import get_real_QDRANT_config
-from .advanced_hybrid_search_service import SearchResult, SearchContext, BusinessInsights
+from .advanced_hybrid_search_service import SearchResult, BusinessInsights
 from .adaptive_memory_system import AdaptiveMemorySystem
 
 logger = logging.getLogger(__name__)

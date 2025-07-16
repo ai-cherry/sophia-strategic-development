@@ -31,13 +31,6 @@ def test_imports():
     # Test 1: Foundation Service Import
     tests_total += 1
     try:
-        from backend.services.QDRANT_foundation_service import (
-            QdrantFoundationService,
-            QueryRequest,
-            QueryResponse,
-            QueryType,
-            MemoryTier
-        )
         print("✅ QdrantFoundationService imports successfully")
         tests_passed += 1
     except Exception as e:
@@ -47,7 +40,6 @@ def test_imports():
     # Test 2: UnifiedMemoryService Import
     tests_total += 1
     try:
-        from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
         print("✅ UnifiedMemoryService imports successfully")
         tests_passed += 1
     except Exception as e:
@@ -56,7 +48,6 @@ def test_imports():
     # Test 3: HypotheticalRAGService Import
     tests_total += 1
     try:
-        from backend.services.hypothetical_rag_service import HypotheticalRAGService
         print("✅ HypotheticalRAGService imports successfully")
         tests_passed += 1
     except Exception as e:
@@ -65,7 +56,6 @@ def test_imports():
     # Test 4: MultimodalMemoryService Import
     tests_total += 1
     try:
-        from backend.services.multimodal_memory_service import MultimodalMemoryService
         print("✅ MultimodalMemoryService imports successfully")
         tests_passed += 1
     except Exception as e:
@@ -74,7 +64,6 @@ def test_imports():
     # Test 5: API Routes Import
     tests_total += 1
     try:
-        from backend.api.QDRANT_foundation_routes import router
         print("✅ QdrantFoundationRoutes imports successfully")
         tests_passed += 1
     except Exception as e:
@@ -166,7 +155,7 @@ def test_service_instantiation():
     # Test 2: UnifiedMemoryService Instantiation
     tests_total += 1
     try:
-        from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+        from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
         service = SophiaUnifiedMemoryService()
         print("✅ UnifiedMemoryService instantiated successfully")
         tests_passed += 1

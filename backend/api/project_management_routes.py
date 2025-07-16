@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from datetime import datetime
 import httpx
 import asyncio
-from typing import Dict, Any, List
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -276,7 +276,7 @@ async def get_unified_dashboard():
     """Get unified project dashboard data"""
     try:
         # Call all MCP servers in parallel
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0):
             linear_task = get_linear_projects()
             asana_task = get_asana_projects()
             notion_task = get_notion_projects()

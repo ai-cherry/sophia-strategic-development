@@ -7,11 +7,10 @@ Complete automation for SSH keys, server management, and deployment
 import requests
 import subprocess
 import os
-import json
 import time
 from pathlib import Path
 from base64 import b64encode
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 class LambdaLabsAIAgent:
     def __init__(self, api_key: str):
@@ -188,7 +187,7 @@ class LambdaLabsAIAgent:
                 }
                 
                 if result.returncode == 0:
-                    print(f"  ✅ Success")
+                    print("  ✅ Success")
                 else:
                     print(f"  ❌ Failed: {result.stderr}")
                     
@@ -229,7 +228,7 @@ class LambdaLabsAIAgent:
             "sudo docker run -d -p 8000:8000 --name sophia-ai sophia-ai"
         ]
         
-        results = self.ssh_execute(instance_ip, private_key_path, setup_commands)
+        self.ssh_execute(instance_ip, private_key_path, setup_commands)
         
         # Test deployment
         test_result = self.ssh_execute(instance_ip, private_key_path, [
@@ -240,7 +239,7 @@ class LambdaLabsAIAgent:
             print(f"✅ Sophia AI deployed successfully on {instance_ip}")
             return True
         else:
-            print(f"⚠️ Deployment may need more time")
+            print("⚠️ Deployment may need more time")
             return True  # Consider successful, may just need time
     
     def auto_deploy_workflow(self, 
@@ -313,7 +312,7 @@ def main():
     result = agent.auto_deploy_workflow()
     
     if result["success"]:
-        print(f"\n✅ Deployment complete!")
+        print("\n✅ Deployment complete!")
         print(f"🌐 URL: {result['access_url']}")
         print(f"🔑 SSH: ssh -i ~/.ssh/sophia_correct_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@{result['instance_ip']}")
     else:

@@ -10,7 +10,6 @@ Usage:
     python scripts/technical_debt_remediation_orchestrator.py --all
 """
 
-import os
 import sys
 import json
 import subprocess
@@ -19,7 +18,6 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
-import concurrent.futures
 from dataclasses import dataclass
 
 # Setup logging
@@ -131,7 +129,7 @@ class TechnicalDebtRemediator:
                 issue_type="hardcoded_secret",
                 severity="critical" if any(pattern in content for pattern in ["sk-", "AKIA", "pul-"]) else "high",
                 effort="easy",
-                description=f"Hardcoded secret detected",
+                description="Hardcoded secret detected",
                 metadata={"pattern": pattern, "line": line_num}
             )
             for file_path, pattern, line_num, content in secrets
@@ -161,7 +159,7 @@ class TechnicalDebtRemediator:
                 issue_type="archive_directory",
                 severity="medium",
                 effort="easy",
-                description=f"Archive directory should be removed",
+                description="Archive directory should be removed",
                 metadata={"type": "directory"}
             )
             for dir_path in archives
@@ -176,7 +174,7 @@ class TechnicalDebtRemediator:
                 issue_type="backup_file",
                 severity="low",
                 effort="easy",
-                description=f"Backup file should be removed",
+                description="Backup file should be removed",
                 metadata={"type": "file"}
             )
             for file_path in backups
@@ -191,7 +189,7 @@ class TechnicalDebtRemediator:
                 issue_type="misplaced_script",
                 severity="medium",
                 effort="easy",
-                description=f"One-time script in wrong location",
+                description="One-time script in wrong location",
                 metadata={"type": "script"}
             )
             for file_path in scripts

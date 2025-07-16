@@ -4,18 +4,15 @@ Real-time X/Twitter trends injection with temp embedding for enhanced context
 Provides trending topics and sentiment for business intelligence queries
 """
 
-import asyncio
-import json
 import time
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import hashlib
 
 import aiohttp
 import numpy as np
 
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 

@@ -12,13 +12,12 @@ Date: July 14, 2025
 import asyncio
 import json
 import logging
-import os
 import re
 import subprocess
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, asdict
 import hashlib
 
@@ -686,14 +685,14 @@ async def main():
             with open(args.output, 'w') as f:
                 json.dump(report.to_dict(), f, indent=2)
         
-        print(f"\n📊 TECHNICAL DEBT PREVENTION REPORT")
+        print("\n📊 TECHNICAL DEBT PREVENTION REPORT")
         print(f"{'='*50}")
         print(f"Debt Score: {report.debt_score:.1f}/100")
         print(f"File Count: {report.file_count}")
         print(f"Repository Size: {report.repository_size_mb:.1f}MB")
         print(f"Validation: {'✅ PASSED' if report.passed else '❌ FAILED'}")
         
-        print(f"\n📋 VALIDATION RESULTS:")
+        print("\n📋 VALIDATION RESULTS:")
         for result in report.results:
             status = "✅" if result.passed else "❌"
             print(f"{status} {result.rule_name}: {result.message}")

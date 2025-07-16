@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Dict, Any
 
 from backend.services.pay_ready_foundational_service import get_pay_ready_foundational_service
-from backend.core.auto_esc_config import get_config_value
 
 # Configure logging
 logging.basicConfig(
@@ -120,7 +119,7 @@ class EnhancedPayReadyIntegration:
             with open(results_file, 'w') as f:
                 json.dump(comprehensive_results, f, indent=2, default=str)
             
-            logger.info(f"✅ Enhanced integration completed successfully!")
+            logger.info("✅ Enhanced integration completed successfully!")
             logger.info(f"📁 Comprehensive results saved to: {results_file}")
             
             return comprehensive_results
@@ -146,11 +145,11 @@ class EnhancedPayReadyIntegration:
         if 'processing_results' in results:
             processing = results['processing_results']
             foundational = results['foundational_knowledge_integration']
-            analytics = results['analytics']
+            results['analytics']
             business = results['business_intelligence']
             capabilities = results['enterprise_capabilities']
             
-            print(f"✅ Status: SUCCESS")
+            print("✅ Status: SUCCESS")
             print(f"📊 Total Employees Processed: {processing['total_employees_processed']}")
             print()
             

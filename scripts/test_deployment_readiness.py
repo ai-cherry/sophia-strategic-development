@@ -14,8 +14,7 @@ import os
 import sys
 import subprocess
 import argparse
-import json
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 # ACTUAL secret names from GitHub Organization ai-cherry
 GITHUB_SECRETS = {
@@ -66,7 +65,7 @@ def check_github_secrets() -> Dict[str, bool]:
             print(f"   ✅ Available ({len(stdout.strip())} characters)")
             results[secret_name] = True
         else:
-            print(f"   ❌ Not available or empty")
+            print("   ❌ Not available or empty")
             if stderr:
                 print(f"   📋 Error: {stderr.strip()}")
             results[secret_name] = False
@@ -254,7 +253,7 @@ def main():
     
     missing_required = [s for s in required_secrets if not secret_results.get(s, False)]
     
-    print(f"\n📊 Secret Summary:")
+    print("\n📊 Secret Summary:")
     print(f"   Total secrets checked: {len(GITHUB_SECRETS)}")
     print(f"   Available: {sum(secret_results.values())}")
     print(f"   Missing: {len(GITHUB_SECRETS) - sum(secret_results.values())}")
@@ -285,7 +284,7 @@ def main():
                 print(f"   ❌ {test_name} test failed with error: {e}")
                 test_results[test_name] = False
         
-        print(f"\n🔗 Connection Test Summary:")
+        print("\n🔗 Connection Test Summary:")
         for test_name, result in test_results.items():
             status = "✅" if result else "❌"
             print(f"   {status} {test_name}")

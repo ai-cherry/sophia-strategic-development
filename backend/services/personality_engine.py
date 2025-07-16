@@ -7,7 +7,6 @@ Date: July 12, 2025
 
 import logging
 import random
-from datetime import UTC, datetime
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)

@@ -5,7 +5,6 @@ Reduces query time from 200ms+ to <100ms average
 """
 
 import requests
-import json
 import time
 import os
 from requests.adapters import HTTPAdapter

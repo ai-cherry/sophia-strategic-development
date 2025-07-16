@@ -3,12 +3,10 @@ Memory Service Monitoring
 Provides comprehensive monitoring and metrics for memory service
 """
 
-import asyncio
 import logging
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import Dict, Any, List, Optional
-import json
 
 logger = logging.getLogger(__name__)
 

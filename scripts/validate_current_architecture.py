@@ -5,9 +5,7 @@ Validates current state of Qdrant usage only (Weaviate eliminated)
 """
 
 import os
-import re
 import json
-from pathlib import Path
 from typing import Dict, List, Any
 from datetime import datetime
 
@@ -145,7 +143,7 @@ class ArchitectureValidator:
         with open("architecture_validation_report_post_elimination.json", 'w') as f:
             json.dump(self.results, f, indent=2)
         
-        print(f"📋 Detailed report saved: architecture_validation_report_post_elimination.json")
+        print("📋 Detailed report saved: architecture_validation_report_post_elimination.json")
     
     def validate(self) -> Dict[str, Any]:
         """Execute complete validation"""

@@ -8,18 +8,15 @@ Phase: 2.2 - AI Agent Orchestration Mastery
 
 import asyncio
 import logging
-from typing import Dict, List, Optional, Any, Tuple, Union
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-import json
-import uuid
 from collections import defaultdict, deque
 
-from ..services.advanced_hybrid_search_service import AdvancedHybridSearchService, SearchContext, BusinessInsights
-from ..services.adaptive_memory_system import AdaptiveMemorySystem, UserFeedback, FeedbackType
-from ..services.payready_business_intelligence import PayReadyBusinessIntelligence, BusinessContext, BusinessIntelligenceLayer
-from ..core.truthful_config import get_real_QDRANT_config
+from ..services.advanced_hybrid_search_service import AdvancedHybridSearchService, SearchContext
+from ..services.adaptive_memory_system import AdaptiveMemorySystem
+from ..services.payready_business_intelligence import PayReadyBusinessIntelligence, BusinessContext
 
 logger = logging.getLogger(__name__)
 

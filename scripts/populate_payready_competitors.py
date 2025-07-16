@@ -4,12 +4,9 @@ Populate PayReady Competitor Intelligence
 Adds the 7 main PayReady competitors to the system
 """
 
-import asyncio
-import json
 import logging
 import requests
-from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

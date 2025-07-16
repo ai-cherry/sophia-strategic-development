@@ -2,7 +2,6 @@
 # REAL_LINEAR_API_INTEGRATION - Added by implementation script
 
 import httpx
-import asyncio
 from typing import Dict, List, Optional
 
 class RealLinearClient:
@@ -251,9 +250,9 @@ def get_real_linear_client():
         
         if api_key and api_key not in ["FROM_GITHUB", "PLACEHOLDER_LINEAR_API_KEY", "[secret]"]:
             real_linear_client = RealLinearClient(api_key)
-            print(f"✅ Real Linear client initialized")
+            print("✅ Real Linear client initialized")
         else:
-            print(f"⚠️  Linear API key not found, using mock data")
+            print("⚠️  Linear API key not found, using mock data")
     
     return real_linear_client
 
@@ -279,7 +278,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import logging
 
-import httpx
 from base.unified_standardized_base import (
     ServerConfig,
     ToolDefinition,

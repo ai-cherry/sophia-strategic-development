@@ -1,4 +1,4 @@
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
+from backend.services.sophia_unified_memory_service import SophiaUnifiedMemoryService
 from datetime import UTC, datetime
 
 #!/usr/bin/env python3
@@ -33,7 +33,6 @@ import aiohttp
 import structlog
 
 from core.config_manager import get_config_value
-from backend.services.sophia_unified_memory_service import get_memory_service, SophiaUnifiedMemoryService
 
 logger = structlog.get_logger(__name__)
 

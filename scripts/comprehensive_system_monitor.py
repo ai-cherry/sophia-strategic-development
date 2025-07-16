@@ -22,7 +22,7 @@ import requests
 import websockets
 import sys
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from dataclasses import dataclass, asdict
 import statistics
 

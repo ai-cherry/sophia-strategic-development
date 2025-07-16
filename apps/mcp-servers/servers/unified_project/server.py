@@ -9,7 +9,7 @@ Date: July 12, 2025
 
 import asyncio
 import sys
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Optional, Dict, List
@@ -457,7 +457,7 @@ class UnifiedProjectMCPServer(StandardizedMCPServer):
     async def _route_to_service(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Route dynamic tool calls to appropriate service"""
         tool_info = self.dynamic_tools[tool_name]
-        service_name = tool_info["service"]
+        tool_info["service"]
         endpoint = tool_info["endpoint"]
         
         # Make HTTP request to service

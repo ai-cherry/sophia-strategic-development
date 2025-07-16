@@ -12,7 +12,6 @@ This script addresses the critical Redis configuration issues identified:
 Date: July 15, 2025
 """
 
-import os
 import re
 import logging
 from pathlib import Path

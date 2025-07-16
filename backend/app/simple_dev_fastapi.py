@@ -8,7 +8,6 @@ import logging
 import os
 import sys
 from datetime import datetime
-from typing import Dict, Any
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,6 +32,22 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# Add large file ingestion routes
+try:
+    from backend.api.large_file_routes import router as large_file_router
+    app.include_router(large_file_router)
+    logger.info("✅ Large File Ingestion routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Large File Ingestion routes not available: {e}")
+
+# Add enhanced platform integration routes
+try:
+    from backend.api.enhanced_platform_routes import router as enhanced_platform_router
+    app.include_router(enhanced_platform_router)
+    logger.info("✅ Enhanced Platform Integration routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Enhanced Platform Integration routes not available: {e}")
 
 # Configure CORS
 app.add_middleware(

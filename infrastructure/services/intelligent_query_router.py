@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from ..utils.enhanced_QDRANT_memory_service import EnhancedQdrantUnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
