@@ -1,0 +1,27 @@
+SOPHIA AI - AUTOMATIC ENVIRONMENT (Updated July 17, 2025)
+
+WORKFLOW:
+1. cd /Users/lynnmusil/sophia-main-2
+2. Environment auto-activates ((.venv) prompt appears)
+3. Start coding immediately!
+
+VERIFICATION: sophia-status
+
+SHORTCUTS:
+- sophia-activate (manual activation if needed)
+- sophia-cd (quick navigation)
+- run-working (FastAPI port 8000)
+- run-simple (FastAPI port 8001)
+
+REQUIREMENTS:
+- Python 3.11.6 (virtual environment)
+- Single (.venv) prompt indicator
+- ENVIRONMENT=prod (auto-set)
+
+DON'T:
+- Don't run "source activate_sophia_env.sh" (automatic now)
+- Don't use python3 command (use python)
+
+TROUBLESHOOT: sophia-activate → reload → sophia-status
+
+Environment is now fully automated - no manual setup required! 
