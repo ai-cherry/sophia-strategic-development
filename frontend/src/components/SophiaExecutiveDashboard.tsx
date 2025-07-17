@@ -199,7 +199,7 @@ interface IceBreakerPrompt {
 }
 
 // Constants
-const BACKEND_URL = 'https://api.sophia-intel.ai';  // FINAL PRODUCTION DEPLOYMENT
+const BACKEND_URL = 'http://192.222.58.232/api';  // Lambda Labs deployment
 
 const INTELLIGENCE_TABS = {
   'chat': { icon: MessageSquare, label: 'Executive Chat', color: 'blue' },

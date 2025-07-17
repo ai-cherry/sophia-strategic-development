@@ -72,8 +72,8 @@ SECRET_MAPPINGS = {
 }
 
 @lru_cache(maxsize=1)
-def get_pulumi_config() -> Dict[str, Any]:
-    """Get all configuration from Pulumi ESC"""
+def _get_pulumi_raw_config() -> Dict[str, Any]:
+    """Get all configuration from Pulumi ESC (internal use)"""
     try:
         # Try to get the config using pulumi env get
         result = subprocess.run(
@@ -777,3 +777,281 @@ def get_redis_url() -> str:
         redis_url = f"redis://{config['host']}:{config['port']}/{config['db']}"
     
     return redis_url
+
+
+# Enhanced MCP Server Configuration
+class EnhancedAutoESCConfig:
+    """Extended configuration for MCP servers with Pulumi ESC integration"""
+    
+    def __init__(self):
+        """Initialize with MCP server list and configuration"""
+        self.mcp_servers = [
+            'lambda-labs', 'qdrant', 'openrouter', 'portkey',
+            'mem0', 'n8n', 'hubspot', 'gong', 'slack',
+            'linear', 'github', 'estuary-flow'
+        ]
+        
+        # Server command mappings
+        self.server_commands = {
+            'lambda-labs': ['python', '-m', 'mcp_servers.lambda_labs'],
+            'qdrant': ['python', '-m', 'mcp_servers.qdrant'],
+            'openrouter': ['python', '-m', 'mcp_servers.openrouter'],
+            'portkey': ['python', '-m', 'mcp_servers.portkey'],
+            'mem0': ['python', '-m', 'mcp_servers.mem0'],
+            'n8n': ['python', '-m', 'mcp_servers.n8n'],
+            'hubspot': ['python', '-m', 'mcp_servers.hubspot'],
+            'gong': ['python', '-m', 'mcp_servers.gong'],
+            'slack': ['python', '-m', 'mcp_servers.slack'],
+            'linear': ['python', '-m', 'mcp_servers.linear'],
+            'github': ['python', '-m', 'mcp_servers.github'],
+            'estuary-flow': ['python', '-m', 'mcp_servers.estuary_flow']
+        }
+    
+    def get_mcp_config(self, server_name: str) -> dict:
+        """
+        Get MCP server configuration from Pulumi ESC
+        
+        Args:
+            server_name: Name of the MCP server
+            
+        Returns:
+            Dictionary with API key, endpoint, and config
+        """
+        # Map server names to their configuration functions
+        config_functions = {
+            'gong': get_gong_config,
+            'hubspot': lambda: get_integration_config()['hubspot'],
+            'slack': lambda: get_integration_config()['slack'],
+            'qdrant': get_qdrant_config,
+            'lambda-labs': get_lambda_labs_config,
+            'redis': get_redis_config,
+            'estuary-flow': get_estuary_config,
+            'portkey': lambda: {'api_key': get_config_value('PORTKEY_API_KEY')},
+            'openrouter': lambda: {'api_key': get_config_value('OPENROUTER_API_KEY')},
+            'linear': lambda: {'api_key': get_config_value('LINEAR_API_KEY')},
+            'github': lambda: {'token': get_config_value('GITHUB_TOKEN')},
+            'mem0': lambda: {
+                'api_key': get_config_value('MEM0_API_KEY'),
+                'endpoint': get_config_value('MEM0_ENDPOINT', 'http://localhost:8010')
+            },
+            'n8n': lambda: {
+                'api_key': get_config_value('N8N_API_KEY'),
+                'endpoint': get_config_value('N8N_ENDPOINT', 'http://localhost:5678')
+            }
+        }
+        
+        # Use specific function if available, otherwise generic approach
+        if server_name in config_functions:
+            specific_config = config_functions[server_name]()
+            return self._normalize_config(server_name, specific_config)
+        
+        # Generic configuration retrieval
+        return {
+            'api_key': get_config_value(f'{server_name.upper().replace("-", "_")}_API_KEY'),
+            'endpoint': get_config_value(f'{server_name.upper().replace("-", "_")}_ENDPOINT'),
+            'config': get_config_value(f'{server_name.upper().replace("-", "_")}_CONFIG')
+        }
+    
+    def _normalize_config(self, server_name: str, config: dict) -> dict:
+        """
+        Normalize configuration to standard format
+        
+        Args:
+            server_name: Name of the server
+            config: Raw configuration dictionary
+            
+        Returns:
+            Normalized configuration dictionary
+        """
+        normalized = {}
+        
+        # Map common fields to standard names
+        key_mappings = {
+            'access_token': 'api_key',
+            'token': 'api_key',
+            'access_key': 'api_key',
+            'bot_token': 'api_key',
+            'url': 'endpoint',
+            'base_url': 'endpoint',
+            'host': 'endpoint'
+        }
+        
+        for key, value in config.items():
+            normalized_key = key_mappings.get(key, key)
+            normalized[normalized_key] = value
+        
+        # Ensure required fields exist
+        if 'api_key' not in normalized:
+            for key in ['api_key', 'access_token', 'token']:
+                if key in config:
+                    normalized['api_key'] = config[key]
+                    break
+        
+        if 'endpoint' not in normalized:
+            for key in ['endpoint', 'url', 'base_url']:
+                if key in config:
+                    normalized['endpoint'] = config[key]
+                    break
+        
+        # Add any additional configuration as 'config'
+        extra_config = {k: v for k, v in config.items() 
+                       if k not in ['api_key', 'access_token', 'token', 'endpoint', 'url', 'base_url']}
+        if extra_config:
+            normalized['config'] = extra_config
+        
+        return normalized
+    
+    def build_server_config(self, server: str, config: dict) -> dict:
+        """
+        Build server-specific configuration for MCP JSON
+        
+        Args:
+            server: Server name
+            config: Configuration from get_mcp_config
+            
+        Returns:
+            MCP server configuration dictionary
+        """
+        # Get command for the server
+        command_parts = self.server_commands.get(server, ['python', '-m', f'mcp_servers.{server.replace("-", "_")}'])
+        
+        # Build environment variables
+        env = {}
+        
+        # Add API key with server-specific environment variable name
+        if config.get('api_key'):
+            env_var_name = f"{server.upper().replace('-', '_')}_API_KEY"
+            env[env_var_name] = config['api_key']
+        
+        # Add endpoint if available
+        if config.get('endpoint'):
+            env_var_name = f"{server.upper().replace('-', '_')}_ENDPOINT"
+            env[env_var_name] = config['endpoint']
+        
+        # Add additional config items
+        if isinstance(config.get('config'), dict):
+            for key, value in config['config'].items():
+                env_var_name = f"{server.upper().replace('-', '_')}_{key.upper()}"
+                env[env_var_name] = str(value)
+        
+        # Build the server configuration
+        server_config = {
+            "command": command_parts[0],
+            "args": command_parts[1:]
+        }
+        
+        # Only add env if there are environment variables
+        if env:
+            server_config["env"] = env
+        
+        # Add server-specific configurations
+        if server == 'lambda-labs':
+            # Lambda Labs needs SSH key path
+            if 'ssh_private_key_path' in config:
+                server_config["env"]["LAMBDA_SSH_KEY_PATH"] = config['ssh_private_key_path']
+        elif server == 'qdrant':
+            # Qdrant needs cluster configuration
+            if 'cluster_name' in config:
+                server_config["env"]["QDRANT_CLUSTER_NAME"] = config['cluster_name']
+        elif server == 'gong':
+            # Gong needs both access key and secret
+            if 'access_key_secret' in config:
+                server_config["env"]["GONG_ACCESS_KEY_SECRET"] = config['access_key_secret']
+        
+        return server_config
+    
+    def generate_mcp_json(self) -> dict:
+        """
+        Generate .cursor/mcp.json from Pulumi ESC
+        
+        Returns:
+            Dictionary with mcpServers configuration
+        """
+        mcp_servers = {}
+        
+        for server in self.mcp_servers:
+            try:
+                # Get configuration from Pulumi ESC
+                config = self.get_mcp_config(server)
+                
+                # Skip if no configuration available
+                if not config or not any(config.values()):
+                    logger.debug(f"No configuration found for {server}, skipping")
+                    continue
+                
+                # Build server configuration
+                server_config = self.build_server_config(server, config)
+                
+                # Only add if valid configuration
+                if server_config:
+                    mcp_servers[server] = server_config
+                    logger.info(f"✅ Added MCP configuration for {server}")
+                
+            except Exception as e:
+                logger.error(f"❌ Failed to configure {server}: {e}")
+                continue
+        
+        return {"mcpServers": mcp_servers}
+    
+    def write_mcp_json(self, output_path: str = ".cursor/mcp.json") -> bool:
+        """
+        Write MCP configuration to file
+        
+        Args:
+            output_path: Path to write the MCP JSON file
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        import json
+        import os
+        
+        try:
+            # Generate configuration
+            mcp_config = self.generate_mcp_json()
+            
+            # Create directory if needed
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
+            # Write configuration
+            with open(output_path, 'w') as f:
+                json.dump(mcp_config, f, indent=2)
+            
+            logger.info(f"✅ MCP configuration written to {output_path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to write MCP configuration: {e}")
+            return False
+    
+    def validate_mcp_config(self) -> dict:
+        """
+        Validate MCP server configurations
+        
+        Returns:
+            Dictionary with validation results for each server
+        """
+        results = {}
+        
+        for server in self.mcp_servers:
+            try:
+                config = self.get_mcp_config(server)
+                
+                # Check required fields
+                has_auth = bool(config.get('api_key') or config.get('config'))
+                has_endpoint = bool(config.get('endpoint')) if server not in ['github', 'linear'] else True
+                
+                results[server] = {
+                    'valid': has_auth,
+                    'has_auth': has_auth,
+                    'has_endpoint': has_endpoint,
+                    'config': config
+                }
+                
+            except Exception as e:
+                results[server] = {
+                    'valid': False,
+                    'error': str(e)
+                }
+        
+        return results
