@@ -7,7 +7,6 @@ Aligned with working_fastapi.py standard
 import os
 import sys
 import logging
-from typing import Dict, Any
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, Request

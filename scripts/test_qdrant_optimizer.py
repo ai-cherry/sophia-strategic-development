@@ -8,7 +8,6 @@ Qdrant vector database performance.
 
 import asyncio
 import logging
-from datetime import datetime
 
 from autonomous_agents.infrastructure.qdrant_optimizer import QdrantOptimizerAgent
 
@@ -50,12 +49,12 @@ async def test_qdrant_optimizer():
         print(f"   Dry run mode: {summary['dry_run_mode']}")
         
         if summary['optimizations_by_type']:
-            print(f"\n   Optimizations by type:")
+            print("\n   Optimizations by type:")
             for action_type, count in summary['optimizations_by_type'].items():
                 print(f"   - {action_type}: {count}")
         
         if summary['collections']:
-            print(f"\n   Collection statistics:")
+            print("\n   Collection statistics:")
             for collection, stats in summary['collections'].items():
                 print(f"\n   📦 {collection}:")
                 print(f"      Vectors: {stats['vector_count']:,}")
@@ -78,7 +77,7 @@ async def test_qdrant_optimizer():
         
         # Show optimization history
         if agent.optimization_history:
-            print(f"\n📜 Optimization History:")
+            print("\n📜 Optimization History:")
             for action in agent.optimization_history[-5:]:  # Show last 5
                 print(f"\n   • {action.action_type.value} on {action.collection_name}")
                 print(f"     Reason: {action.reason}")
@@ -114,14 +113,14 @@ async def test_real_mode():
     
     try:
         await agent.initialize()
-        print(f"\n✅ Agent initialized in REAL mode")
+        print("\n✅ Agent initialized in REAL mode")
         
         # Run one monitoring cycle
         await agent.monitor()
         
         # Show what was done
         summary = agent.get_optimization_summary()
-        print(f"\n📊 Actions taken:")
+        print("\n📊 Actions taken:")
         print(f"   Successful: {summary['successful']}")
         print(f"   Failed: {summary['failed']}")
         

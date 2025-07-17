@@ -73,7 +73,7 @@ def test_mcp_server_invocation(server_name, server_config):
             
             if proc.returncode == 0 and proc.stdout.strip() == 'OK':
                 result['module_exists'] = True
-                logger.info(f"  ├─ Module check: ✅ Found")
+                logger.info("  ├─ Module check: ✅ Found")
             else:
                 error_msg = proc.stderr.strip() if proc.stderr else "Module not found"
                 result['errors'].append(f"Module error: {error_msg}")
@@ -96,7 +96,7 @@ def test_mcp_server_invocation(server_name, server_config):
         
         if proc.returncode == 0 or 'usage:' in proc.stdout.lower() or 'usage:' in proc.stderr.lower():
             result['can_execute'] = True
-            logger.info(f"  └─ Execution test: ✅ Can run")
+            logger.info("  └─ Execution test: ✅ Can run")
         else:
             error_msg = proc.stderr.strip() if proc.stderr else "Unknown error"
             result['errors'].append(f"Execution error: {error_msg}")
@@ -105,7 +105,7 @@ def test_mcp_server_invocation(server_name, server_config):
     except subprocess.TimeoutExpired:
         # Some servers don't exit on --help, which might be OK
         result['can_execute'] = True
-        logger.info(f"  └─ Execution test: ⚠️  Timeout (may be normal)")
+        logger.info("  └─ Execution test: ⚠️  Timeout (may be normal)")
     except Exception as e:
         result['errors'].append(f"Execution failed: {str(e)}")
         logger.error(f"  └─ Execution test: ❌ {str(e)}")
@@ -175,7 +175,7 @@ except Exception as e:
                 else:
                     logger.error(f"  ❌ MCP protocol test: Invalid response - {response}")
             except json.JSONDecodeError:
-                logger.error(f"  ❌ MCP protocol test: Invalid JSON response")
+                logger.error("  ❌ MCP protocol test: Invalid JSON response")
         else:
             logger.error(f"  ❌ MCP protocol test: Command failed - {proc.stderr}")
             
@@ -285,13 +285,13 @@ def main():
     with open('mcp_basic_test_results.json', 'w') as f:
         json.dump(results, f, indent=2)
     
-    print(f"\n📁 Results saved to: mcp_basic_test_results.json")
+    print("\n📁 Results saved to: mcp_basic_test_results.json")
     
     # Save report
     with open('mcp_basic_test_report.md', 'w') as f:
         f.write(report)
     
-    print(f"📄 Report saved to: mcp_basic_test_report.md")
+    print("📄 Report saved to: mcp_basic_test_report.md")
     
     # Exit code
     failed_count = sum(1 for r in results['servers'].values() if r['status'] == 'failed')

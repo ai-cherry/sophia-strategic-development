@@ -6,7 +6,7 @@ Provides HTTP endpoint for Prometheus to scrape metrics from all running agents.
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 from aiohttp import web
 from prometheus_client import REGISTRY, generate_latest, CONTENT_TYPE_LATEST
 from backend.core.auto_esc_config import get_config_value

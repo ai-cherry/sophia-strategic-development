@@ -6,8 +6,7 @@ Real-time monitoring of Lambda Labs deployment
 """
 
 import asyncio
-import subprocess
-import time
+import requests
 from datetime import datetime
 
 class DeploymentMonitor:
@@ -86,8 +85,8 @@ class DeploymentMonitor:
                     results[name] = f"⚠️ HTTP {status_code}"
                 else:
                     results[name] = "❌ No response"
-            except:
-                results[name] = "❌ Failed"
+            except (requests.RequestException, ConnectionError, TimeoutError) as e:
+                results[name] = f"❌ Failed: {type(e).__name__}"
         
         return results
     
@@ -129,13 +128,13 @@ class DeploymentMonitor:
             print("-" * 40)
             
             # Current deployment status
-            print(f"\n📋 DEPLOYMENT STATUS:")
+            print("\n📋 DEPLOYMENT STATUS:")
             print("  ✅ Docker image built and pushed")
             print("  ✅ PostgreSQL, Redis, Qdrant deployed")
             print("  ⚠️  Backend container needs Docker login fix")
             print("  🔄 Working on resolution...")
             
-            print(f"\n⏱️  Next check in 30 seconds... (Ctrl+C to stop)")
+            print("\n⏱️  Next check in 30 seconds... (Ctrl+C to stop)")
             print("="*80)
             
             await asyncio.sleep(30)

@@ -7,14 +7,16 @@ Combines functionality from api/main.py, simple_fastapi.py, and minimal_fastapi.
 import os
 import sys
 import logging
-from typing import Dict, Any, Optional
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
+
+# Import routers
+from .routers import agents
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -46,6 +48,15 @@ app.add_middleware(
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Include routers
+app.include_router(agents.router)
+
+# Add WebSocket endpoint at app level for agents
+@app.websocket("/ws/agents")
+async def websocket_endpoint(websocket: WebSocket):
+    """Forward WebSocket connections to agents router"""
+    await agents.websocket_endpoint(websocket)
 
 # Instance configuration (from api/main.py concept)
 class InstanceConfig:
@@ -262,4 +273,4 @@ if __name__ == "__main__":
         reload=DEBUG,
         log_level="info",
         access_log=True
-    ) 
+    )

@@ -18,7 +18,6 @@ Date: July 2025
 import os
 import sys
 import logging
-from typing import Dict, Any, Optional
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, Request

@@ -7,9 +7,7 @@ Verify MCP servers can execute real actions via the MCP protocol
 import asyncio
 import json
 import logging
-import os
 import sys
-import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
@@ -287,8 +285,9 @@ class MCPActionTester:
         try:
             if test_file.exists():
                 test_file.unlink()
-        except:
-            pass
+        except (FileNotFoundError, PermissionError, OSError) as e:
+            # Ignore cleanup errors but log them for debugging
+            print(f"Warning: Could not clean up test file: {e}")
         
         # Count results
         for test in test_result['tests']:
@@ -489,7 +488,7 @@ class MCPActionTester:
         # Header
         report.append("# 🧪 MCP Action Test Report")
         report.append(f"\n**Generated:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")
-        report.append(f"**MCP Protocol Test:** Simulated server actions\n")
+        report.append("**MCP Protocol Test:** Simulated server actions\n")
         
         # Summary
         summary = results['summary']
@@ -562,13 +561,13 @@ async def main():
         with open('mcp_action_test_results.json', 'w') as f:
             json.dump(results, f, indent=2)
         
-        print(f"\n📁 Detailed results saved to: mcp_action_test_results.json")
+        print("\n📁 Detailed results saved to: mcp_action_test_results.json")
         
         # Save report
         with open('mcp_action_test_report.md', 'w') as f:
             f.write(report)
         
-        print(f"📄 Report saved to: mcp_action_test_report.md")
+        print("📄 Report saved to: mcp_action_test_report.md")
         
         # Exit code based on results
         if results['summary']['failed'] > 0:

@@ -48,7 +48,7 @@ async def main():
         
         # Display initial status
         status = agent.get_status()
-        print(f"\n📈 Agent Status:")
+        print("\n📈 Agent Status:")
         print(f"  - Name: {status['name']}")
         print(f"  - Status: {status['status']}")
         print(f"  - Monitoring Interval: {status['monitoring_interval']}s")
@@ -72,17 +72,17 @@ async def main():
             print(f"  - Monitoring Errors: {status['monitoring_errors']}")
             
             if recommendations:
-                print(f"\n💡 Cost Optimization Recommendations:")
+                print("\n💡 Cost Optimization Recommendations:")
                 for rec in recommendations:
                     print(f"  - Instance: {rec['instance_name']} ({rec['current_type']})")
                     print(f"    Average Utilization: {rec['avg_utilization']}")
                     print(f"    Recommendation: {rec['recommendation']}")
                     print(f"    Potential Savings: {rec['potential_monthly_savings']}")
             else:
-                print(f"  - No optimization recommendations at this time")
+                print("  - No optimization recommendations at this time")
         
         print("\n✅ Test completed successfully!")
-        print(f"\n📊 Final Metrics Summary:")
+        print("\n📊 Final Metrics Summary:")
         print(f"  - Total Monitoring Runs: {status['monitoring_runs']}")
         print(f"  - Total Monitoring Errors: {status['monitoring_errors']}")
         print(f"  - Error Rate: {(status['monitoring_errors'] / max(1, status['monitoring_runs'])) * 100:.1f}%")

@@ -7,12 +7,11 @@ Validates all MCP servers can connect with Pulumi ESC configuration
 import asyncio
 import json
 import logging
-import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
 
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -99,20 +98,20 @@ class MCPServerTester:
         
         try:
             # 1. Validate configuration
-            logger.info(f"  ├─ Validating configuration...")
+            logger.info("  ├─ Validating configuration...")
             config_validation = self.validate_server_config(name, config)
             result['config_valid'] = config_validation['valid']
             result['errors'].extend(config_validation.get('errors', []))
             result['warnings'].extend(config_validation.get('warnings', []))
             
             # 2. Check environment variables
-            logger.info(f"  ├─ Checking environment variables...")
+            logger.info("  ├─ Checking environment variables...")
             env_check = self.check_env_vars(name, config)
             result['env_vars_set'] = env_check['valid']
             result['errors'].extend(env_check.get('errors', []))
             
             # 3. Test server startup
-            logger.info(f"  ├─ Testing server startup...")
+            logger.info("  ├─ Testing server startup...")
             startup_test = await self.test_server_startup(name, config)
             result['connection_test'] = startup_test['success']
             result['response_time'] = startup_test.get('response_time')
@@ -121,7 +120,7 @@ class MCPServerTester:
                 result['errors'].append(startup_test['error'])
             
             # 4. Server-specific tests
-            logger.info(f"  └─ Running server-specific tests...")
+            logger.info("  └─ Running server-specific tests...")
             specific_test = await self.run_server_specific_tests(name, config)
             if specific_test.get('errors'):
                 result['errors'].extend(specific_test['errors'])
@@ -338,7 +337,7 @@ def generate_health_dashboard(results: Dict) -> str:
     # Header
     dashboard.append("# 📊 MCP Server Health Check Dashboard")
     dashboard.append(f"\n**Generated:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")
-    dashboard.append(f"**Environment:** Production (Pulumi ESC)")
+    dashboard.append("**Environment:** Production (Pulumi ESC)")
     
     # Summary
     summary = results['summary']
@@ -464,13 +463,13 @@ async def main():
     with open('mcp_test_results.json', 'w') as f:
         json.dump(results, f, indent=2)
     
-    print(f"\n📁 Detailed results saved to: mcp_test_results.json")
+    print("\n📁 Detailed results saved to: mcp_test_results.json")
     
     # Save dashboard
     with open('mcp_health_dashboard.md', 'w') as f:
         f.write(dashboard)
     
-    print(f"📄 Dashboard saved to: mcp_health_dashboard.md")
+    print("📄 Dashboard saved to: mcp_health_dashboard.md")
     
     # Exit with appropriate code
     if results['summary']['failed'] > 0:

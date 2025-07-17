@@ -13,12 +13,12 @@ import asyncio
 import logging
 import aiohttp
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
 
 from prometheus_client import Gauge
 from backend.core.auto_esc_config import get_lambda_labs_config
-from .base_infrastructure_agent import BaseInfrastructureAgent, AlertSeverity, AgentStatus
+from .base_infrastructure_agent import BaseInfrastructureAgent, AlertSeverity
 
 logger = logging.getLogger(__name__)
 

@@ -8,8 +8,6 @@ Date: July 16, 2025
 
 import asyncio
 import subprocess
-import time
-import json
 import sys
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -89,8 +87,8 @@ class DeploymentMonitor:
         print("🚀 SOPHIA AI COMPLETE DEPLOYMENT WITH MONITORING")
         print("="*80)
         print(f"📅 Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"🎯 Target Infrastructure: 5 Lambda Labs Servers")
-        print(f"📦 Services: Backend API + 15+ MCP Servers + Frontend")
+        print("🎯 Target Infrastructure: 5 Lambda Labs Servers")
+        print("📦 Services: Backend API + 15+ MCP Servers + Frontend")
         print("="*80 + "\n")
         
     def print_progress(self):
@@ -302,7 +300,7 @@ class DeploymentMonitor:
         total_endpoints = len(endpoints)
         
         # Generate summary
-        print(f"\n📊 DEPLOYMENT SUMMARY:")
+        print("\n📊 DEPLOYMENT SUMMARY:")
         print("-" * 40)
         print(f"🖥️  Servers Online: {sum(1 for s in self.servers.values() if s.status == 'online')}/5")
         print(f"🐳 Docker Services: {total_services}")
@@ -310,10 +308,10 @@ class DeploymentMonitor:
         print(f"⏱️  Total Time: {(datetime.now() - self.start_time).total_seconds():.0f}s")
         
         if all_healthy and healthy_endpoints >= total_endpoints * 0.8:
-            print(f"\n🎉 DEPLOYMENT SUCCESSFUL!")
+            print("\n🎉 DEPLOYMENT SUCCESSFUL!")
             print("✅ Sophia AI is now live and operational!")
         else:
-            print(f"\n⚠️  DEPLOYMENT COMPLETED WITH ISSUES")
+            print("\n⚠️  DEPLOYMENT COMPLETED WITH ISSUES")
             print("🔧 Some services may need manual intervention")
             
         return all_healthy

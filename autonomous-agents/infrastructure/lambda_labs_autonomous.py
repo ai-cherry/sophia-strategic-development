@@ -7,16 +7,15 @@ including provisioning and terminating instances based on usage patterns.
 
 import asyncio
 import logging
-import json
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 
 import aiohttp
 from prometheus_client import Gauge, Counter
 from backend.core.auto_esc_config import get_lambda_labs_config, get_config_value
-from .base_infrastructure_agent import BaseInfrastructureAgent, AlertSeverity, AgentStatus
+from .base_infrastructure_agent import BaseInfrastructureAgent, AlertSeverity
 
 logger = logging.getLogger(__name__)
 
@@ -446,7 +445,7 @@ class LambdaLabsAutonomousAgent(BaseInfrastructureAgent):
                 response.raise_for_status()
                 result = await response.json()
                 
-                logger.info(f"Successfully terminated instance {action.target_instance_id}")
+                logger.info(f"Successfully terminated instance {action.target_instance_id}: {result}")
                 
                 # Refresh instance list
                 await self.refresh_instances()

@@ -17,9 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from autonomous_agents.infrastructure.lambda_labs_autonomous import (
-    LambdaLabsAutonomousAgent,
-    ActionType,
-    ActionStatus
+    LambdaLabsAutonomousAgent
 )
 from autonomous_agents.monitoring.prometheus_exporter import exporter, collector
 
@@ -60,7 +58,7 @@ async def main(dry_run: bool = True):
         
         # Display initial status
         status = agent.get_status()
-        print(f"\n📈 Agent Status:")
+        print("\n📈 Agent Status:")
         print(f"  - Name: {status['name']}")
         print(f"  - Status: {status['status']}")
         print(f"  - Monitoring Interval: {status['monitoring_interval']}s")
@@ -86,21 +84,21 @@ async def main(dry_run: bool = True):
             print(f"  - Current Hourly Spend: ${action_summary['current_hourly_spend']:.2f}/${action_summary['max_hourly_spend']}")
             
             if action_summary['total_actions'] > 0:
-                print(f"\n💡 Autonomous Actions Summary:")
+                print("\n💡 Autonomous Actions Summary:")
                 print(f"  - Total Actions: {action_summary['total_actions']}")
                 print(f"  - Successful: {action_summary['successful_actions']}")
                 print(f"  - Failed: {action_summary['failed_actions']}")
                 print(f"  - Pending Confirmations: {action_summary['pending_confirmations']}")
                 print(f"  - Total Cost Impact: ${action_summary['total_cost_impact']:.2f}/hour")
                 
-                print(f"\n  Actions by Type:")
+                print("\n  Actions by Type:")
                 for action_type, count in action_summary['actions_by_type'].items():
                     if count > 0:
                         print(f"    - {action_type}: {count}")
             
             # Display recent actions from history
             if agent.action_history:
-                print(f"\n📜 Recent Actions:")
+                print("\n📜 Recent Actions:")
                 for history in agent.action_history[-3:]:  # Show last 3 actions
                     action = history.action
                     print(f"  - [{action.status.value}] {action.action_type.value}")
@@ -113,12 +111,12 @@ async def main(dry_run: bool = True):
         
         # Final summary
         final_summary = agent.get_action_summary()
-        print(f"\n📊 Final Autonomous Agent Summary:")
+        print("\n📊 Final Autonomous Agent Summary:")
         print(f"  - Total Monitoring Runs: {status['monitoring_runs']}")
         print(f"  - Total Actions Taken: {final_summary['total_actions']}")
         print(f"  - Successful Actions: {final_summary['successful_actions']}")
         print(f"  - Failed Actions: {final_summary['failed_actions']}")
-        print(f"  - Safety Blocks: Check Prometheus metrics for details")
+        print("  - Safety Blocks: Check Prometheus metrics for details")
         print(f"  - Total Cost Impact: ${final_summary['total_cost_impact']:.2f}/hour")
         
         if dry_run:

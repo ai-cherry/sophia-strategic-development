@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-env node */
 /**
  * Dashboard Performance Benchmark
  * Measures query load times and render performance

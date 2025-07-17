@@ -450,7 +450,7 @@ def get_QDRANT_pat(default: Optional[str] = None) -> str:
     Get Qdrant PAT (Programmatic Access Token) for MCP authentication
 
     Args:
-        environment: Environment name (prod, staging). Defaults to current environment.
+        default: Default PAT value if not found
 
     Returns:
         PAT string
@@ -458,8 +458,7 @@ def get_QDRANT_pat(default: Optional[str] = None) -> str:
     Raises:
         ValueError: If PAT not configured
     """
-    if not environment:
-        environment = get_config_value("environment", "prod")  # type: ignore[assignment]
+    environment = get_config_value("environment", "prod")
 
     # After fallback logic we are confident *environment* is str
     environment_str: str = str(environment)
