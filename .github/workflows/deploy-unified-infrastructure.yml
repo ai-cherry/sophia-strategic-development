@@ -1,0 +1,220 @@
+name: Deploy Unified Infrastructure with DNS Updates
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/pulumi/**'
+      - '.github/workflows/deploy-unified-infrastructure.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+      deploy_vms:
+        description: 'Deploy new Lambda Labs VMs'
+        required: true
+        type: boolean
+        default: false
+      update_dns:
+        description: 'Update DNS records'
+        required: true
+        type: boolean
+        default: true
+
+env:
+  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+  LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
+  NAMECHEAP_API_KEY: ${{ secrets.NAMECHEAP_API_KEY }}
+  NAMECHEAP_API_USER: ${{ secrets.NAMECHEAP_API_USER }}
+  NAMECHEAP_USERNAME: ${{ secrets.NAMECHEAP_USERNAME }}
+  DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+
+jobs:
+  deploy-infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    outputs:
+      vm_ips: ${{ steps.deploy_vms.outputs.ips }}
+      environment: ${{ steps.set_env.outputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set environment
+        id: set_env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "environment=production" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Pulumi
+        uses: pulumi/actions@v5
+        with:
+          version: 'latest'
+
+      - name: Configure Pulumi
+        run: |
+          pulumi login
+          pulumi stack select scoobyjava-org/sophia-ai-unified/${{ steps.set_env.outputs.environment }}
+
+      - name: Deploy Lambda Labs VMs
+        id: deploy_vms
+        if: github.event.inputs.deploy_vms == 'true' || github.event_name == 'push'
+        run: |
+          # Deploy VMs using Lambda Labs API
+          python3 scripts/deploy_lambda_vms.py \
+            --environment ${{ steps.set_env.outputs.environment }} \
+            --output-file vm_ips.json
+          
+          # Export IPs for next steps
+          echo "ips=$(cat vm_ips.json)" >> $GITHUB_OUTPUT
+
+      - name: Deploy Qdrant Cluster
+        run: |
+          # Deploy Qdrant on Lambda Labs VMs
+          cd infrastructure/pulumi
+          npm install
+          
+          # Set Pulumi config
+          pulumi config set environment ${{ steps.set_env.outputs.environment }}
+          pulumi config set --secret lambdaLabsApiKey ${{ secrets.LAMBDA_LABS_API_KEY }}
+          pulumi config set dockerRegistry ${{ secrets.DOCKER_REGISTRY }}
+          
+          # Deploy
+          pulumi up --yes
+
+      - name: Deploy Memory Services
+        run: |
+          # Deploy Redis, Mem0, PostgreSQL
+          ansible-playbook -i inventory/lambda_labs.yml \
+            playbooks/deploy_memory_services.yml \
+            --extra-vars "environment=${{ steps.set_env.outputs.environment }}"
+
+  update-dns:
+    name: Update DNS Records
+    needs: deploy-infrastructure
+    if: github.event.inputs.update_dns == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests pyyaml
+
+      - name: Update DNS Records
+        env:
+          VM_IPS: ${{ needs.deploy-infrastructure.outputs.vm_ips }}
+        run: |
+          python3 scripts/update_dns_namecheap.py \
+            --domain sophia-intel.ai \
+            --ips '${{ env.VM_IPS }}' \
+            --api-key ${{ secrets.NAMECHEAP_API_KEY }} \
+            --api-user ${{ secrets.NAMECHEAP_API_USER }} \
+            --username ${{ secrets.NAMECHEAP_USERNAME }}
+
+      - name: Validate DNS Propagation
+        run: |
+          # Wait for DNS propagation
+          sleep 60
+          
+          # Validate DNS records
+          python3 scripts/validate_dns.py \
+            --domain sophia-intel.ai \
+            --expected-ips '${{ needs.deploy-infrastructure.outputs.vm_ips }}'
+
+  deploy-services:
+    name: Deploy Services
+    needs: [deploy-infrastructure, update-dns]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.LAMBDA_LABS_KUBECONFIG }}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Deploy Unified API
+        run: |
+          kubectl apply -k k8s/overlays/${{ needs.deploy-infrastructure.outputs.environment }}/
+
+      - name: Deploy MCP Servers
+        run: |
+          # Deploy all MCP servers with new memory architecture
+          kubectl apply -f k8s/mcp-servers/
+
+      - name: Verify Deployment
+        run: |
+          kubectl wait --for=condition=ready pod -l app=sophia-unified --timeout=300s
+          kubectl get pods -n sophia-ai-unified
+          kubectl get svc -n sophia-ai-unified
+
+  health-check:
+    name: Health Check
+    needs: [deploy-infrastructure, update-dns, deploy-services]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Health Checks
+        run: |
+          # Check all endpoints
+          python3 scripts/health_check.py \
+            --endpoints \
+              "https://api.sophia-intel.ai/health" \
+              "https://qdrant.sophia-intel.ai:6333/health" \
+              "https://dashboard.sophia-intel.ai/" \
+            --timeout 30
+
+      - name: Performance Test
+        run: |
+          # Run basic performance tests
+          python3 scripts/performance_test.py \
+            --api-endpoint "https://api.sophia-intel.ai" \
+            --qdrant-endpoint "https://qdrant.sophia-intel.ai:6333"
+
+  notify:
+    name: Notify Deployment Status
+    needs: [deploy-infrastructure, update-dns, deploy-services, health-check]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Send Slack Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Unified Infrastructure Deployment ${{ job.status }}
+            Environment: ${{ needs.deploy-infrastructure.outputs.environment }}
+            DNS Updated: ${{ needs.update-dns.result }}
+            Services Deployed: ${{ needs.deploy-services.result }}
+            Health Check: ${{ needs.health-check.result }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
