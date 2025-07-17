@@ -1,231 +1,231 @@
-# Sophia AI Frontend Architecture Summary
+# 📊 Sophia AI Frontend Architecture Summary
 
-## Overview
-The Sophia AI frontend is a React TypeScript application with a sophisticated executive dashboard that serves as the primary interface for business intelligence, system monitoring, and AI-powered insights.
+## 🎯 Executive Summary
 
-## Core Architecture
+The Sophia AI frontend follows a **single unified dashboard architecture** with the `SophiaExecutiveDashboard.tsx` as the central hub for all user interactions. This comprehensive analysis covers the entire frontend structure, chat interface, and integration points.
 
-### 1. **Main Entry Point**
-- **App.tsx**: Simple wrapper that renders `SophiaExecutiveDashboard`
-- **index.tsx/main.tsx**: Standard React app bootstrapping
+## 🏗️ Core Architecture
 
-### 2. **Central Dashboard Component**
-- **SophiaExecutiveDashboard.tsx** (Refactored)
-  - Main dashboard container with tab-based navigation
-  - Professional glassmorphism design
-  - Real-time WebSocket integration
-  - Modular component architecture
+### **Entry Point Structure**
+```
+App.tsx
+└── SophiaExecutiveDashboard.tsx (Main Dashboard)
+    ├── Tab-Based Interface (9 Intelligence Modules)
+    ├── Real-time Chat Interface
+    ├── Proactive Intelligence Feed
+    └── System Health Monitoring
+```
 
-### 3. **State Management**
-- **Zustand Store** (`stores/dashboardStore.ts`)
-  - Global state management
-  - WebSocket connection handling
-  - Search functionality
-  - Alert management
-  - Tab navigation state
+## 📁 Frontend Directory Structure
 
-## Component Structure
+```
+frontend/src/
+├── App.tsx                              # Root application entry
+├── components/
+│   ├── SophiaExecutiveDashboard.tsx    # 🚨 MAIN UNIFIED DASHBOARD
+│   ├── agents/
+│   │   ├── EnhancedAgentOrchestration.tsx
+│   │   └── UnifiedAgentOrchestration.tsx
+│   ├── dashboard/
+│   │   ├── components/              # Reusable dashboard components
+│   │   ├── panels/                  # Major dashboard panels
+│   │   └── tabs/                    # Tab-specific components
+│   ├── intelligence/
+│   │   ├── BusinessIntelligenceLive.tsx
+│   │   └── ExternalIntelligenceMonitor.tsx
+│   ├── search/
+│   │   └── UnifiedSearchInterface.tsx   # 🆕 Advanced search component
+│   ├── system/
+│   │   └── SystemCommandCenter.tsx
+│   └── workflow/
+│       └── WorkflowAutomationPanel.tsx
+├── pages/
+│   └── AgentDashboard.tsx           # Secondary agent-specific dashboard
+├── services/                        # API clients and integrations
+├── stores/
+│   └── dashboardStore.ts           # Zustand global state management
+└── types/                          # TypeScript type definitions
+```
 
-### **Core Components**
+## 🎨 Main Dashboard Components
 
-#### 1. **Chat Interface** (Built into SophiaExecutiveDashboard)
-- Executive chat with AI assistant
-- Ice breaker prompts
-- Message history with metadata
-- Voice input support
-- Real-time streaming responses
+### **1. SophiaExecutiveDashboard.tsx** (Primary Interface)
+- **Lines of Code**: ~850 (refactored from 2000+)
+- **Architecture**: Tab-based with 9 intelligence modules
+- **State Management**: Zustand store for global state
+- **Real-time**: WebSocket integration for live updates
 
-#### 2. **Intelligence Components**
-- `ExternalIntelligenceMonitor.tsx` - External data monitoring
-- `BusinessIntelligenceLive.tsx` - Business metrics and KPIs
+#### **Intelligence Tabs:**
+1. **Executive Chat** (`chat`) - AI-powered conversational interface
+2. **External Intelligence** (`external`) - Market & competitor insights
+3. **Business Intelligence** (`business`) - Revenue & KPI analytics
+4. **Agent Orchestration** (`agents`) - MCP server management
+5. **Memory Architecture** (`memory`) - Vector database operations
+6. **Temporal Learning** (`learning`) - AI learning patterns
+7. **Workflow Automation** (`workflow`) - N8N integration
+8. **System Command** (`system`) - Infrastructure control
+9. **Project Management** (`project`) - Task & project tracking
 
-#### 3. **System Components**
-- `SystemCommandCenter.tsx` - System control and monitoring
-- `WorkflowAutomationPanel.tsx` - N8N workflow integration
+### **2. Chat Interface Features**
 
-#### 4. **Agent Components**
-- `UnifiedAgentOrchestration.tsx` - Agent management
-- `EnhancedAgentOrchestration.tsx` - Enhanced agent features
+```typescript
+// Key Chat Components:
+- Real-time messaging with WebSocket
+- Voice input support (microphone button)
+- Ice breaker prompts for quick starts
+- Message history with role indicators
+- Temporal learning integration
+- Personality mode selection
+- Source citations and insights
+- Recommendations display
+```
 
-#### 5. **Dashboard Components**
-- **Activity Monitoring**:
-  - `ActivityFeed.tsx` - Real-time activity stream
-  - `CacheMonitoringWidget.tsx` - Cache performance metrics
+#### **Ice Breaker Prompts:**
+- Revenue analysis queries
+- Customer health monitoring
+- Sales performance tracking
+- System status checks
+- Competitor intelligence
+- Project status updates
+
+### **3. Real-time Features**
+
+```typescript
+// WebSocket Integration
+- Live system health updates (5s intervals)
+- Proactive alerts sidebar
+- Real-time chat responses
+- Agent status monitoring
+- Performance metrics streaming
+```
+
+## 🔧 Component Analysis
+
+### **Reusable Components** (`components/ui/`)
+- `alert.tsx`, `alert-dialog.tsx` - Notification system
+- `badge.tsx`, `button.tsx` - UI primitives
+- `card.tsx` - Content containers
+- `input.tsx`, `textarea.tsx` - Form controls
+- `select.tsx`, `tabs.tsx` - Navigation elements
+- `table.tsx` - Data display
+- `progress.tsx` - Loading states
+
+### **Dashboard-Specific Components**
+- **KPICards** - Key metric displays
+- **ActivityFeed** - Real-time event stream
+- **CacheMonitoringWidget** - Performance tracking
+- **SalesRevenueChart** - Revenue visualization
+- **DealStageDistribution** - Sales pipeline
+
+### **Intelligence Components**
+- **BusinessIntelligenceLive** - Real-time BI dashboard
+- **ExternalIntelligenceMonitor** - External data feeds
+- **UnifiedSearchInterface** - Advanced search with Playwright/Apify/ZenRows
+
+## 🔌 Backend Integration Points
+
+### **API Endpoints**
+```typescript
+// Primary APIs
+- /api/v3/chat/unified         # Chat interface
+- /api/v3/dashboard/data       # Dashboard metrics
+- /api/search/web              # Web search
+- /api/search/code             # Code search
+- /api/search/academic         # Academic search
+- /api/agents/*                # Agent management
+- /api/memory/*                # Memory operations
+```
+
+### **WebSocket Connections**
+```typescript
+// Real-time channels
+- ws://localhost:8000/ws       # Main WebSocket
+- System health updates
+- Chat responses
+- Agent status changes
+- Alert notifications
+```
+
+## 🎯 Unified Frontend Strategy
+
+### **CRITICAL RULE: One Dashboard to Rule Them All**
+
+The `SophiaExecutiveDashboard.tsx` is the **SINGLE SOURCE OF TRUTH** for the frontend. All new features must:
+
+1. **Extend existing tabs** rather than create new dashboards
+2. **Use the established component hierarchy**
+3. **Integrate with Zustand store** for state management
+4. **Follow the glassmorphism design system**
+5. **Maintain real-time WebSocket connections**
+
+### **Component Development Guidelines**
+
+```typescript
+// ✅ CORRECT: Extend existing dashboard
+// Add new tab to INTELLIGENCE_TABS in SophiaExecutiveDashboard
+
+// ❌ WRONG: Create separate dashboard
+// Do NOT create new top-level dashboard components
+```
+
+## 🚀 Recent Enhancements
+
+### **1. Unified Search Integration**
+- **Component**: `UnifiedSearchInterface.tsx`
+- **Features**: Intelligent routing between Playwright, Apify, and ZenRows
+- **Integration**: Available as potential new tab or modal overlay
+
+### **2. Enhanced Agent Orchestration**
+- **Component**: `UnifiedAgentOrchestration.tsx`
+- **Features**: Real-time agent status, GPU metrics, deployment controls
+
+### **3. Workflow Automation Panel**
+- **Component**: `WorkflowAutomationPanel.tsx`
+- **Features**: N8N workflow management, automation triggers
+
+## 📊 State Management
+
+### **Zustand Store Structure**
+```typescript
+interface DashboardStore {
+  // Navigation
+  activeTab: string
+  sidebarCollapsed: boolean
   
-- **Business Analytics**:
-  - `KPICards.tsx` - Key performance indicators
-  - `SalesRevenueChart.tsx` - Revenue visualization
-  - `EnhancedSalesRevenueChart.tsx` - Advanced revenue analytics
-  - `DealStageDistribution.tsx` - Sales pipeline visualization
+  // Search
+  searchQuery: string
+  searchResults: SearchResult[]
+  isSearching: boolean
+  
+  // AI Settings
+  temporalLearningEnabled: boolean
+  personalityMode: string
+  
+  // Real-time
+  websocket: WebSocket | null
+  proactiveAlerts: ProactiveAlert[]
+  
+  // Actions
+  performSearch: (query: string) => Promise<void>
+  connectWebSocket: (url: string) => void
+  // ... more actions
+}
+```
 
-- **Panels**:
-  - `StrategicOverviewPanel.tsx` - Executive summary view
-  - `CrossPlatformIntelligencePanel.tsx` - Multi-source intelligence
-  - `DepartmentalKPIPanel.tsx` - Department-specific metrics
-  - `UserManagementPanel.tsx` - User administration
+## 🎨 Design System
 
-- **Tabs** (Specialized Views):
-  - `AIMemoryHealthTab.tsx` - AI memory system monitoring
-  - `AsanaProjectTab.tsx` - Project management integration
-  - `DataFlowTab.tsx` - Data pipeline visualization
-  - `HealthMonitoringTab.tsx` - System health dashboard
-  - `LambdaLabsHealthTab.tsx` - Lambda Labs infrastructure
-  - `ProductionDeploymentTab.tsx` - Deployment management
-  - `WorkflowDesignerTab.tsx` - Visual workflow creation
+### **Glassmorphism Theme**
+```css
+/* Core design tokens */
+- Background: gradient(gray-900, blue-900, purple-900)
+- Glass effect: bg-black/20 backdrop-blur-md
+- Borders: border-gray-700
+- Text: text-white, text-gray-300
+- Accents: blue-600, purple-600
+```
 
-### **Supporting Components**
-
-#### 1. **UI Components** (`components/ui/`)
-- Reusable UI primitives (buttons, cards, inputs, etc.)
-- Consistent design system implementation
-- Tailwind CSS + custom styling
-
-#### 2. **Knowledge Components**
-- `KnowledgeLayout.tsx` - Knowledge base structure
-- `DocumentCard.tsx` - Document display
-- `DocumentEditor.tsx` - Document editing
-- `KnowledgeNav.tsx` - Navigation
-
-#### 3. **Shared Components**
-- `StatefulComponents.tsx` - Shared stateful logic
-- `ErrorBoundary.tsx` - Error handling
-- `theme-provider.tsx` - Theme management
-
-## Services & Integration
-
-### **API Services**
-- `apiClient.ts` - Unified API client
-- `knowledgeAPI.ts` - Knowledge base operations
-- `webSocketService.ts` - Real-time communication
-- `performanceMonitor.ts` - Performance tracking
-- `v0devClient.ts` - V0.dev integration
-
-### **Hooks**
-- `useDataFetching.ts` - Data fetching patterns
-- `useIntelligentPolling.ts` - Smart polling logic
-- `useOptimizedQuery.ts` - Query optimization
-
-## Navigation Structure
-
-### **Tab-Based Architecture**
-1. **Executive Chat** - AI-powered conversational interface
-2. **External Intelligence** - Market and competitor insights
-3. **Business Intelligence** - Revenue, KPIs, analytics
-4. **Agent Orchestration** - MCP server management
-5. **Memory Architecture** - Vector store and caching
-6. **Temporal Learning** - AI learning system
-7. **Workflow Automation** - N8N integration
-8. **System Command** - Infrastructure control
-9. **Project Management** - Task and project tracking
-
-## Key Features
-
-### **Real-Time Capabilities**
-- WebSocket connection for live updates
-- Proactive alert system
-- Real-time metrics streaming
-- Live activity feeds
-
-### **AI Integration**
-- Natural language chat interface
-- Temporal learning support
-- Multiple personality modes
-- Context-aware responses
-
-### **Search & Discovery**
-- Global search functionality
-- Semantic search integration
-- Quick action commands
-- Smart filtering
-
-### **Monitoring & Analytics**
-- System health monitoring
-- Performance metrics
-- Cost tracking (Lambda Labs)
-- API usage analytics
-
-## Design System
-
-### **Visual Design**
-- Glassmorphism effects
-- Dark theme optimized
-- Gradient backgrounds
-- Consistent color palette
-
-### **Responsive Layout**
-- Mobile-responsive design
-- Collapsible sidebar
-- Adaptive tab navigation
-- Flexible grid system
-
-## Deployment Configuration
-
-### **Environment Setup**
-- Environment-aware configuration
-- Production/staging/dev support
-- API endpoint management
-- WebSocket URL configuration
-
-### **Build & Bundle**
-- TypeScript compilation
-- React optimization
-- Code splitting
-- Asset optimization
-
-## Future Considerations
-
-### **Planned Enhancements**
-1. **HubSpot Integration** - Add HubSpot tab for CRM data
-2. **Salesforce Integration** - Add Salesforce tab for enterprise CRM
-3. **Enhanced Voice UI** - Improve voice command capabilities
-4. **Mobile App** - Native mobile application
-5. **Offline Support** - PWA capabilities
-
-### **Technical Debt**
-1. Some render functions still in main component (need extraction)
-2. MCP Orchestration tab needs implementation
-3. Memory Architecture tab needs implementation
-4. Temporal Learning tab needs implementation
-5. Project Management tab needs implementation
-
-## Development Guidelines
-
-### **Code Organization**
-- Feature-based folder structure
-- Shared components in `/components/ui`
-- Business logic in custom hooks
-- Type definitions in `/types`
-
-### **State Management**
-- Zustand for global state
-- React Query for server state
-- Local state for UI-only concerns
-- WebSocket for real-time updates
-
-### **Testing Strategy**
-- Component testing with React Testing Library
-- Integration tests for API calls
-- E2E tests for critical flows
-- Performance monitoring
-
-## Integration Points
-
-### **Backend APIs**
-- Unified backend on port 8000
-- RESTful API endpoints
-- WebSocket for real-time
-- GraphQL for complex queries (planned)
-
-### **External Services**
-- N8N workflow automation
-- Lambda Labs infrastructure
-- Redis caching
-- Qdrant vector search
-- PostgreSQL data storage
-
-## Summary
-
-The Sophia AI frontend is a sophisticated, modular React application designed for executive-level business intelligence and system control. It follows modern React patterns with TypeScript, uses Zustand for state management, and provides a comprehensive set of components for various business needs. The architecture is extensible and ready for additional integrations like Salesforce and HubSpot.
+### **Responsive Design**
+- Mobile-first approach
 
 **Key Strengths:**
 - Modular component architecture

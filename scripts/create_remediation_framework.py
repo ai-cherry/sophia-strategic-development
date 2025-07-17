@@ -260,28 +260,28 @@ class DependencyRemediator:
                 r'/home/[^/]+/\\.ssh/[^"\\\']*': '${SSH_KEY_PATH}',
             },
             'missing_validations': [
-                # Add prerequisite checks
+                # Add prerequisite checks - using triple quotes to properly escape
                 ('#!/bin/bash', '''#!/bin/bash
 # Prerequisite validation
 validate_prerequisites() {
     local required_tools=("ssh" "scp" "docker" "kubectl")
-    for tool in "${required_tools[@]}"; do
+    for tool in "${{required_tools[@]}}"; do
         if ! command -v "$tool" &> /dev/null; then
             echo "❌ Required tool missing: $tool"
             exit 1
         fi
     done
     
-    if [[ -z "${SSH_KEY_PATH:-}" ]]; then
-        SSH_KEY_PATH="${HOME}/.ssh/sophia_correct_key"
+    if [[ -z "${{SSH_KEY_PATH:-}}" ]]; then
+        SSH_KEY_PATH="${{HOME}}/.ssh/sophia_correct_key"
     fi
     
-    if [[ ! -f "${SSH_KEY_PATH}" ]]; then
-        echo "❌ SSH key not found: ${SSH_KEY_PATH}"
+    if [[ ! -f "${{SSH_KEY_PATH}}" ]]; then
+        echo "❌ SSH key not found: ${{SSH_KEY_PATH}}"
         echo "💡 Set SSH_KEY_PATH environment variable or ensure key exists"
         exit 1
     fi
-}
+}}
 
 validate_prerequisites'''),
             ]

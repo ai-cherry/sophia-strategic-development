@@ -1,4 +1,4 @@
-"""
+descw"""
 Search API Router
 
 Connects the frontend search interface to the Unified Search MCP server
