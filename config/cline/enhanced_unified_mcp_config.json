@@ -1,0 +1,285 @@
+{
+  "unified_orchestrator_config": {
+    "version": "2.0",
+    "environment": "unified_cline_sophia",
+    "security_model": "dual_environment_isolation",
+    "routing_strategy": "intelligent_context_aware"
+  },
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "--yes",
+        "--package=@modelcontextprotocol/server-sequential-thinking@latest",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {},
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Advanced reasoning for complex development problems",
+      "autoApprove": ["think", "reason", "analyze"]
+    },
+    "sophia-context-bridge": {
+      "command": "python",
+      "args": ["mcp_servers/context7/sophia_context_bridge.py"],
+      "env": {
+        "QDRANT_URL": "${QDRANT_URL}",
+        "CONTEXT_COLLECTION": "sophia_unified_context",
+        "ENVIRONMENT": "cline"
+      },
+      "access": "ceo_only",
+      "context": "bridge",
+      "description": "Bridge between Cline and Sophia contexts with memory sharing"
+    },
+    "moonshot-kimi-coder": {
+      "command": "npx",
+      "args": ["-y", "@openrouter/mcp-server"],
+      "env": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "MODEL": "moonshotai/kimi-2",
+        "ROLE": "coding",
+        "MEM0_URL": "${MEM0_URL}",
+        "QDRANT_URL": "${QDRANT_URL}",
+        "CONTEXT": "development"
+      },
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Specialized coding assistant with persistent memory"
+    },
+    "deepseek-planner": {
+      "command": "npx",
+      "args": ["-y", "@openrouter/mcp-server"],
+      "env": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "MODEL": "deepseek/deepseek-chat-v3-0324",
+        "ROLE": "planning",
+        "REDIS_URL": "${REDIS_URL}",
+        "CONTEXT": "architecture"
+      },
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Strategic planning and architecture design"
+    },
+    "claude-debugger": {
+      "command": "npx",
+      "args": ["-y", "@openrouter/mcp-server"],
+      "env": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "MODEL": "anthropic/claude-sonnet-4",
+        "ROLE": "debugging",
+        "CONTEXT": "development"
+      },
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Advanced debugging and problem resolution"
+    },
+    "coding-memory-qdrant": {
+      "command": "python",
+      "args": ["mcp_servers/qdrant/qdrant_mcp_server.py", "--collection", "coding_memory"],
+      "env": {
+        "QDRANT_URL": "${QDRANT_URL}",
+        "QDRANT_API_KEY": "${QDRANT_API_KEY}",
+        "QDRANT_COLLECTION": "coding_memory",
+        "ACCESS_LEVEL": "development"
+      },
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Development-focused vector memory storage"
+    },
+    "coding-memory-redis": {
+      "command": "python",
+      "args": ["mcp_servers/redis/redis_cache_layer.py", "--namespace", "coding"],
+      "env": {
+        "REDIS_HOST": "127.0.0.1",
+        "REDIS_PORT": "6379",
+        "REDIS_DB": "0",
+        "NAMESPACE": "cline_development"
+      },
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Fast caching layer for development data"
+    },
+    "coding-memory-mem0": {
+      "command": "python",
+      "args": ["mcp_servers/mem0/mem0_orchestrator.py", "--mode", "coding"],
+      "env": {
+        "MEM0_MODE": "coding",
+        "QDRANT_URL": "${QDRANT_URL}",
+        "REDIS_HOST": "127.0.0.1",
+        "EMBEDDING_MODEL": "text-embedding-3-small",
+        "ENVIRONMENT": "cline"
+      },
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Persistent coding memory with learning capabilities"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}",
+        "GITHUB_ORG": "ai-cherry",
+        "GITHUB_REPOS": "sophia-main,sophia-strategic-development"
+      },
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Full GitHub repository access for development",
+      "autoApprove": ["list_repositories", "read_file", "get_repository_info"]
+    },
+    "pulumi": {
+      "command": "npx",
+      "args": ["-y", "@pulumi/mcp-server"],
+      "env": {
+        "PULUMI_ACCESS_TOKEN": "${PULUMI_ACCESS_TOKEN}",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_PROJECTS": "sophia-ai-production"
+      },
+      "access": "ceo_only",
+      "context": "infrastructure",
+      "description": "Infrastructure as code management",
+      "autoApprove": ["list_stacks", "get_stack_info", "preview_update"]
+    },
+    "lambda-labs": {
+      "command": "python",
+      "args": ["mcp_servers/lambda_labs.py"],
+      "env": {
+        "LAMBDA_LABS_API_KEY": "${LAMBDA_LABS_API_KEY}",
+        "LAMBDA_LABS_SSH_KEY": "${LAMBDA_LABS_SSH_KEY}"
+      },
+      "access": "ceo_only",
+      "context": "infrastructure",
+      "description": "Lambda Labs GPU cluster management"
+    },
+    "qdrant": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-qdrant"],
+      "env": {
+        "QDRANT_URL": "${QDRANT_URL}",
+        "QDRANT_API_KEY": "${QDRANT_API_KEY}",
+        "DEFAULT_COLLECTION": "unified_knowledge"
+      },
+      "access": "shared",
+      "context": "infrastructure",
+      "description": "Vector database with collection-level access control"
+    },
+    "docker": {
+      "command": "npx",
+      "args": ["-y", "server-docker-mcp"],
+      "env": {
+        "DOCKER_HOST": "unix:///var/run/docker.sock"
+      },
+      "access": "ceo_only",
+      "context": "infrastructure",
+      "description": "Docker container management"
+    },
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-figma"],
+      "env": {
+        "FIGMA_API_KEY": "${FIGMA_API_KEY}",
+        "FIGMA_PROJECT_ID": "${FIGMA_PROJECT_ID}"
+      },
+      "access": "shared",
+      "context": "design",
+      "description": "Design system integration"
+    },
+    "sophia-business-bridge": {
+      "command": "python",
+      "args": ["mcp_servers/unified_search/sophia_business_bridge.py"],
+      "env": {
+        "SOPHIA_API_URL": "http://localhost:8000",
+        "BUSINESS_CONTEXT": "true",
+        "QDRANT_COLLECTION": "business_memory"
+      },
+      "access": "ceo_only",
+      "context": "bridge",
+      "description": "Bridge to Sophia business intelligence"
+    },
+    "hubspot-readonly": {
+      "command": "python",
+      "args": ["mcp_servers/hubspot/hubspot_readonly_mcp_server.py"],
+      "env": {
+        "HUBSPOT_ACCESS_TOKEN": "${HUBSPOT_ACCESS_TOKEN}",
+        "ACCESS_MODE": "readonly",
+        "CONTEXT": "business_intelligence"
+      },
+      "access": "shared",
+      "context": "business",
+      "description": "Read-only access to HubSpot for context"
+    },
+    "mermaid": {
+      "command": "npx",
+      "args": ["-y", "@mermaid-js/mermaid-cli"],
+      "env": {
+        "THEME": "dark",
+        "OUTPUT_DIR": "./docs/diagrams"
+      },
+      "access": "ceo_only",
+      "context": "development",
+      "description": "Diagram generation for documentation"
+    }
+  },
+  "routing_rules": {
+    "development_keywords": [
+      "code", "debug", "deploy", "infrastructure", "git", "docker", 
+      "kubernetes", "build", "test", "refactor", "optimize", "performance", 
+      "security", "backend", "frontend", "API", "database", "MCP server", 
+      "repository", "architecture", "system design"
+    ],
+    "business_keywords": [
+      "revenue", "sales", "customer", "team", "project", "KPI", "dashboard",
+      "report", "analytics", "forecast", "budget", "strategy", "goals",
+      "meeting", "client", "deal", "pipeline", "growth", "market", "metrics"
+    ],
+    "routing_threshold": 0.6,
+    "default_environment": "sophia",
+    "ceo_override": true
+  },
+  "memory_isolation": {
+    "cline_collections": [
+      "coding_memory",
+      "development_context", 
+      "infrastructure_knowledge",
+      "architecture_decisions"
+    ],
+    "sophia_collections": [
+      "business_memory",
+      "customer_insights",
+      "revenue_intelligence",
+      "team_performance"
+    ],
+    "shared_collections": [
+      "unified_knowledge",
+      "project_context"
+    ]
+  },
+  "security_controls": {
+    "environment_isolation": true,
+    "access_logging": true,
+    "ip_restrictions": {
+      "enabled": true,
+      "allowed_ips": ["192.168.1.0/24", "10.0.0.0/8"]
+    },
+    "session_management": {
+      "timeout_minutes": 60,
+      "concurrent_sessions": 3
+    }
+  },
+  "performance_optimization": {
+    "connection_pooling": true,
+    "response_caching": {
+      "enabled": true,
+      "ttl_seconds": 300
+    },
+    "parallel_requests": {
+      "enabled": true,
+      "max_concurrent": 5
+    }
+  },
+  "monitoring": {
+    "metrics_collection": true,
+    "performance_tracking": true,
+    "error_reporting": true,
+    "usage_analytics": true
+  }
+} 

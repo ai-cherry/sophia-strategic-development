@@ -1,0 +1,156 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "--yes",
+        "--package=@modelcontextprotocol/server-sequential-thinking@latest",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {},
+      "description": "Advanced reasoning for complex coding problems"
+    },
+    "moonshot-kimi-coder": {
+      "command": "npx",
+      "args": ["-y", "@openrouter/mcp-server"],
+      "env": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "MODEL": "moonshotai/kimi-2",
+        "ROLE": "coding"
+      },
+      "description": "Specialized coding assistant with 2M context"
+    },
+    "deepseek-planner": {
+      "command": "npx",
+      "args": ["-y", "@openrouter/mcp-server"],
+      "env": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "MODEL": "deepseek/deepseek-chat-v3-0324", 
+        "ROLE": "architecture_planning"
+      },
+      "description": "System architecture and code planning"
+    },
+    "claude-debugger": {
+      "command": "npx",
+      "args": ["-y", "@openrouter/mcp-server"],
+      "env": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "MODEL": "anthropic/claude-sonnet-4",
+        "ROLE": "debugging"
+      },
+      "description": "Advanced debugging and code analysis"
+    },
+    "coding-memory-qdrant": {
+      "command": "python",
+      "args": ["mcp_servers/qdrant/qdrant_mcp_server.py", "--collection", "coding_memory"],
+      "env": {
+        "QDRANT_URL": "${QDRANT_URL}",
+        "QDRANT_API_KEY": "${QDRANT_API_KEY}",
+        "QDRANT_COLLECTION": "coding_memory"
+      },
+      "description": "Persistent coding memory and context"
+    },
+    "coding-memory-redis": {
+      "command": "python", 
+      "args": ["mcp_servers/redis/redis_cache_layer.py", "--namespace", "coding"],
+      "env": {
+        "REDIS_HOST": "127.0.0.1",
+        "REDIS_PORT": "6379",
+        "REDIS_DB": "0"
+      },
+      "description": "Fast coding session cache"
+    },
+    "coding-memory-mem0": {
+      "command": "python",
+      "args": ["mcp_servers/mem0/mem0_orchestrator.py", "--mode", "coding"],
+      "env": {
+        "MEM0_MODE": "coding",
+        "QDRANT_URL": "${QDRANT_URL}",
+        "REDIS_HOST": "127.0.0.1",
+        "EMBEDDING_MODEL": "text-embedding-3-small"
+      },
+      "description": "Conversational coding memory with learning"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}",
+        "GITHUB_ORG": "ai-cherry",
+        "GITHUB_REPOS": "sophia-main,sophia-strategic-development"
+      },
+      "autoApprove": ["list_repositories", "read_file", "get_repository_info"],
+      "description": "Full GitHub repository access"
+    },
+    "pulumi": {
+      "command": "npx",
+      "args": ["-y", "@pulumi/mcp-server"], 
+      "env": {
+        "PULUMI_ACCESS_TOKEN": "${PULUMI_ACCESS_TOKEN}",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_PROJECTS": "sophia-ai-production"
+      },
+      "autoApprove": ["list_stacks", "get_stack_info", "preview_update"],
+      "description": "Infrastructure as code management"
+    },
+    "lambda-labs": {
+      "command": "python",
+      "args": ["mcp_servers/lambda_labs.py"],
+      "env": {
+        "LAMBDA_LABS_API_KEY": "${LAMBDA_LABS_API_KEY}",
+        "LAMBDA_LABS_SSH_KEY": "${LAMBDA_LABS_SSH_KEY}"
+      },
+      "description": "Lambda Labs GPU cluster management"
+    },
+    "docker": {
+      "command": "npx",
+      "args": ["-y", "server-docker-mcp"],
+      "env": {},
+      "description": "Docker container management"
+    },
+    "qdrant": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-qdrant"],
+      "env": {
+        "QDRANT_URL": "${QDRANT_URL}",
+        "QDRANT_API_KEY": "${QDRANT_API_KEY}",
+        "DEFAULT_COLLECTION": "coding_knowledge"
+      },
+      "description": "Vector database for code semantics"
+    },
+    "redis": {
+      "command": "npx", 
+      "args": ["-y", "@gongrzhe/server-redis-mcp", "${REDIS_URL}"],
+      "env": {},
+      "description": "Redis caching and session storage"
+    },
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-figma"],
+      "env": {
+        "FIGMA_API_KEY": "${FIGMA_API_KEY}",
+        "FIGMA_PROJECT_ID": "${FIGMA_PROJECT_ID}"
+      },
+      "description": "Design system integration"
+    },
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "@openrouter/mcp-server"],
+      "env": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "MODEL": "perplexity/llama-3.1-sonar-small-128k-online",
+        "ROLE": "research"
+      },
+      "description": "Real-time web research for coding"
+    },
+    "mermaid": {
+      "command": "npx",
+      "args": ["-y", "@mermaid-js/mermaid-cli"],
+      "env": {
+        "THEME": "dark",
+        "OUTPUT_DIR": "./docs/diagrams"
+      },
+      "description": "Diagram generation for documentation"
+    }
+  }
+} 

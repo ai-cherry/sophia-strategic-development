@@ -1,0 +1,182 @@
+# Shared MCP Infrastructure Configuration
+# Both Cline (coding) and Sophia (business) can access these servers
+# but they remain completely separate orchestration systems
+
+shared_mcp_servers:
+  # Vector Database - Shared infrastructure, separate collections
+  qdrant:
+    url: "${QDRANT_URL}"
+    api_key: "${QDRANT_API_KEY}"
+    collections:
+      cline_coding: "coding_memory"          # Cline-only collection
+      cline_infrastructure: "dev_context"    # Cline-only collection  
+      sophia_business: "business_memory"     # Sophia-only collection
+      sophia_customers: "customer_insights"  # Sophia-only collection
+      shared_knowledge: "unified_knowledge"  # Both can access
+    port: 6333
+    description: "Vector database with collection-level isolation"
+
+  # Redis Cache - Shared infrastructure, separate databases
+  redis:
+    host: "127.0.0.1"
+    port: 6379
+    databases:
+      cline_cache: 0           # Cline coding cache
+      cline_sessions: 1        # Cline session storage
+      sophia_cache: 2          # Sophia business cache
+      sophia_sessions: 3       # Sophia user sessions
+      shared_cache: 4          # Shared caching layer
+    description: "Redis cache with database-level isolation"
+
+  # Real-time Research - Both environments can use
+  perplexity:
+    model: "perplexity/llama-3.1-sonar-small-128k-online"
+    openrouter_key: "${OPENROUTER_API_KEY}"
+    usage:
+      cline_context: "Technical research, coding solutions, infrastructure"
+      sophia_context: "Market research, business intelligence, competitive analysis"
+    description: "Real-time web research for both coding and business queries"
+
+  # Knowledge Base - Shared access, separate workspaces
+  notion:
+    api_key: "${NOTION_API_KEY}"
+    workspaces:
+      development: "Cline development documentation"
+      business: "Sophia business processes and knowledge"
+      shared: "Company-wide documentation and policies"
+    description: "Knowledge base with workspace-level access control"
+
+  # Business Data - Sophia primary, Cline read-only
+  hubspot:
+    access_token: "${HUBSPOT_ACCESS_TOKEN}"
+    access_levels:
+      sophia: "full_access"     # Full CRM access for business users
+      cline: "read_only"        # Read-only for development context
+    description: "CRM data with role-based access levels"
+
+# Infrastructure deployment configuration
+deployment:
+  # Lambda Labs GPU fleet - shared hardware, separate allocations
+  lambda_labs:
+    total_gpu_memory: "192GB"
+    allocations:
+      cline_development: "115GB"    # 60% for development workloads
+      sophia_business: "77GB"       # 40% for business intelligence
+    instances:
+      - ip: "192.222.58.232"
+        role: "primary_gpu"
+        gpu: "GH200"
+      - ip: "104.171.202.103" 
+        role: "production_services"
+        gpu: "RTX6000"
+      - ip: "104.171.202.117"
+        role: "mcp_orchestration"
+        gpu: "A6000"
+
+  # PostgreSQL - shared database, separate schemas
+  postgresql:
+    host: "localhost"
+    port: 5432
+    schemas:
+      cline_schemas: ["development", "infrastructure", "code_analysis"]
+      sophia_schemas: ["business", "analytics", "customer_data"]
+      shared_schemas: ["company", "users", "audit_logs"]
+
+# MCP server access patterns
+access_patterns:
+  # Servers accessible to both (with appropriate context)
+  shared_access:
+    - "qdrant"           # Vector database (separate collections)
+    - "redis"            # Cache layer (separate databases)  
+    - "perplexity"       # Real-time research
+    - "notion"           # Knowledge base (separate workspaces)
+    - "figma"            # Design system (shared access)
+
+  # Cline-only servers (development/infrastructure)
+  cline_exclusive:
+    - "sequential-thinking"    # Advanced reasoning for coding
+    - "moonshot-kimi-coder"   # Specialized coding assistant
+    - "deepseek-planner"      # Architecture planning
+    - "claude-debugger"       # Code debugging
+    - "github"                # Code repository access
+    - "pulumi"                # Infrastructure as code
+    - "lambda-labs"           # GPU cluster management
+    - "docker"                # Container management
+    - "mermaid"               # Technical diagrams
+
+  # Sophia-only servers (business intelligence)
+  sophia_exclusive:
+    - "hubspot"               # CRM data (full access)
+    - "gong"                  # Sales call intelligence
+    - "slack"                 # Team communication analytics
+    - "asana"                 # Project management
+    - "linear"                # Issue tracking (business view)
+
+# Security and isolation
+security:
+  # Network isolation
+  network_isolation:
+    cline_subnet: "10.0.1.0/24"      # Private development network
+    sophia_subnet: "10.0.2.0/24"     # Business user network
+    shared_subnet: "10.0.3.0/24"     # Shared infrastructure
+
+  # Access control
+  access_control:
+    cline_access: 
+      user: "ceo_only"
+      ip_restrictions: true
+      mfa_required: true
+    sophia_access:
+      users: "multi_user"
+      role_based: true
+      audit_logging: true
+
+  # Data isolation
+  data_isolation:
+    memory_separation: true           # Separate vector collections
+    cache_separation: true            # Separate Redis databases
+    schema_separation: true           # Separate PostgreSQL schemas
+    audit_trail: true                 # Complete access logging
+
+# Performance optimization
+performance:
+  # Connection pooling
+  connection_pooling:
+    qdrant_pool_size: 10
+    redis_pool_size: 20
+    postgres_pool_size: 15
+
+  # Caching strategy
+  caching:
+    l1_cache: "redis"                 # Fast local cache
+    l2_cache: "qdrant"                # Vector similarity cache
+    l3_cache: "postgresql"            # Persistent query cache
+    ttl_seconds: 300                  # 5 minute default TTL
+
+  # Resource limits
+  resource_limits:
+    max_concurrent_connections: 50
+    query_timeout_seconds: 30
+    max_response_size_mb: 10
+
+# Monitoring and observability
+monitoring:
+  # Metrics collection
+  metrics:
+    prometheus_port: 9090
+    grafana_port: 3001
+    health_check_interval: 30
+
+  # Logging
+  logging:
+    access_logs: true
+    performance_logs: true
+    error_logs: true
+    audit_logs: true
+    retention_days: 90
+
+  # Alerting
+  alerting:
+    response_time_threshold: 200      # ms
+    error_rate_threshold: 1           # %
+    resource_usage_threshold: 80      # % 
