@@ -14,7 +14,7 @@ export const API_CONFIG = {
     : 'ws://localhost:8000/ws',
     
   // Lambda Labs production URL (when deployed)
-  lambdaLabsURL: 'http://192.222.58.232:8000',
+  lambdaLabsURL: 'https://api.sophia-intel.ai',
     
   // API endpoints
   endpoints: {
@@ -43,9 +43,9 @@ export const getBaseURL = (): string => {
     return 'https://sophia-intel.ai';
   }
   
-  // If we're running on Lambda Labs, use Lambda Labs URL
+  // If we're running on Lambda Labs, use the secure API URL
   if (API_CONFIG.isLambdaLabsDeployment) {
-    return API_CONFIG.lambdaLabsURL;
+    return 'https://api.sophia-intel.ai';
   }
   
   // Default to localhost for development
@@ -58,9 +58,9 @@ export const getWebSocketURL = (): string => {
     return 'wss://sophia-intel.ai/ws';
   }
   
-  // If we're running on Lambda Labs, use Lambda Labs WebSocket
+  // If we're running on Lambda Labs, use secure WebSocket
   if (API_CONFIG.isLambdaLabsDeployment) {
-    return 'ws://192.222.58.232:8000/ws';
+    return 'wss://api.sophia-intel.ai/ws';
   }
   
   // Default to localhost for development
@@ -86,4 +86,4 @@ export interface ApiConfig {
   environment: string;
   isProduction: boolean;
   isLambdaLabsDeployment: boolean;
-} 
+}
