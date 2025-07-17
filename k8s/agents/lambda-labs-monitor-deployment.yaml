@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lambda-labs-monitor
+  namespace: autonomous-agents
+  labels:
+    app: autonomous-agent
+    component: lambda-labs-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autonomous-agent
+      component: lambda-labs-monitor
+  template:
+    metadata:
+      labels:
+        app: autonomous-agent
+        component: lambda-labs-monitor
+    spec:
+      serviceAccountName: autonomous-agents-sa
+      containers:
+      - name: monitor
+        image: scoobyjava15/sophia-lambda-labs-monitor:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: metrics
+        - containerPort: 8081
+          name: api
+        env:
+        - name: AGENT_TYPE
+          value: "lambda-labs-monitor"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: MONITOR_MODE
+          value: "production"  # Can be "dry-run" for testing
+        envFrom:
+        - configMapRef:
+            name: autonomous-agents-config
+        - secretRef:
+            name: autonomous-agents-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 20
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8081
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: monitor-cache
+          mountPath: /cache
+      volumes:
+      - name: monitor-cache
+        emptyDir:
+          sizeLimit: 1Gi

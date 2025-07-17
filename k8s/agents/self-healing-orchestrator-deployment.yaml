@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: self-healing-orchestrator
+  namespace: autonomous-agents
+  labels:
+    app: autonomous-agent
+    component: self-healing-orchestrator
+spec:
+  replicas: 1  # Only one orchestrator should run at a time
+  selector:
+    matchLabels:
+      app: autonomous-agent
+      component: self-healing-orchestrator
+  template:
+    metadata:
+      labels:
+        app: autonomous-agent
+        component: self-healing-orchestrator
+    spec:
+      serviceAccountName: autonomous-agents-sa
+      containers:
+      - name: orchestrator
+        image: scoobyjava15/sophia-self-healing-orchestrator:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: metrics
+        - containerPort: 8080
+          name: api
+        env:
+        - name: AGENT_TYPE
+          value: "self-healing-orchestrator"
+        - name: LOG_LEVEL
+          value: "INFO"
+        envFrom:
+        - configMapRef:
+            name: autonomous-agents-config
+        - secretRef:
+            name: autonomous-agents-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: agent-data
+          mountPath: /data
+        - name: mcp-config
+          mountPath: /etc/mcp
+          readOnly: true
+      volumes:
+      - name: agent-data
+        persistentVolumeClaim:
+          claimName: orchestrator-data-pvc
+      - name: mcp-config
+        configMap:
+          name: mcp-config
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orchestrator-data-pvc
+  namespace: autonomous-agents
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: local-path  # K3s default storage class

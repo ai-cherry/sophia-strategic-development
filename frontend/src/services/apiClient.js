@@ -3,7 +3,7 @@ import axios from 'axios';
 // Environment-aware backend URL configuration
 const API_CONFIG = {
   production: 'https://api.sophia-intel.ai',
-  development: 'http://localhost:8000', // Updated to match backend port
+  development: 'http://localhost:8000', // ALIGNED TO BACKEND PORT // Updated to match backend port
   timeout: 10000,
   retries: 3,
   retryDelay: 1000

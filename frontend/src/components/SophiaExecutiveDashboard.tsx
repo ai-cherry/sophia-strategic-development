@@ -110,6 +110,9 @@ ChartJS.register(
 import ExternalIntelligenceMonitor from './intelligence/ExternalIntelligenceMonitor';
 import BusinessIntelligenceLive from './intelligence/BusinessIntelligenceLive';
 
+// 🔧 CRITICAL FIX: Import unified environment configuration
+import { getBaseURL, getWebSocketURL, API_CONFIG } from '../config/environment';
+
 // Types
 interface ChatMessage {
   id: string;
@@ -198,8 +201,8 @@ interface IceBreakerPrompt {
   focusMode?: 'business' | 'code' | 'data';
 }
 
-// Constants
-const BACKEND_URL = 'http://192.222.58.232/api';  // Lambda Labs deployment
+// 🔧 CRITICAL FIX: Use dynamic URL configuration instead of hardcoded Lambda Labs IP
+const BACKEND_URL = getBaseURL();
 
 const INTELLIGENCE_TABS = {
   'chat': { icon: MessageSquare, label: 'Executive Chat', color: 'blue' },
@@ -211,9 +214,9 @@ const INTELLIGENCE_TABS = {
   'workflow': { icon: Zap, label: 'Workflow Automation', color: 'yellow' },
   'system': { icon: Settings, label: 'System Command', color: 'gray' },
   'project': { icon: Briefcase, label: 'Project Management', color: 'teal' }
-};
-
-const SophiaExecutiveDashboard: React.FC = () => {
+  };
+  
+  const SophiaExecutiveDashboard: React.FC = () => {
   // State management
   const [activeTab, setActiveTab] = useState<string>('chat');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -355,7 +358,8 @@ const SophiaExecutiveDashboard: React.FC = () => {
   // Initialize WebSocket
   const initializeWebSocket = useCallback(() => {
     try {
-              const ws = new WebSocket('wss://ws.sophia-intel.ai/ws');  // Production WebSocket
+      // 🔧 CRITICAL FIX: Use dynamic WebSocket URL configuration
+      const ws = new WebSocket(getWebSocketURL());
       
       ws.onopen = () => {
         console.log('WebSocket connected');

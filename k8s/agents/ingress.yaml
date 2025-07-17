@@ -1,0 +1,85 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: autonomous-agents-ingress
+  namespace: autonomous-agents
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - agents.sophia-ai.com
+    secretName: agents-tls-cert
+  rules:
+  - host: agents.sophia-ai.com
+    http:
+      paths:
+      # Agent Dashboard
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: agent-dashboard
+            port:
+              number: 3000
+      # Self-healing orchestrator API
+      - path: /api/orchestrator
+        pathType: Prefix
+        backend:
+          service:
+            name: self-healing-orchestrator
+            port:
+              number: 8080
+      # Lambda Labs monitor API
+      - path: /api/lambda-monitor
+        pathType: Prefix
+        backend:
+          service:
+            name: lambda-labs-monitor
+            port:
+              number: 8081
+      # Lambda Labs autonomous API
+      - path: /api/lambda-autonomous
+        pathType: Prefix
+        backend:
+          service:
+            name: lambda-labs-autonomous
+            port:
+              number: 8082
+      # Qdrant optimizer API
+      - path: /api/qdrant-optimizer
+        pathType: Prefix
+        backend:
+          service:
+            name: qdrant-optimizer
+            port:
+              number: 8083
+      # Prometheus exporter API
+      - path: /api/metrics-exporter
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-exporter
+            port:
+              number: 8084
+      # Prometheus UI
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus
+            port:
+              number: 9090
+      # Unified metrics endpoint
+      - path: /metrics
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-exporter
+            port:
+              number: 8000

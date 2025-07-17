@@ -3,6 +3,9 @@
  * Replaces fixed polling with efficient real-time communication
  */
 
+// 🔧 CRITICAL FIX: Import unified environment configuration
+import { getWebSocketURL } from '../config/environment';
+
 export interface WebSocketMessage {
   type: string;
   data: any;
@@ -159,9 +162,9 @@ class WebSocketService {
   }
 }
 
-// Create singleton WebSocket service
+// 🔧 CRITICAL FIX: Use unified environment configuration
 const wsConfig: WebSocketConfig = {
-  url: process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws',
+  url: getWebSocketURL(),
   reconnectInterval: 5000,
   maxRetries: 10,
   heartbeatInterval: 30000

@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: autonomous-agents-sa
+  namespace: autonomous-agents
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: autonomous-agents-role
+  namespace: autonomous-agents
+rules:
+# Allow agents to read their own configuration
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+# Allow agents to update their status
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+# Allow agents to write logs
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+# Allow agents to manage persistent volume claims
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: autonomous-agents-rolebinding
+  namespace: autonomous-agents
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: autonomous-agents-role
+subjects:
+- kind: ServiceAccount
+  name: autonomous-agents-sa
+  namespace: autonomous-agents
+---
+# ClusterRole for agents that need cluster-wide permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: autonomous-agents-cluster-role
+rules:
+# Allow Lambda Labs agents to manage nodes (for scaling)
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+# Allow agents to read metrics
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["nodes", "pods"]
+  verbs: ["get", "list"]
+# Allow agents to manage deployments (for auto-scaling)
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+# Allow agents to manage services
+- apiGroups: [""]
+  resources: ["services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: autonomous-agents-cluster-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: autonomous-agents-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: autonomous-agents-sa
+  namespace: autonomous-agents

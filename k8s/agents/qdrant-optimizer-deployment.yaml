@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qdrant-optimizer
+  namespace: autonomous-agents
+  labels:
+    app: autonomous-agent
+    component: qdrant-optimizer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autonomous-agent
+      component: qdrant-optimizer
+  template:
+    metadata:
+      labels:
+        app: autonomous-agent
+        component: qdrant-optimizer
+    spec:
+      serviceAccountName: autonomous-agents-sa
+      containers:
+      - name: optimizer
+        image: scoobyjava15/sophia-qdrant-optimizer:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: metrics
+        - containerPort: 8083
+          name: api
+        env:
+        - name: AGENT_TYPE
+          value: "qdrant-optimizer"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: OPTIMIZATION_MODE
+          value: "auto"  # Can be "auto", "performance", "storage", "balanced"
+        - name: ENABLE_AUTO_REBALANCING
+          value: "true"
+        - name: ENABLE_SHARD_OPTIMIZATION
+          value: "true"
+        envFrom:
+        - configMapRef:
+            name: autonomous-agents-config
+        - secretRef:
+            name: autonomous-agents-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8083
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        volumeMounts:
+        - name: optimization-cache
+          mountPath: /cache
+        - name: collection-configs
+          mountPath: /configs
+      volumes:
+      - name: optimization-cache
+        emptyDir:
+          sizeLimit: 5Gi
+      - name: collection-configs
+        persistentVolumeClaim:
+          claimName: qdrant-configs-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qdrant-configs-pvc
+  namespace: autonomous-agents
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: local-path

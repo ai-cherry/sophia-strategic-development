@@ -8,7 +8,7 @@
 const axios = require('axios');
 const { performance } = require('perf_hooks');
 
-const API_BASE = process.env.API_URL || 'http://localhost:8000';
+const API_BASE = process.env.API_URL || 'http://localhost:8000 // ALIGNED TO BACKEND';
 
 // Benchmark configurations
 const SCENARIOS = [

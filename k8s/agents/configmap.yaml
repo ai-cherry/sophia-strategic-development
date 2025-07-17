@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: autonomous-agents-config
+  namespace: autonomous-agents
+data:
+  # Self-healing system configuration
+  ANOMALY_THRESHOLD: "0.7"
+  MAX_AUTO_ACTIONS_PER_HOUR: "20"
+  HEALING_COST_THRESHOLD_USD: "500"
+  HUMAN_ESCALATION_THRESHOLD: "3"
+  
+  # Monitoring intervals (seconds)
+  MONITORING_INTERVAL: "30"
+  HEALTH_CHECK_INTERVAL: "60"
+  
+  # Lambda Labs configuration
+  LAMBDA_LABS_API_ENDPOINT: "https://cloud.lambdalabs.com/api/v1"
+  GPU_TEMP_THRESHOLD: "85"
+  GPU_UTIL_THRESHOLD: "95"
+  
+  # Qdrant configuration
+  QDRANT_HOST: "qdrant-service.default.svc.cluster.local"
+  QDRANT_PORT: "6333"
+  QDRANT_GRPC_PORT: "6334"
+  
+  # Redis configuration
+  REDIS_HOST: "redis-service.default.svc.cluster.local"
+  REDIS_PORT: "6379"
+  
+  # PostgreSQL configuration
+  POSTGRES_HOST: "postgres-service.default.svc.cluster.local"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "sophia_ai"
+  
+  # Prometheus configuration
+  PROMETHEUS_PORT: "9090"
+  METRICS_PORT: "8000"
+  
+  # MCP server connections
+  MCP_SLACK_URL: "http://mcp-slack:3006"
+  MCP_LINEAR_URL: "http://mcp-linear:3007"
+  MCP_GITHUB_URL: "http://mcp-github:3009"
+  
+  # Environment
+  ENVIRONMENT: "production"
+  PULUMI_ORG: "scoobyjava-org"
+  
+  # Feature flags
+  ENABLE_ML_ANOMALY_DETECTION: "true"
+  ENABLE_AUTO_HEALING: "true"
+  ENABLE_COST_TRACKING: "true"
+  ENABLE_SLACK_NOTIFICATIONS: "true"

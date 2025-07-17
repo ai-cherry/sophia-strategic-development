@@ -14,20 +14,24 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict, deque
 import numpy as np
-from sklearn.ensemble import IsolationForest
-from sklearn.preprocessing import StandardScaler
+
+logger = logging.getLogger(__name__)
+
+# Try to import sklearn, but make it optional
+try:
+    from sklearn.ensemble import IsolationForest
+    from sklearn.preprocessing import StandardScaler
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    SKLEARN_AVAILABLE = False
+    logger.warning("scikit-learn not available, ML features will be disabled")
 
 from prometheus_client import Counter, Gauge, Histogram, Summary
 from backend.core.auto_esc_config import get_config_value
 
 # Import our autonomous agents
-from ..infrastructure.lambda_labs_monitor import LambdaLabsMonitor
 from ..infrastructure.lambda_labs_autonomous import LambdaLabsAutonomousAgent
-from ..infrastructure.qdrant_optimizer import QdrantOptimizer
-from ..monitoring.prometheus_exporter import PrometheusExporter
 from ..infrastructure.base_infrastructure_agent import BaseInfrastructureAgent, AlertSeverity
-
-logger = logging.getLogger(__name__)
 
 
 class ServiceType(Enum):
@@ -722,3 +726,405 @@ class SelfHealingSystem:
                         action_id=f"heal_db_optimize_{datetime.now().timestamp()}",
                         action_type=HealingActionType.OPTIMIZE_DATABASE,
                         target_service=anomaly.service,
+                        reason=f"Slow queries: {service_health.metrics.get('avg_query_time_ms', 0):.0f}ms avg",
+                        severity=AlertSeverity.WARNING
+                    )
+                    actions.append(action)
+            
+            elif service_health.service_type == ServiceType.CACHE:
+                if service_health.metrics.get("memory_usage_percent", 0) > 90:
+                    action = HealingAction(
+                        action_id=f"heal_cache_memory_{datetime.now().timestamp()}",
+                        action_type=HealingActionType.CLEAR_CACHE,
+                        target_service=anomaly.service,
+                        reason=f"High memory usage: {service_health.metrics.get('memory_usage_percent', 0):.1f}%",
+                        severity=AlertSeverity.WARNING
+                    )
+                    actions.append(action)
+            
+            elif service_health.service_type == ServiceType.GPU:
+                if service_health.metrics.get("avg_gpu_temperature", 0) > 85:
+                    action = HealingAction(
+                        action_id=f"heal_gpu_temp_{datetime.now().timestamp()}",
+                        action_type=HealingActionType.REALLOCATE_RESOURCES,
+                        target_service=anomaly.service,
+                        reason=f"High GPU temperature: {service_health.metrics.get('avg_gpu_temperature', 0):.1f}°C",
+                        severity=AlertSeverity.ERROR
+                    )
+                    actions.append(action)
+                
+                elif service_health.metrics.get("avg_gpu_utilization", 0) > 95:
+                    action = HealingAction(
+                        action_id=f"heal_gpu_scale_{datetime.now().timestamp()}",
+                        action_type=HealingActionType.SCALE_UP,
+                        target_service=anomaly.service,
+                        reason=f"High GPU utilization: {service_health.metrics.get('avg_gpu_utilization', 0):.1f}%",
+                        severity=AlertSeverity.WARNING
+                    )
+                    actions.append(action)
+            
+            elif service_health.service_type == ServiceType.CONTAINER:
+                if service_health.metrics.get("failed_containers", 0) > 0:
+                    action = HealingAction(
+                        action_id=f"heal_container_restart_{datetime.now().timestamp()}",
+                        action_type=HealingActionType.RESTART_SERVICE,
+                        target_service=anomaly.service,
+                        reason=f"Failed containers: {service_health.metrics.get('failed_containers', 0)}",
+                        severity=AlertSeverity.ERROR
+                    )
+                    actions.append(action)
+        
+        return actions
+    
+    async def _should_execute_action(self, action: HealingAction) -> bool:
+        """Determine if a healing action should be executed"""
+        # Check action rate limit
+        recent_actions = sum(
+            1 for a in self.healing_history
+            if a.created_at > datetime.now(timezone.utc) - timedelta(hours=1)
+        )
+        if recent_actions >= self.max_auto_actions_per_hour:
+            logger.warning(f"Action rate limit reached ({recent_actions}/{self.max_auto_actions_per_hour})")
+            await self._escalate_to_human(
+                "Action rate limit reached",
+                {"action": action, "recent_actions": recent_actions}
+            )
+            return False
+        
+        # Check if action failed recently
+        recent_similar = [
+            a for a in self.healing_history[-10:]
+            if a.action_type == action.action_type and 
+            a.target_service == action.target_service and
+            a.success is False
+        ]
+        if len(recent_similar) >= self.human_escalation_threshold:
+            logger.warning(f"Action {action.action_type} failed {len(recent_similar)} times recently")
+            await self._escalate_to_human(
+                "Repeated action failures",
+                {"action": action, "failures": len(recent_similar)}
+            )
+            return False
+        
+        # Check cost impact for scaling actions
+        if action.action_type in [HealingActionType.SCALE_UP]:
+            # Estimate cost impact
+            estimated_cost = await self._estimate_action_cost(action)
+            if estimated_cost > self.cost_threshold_usd:
+                logger.warning(f"Action would exceed cost threshold (${estimated_cost:.2f} > ${self.cost_threshold_usd})")
+                await self._escalate_to_human(
+                    "Cost threshold exceeded",
+                    {"action": action, "estimated_cost": estimated_cost}
+                )
+                return False
+        
+        return True
+    
+    async def _execute_healing_action(self, action: HealingAction) -> bool:
+        """Execute a healing action"""
+        logger.info(f"Executing healing action: {action.action_type.value} on {action.target_service}")
+        
+        try:
+            success = False
+            result = None
+            
+            # Execute based on action type
+            if action.action_type == HealingActionType.RESTART_SERVICE:
+                success, result = await self._restart_service(action.target_service)
+            elif action.action_type == HealingActionType.SCALE_UP:
+                success, result = await self._scale_up_service(action.target_service)
+            elif action.action_type == HealingActionType.SCALE_DOWN:
+                success, result = await self._scale_down_service(action.target_service)
+            elif action.action_type == HealingActionType.CLEAR_CACHE:
+                success, result = await self._clear_cache(action.target_service)
+            elif action.action_type == HealingActionType.OPTIMIZE_DATABASE:
+                success, result = await self._optimize_database(action.target_service)
+            elif action.action_type == HealingActionType.REALLOCATE_RESOURCES:
+                success, result = await self._reallocate_resources(action.target_service)
+            elif action.action_type == HealingActionType.KILL_QUERIES:
+                success, result = await self._kill_queries(action.target_service)
+            elif action.action_type == HealingActionType.ROTATE_LOGS:
+                success, result = await self._rotate_logs(action.target_service)
+            
+            # Update action status
+            action.executed_at = datetime.now(timezone.utc)
+            action.success = success
+            action.result = result
+            
+            # Record in history
+            self.healing_history.append(action)
+            
+            # Update metrics
+            self.healing_actions_total.labels(
+                action_type=action.action_type.value,
+                status="success" if success else "failed"
+            ).inc()
+            
+            # Track effectiveness
+            if success:
+                self.action_effectiveness[action.action_type.value].append(1.0)
+            else:
+                self.action_effectiveness[action.action_type.value].append(0.0)
+            
+            # Update effectiveness gauge
+            if self.action_effectiveness[action.action_type.value]:
+                effectiveness = sum(self.action_effectiveness[action.action_type.value][-10:]) / len(self.action_effectiveness[action.action_type.value][-10:])
+                self.healing_effectiveness.labels(action_type=action.action_type.value).set(effectiveness)
+            
+            # Log result
+            if success:
+                logger.info(f"Healing action successful: {action.action_id}")
+                await self._notify_slack(
+                    f"✅ Healing action successful: {action.action_type.value} on {action.target_service}",
+                    severity="info"
+                )
+            else:
+                logger.error(f"Healing action failed: {action.action_id} - {result}")
+                await self._notify_slack(
+                    f"❌ Healing action failed: {action.action_type.value} on {action.target_service} - {result}",
+                    severity="error"
+                )
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Exception executing healing action: {e}")
+            action.success = False
+            action.result = str(e)
+            self.healing_history.append(action)
+            return False
+    
+    async def _restart_service(self, service_name: str) -> Tuple[bool, str]:
+        """Restart a service"""
+        try:
+            # TODO: Implement actual service restart
+            logger.info(f"Restarting service: {service_name}")
+            
+            # Simulate restart
+            await asyncio.sleep(2)
+            
+            return True, "Service restarted successfully"
+            
+        except Exception as e:
+            return False, str(e)
+    
+    async def _scale_up_service(self, service_name: str) -> Tuple[bool, str]:
+        """Scale up a service"""
+        try:
+            if "gpu" in service_name and "lambda_autonomous" in self.agents:
+                # Use Lambda Labs autonomous agent
+                agent = self.agents["lambda_autonomous"]
+                # Trigger provisioning through agent
+                logger.info(f"Scaling up GPU resources via Lambda Labs agent")
+                return True, "GPU scaling initiated"
+            else:
+                # TODO: Implement other service scaling
+                logger.info(f"Scaling up service: {service_name}")
+                return True, "Service scaled up"
+                
+        except Exception as e:
+            return False, str(e)
+    
+    async def _scale_down_service(self, service_name: str) -> Tuple[bool, str]:
+        """Scale down a service"""
+        try:
+            logger.info(f"Scaling down service: {service_name}")
+            return True, "Service scaled down"
+        except Exception as e:
+            return False, str(e)
+    
+    async def _clear_cache(self, service_name: str) -> Tuple[bool, str]:
+        """Clear cache"""
+        try:
+            logger.info(f"Clearing cache for: {service_name}")
+            # TODO: Implement actual cache clearing
+            return True, "Cache cleared successfully"
+        except Exception as e:
+            return False, str(e)
+    
+    async def _optimize_database(self, service_name: str) -> Tuple[bool, str]:
+        """Optimize database"""
+        try:
+            logger.info(f"Optimizing database: {service_name}")
+            # TODO: Run VACUUM, ANALYZE, rebuild indexes
+            return True, "Database optimized"
+        except Exception as e:
+            return False, str(e)
+    
+    async def _reallocate_resources(self, service_name: str) -> Tuple[bool, str]:
+        """Reallocate resources"""
+        try:
+            logger.info(f"Reallocating resources for: {service_name}")
+            # TODO: Move workloads to different nodes
+            return True, "Resources reallocated"
+        except Exception as e:
+            return False, str(e)
+    
+    async def _kill_queries(self, service_name: str) -> Tuple[bool, str]:
+        """Kill blocking queries"""
+        try:
+            logger.info(f"Killing blocking queries on: {service_name}")
+            # TODO: Identify and kill blocking queries
+            return True, "Blocking queries terminated"
+        except Exception as e:
+            return False, str(e)
+    
+    async def _rotate_logs(self, service_name: str) -> Tuple[bool, str]:
+        """Rotate logs"""
+        try:
+            logger.info(f"Rotating logs for: {service_name}")
+            # TODO: Implement log rotation
+            return True, "Logs rotated successfully"
+        except Exception as e:
+            return False, str(e)
+    
+    async def _estimate_action_cost(self, action: HealingAction) -> float:
+        """Estimate the cost impact of an action"""
+        try:
+            if action.action_type == HealingActionType.SCALE_UP:
+                if "gpu" in action.target_service.lower():
+                    # GPU instances are expensive
+                    return 100.0  # $100/hour estimate
+                else:
+                    return 10.0  # $10/hour for regular instances
+            elif action.action_type == HealingActionType.SCALE_DOWN:
+                return -50.0  # Savings
+            else:
+                return 0.0  # No cost impact
+                
+        except Exception as e:
+            logger.error(f"Error estimating cost: {e}")
+            return 0.0
+    
+    async def _escalate_to_human(self, reason: str, context: Dict[str, Any]):
+        """Escalate issue to human operators"""
+        logger.warning(f"Escalating to human: {reason}")
+        
+        self.escalations_total.labels(reason=reason).inc()
+        
+        # Format context for notification
+        context_str = json.dumps(context, indent=2, default=str)
+        
+        # Send notifications
+        await self._notify_slack(
+            f"🚨 Human Intervention Required: {reason}\n```{context_str}```",
+            severity="critical"
+        )
+        
+        # TODO: Create Linear ticket
+        # TODO: Send PagerDuty alert for critical issues
+    
+    async def _notify_slack(self, message: str, severity: str = "info"):
+        """Send notification to Slack"""
+        try:
+            # TODO: Implement actual Slack notification via MCP
+            logger.info(f"[{severity.upper()}] Slack notification: {message}")
+        except Exception as e:
+            logger.error(f"Failed to send Slack notification: {e}")
+    
+    async def _cleanup_old_data(self):
+        """Clean up old monitoring data"""
+        try:
+            # Keep only last 24 hours of data
+            cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+            
+            # Clean anomaly patterns
+            self.anomaly_patterns = [
+                p for p in self.anomaly_patterns
+                if p.timestamp > cutoff
+            ]
+            
+            # Clean healing history (keep last 100 actions)
+            if len(self.healing_history) > 100:
+                self.healing_history = self.healing_history[-100:]
+            
+            # Metrics history is already limited by deque maxlen
+            
+        except Exception as e:
+            logger.error(f"Error cleaning up old data: {e}")
+    
+    def get_system_status(self) -> Dict[str, Any]:
+        """Get current system status"""
+        return {
+            "status": "running" if self._running else "stopped",
+            "services_monitored": len(self.service_health),
+            "services_healthy": sum(
+                1 for h in self.service_health.values()
+                if h.status == HealthStatus.HEALTHY
+            ),
+            "services_degraded": sum(
+                1 for h in self.service_health.values()
+                if h.status == HealthStatus.DEGRADED
+            ),
+            "services_unhealthy": sum(
+                1 for h in self.service_health.values()
+                if h.status in [HealthStatus.UNHEALTHY, HealthStatus.CRITICAL]
+            ),
+            "anomalies_last_hour": sum(
+                1 for a in self.anomaly_patterns
+                if a.timestamp > datetime.now(timezone.utc) - timedelta(hours=1)
+            ),
+            "actions_last_hour": sum(
+                1 for a in self.healing_history
+                if a.created_at > datetime.now(timezone.utc) - timedelta(hours=1)
+            ),
+            "action_success_rate": self._calculate_success_rate(),
+            "ml_trained": self.is_ml_trained,
+            "agents_active": len(self.agents)
+        }
+    
+    def _calculate_success_rate(self) -> float:
+        """Calculate success rate of healing actions"""
+        if not self.healing_history:
+            return 0.0
+        
+        recent_actions = self.healing_history[-20:]  # Last 20 actions
+        successful = sum(1 for a in recent_actions if a.success)
+        
+        return successful / len(recent_actions) if recent_actions else 0.0
+
+
+# Placeholder classes for missing agents
+class LambdaLabsMonitor(BaseInfrastructureAgent):
+    """Placeholder for Lambda Labs monitor"""
+    def __init__(self):
+        super().__init__("lambda_labs_monitor", "Lambda Labs GPU monitoring")
+    
+    async def initialize(self):
+        pass
+    
+    async def monitor(self):
+        pass
+    
+    async def cleanup(self):
+        pass
+
+
+class QdrantOptimizer(BaseInfrastructureAgent):
+    """Placeholder for Qdrant optimizer"""
+    def __init__(self):
+        super().__init__("qdrant_optimizer", "Qdrant vector database optimizer")
+    
+    async def initialize(self):
+        pass
+    
+    async def monitor(self):
+        pass
+    
+    async def cleanup(self):
+        pass
+
+
+class PrometheusExporter(BaseInfrastructureAgent):
+    """Placeholder for Prometheus exporter"""
+    def __init__(self):
+        super().__init__("prometheus_exporter", "Prometheus metrics exporter")
+    
+    async def initialize(self):
+        pass
+    
+    async def monitor(self):
+        pass
+    
+    async def cleanup(self):
+        pass

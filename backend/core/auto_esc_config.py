@@ -1054,3 +1054,41 @@ class EnhancedAutoESCConfig:
                 }
         
         return results
+    
+    def get_perplexity_config(self) -> dict:
+        """
+        Get Perplexity configuration from Pulumi ESC
+        
+        Returns:
+            Dictionary with Perplexity API configuration including model preferences
+        """
+        # Get base configuration
+        api_key = get_config_value('PERPLEXITY_API_KEY')
+        
+        # Get model preferences for different use cases
+        coding_model = get_config_value('PERPLEXITY_MODEL_CODING', 'llama-3.1-sonar-large-128k-online')
+        business_model = get_config_value('PERPLEXITY_MODEL_BUSINESS', 'llama-3.1-sonar-small-128k-online')
+        research_model = get_config_value('PERPLEXITY_MODEL_RESEARCH', 'llama-3.1-sonar-huge-128k-online')
+        
+        # Get other configuration options
+        temperature = float(get_config_value('PERPLEXITY_TEMPERATURE', '0.7'))
+        max_tokens = int(get_config_value('PERPLEXITY_MAX_TOKENS', '4000'))
+        
+        return {
+            'api_key': api_key,
+            'endpoint': get_config_value('PERPLEXITY_ENDPOINT', 'https://api.perplexity.ai'),
+            'model_preferences': {
+                'coding': coding_model,
+                'business': business_model,
+                'research': research_model,
+                'default': coding_model
+            },
+            'settings': {
+                'temperature': temperature,
+                'max_tokens': max_tokens,
+                'return_citations': True,
+                'return_images': False,
+                'search_domain_filter': [],
+                'search_recency_filter': 'month'
+            }
+        }

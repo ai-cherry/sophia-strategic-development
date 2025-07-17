@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lambda-labs-autonomous
+  namespace: autonomous-agents
+  labels:
+    app: autonomous-agent
+    component: lambda-labs-autonomous
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autonomous-agent
+      component: lambda-labs-autonomous
+  template:
+    metadata:
+      labels:
+        app: autonomous-agent
+        component: lambda-labs-autonomous
+    spec:
+      serviceAccountName: autonomous-agents-sa
+      containers:
+      - name: autonomous
+        image: scoobyjava15/sophia-lambda-labs-autonomous:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: metrics
+        - containerPort: 8082
+          name: api
+        env:
+        - name: AGENT_TYPE
+          value: "lambda-labs-autonomous"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: DRY_RUN
+          value: "false"  # Set to "true" for testing without making changes
+        - name: AUTO_PROVISION_ENABLED
+          value: "true"
+        - name: AUTO_TERMINATION_ENABLED
+          value: "true"
+        - name: COST_OPTIMIZATION_ENABLED
+          value: "true"
+        envFrom:
+        - configMapRef:
+            name: autonomous-agents-config
+        - secretRef:
+            name: autonomous-agents-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8082
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        volumeMounts:
+        - name: decision-log
+          mountPath: /logs
+        - name: instance-cache
+          mountPath: /cache
+      volumes:
+      - name: decision-log
+        persistentVolumeClaim:
+          claimName: autonomous-decision-log-pvc
+      - name: instance-cache
+        emptyDir:
+          sizeLimit: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: autonomous-decision-log-pvc
+  namespace: autonomous-agents
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: local-path

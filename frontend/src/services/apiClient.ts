@@ -3,6 +3,9 @@
  * Provides consistent interface for all backend communications
  */
 
+// 🔧 CRITICAL FIX: Import unified environment configuration
+import { getBaseURL, getWebSocketURL } from '../config/environment';
+
 interface ApiResponse<T = any> {
   data?: T;
   error?: string;
@@ -13,9 +16,8 @@ class ApiClient {
   private baseURL: string;
   
   constructor() {
-    this.baseURL = process.env.NODE_ENV === 'production' 
-      ? 'https://api.sophia-intel.ai' 
-      : 'http://localhost:8000';
+    // 🔧 CRITICAL FIX: Use unified environment configuration
+    this.baseURL = getBaseURL();
   }
 
   private async request<T>(
@@ -121,8 +123,8 @@ class ApiClient {
 
   // WebSocket connection helper
   createWebSocket(path: string = '/ws'): WebSocket {
-    const wsUrl = this.baseURL.replace('http', 'ws') + path;
-    return new WebSocket(wsUrl);
+    // 🔧 CRITICAL FIX: Use unified WebSocket URL configuration
+    return new WebSocket(getWebSocketURL());
   }
 }
 

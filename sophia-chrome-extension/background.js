@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 async function sendToSophiaAI(platform, data) {
     try {
-        const response = await fetch('http://localhost:8000/api/platform-integration', {
+        const response = await fetch('http://localhost:8000 // ALIGNED TO BACKEND PORT/api/platform-integration', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-exporter
+  namespace: autonomous-agents
+  labels:
+    app: autonomous-agent
+    component: prometheus-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: autonomous-agent
+      component: prometheus-exporter
+  template:
+    metadata:
+      labels:
+        app: autonomous-agent
+        component: prometheus-exporter
+    spec:
+      serviceAccountName: autonomous-agents-sa
+      containers:
+      - name: exporter
+        image: scoobyjava15/sophia-prometheus-exporter:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: metrics
+        - containerPort: 8084
+          name: api
+        env:
+        - name: AGENT_TYPE
+          value: "prometheus-exporter"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: SCRAPE_INTERVAL
+          value: "30s"
+        - name: ENABLE_AGENT_METRICS
+          value: "true"
+        - name: ENABLE_SYSTEM_METRICS
+          value: "true"
+        - name: ENABLE_BUSINESS_METRICS
+          value: "true"
+        envFrom:
+        - configMapRef:
+            name: autonomous-agents-config
+        - secretRef:
+            name: autonomous-agents-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 20
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8084
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: metrics-buffer
+          mountPath: /buffer
+      volumes:
+      - name: metrics-buffer
+        emptyDir:
+          sizeLimit: 2Gi

@@ -69,6 +69,9 @@ import {
   ChevronRight
 } from 'lucide-react';
 
+// 🔧 CRITICAL FIX: Import unified environment configuration
+import { getBaseURL, getWebSocketURL } from '../config/environment';
+
 // Register ChartJS components
 ChartJS.register(
   CategoryScale,
@@ -154,8 +157,8 @@ interface AgentAnalytics {
   };
 }
 
-// Constants
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+// 🔧 CRITICAL FIX: Use unified environment configuration
+const BACKEND_URL = getBaseURL();
 
 const AGENT_TYPES = {
   infrastructure: { icon: Server, color: 'blue' },
@@ -400,7 +403,8 @@ const AgentDashboard: React.FC = () => {
   useEffect(() => {
     const connectWebSocket = () => {
       try {
-        const ws = new WebSocket(`ws://localhost:8000/ws/agents`);
+        // 🔧 CRITICAL FIX: Use unified WebSocket URL configuration
+        const ws = new WebSocket(getWebSocketURL().replace('/ws', '/ws/agents'));
         
         ws.onopen = () => {
           console.log('Agent WebSocket connected');
