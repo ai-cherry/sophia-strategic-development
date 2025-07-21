@@ -23,7 +23,7 @@ pgvector
 sqlalchemy
 
 # AI/ML Core
-openai==1.95.1
+openai==1.97.0
 anthropic==0.57.1
 portkey-ai==1.14.1
 
