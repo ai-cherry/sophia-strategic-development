@@ -34,7 +34,7 @@ httpx
 aiohttp==3.12.14
 orjson
 pandas
-numpy==2.2.4
+numpy==2.3.2
 typing-extensions==4.14.1
 
 # MCP Integration
