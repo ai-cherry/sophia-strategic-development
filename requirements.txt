@@ -52,7 +52,7 @@ sentry-sdk[fastapi]>=1.32.0
 datadog>=0.47.0
 
 # Vector Database
-qdrant-client==1.7.0
+qdrant-client==1.15.1
 
 # Security
 cryptography>=41.0.0
