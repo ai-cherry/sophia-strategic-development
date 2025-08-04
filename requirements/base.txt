@@ -24,7 +24,7 @@ sqlalchemy
 
 # AI/ML Core
 openai==1.95.1
-anthropic==0.57.1
+anthropic==0.60.0
 portkey-ai==1.14.1
 
 # Utilities
