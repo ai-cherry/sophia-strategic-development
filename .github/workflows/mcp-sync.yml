@@ -1,0 +1,62 @@
+name: MCP-Notion Sync
+
+on:
+  push:
+    branches: [mcp-notion-sync]
+    paths:
+      - 'services/mcp-sync/**'
+      - '.github/workflows/mcp-sync.yml'
+  schedule:
+    - cron: '*/15 * * * *'  # Run every 15 minutes
+  workflow_dispatch:  # Allow manual triggers
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: mcp-notion-sync
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('services/mcp-sync/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        cd services/mcp-sync
+        pip install -r requirements.txt
+    
+    - name: Run sync
+      env:
+        LAMBDA_CLOUD_API_KEY: ${{ secrets.LAMBDA_CLOUD_API_KEY }}
+        LAMBDA_API_CLOUD_ENDPOINT: ${{ secrets.LAMBDA_API_CLOUD_ENDPOINT }}
+        GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+        GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        NOTION_WORKSPACE_ID: ${{ secrets.NOTION_WORKSPACE_ID }}
+      run: |
+        cd services/mcp-sync
+        python sync_manager.py --sync-now
+    
+    - name: Check for duplicates
+      run: |
+        cd services/mcp-sync
+        python dedup_engine.py --check-duplicates --input-file data/content.json || true
+    
+    - name: Upload sync report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: sync-report
+        path: services/mcp-sync/logs/*.log
